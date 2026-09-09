@@ -1,7 +1,7 @@
 # Optional local score backend
 
 `fixture_server.py` serves `game/` on loopback and forwards only the same-origin
-`/brimstone-run/api/scores` route to an in-process FastAPI application. It creates
+`/gunner/api/scores` route to an in-process FastAPI application. It creates
 disposable SQLite databases. Stop the process to discard them. This is a local
 development tool, not a public hosting configuration.
 

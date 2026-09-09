@@ -1,4 +1,4 @@
-"""Anonymous, player-submitted BRIMSTONE scores; nginx is the public boundary."""
+"""Anonymous, player-submitted GUNNER scores; nginx is the public boundary."""
 
 from collections import deque
 from contextlib import asynccontextmanager, closing
@@ -19,8 +19,8 @@ from fastapi import FastAPI, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse, Response
 
-SCORES_PATH = "/brimstone-run/api/scores"
-PLAYS_PATH = "/brimstone-run/api/play-events"
+SCORES_PATH = "/gunner/api/scores"
+PLAYS_PATH = "/gunner/api/play-events"
 ORIGIN = "https://scores.example.invalid"
 ALLOWED_ORIGINS = frozenset({ORIGIN, "https://stable.example.invalid", "https://game.example.invalid"})
 MAX_BODY = 1024

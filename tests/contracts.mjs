@@ -37,9 +37,9 @@ check('all-detonation-batches-have-color-layout-before-first-burst',()=>{assert.
 // Preparation now uses layer-filtered, yielded batches and a shared in-flight
 // promise. Its asynchronous state, coverage, failure, and channel ownership
 // contracts live separately; run both files explicitly:
-//   node ops/hive-cold-start/contracts.mjs
-//   node ops/hive-cold-start/preparation-contracts.mjs
+//   node tests/contracts.mjs
+//   node tests/preparation-contracts.mjs
 // Do not restore the old fake compiler, which assumed synchronous full-scene
 // compilation and could not model compile(selection, camera, actualScene).
 fx.dispose();
-console.log(JSON.stringify({passed:true,checks:checks.length,names:checks,additionalRequiredSuite:'node ops/hive-cold-start/preparation-contracts.mjs'},null,2));
+console.log(JSON.stringify({passed:true,checks:checks.length,names:checks,additionalRequiredSuite:'node tests/preparation-contracts.mjs'},null,2));

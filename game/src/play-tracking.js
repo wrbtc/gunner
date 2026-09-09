@@ -6,7 +6,7 @@ export function createPlayTracking({enabled, snapshot, send=globalThis.fetch?.bi
     try{
       const body=JSON.stringify({runId:run,event,build:'042t',activeMs:Math.round(activeMs),...snapshot()});
       // Analytics must never block the game; a later snapshot can recover a lost start.
-      void send('/brimstone-run/api/play-events',{method:'POST',headers:{'Content-Type':'application/json'},body,credentials:'omit',cache:'no-store',keepalive:true,signal:AbortSignal.timeout(5000)}).catch(()=>{});
+      void send('/gunner/api/play-events',{method:'POST',headers:{'Content-Type':'application/json'},body,credentials:'omit',cache:'no-store',keepalive:true,signal:AbortSignal.timeout(5000)}).catch(()=>{});
     }catch{}
   }
   return {

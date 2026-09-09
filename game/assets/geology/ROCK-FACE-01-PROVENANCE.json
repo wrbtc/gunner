@@ -1,5 +1,5 @@
 {
-  "schema": "brimstone.polyhaven-geometry-provenance.v1",
+  "schema": "gunner.polyhaven-geometry-provenance.v1",
   "createdAt": "2026-09-05T04:25:22.198529+00:00",
   "asset": {
     "id": "rock_face_01",

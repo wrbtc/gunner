@@ -69,7 +69,7 @@ class PrivateStatsTests(unittest.TestCase):
         self.assertEqual(self.client.get(app.SCORES_PATH).json()['rows'], [])
 
     def test_no_stats_read_endpoint(self):
-        for path in (app.PLAYS_PATH, '/stats', '/brimstone-run/api/stats', '/plays.sqlite3', '/private_stats.py', '/openapi.json', '/docs'):
+        for path in (app.PLAYS_PATH, '/stats', '/gunner/api/stats', '/plays.sqlite3', '/private_stats.py', '/openapi.json', '/docs'):
             self.assertIn(self.client.get(path).status_code, (404, 405))
 
     def test_strict_origin_validation_and_payload_bounds(self):

@@ -124,7 +124,7 @@ function makeBatch(parent, materials) {
 /** The same exterior is used by the opening camera and the gunner view. */
 export function createBomberExterior({ craft }) {
   if (!craft?.plane || !craft?.socket) throw new Error('Bomber exterior requires the existing aircraft and belly socket');
-  const group = new THREE.Group(); group.name = 'BRIMSTONE 07 — worn twin-prop attack bomber';
+  const group = new THREE.Group(); group.name = 'GUNNER 07 — worn twin-prop attack bomber';
   group.layers.set(1); craft.plane.add(group);
   const materials = {
     olive: weathered('Faded olive aircraft paint', 0x4c5140, .48, .62, .20),
@@ -390,7 +390,7 @@ export function createBomberExterior({ craft }) {
       diffuseColor.a *= .22+1.8*pow(1.0-bubbleFacing,3.0);
     `);
   };
-  bubbleGlass.customProgramCacheKey = () => 'brimstone-exterior-bubble-fresnel-1';
+  bubbleGlass.customProgramCacheKey = () => 'gunner-exterior-bubble-fresnel-1';
   const bubbleShell = new THREE.Mesh(new THREE.SphereGeometry(2.75, 48, 28), bubbleGlass);
   bubbleShell.name = 'Exterior bubble enclosure — culled from gunner interior';
   bubbleShell.position.copy(craft.socket.position); bubbleShell.renderOrder = 19;

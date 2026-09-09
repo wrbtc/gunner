@@ -35,7 +35,7 @@ float ember=vEmber;
 // Warm spirit radiance follows the full anatomical surface; no lava cracks.
 float burn=fleshNoise(vFlesh*3.3),grain=fleshNoise(vFlesh*61.);
 vec3 cold=mix(vec3(.015,.021,.027),vec3(.052,.060,.067),burn)*(.83+grain*.17);
-diffuseColor.rgb=mix(cold,vec3(.30,.064,.007)*(.80+burn*.20),ember);`);s.fragmentShader=s.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance+=vHitAmount*vec3(.9,.48,.17)*(.055+.20*pow(1.-abs(dot(normal,normalize(vViewPosition))),2.));totalEmissiveRadiance+=ember*vec3(1.25,.22,.009)*(.40+.36*pow(1.-abs(dot(normal,normalize(vViewPosition))),1.5));');};m.customProgramCacheKey=()=> 'hive-052-orange-spirit-ashborn';return m;}
+diffuseColor.rgb=mix(cold,vec3(.30,.064,.007)*(.80+burn*.20),ember);`);s.fragmentShader=s.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance+=vHitAmount*vec3(.9,.48,.17)*(.055+.20*pow(1.-abs(dot(normal,normalize(vViewPosition))),2.));totalEmissiveRadiance+=ember*vec3(1.25,.22,.009)*(.40+.36*pow(1.-abs(dot(normal,normalize(vViewPosition))),1.5));');};m.customProgramCacheKey=()=> 'gunner-052-orange-spirit-ashborn';return m;}
 export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=null}){
  const group=new THREE.Group();group.name='Forty bank Creepers and eight Ember dancers';scene.add(group);
  const geos=anatomy(),mat=skinMaterial(),parts={};

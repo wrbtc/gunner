@@ -12,7 +12,7 @@ import uuid
 from fastapi.testclient import TestClient
 
 SPEC = importlib.util.spec_from_file_location(
-    "brimstone_scores", Path(__file__).resolve().parents[1] / "backend/app.py"
+    "gunner_scores", Path(__file__).resolve().parents[1] / "backend/app.py"
 )
 scores = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(scores)
@@ -125,11 +125,11 @@ class ScoreTests(unittest.TestCase):
         self.assertEqual(client.options(scores.SCORES_PATH).status_code, 405)
         self.assertEqual(client.get("/docs").status_code, 404)
 
-    def test_hive_and_legacy_share_scores_and_retries(self):
+    def test_allowed_origins_share_scores_and_retries(self):
         client = self.client()
         payload = self.payload(321, "HIV")
-        hive_headers = self.headers(Origin="https://stable.example.invalid")
-        first = client.post(scores.SCORES_PATH, json=payload, headers=hive_headers)
+        stable_headers = self.headers(Origin="https://stable.example.invalid")
+        first = client.post(scores.SCORES_PATH, json=payload, headers=stable_headers)
         self.assertEqual(first.status_code, 201)
         retry = client.post(scores.SCORES_PATH, json=payload, headers=self.headers())
         self.assertEqual(retry.status_code, 200)

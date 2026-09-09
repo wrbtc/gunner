@@ -1,4 +1,4 @@
-const ENDPOINT='/brimstone-run/api/scores';
+const ENDPOINT='/gunner/api/scores';
 export function normalizeInitials(value){return String(value).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,3);}
 export function validRows(value){
   return (Array.isArray(value)?value:[]).filter(r=>r&&/^[A-Z0-9]{3}$/.test(r.initials)&&Number.isSafeInteger(r.score)&&r.score>=0&&r.score<=999999999)

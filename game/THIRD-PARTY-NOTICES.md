@@ -1,7 +1,7 @@
-# BRIMSTONE RUN third-party notices
+# GUNNER third-party notices
 
 The original game geometry, procedural materials, effects and sound were authored
-for BRIMSTONE RUN. The CC0 dedication below applies to the named geology assets.
+for GUNNER. The CC0 dedication below applies to the named geology assets.
 
 ## Dark Rock 02 — Amal Kumar / Poly Haven
 

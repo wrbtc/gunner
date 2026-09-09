@@ -3,7 +3,7 @@
 A desktop browser arcade flight game built with JavaScript, Three.js and Web Audio.
 Fly through a volcanic canyon, destroy nests and creatures, and survive the Queen.
 
-This is the **latest development snapshot, v0.54.7**, internally titled **Hive**.
+This is the **latest development snapshot, v0.54.7**.
 It includes the complete game runtime, procedural geometry and shaders, models,
 textures, illustrations, recorded dialogue, audio synthesis, and optional score
 backend source. Three.js is vendored; no frontend build or package install is needed.

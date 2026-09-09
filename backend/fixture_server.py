@@ -19,10 +19,10 @@ from fastapi.testclient import TestClient
 @contextmanager
 def score_fixture_server(directory, app_path=None):
     app_path = Path(app_path or Path(__file__).with_name("app.py")).resolve()
-    spec = importlib.util.spec_from_file_location("brimstone_score_fixture_app", app_path)
+    spec = importlib.util.spec_from_file_location("gunner_score_fixture_app", app_path)
     backend = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(backend)
-    with tempfile.TemporaryDirectory(prefix="brimstone-score-fixture-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="gunner-score-fixture-") as temporary:
         with TestClient(backend.create_app(Path(temporary) / "scores.sqlite3")) as client:
             class Handler(SimpleHTTPRequestHandler):
                 def __init__(self, *args, **kwargs):

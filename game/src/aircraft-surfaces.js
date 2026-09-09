@@ -75,6 +75,6 @@ export function agedAircraftMaterial(name,color,metalness,roughness,{wear=.55,pa
   `);
   machinedFinish(shader,'vServicePosition',{paint,fabric});
  };
- material.customProgramCacheKey=()=>`hive-052-service-finish-${surface}-${side}-${wear}-${paint}-${fabric}`;
+ material.customProgramCacheKey=()=>`gunner-052-service-finish-${surface}-${side}-${wear}-${paint}-${fabric}`;
  return material;
 }

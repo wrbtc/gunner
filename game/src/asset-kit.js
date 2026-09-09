@@ -123,7 +123,7 @@ function surfaceMaterial(material) {
       normal = normalize(abs(aDet)*normal-aGradient);
     `);
   };
-  material.customProgramCacheKey = () => `brimstone-original-surface-${kind}-4`;
+  material.customProgramCacheKey = () => `gunner-original-surface-${kind}-4`;
   material.needsUpdate = true;
 }
 

@@ -1095,7 +1095,7 @@ function updateUI(now=performance.now(),force=false){
 }
 
 const openingCopy={
-  establishing:['APPROACH · BRIMSTONE CANYON','ONE PLANE. ALL OF HELL.'],
+  establishing:['APPROACH · GUNNER CANYON','ONE PLANE. ALL OF HELL.'],
   aircraft:['YOUR RIDE','KEEP THIS BIRD FLYING.'],
   weapons:['BELLY GUN STATION','TWIN ROTARY GUNS. AIMED HEAVY CANNON.'],
   entering:['TAKE YOUR STATION','THE PILOT HAS THE FLIGHT. YOU HAVE THE GUNS.']
@@ -1329,7 +1329,7 @@ function qaReset(){reset();game.captureFreeze=true;return true;}
 function qaAimAt(position){const local=position.clone().sub(getAimOrigin()).normalize().applyQuaternion(craft.socket.getWorldQuaternion(new THREE.Quaternion()).invert());game.yaw=Math.atan2(-local.x,-local.z);game.pitch=THREE.MathUtils.clamp(Math.asin(THREE.MathUtils.clamp(local.y,-1,1)),-1.38,.95);updatePlane(0);}
 function qaDefend(count=1){const oldFreeze=game.captureFreeze;game.captureFreeze=false;game.running=true;game.paused=false;let maxCommitments=activeCommitments(),maxHeavy=activeHeavyCount(),ran=0;for(;ran<count&&!game.ended;ran++){const projectile=hostile.filter(h=>h.active).sort((a,b)=>a.pos.distanceToSquared(planePos)-b.pos.distanceToSquared(planePos))[0];const warning=enemies.filter(e=>e.commitment&&!e.dead&&e.state==='windup').concat(siege.filter(s=>s.commitment&&!s.dead&&s.state==='windup')).sort((a,b)=>a.root.position.distanceToSquared(planePos)-b.root.position.distanceToSquared(planePos))[0];const target=projectile&&projectile.pos.distanceTo(planePos)<190?projectile:warning;if(target){qaAimAt(target.pos||actorCenter(target));game.gunHeld=true;}else game.gunHeld=false;fixedUpdate(FIXED_STEP);maxCommitments=Math.max(maxCommitments,activeCommitments());maxHeavy=Math.max(maxHeavy,activeHeavyCount());}game.gunHeld=false;game.captureFreeze=oldFreeze;return{steps:ran,time:+game.time.toFixed(3),ended:game.ended,hull:game.hull,score:game.score,maxCommitments,maxHeavy,livingEnemies:enemies.filter(e=>!e.dead).length};}
 // Additive art/world modules use this surface; simulation ownership stays here.
-export const brimstoneRuntime={
+export const gunnerRuntime={
   THREE,scene,camera,renderer,renderTarget,postScene,postCamera,heatMaterial,craft,game,
   enemies,siege,scenicDemons,shelves,rift,route,routeLength,centerAt,widthAt,NESTING_POOLS,
   planePos,planeVel,planeTangent,mats,hooks,audio,gunHeat,runReview,particles,bullets,hostile,cannonRounds,
@@ -1422,7 +1422,7 @@ function qaCoreChecks(){
 const qaApi={
   version:'0.54.7',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
   start:()=>start({skipOpening:true,legacyRoute:true}),beginOpening:()=>start(),skipOpening:()=>finishOpening(true),openingState:()=>({active:game.opening,title:game.title,time:game.openingTime,phase:openingPhase,flightProgress:currentFlightProgress(),camera:camera.position.toArray(),quaternion:camera.quaternion.toArray(),fov:camera.fov,fade:Number(dom.openingFade.style.opacity)||0,exterior:bomberExterior?.stats(),cameraPath:openingCamera?.stats()}),seekOpening:(seconds)=>{game.openingTime=THREE.MathUtils.clamp(seconds,0,OPENING_SECONDS);game.captureFreeze=true;updatePlane(0);updateOpeningPresentation();return true;},reset:qaReset,pause,resume,setTime:(seconds)=>{game.time=THREE.MathUtils.clamp(seconds,0,RUN_SECONDS);updatePlane(0);creatureTracking?.seek(game.time);},setView:(yaw,pitch)=>{game.yaw=yaw;game.pitch=THREE.MathUtils.clamp(pitch,-1.38,.95);updatePlane(0);},turnAround,toggleRear:turnAround,fireCannon,fireRound,damage:(amount=6)=>damageHull(amount,planePos),explode:()=>explode(planePos.clone().addScaledVector(planeTangent,70),14),preview:setPreview,
-  events:()=>game.eventLog.slice(),runtime:brimstoneRuntime,trace:qaTrace,replay:qaReplay,checkCore:qaCoreChecks,
+  events:()=>game.eventLog.slice(),runtime:gunnerRuntime,trace:qaTrace,replay:qaReplay,checkCore:qaCoreChecks,
   aimAt:(target)=>{const actor=typeof target==='string'?enemies.concat(siege).find(e=>e.id===target):null;qaAimAt(actor?actorCenter(actor):new THREE.Vector3().fromArray(target));},
   setInput:({yaw,pitch,gun}={})=>{if(Number.isFinite(yaw))game.yaw=yaw;if(Number.isFinite(pitch))game.pitch=THREE.MathUtils.clamp(pitch,-1.38,.95);if(typeof gun==='boolean')game.gunHeld=gun;updatePlane(0);},
   defend:qaDefend,
@@ -1528,7 +1528,7 @@ for(let i=hellWorld.collisionMeshes.length-1;i>=0;i--)if(hellWorld.collisionMesh
 await assembly.step('bank',()=>{
 bankDemons=createBankDemons({scene,centerAt,widthAt,bankMeshes:hellWorld.collisionMeshes,danceSite});enemies.push(...bankDemons.actors);
 for(const creeper of bankDemons.actors)creeper.archetype=creeper.isEmber?'ember-creeper':'creeper';
-brimstoneRuntime.setWorldCollision([...hellWorld.collisionMeshes,...shelves.map(s=>s.mesh),...romanRuins.collisionMeshes,...danceSite.collisionMeshes],hellWorld.groundAt);
+gunnerRuntime.setWorldCollision([...hellWorld.collisionMeshes,...shelves.map(s=>s.mesh),...romanRuins.collisionMeshes,...danceSite.collisionMeshes],hellWorld.groundAt);
 });
 await assembly.step('spray',()=>{
 tankerSpray=createTankerSpray({scene,actors:enemies.filter(e=>e.tanker),traceTerrain,planePos,planeVel,audio,logEvent,damageHull:(amount,pos)=>damageHull(amount,pos,false,'tank'),
@@ -1562,13 +1562,13 @@ function plasmaPressure(b,radius,maxRadius){
 await assembly.step('plasma',()=>{
 plasmaBursts=createPlasmaBursts({scene,audio,reduced:reducedOpening,logEvent,onPressure:plasmaPressure});
 plasmaBugs=createPlasmaBugs({scene,centerAt,widthAt,bankMeshes:hellWorld.collisionMeshes,rockMaterial:hellWorld.rockMaterial,aimTarget:getAimOrigin,aimDirection:getAimDirection,progress:currentFlightProgress,burst:plasmaBursts.burst,audio,hitFeedback,award:(points,actor)=>{game.score+=points;logEvent('plasma-destroyed',{source:actor.id,points});},logEvent});
-hellWorld.collisionMeshes.push(...plasmaBugs.colliders);brimstoneRuntime.setWorldCollision([...worldCollisionMeshes,...plasmaBugs.colliders],hellWorld.groundAt);
+hellWorld.collisionMeshes.push(...plasmaBugs.colliders);gunnerRuntime.setWorldCollision([...worldCollisionMeshes,...plasmaBugs.colliders],hellWorld.groundAt);
 });
 // The altar has finished deforming its pocket and clearing intersecting rocks.
 // Build before Start is enabled, so the first gun burst never pays this cost.
 await assembly.step('collision',()=>{
 staticRaycast=createStaticRaycast(worldCollisionMeshes);
-brimstoneRuntime.staticRaycast=staticRaycast;
+gunnerRuntime.staticRaycast=staticRaycast;
 });
 await assembly.step('climbers',()=>bankDemons.setWallSurfaces(worldCollisionMeshes));
 function clearForQueen(){
@@ -1601,7 +1601,7 @@ assembly.dispose();
 
 pilot=createPilotRadio({audio,caption:$('#pilotCaption'),voiceVolume:preferences.voice,captions:preferences.captions});
 ratingBenchmark=missionBenchmark({eggs:eggNests.eggs.length,enemies:enemies.map(enemyKind),fodder:scenicDemons.length,siege:siege.length,plasma:plasmaBugs.actors.length,dragonSlots:hellWorld.skyActivity.dragons.length,queenArms:queen.arms.length});
-Object.assign(brimstoneRuntime,{rankReveal,missionRating:score=>missionRating(score,ratingBenchmark),ratingBenchmark,showRank,gunBubble,pilot,atmosphereBatches,hitFeedback,queen,plasmaBursts,plasmaBugs,rimmers,tankerBugs,tankerSpray,sampleDanceBudget,danceDeviceBudget,danceSite,windowDamage,hellWorld,mayhemFX,cannonVisuals,CANNON,assetKit,cinematic,hordeField,creatureTracking,bankDemons,blastWorld,eggNests,romanRuins,assetsReady:true,assetFallback:worldBootstrap.degraded||assetBootstrap.degraded,bomberExterior,openingCamera,endingFlight,highScores,endRun,skipEnding,finishOpening,currentFlightProgress,presentationClock});
+Object.assign(gunnerRuntime,{rankReveal,missionRating:score=>missionRating(score,ratingBenchmark),ratingBenchmark,showRank,gunBubble,pilot,atmosphereBatches,hitFeedback,queen,plasmaBursts,plasmaBugs,rimmers,tankerBugs,tankerSpray,sampleDanceBudget,danceDeviceBudget,danceSite,windowDamage,hellWorld,mayhemFX,cannonVisuals,CANNON,assetKit,cinematic,hordeField,creatureTracking,bankDemons,blastWorld,eggNests,romanRuins,assetsReady:true,assetFallback:worldBootstrap.degraded||assetBootstrap.degraded,bomberExterior,openingCamera,endingFlight,highScores,endRun,skipEnding,finishOpening,currentFlightProgress,presentationClock});
 const volumeInput=$('#volume'),sensitivityInput=$('#sensitivity'),fovInput=$('#fov');
 volumeInput.addEventListener('input',()=>{preferences.volume=Number(volumeInput.value)/100;audio.setVolume(preferences.volume);savePreferences();});
 $('#voiceVolume').addEventListener('input',()=>{preferences.voice=Number($('#voiceVolume').value)/100;pilot.setVolume(preferences.voice);savePreferences();});
@@ -1612,7 +1612,7 @@ fovInput.addEventListener('input',()=>{playerFov=Number(fovInput.value);camera.f
 $('#invertAim').addEventListener('change',e=>{preferences.invert=e.target.checked;savePreferences();});
 $('#reducedEffects').addEventListener('change',e=>{preferences.reduced=e.target.checked;mayhemFX.setReducedEffects(preferences.reduced);savePreferences();});
 function savePreferences(){try{localStorage.setItem('gunner-settings-v1',JSON.stringify({...preferences,fov:playerFov}));}catch{}}
-try{const saved=JSON.parse(localStorage.getItem('gunner-settings-v1')||localStorage.getItem('hive-settings-v1')||'{}');
+try{const saved=JSON.parse(localStorage.getItem('gunner-settings-v1')||'{}');
  for(const [key,lo,hi]of [['volume',0,1],['music',0,1],['voice',0,1],['sensitivity',.3,1.7]])if(Number.isFinite(saved[key]))preferences[key]=THREE.MathUtils.clamp(saved[key],lo,hi);
  for(const key of ['invert','reduced','captions'])if(typeof saved[key]==='boolean')preferences[key]=saved[key];
  if(Number.isFinite(saved.fov))playerFov=THREE.MathUtils.clamp(saved.fov,58,82);
@@ -1639,7 +1639,7 @@ await prepareFlightGraphics();
 startupMark('graphics','end');
 if(!loadingStage('shaders'))throw preparationError('Flight preparation already failed');
 startupMark('startup','ready');
-bootCompleted=true;graphicsReady=true;dom.start.disabled=false;dom.start.textContent='DEPLOY TO THE HIVE';
+bootCompleted=true;graphicsReady=true;dom.start.disabled=false;dom.start.textContent='DEPLOY GUNNER';
 if(query.has('preview'))setPreview(query.get('preview'));
 else if(QA_MODE){qaReset();if(CAPTURE){dom.intro.hidden=true;dom.hud.classList.add('visible');}}
 if(QA_MODE){window.__HB_QA__=qaApi;window.dispatchEvent(new CustomEvent('hb:qa-ready'));}

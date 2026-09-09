@@ -165,7 +165,7 @@ export function loadingFailure(error,{reload=()=>globalThis.location.reload()}={
  for(const id of ['unsupported','pause','opening','ending','result']){const overlay=$(id);if(overlay)overlay.hidden=true;}
  $('hud')?.classList.remove('visible');
 }
-if(typeof window!=='undefined')Object.defineProperty(window,'__HIVE_LOADING__',{get:loadingSnapshot,configurable:false});
+if(typeof window!=='undefined')Object.defineProperty(window,'__GUNNER_LOADING__',{get:loadingSnapshot,configurable:false});
 export const FIELD_GUIDE=Object.freeze([
  ['eggs','Brood eggs','THE OBJECTIVE','Membranous eggs cluster in nests and in the ruins.','Shoot the eggs directly. Each rupture adds to your score; clear clusters with the heavy cannon.'],
  ['creepers','Creepers','MUD THROWERS','Dark humanoids climb the walls and patrol the banks. Their mud coats the glass.','Hit them during the throwing windup to interrupt. Keep the guns on one while tracking the next threat.'],

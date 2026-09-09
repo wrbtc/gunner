@@ -3,8 +3,8 @@
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
-      "sha256": "2fc22b3b786e786f579668cef3c64fc86551d2f3d98c3cf15ac76b20a5db652b",
-      "bytes": 2758
+      "sha256": "4fd084cc477a45cdfb38e1f876cd800f0db55f5141d35d3aa026cef00ac9a01e",
+      "bytes": 2744
     },
     {
       "path": "game/assets/CINDER-MAW-PROVENANCE.json",
@@ -98,8 +98,8 @@
     },
     {
       "path": "game/assets/geology/ROCK-FACE-01-PROVENANCE.json",
-      "sha256": "6af7fa86071af6a7ab4ec35aebc3328127faf018d6432415d617cdfc79589751",
-      "bytes": 5023
+      "sha256": "dbb5aaf29005ff05a6305bc810e581118818c776710ba82c5c12657d915cc7c8",
+      "bytes": 5020
     },
     {
       "path": "game/assets/geology/dark_rock_02_diff_1k.jpg",
@@ -122,7 +122,7 @@
       "bytes": 400
     },
     {
-      "path": "game/assets/hive-chapter.jpg",
+      "path": "game/assets/gunner-chapter.jpg",
       "sha256": "0f8cfb7591427016a52af34929b254dca68c67fb8ffadf060f43919e1e5d685c",
       "bytes": 288973
     },
@@ -163,13 +163,13 @@
     },
     {
       "path": "game/index.html",
-      "sha256": "7e42ae063d8d61b4da7f562ffc4adbb1f731741af8355ea642501959107bf31e",
-      "bytes": 11693
+      "sha256": "811f1fd0a456aac91d2a27b426e86ca2121e9508ea4c43b0ebf73affd9eaa2ad",
+      "bytes": 11694
     },
     {
       "path": "game/main.js",
-      "sha256": "dd574a3a2ae7cc152b6a40bec124279a17475e36e3ad333405226ca943acfad6",
-      "bytes": 155244
+      "sha256": "c7541b85f1fecbd689bb577019a2b6c870ae767a780348c938a9f0aaf15ad0a0",
+      "bytes": 155176
     },
     {
       "path": "game/mobile-entry.js",
@@ -178,8 +178,8 @@
     },
     {
       "path": "game/src/aircraft-surfaces.js",
-      "sha256": "970e5284c88903174000598a8380d8086e042a3d047c899d54604a9433cbbe7e",
-      "bytes": 5085
+      "sha256": "e271f5bb3aa4a085340e323d68f0fc9ab12027a6b8a20ecf558e78c1245de94b",
+      "bytes": 5087
     },
     {
       "path": "game/src/ash-volume.js",
@@ -193,8 +193,8 @@
     },
     {
       "path": "game/src/asset-kit.js",
-      "sha256": "b02cadadadf4fa165a630f4c3a6859eb61a31d613314695795dd99e7f57fc17a",
-      "bytes": 17439
+      "sha256": "7496b89737c44808e6462cee10af2079b5882e98ee061793c8dd8762a60710fb",
+      "bytes": 17436
     },
     {
       "path": "game/src/audio-palette.js",
@@ -208,8 +208,8 @@
     },
     {
       "path": "game/src/bank-demons.js",
-      "sha256": "bd7109d4ea3f467ab2c10db8f31b5b3eef87453863fa67b3191045a8957f9628",
-      "bytes": 24299
+      "sha256": "6296abef4cb51332a930749bf956f903f03edfa1c3a13741e954e6d38485bda0",
+      "bytes": 24301
     },
     {
       "path": "game/src/basalt-detail.js",
@@ -223,8 +223,8 @@
     },
     {
       "path": "game/src/bomber-exterior.js",
-      "sha256": "11a1718003791864bfbc52b8b0c4ab641e75d44a6b1fbd2132fb6434c15d6e43",
-      "bytes": 28305
+      "sha256": "796e40a52f76a2b4133dce050941ae85759b2c0861a4c0aa47f9173594b0a8f6",
+      "bytes": 28299
     },
     {
       "path": "game/src/caldera-light.js",
@@ -313,8 +313,8 @@
     },
     {
       "path": "game/src/high-scores.js",
-      "sha256": "7754a536db411dbdd08ff177dfa01e97299cb7101c1da513a96d6879851ea1d1",
-      "bytes": 7957
+      "sha256": "e5289b5c6b8fc82278ebcd93beb8e5ed852fe1da9b4b65f85da0adae56ccfae4",
+      "bytes": 7950
     },
     {
       "path": "game/src/horde-field.js",
@@ -348,8 +348,8 @@
     },
     {
       "path": "game/src/mission-screen.js",
-      "sha256": "b725b6088738f92adc84cfe7bb843ba292c6e20db7d63bd14e1ea00ba1c42e71",
-      "bytes": 17279
+      "sha256": "0b91e426f18246b653428e561674099a80ef5a348726a81e6a434ac0934f362a",
+      "bytes": 17281
     },
     {
       "path": "game/src/opening-camera.js",
@@ -388,8 +388,8 @@
     },
     {
       "path": "game/src/play-tracking.js",
-      "sha256": "550578dff4fca1864ee34850e149007afe3ae97d888b80caedd2db7ac3a0276b",
-      "bytes": 1095
+      "sha256": "3786b04f99c76f110786bb93ac2eb30f7d86141caf7c786fd8105870e718087d",
+      "bytes": 1088
     },
     {
       "path": "game/src/queen-attack-order.js",
@@ -498,8 +498,8 @@
     },
     {
       "path": "game/styles.css",
-      "sha256": "a205705a2cfebcc5a5e173716b4974a227323b9b12ba5065982adf3641df795a",
-      "bytes": 38112
+      "sha256": "719420c0dac3cc966b6f29a9aa7f9a7b0f81f9639390613b59f5f1c6fe0da988",
+      "bytes": 38116
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",
@@ -522,5 +522,5 @@
       "bytes": 1272972
     }
   ],
-  "note": "Development v0.54.7 with personal/deployment references removed, telemetry disabled, local diagnostics, lossless image metadata removal and private model notes removed. Gameplay otherwise preserved."
+  "note": "Development v0.54.7 standardized on Gunner names, with personal/deployment references removed, telemetry disabled, local diagnostics, lossless image metadata removal and private model notes removed. Gameplay otherwise preserved."
 }
