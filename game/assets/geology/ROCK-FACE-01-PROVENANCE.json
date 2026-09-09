@@ -1,0 +1,153 @@
+{
+  "schema": "brimstone.polyhaven-geometry-provenance.v1",
+  "createdAt": "2026-09-05T04:25:22.198529+00:00",
+  "asset": {
+    "id": "rock_face_01",
+    "title": "Rock Face 01",
+    "authors": {
+      "Dario Barresi": "All"
+    },
+    "assetUrl": "https://polyhaven.com/a/rock_face_01",
+    "infoApi": "https://api.polyhaven.com/info/rock_face_01",
+    "filesApi": "https://api.polyhaven.com/files/rock_face_01"
+  },
+  "license": {
+    "spdx": "CC0-1.0",
+    "assetLicenseUrl": "https://polyhaven.com/license",
+    "legalUrl": "https://creativecommons.org/publicdomain/zero/1.0/legalcode"
+  },
+  "sources": [
+    {
+      "path": "assets/geology/source-rock-face-01/rock_face_01_1k.gltf",
+      "bytes": 2793,
+      "sha256": "96c332c01d173a2431115f3bac29be101fba341e5500e2a08e384f4edd17299e",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/rock_face_01/rock_face_01_1k.gltf",
+      "md5": "b4855bc7e841a17a94332561a9b301c0"
+    },
+    {
+      "path": "assets/geology/source-rock-face-01/rock_face_01.bin",
+      "bytes": 476436,
+      "sha256": "873eac0319333e92bc96ddeedf8ebf69dc3c68ff1dfe32d8c14ddc165cdb20ac",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/rock_face_01/rock_face_01.bin",
+      "md5": "06caed23e725af568b64f8cbee210c1c"
+    },
+    {
+      "path": "assets/geology/source-rock-face-01/info.json",
+      "bytes": 1074,
+      "sha256": "58af96f9e639b6b2562b103bb32f6840389dd7e9d9fe494adca5ce839f6a36c0"
+    },
+    {
+      "path": "assets/geology/source-rock-face-01/files.json",
+      "bytes": 25080,
+      "sha256": "de3af343b27ed530d83d8acd36cd4ea64f308019700a2463352e050746b215b2"
+    }
+  ],
+  "runtime": {
+    "path": "assets/geology/rock_face_01_geometry.glb",
+    "bytes": 477744,
+    "sha256": "7b4f1c178bb7aa2c7f6036017541e64e2f06e9f7c53495c29e90b49f03740d82"
+  },
+  "conversion": {
+    "script": {
+      "path": "assets/geology/source-rock-face-01/convert_geometry.py",
+      "bytes": 1402,
+      "sha256": "bb06fbc9b1d2d68e7f9bff53a949d43a48e37cbd3948333a4a5dbfa7a436ced5"
+    },
+    "removed": [
+      "materials",
+      "textures",
+      "images",
+      "samplers",
+      "primitive.material",
+      "buffers[0].uri"
+    ],
+    "preserved": [
+      "scene and node transforms",
+      "POSITION bytes",
+      "NORMAL bytes",
+      "TEXCOORD_0 bytes",
+      "triangle index bytes",
+      "all accessor and buffer-view declarations"
+    ],
+    "new": [
+      "glTF asset copyright and conversion extras",
+      "GLB 2.0 container headers"
+    ],
+    "binarySha256": "873eac0319333e92bc96ddeedf8ebf69dc3c68ff1dfe32d8c14ddc165cdb20ac",
+    "textureDownloads": 0,
+    "geometrySimplification": false,
+    "reproducibleSecondBuild": true
+  },
+  "geometry": {
+    "vertices": 11106,
+    "triangles": 20174,
+    "attributes": {
+      "NORMAL": {
+        "count": 11106,
+        "bytes": 133272,
+        "sha256": "36d9ce0776dd316645d6e8f442f9bf751c7b25b9fc0a62a0bca75ec3a0e29b5b"
+      },
+      "POSITION": {
+        "count": 11106,
+        "bytes": 133272,
+        "sha256": "8cbd8bc36b10e2ed8d8b9abd243a5a77e56997ce2db921aebef1030f9ae4bc63"
+      },
+      "TEXCOORD_0": {
+        "count": 11106,
+        "bytes": 88848,
+        "sha256": "ef2002656242642c412a05b87940368b6700fc1ab556b3f82d3e636f9e511ad1"
+      }
+    },
+    "bounds": {
+      "min": [
+        -2.133601427078247,
+        -0.03435921296477318,
+        -3.466048240661621
+      ],
+      "max": [
+        2.8199098110198975,
+        3.5296897888183594,
+        0.36125504970550537
+      ],
+      "size": [
+        4.9535112380981445,
+        3.5640490017831326,
+        3.8273032903671265
+      ],
+      "units": "meters"
+    },
+    "orientation": {
+      "up": "+Y",
+      "detailedFace": "+Z and upper +Y slopes",
+      "back": "-Z; partial open scan, must be embedded",
+      "leftWallYawRadians": 1.5707963267948966,
+      "rightWallYawRadians": -1.5707963267948966,
+      "baseYOffsetPerUniformScale": 0.03435921296477318
+    },
+    "apiPreviewDimensionsNote": "API reports a 7.1m preview width; actual delivered glTF proxy is 4.953511m wide. Runtime placement must use measured mesh bounds."
+  },
+  "verification": {
+    "glbHeaderAndLengths": true,
+    "embeddedBufferMatchesOriginalByteForByte": true,
+    "noExternalRuntimeUris": true,
+    "noRuntimeImagesTexturesOrMaterials": true,
+    "allVertexAndNormalValuesFinite": true,
+    "indicesInRange": true,
+    "nodeTransformsIdentity": true,
+    "nodeSyntaxCheck": true,
+    "browserRender": "Pending root combined remote QA"
+  },
+  "placementGuidance": {
+    "uniformScaleRange": [
+      5,
+      7
+    ],
+    "resultingNativeWidthMeters": [
+      24.767556190490723,
+      34.67457866668701
+    ],
+    "baseSeating": "position.y = supportingGroundY + 0.03435921296477318 * uniformScale",
+    "backSeating": "Face native +Z into canyon and embed its -Z rear in existing wall; do not expose open back edges.",
+    "runtimeMaterials": "Use shared dark-rock triplanar material. No original image files are required or downloaded."
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "voice": "Kokoro82M am_fenrir stock American male",
+  "generation": "Offline CPU, original fictional pilot dialogue, no voice cloning",
+  "upstream": "https://huggingface.co/hexgrad/Kokoro-82M/tree/f3ff3571791e39611d31c381e3a41a3af07b4987",
+  "code": "https://github.com/hexgrad/kokoro/tree/dfb907a02bba8152ca444717ca5d78747ccb4bec",
+  "modelCardLicense": "apache-2.0; model repository supplies model-card declaration rather than separate LICENSE",
+  "runtime": "Only compressed recording is shipped. Model, Python, torch and inference dependencies remain production tools.",
+  "processing": "Exact original v052 PCM prefix, one newly synthesized victory take appended at34.905s,6.655s. Same radio filter and stockvoice; mono64kbps MP3. No human audition.",
+  "seconds": 41.56,
+  "file": {
+    "name": "pilot-radio-v054.mp3",
+    "bytes": 333164,
+    "sha256": "300660ecb958a28ab159d4d293c2a77ce433efe389b7e8fc9703311c6a09ac41"
+  },
+  "humanAuditioned": false,
+  "reusedUnchangedClips": [
+    "mission",
+    "boarding",
+    "weapons",
+    "nests",
+    "altar",
+    "queenApproach",
+    "queenIntro",
+    "queenCombat",
+    "queenReload",
+    "topTen",
+    "mayday"
+  ],
+  "newClips": [
+    "victory"
+  ],
+  "integratedLUFS": -19.2,
+  "modelPins": {
+    "kokoro-v1_0.pth": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4",
+    "config.json": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f",
+    "am_fenrir.pt": "98e507eca1db08230ae3b6232d59c10aec9630022d19accac4f5d12fcec3c37a"
+  },
+  "previousRecording": {
+    "name": "pilot-radio-v052.mp3",
+    "bytes": 279980,
+    "sha256": "b381f2c2543dcba050b43d052919f7d7585d27a43d2b60e2a82b11f6a3cd6d27"
+  }
+}

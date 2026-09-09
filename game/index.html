@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en" data-device="checking">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090604">
+  <title>GUNNER — Destroy the brood</title>
+  <meta name="description" content="Take the gunner's seat in GUNNER. Destroy the eggs, fight the Queen, and bring your score home.">
+  <meta property="og:title" content="GUNNER — Destroy the brood">
+  <meta property="og:description" content="Destroy the brood. Survive the canyon. Bring your score home.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="./assets/gunner-plane.svg?v=052">
+  <link rel="stylesheet" href="./styles.css?v=054-6-report1">
+</head>
+<body>
+  <noscript><section class="device-noscript" aria-labelledby="no-script-heading">
+    <h1 id="no-script-heading">JavaScript required</h1>
+    <p>Please enable JavaScript and open Gunner on a desktop or laptop with a mouse and keyboard. Mobile play is unavailable for now.</p>
+  </section></noscript>
+  <section id="device-notice" aria-labelledby="device-heading" hidden>
+    <div class="device-brand"><img src="./assets/gunner-plane.svg?v=052" alt="" width="48" height="32">GUNNER</div>
+    <div class="device-rule" aria-hidden="true"></div>
+    <h1 id="device-heading" tabindex="-1">Play on desktop</h1>
+    <p>Please open Gunner on a desktop or laptop with a mouse and keyboard.</p>
+    <p class="device-detail">Mobile play is unavailable for now.</p>
+  </section>
+  <canvas id="game" aria-label="GUNNER game view"></canvas>
+
+  <div id="heatVeil" aria-hidden="true"></div>
+  <div id="damageVeil" aria-hidden="true"></div>
+  <div id="whiteout" aria-hidden="true"></div>
+
+  <main id="intro" class="modal mission-screen">
+    <header class="mission-masthead"><div><span class="mission-kicker">ONE PLANE. ALL OF HELL.</span><h1>GUNNER</h1></div><span class="mission-edition">FLIGHT OPERATIONS<br>CHAPTER SELECT</span></header>
+    <div class="chapter-layout">
+      <section class="chapter chapter-hive" aria-labelledby="hiveTitle">
+        <img class="chapter-image" data-src="./assets/hive-chapter.jpg?v=052" alt="The gunner aircraft flying through the volcanic canyon">
+        <div class="chapter-copy"><span class="chapter-number">CHAPTER 01 · AVAILABLE</span><h2 id="hiveTitle">THE HIVE</h2><p>Break the Queen. Burn the brood.<br>Bring us home.</p></div>
+      </section>
+      <section class="chapter chapter-soon" aria-labelledby="nextChapter"><span class="chapter-number">CHAPTER 02</span><div class="unknown-sector" aria-hidden="true">?</div><h2 id="nextChapter">UNCHARTED</h2><p>COMING SOON</p><span class="sector-note">The next flight is still beyond the horizon.</span></section>
+    </div>
+    <div class="deployment-bar"><div class="mission-orders"><span class="mission-kicker">YOUR ORDERS</span><p>Destroy the eggs. Defeat the Queen.</p><span>The pilot flies. You have the guns.</span></div>
+      <div class="deployment-action"><div id="loadingSystems" aria-label="Flight preparation" aria-busy="true"><div class="ammo-progress" aria-hidden="true"><i id="prep-world"></i><i id="prep-models"></i><i id="prep-collision"></i><i id="prep-shaders"></i></div><span id="loadStatus" role="status" aria-live="polite">Preparing flight systems…</span></div><button id="startButton" type="button" disabled>PREPARING FLIGHT…</button>
+        <section id="loadingFailureDetails" class="loading-failure" aria-label="Loading problem" hidden>
+          <p id="loadingFailureDetail"></p>
+          <button id="copyLoadingReport" class="quietButton" type="button">COPY LOADING REPORT</button>
+          <p id="loadingReportCopyStatus" role="status" aria-live="polite"></p>
+          <details id="loadingReportDisclosure"><summary>Show loading report</summary><textarea id="loadingReport" readonly rows="7" aria-label="Loading report" spellcheck="false"></textarea></details>
+        </section>
+      </div>
+    </div>
+    <footer class="mission-footer"><div class="mission-links"><button id="fieldGuideButton" type="button" class="quietButton" aria-haspopup="dialog" aria-controls="fieldGuide" aria-expanded="false">ALIEN FIELD GUIDE <span>↗</span></button><button id="settingsButton" disabled type="button" class="quietButton">SOUND &amp; CONTROLS</button></div><p>MOUSE · AIM &amp; FIRE &nbsp; / &nbsp; SPACE · HEAVY CANNON &nbsp; / &nbsp; ESC · PAUSE</p></footer>
+  </main>
+  <dialog id="fieldGuide" aria-labelledby="guideTitle"><div class="guide-header"><div><span class="mission-kicker">KNOW WHAT YOU’RE SHOOTING</span><h2 id="guideTitle">ALIEN FIELD GUIDE</h2></div><button id="closeGuide" type="button" aria-label="Close alien field guide">CLOSE ×</button></div><p class="guide-intro">The Hive · Identification &amp; counterplay</p><div id="guideEntries" tabindex="0" aria-label="Alien entries"></div></dialog>
+
+  <div id="pilotCaption" class="pilot-caption" role="status" aria-live="polite" hidden></div>
+  <section id="opening" aria-label="Plane approach" hidden>
+    <div class="openingCaption" aria-live="polite">
+      <span id="openingLabel">APPROACH · BRIMSTONE CANYON</span>
+      <p id="openingTitle">ONE PLANE. ALL OF HELL.</p>
+    </div>
+    <button id="skipOpening" type="button">CLICK / ENTER · SKIP</button>
+  </section>
+  <section id="ending" aria-label="Last flight" hidden>
+    <div class="openingCaption"><span id="endingLabel">LAST FLIGHT</span><p id="endingTitle"></p></div>
+    <button id="skipEnding" type="button">ENTER · SKIP TO SCORES</button>
+  </section>
+  <div id="openingFade" aria-hidden="true"></div>
+  <button id="skipQueen" type="button" hidden>ENTER · CONTINUE</button>
+
+  <section id="hud" aria-label="Flight instruments">
+    <div class="hudTop">
+      <div class="readout hullReadout">
+        <span class="label">PLANE HULL</span>
+        <div class="meter"><i id="hullFill"></i></div>
+        <strong id="hullValue">100</strong>
+      </div>
+      <div class="objective">
+        <span class="objectiveOverline" id="missionLabel">DESTROY THE BROOD</span>
+        <span class="eggProgress" id="eggProgress">0 / — EGGS</span>
+        <strong id="distanceValue">2.9 KM</strong>
+        <div class="route"><i id="routeFill"></i><b></b></div>
+      </div>
+      <div class="readout scoreReadout">
+        <span class="label">SCORE</span>
+        <strong id="scoreValue">000000</strong>
+      </div>
+    </div>
+
+    <div id="reticle" aria-hidden="true">
+      <i class="ring"></i><i class="dot"></i>
+      <span class="tick t1"></span><span class="tick t2"></span>
+      <span class="tick t3"></span><span class="tick t4"></span>
+    </div>
+    <div id="blocked">MUZZLE BLOCKED</div>
+    <div id="combatFeedback" aria-hidden="true"></div>
+    <div id="flightLesson" aria-hidden="true"></div>
+    <div id="threats" aria-hidden="true"></div>
+
+    <div class="hudBottom">
+      <div id="statusLine"><b>KEEP THEM BACK.</b> THE PILOT WILL FIND THE WAY OUT.</div>
+      <div id="gunHeat" aria-label="Gatling temperature">
+        <span id="gunHeatLabel">GATLING · UNLIMITED AMMO</span>
+        <div class="gunHeatTrack"><i id="gunHeatFill"></i><b></b></div>
+      </div>
+      <div id="cannonGauge">
+        <svg viewBox="0 0 52 52" aria-hidden="true">
+          <circle class="track" cx="26" cy="26" r="21"></circle>
+          <circle id="cannonArc" class="arc" cx="26" cy="26" r="21"></circle>
+        </svg>
+        <span><b id="cannonText">READY</b><small>SPACE</small></span>
+      </div>
+    </div>
+  </section>
+
+  <section id="pause" class="modal compact" hidden>
+    <div id="pauseEyebrow" class="eyebrow">FLIGHT SUSPENDED</div>
+    <h2 id="pauseTitle">PAUSED</h2>
+    <p id="pauseDescription">The plane and every attack are frozen.</p>
+    <div class="settings">
+      <label for="volume">VOLUME <input id="volume" type="range" min="0" max="100" value="65"></label>
+      <label for="voiceVolume">PILOT RADIO <input id="voiceVolume" type="range" min="0" max="100" value="85"></label>
+      <label class="check"><input id="pilotCaptions" type="checkbox" checked> PILOT CAPTIONS</label>
+      <label for="musicVolume">MUSIC · BACKGROUND SCORE <input id="musicVolume" type="range" min="0" max="100" value="65"></label>
+      <label for="sensitivity">AIM SPEED <input id="sensitivity" type="range" min="30" max="170" value="100"></label>
+      <label for="fov">FIELD OF VIEW <input id="fov" type="range" min="58" max="82" value="66"></label>
+      <label class="check"><input id="invertAim" type="checkbox"> INVERT VERTICAL AIM</label>
+      <label class="check"><input id="reducedEffects" type="checkbox"> REDUCED FLASH &amp; MOTION</label>
+    </div>
+    <button id="resumeButton" type="button">RETURN TO THE GUN</button>
+  </section>
+
+  <section id="rankReveal" class="modal rank-reveal" aria-labelledby="rankTitle" hidden>
+    <div class="rank-card">
+      <div class="eyebrow">FLIGHT COMMAND · PERSONNEL ASSESSMENT</div>
+      <h2 id="rankTitle">GUNNER</h2>
+      <p class="rank-rating"><b id="rankPercent">0.0%</b> MISSION RATING</p>
+      <div id="rankFace" class="rank-portrait" role="img" aria-label="Your gunner rank"></div>
+      <p id="rankTaunt" class="rank-taunt"></p>
+      <p id="rankBenchmark" class="rank-benchmark"></p>
+      <button id="rankContinue" type="button">VIEW FLIGHT RECORD <span aria-hidden="true">→</span></button>
+    </div>
+  </section>
+
+  <section id="result" class="modal compact result" aria-labelledby="resultTitle" hidden>
+    <div class="resultLayout">
+      <header class="result-outcome">
+        <div><div id="resultOverline" class="eyebrow">FLIGHT RECORD</div><h2 id="resultTitle">PLANE HOME</h2></div>
+        <div class="completion"><b id="finalCompletion">100%</b><span>ROUTE COMPLETE</span></div>
+      </header>
+      <div class="resultGrid">
+        <div class="scoreHero"><span>FLIGHT SCORE</span><b id="finalScore">—</b></div>
+        <div class="eggHero"><span>EGGS DESTROYED</span><b id="finalEggs">—</b><div class="broodMeter"><i id="finalEggFill"></i></div></div>
+      </div>
+      <div class="flightDetails"><span>HULL <b id="finalHull">—</b>%</span><span id="runProgress"></span><span id="runAccuracy"></span></div>
+      <div class="scoreBoard">
+        <h3>TOP TEN <span id="scoreScope">SHARED · LOADING</span></h3>
+        <table aria-label="Shared top ten player-submitted scores"><thead><tr><th scope="col">RANK</th><th scope="col">INITIALS</th><th scope="col">SCORE</th></tr></thead><tbody id="scoreRows"></tbody></table>
+        <form id="scoreEntry" hidden>
+          <label for="initials" class="sr-only">Enter three initials in your claimed position</label>
+          <input id="initials" name="initials" type="text" maxlength="3" minlength="3" pattern="[A-Za-z0-9]{3}" placeholder="___" autocomplete="off" spellcheck="false" autocapitalize="characters" aria-describedby="scoreStatus" required>
+          <button id="submitScore" type="submit" disabled>ENTER</button>
+        </form>
+        <p id="scoreStatus" role="status"></p>
+        <button id="retryScores" type="button" class="quietButton" hidden>CHECK TOP TEN AGAIN</button>
+        <p class="scoreNote">PLAYER-SUBMITTED SCORES · NOT VERIFIED</p>
+      </div>
+      <p id="resultTip" class="result-tip"></p>
+      <button id="replayButton" type="button">FLY AGAIN <span aria-hidden="true">↗</span></button>
+    </div>
+  </section>
+
+  <div id="unsupported" class="modal compact" hidden>
+    <h2>WEBGL 2 REQUIRED</h2>
+    <p>This gun bubble needs a WebGL 2-capable browser.</p>
+  </div>
+
+  <script type="module" src="./mobile-entry.js?v=desktop-054-7" data-game-entry="./main.js?v=054-7"></script>
+</body>
+</html>

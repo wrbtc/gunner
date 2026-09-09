@@ -1,0 +1,526 @@
+{
+  "version": "0.54.7",
+  "files": [
+    {
+      "path": "game/THIRD-PARTY-NOTICES.md",
+      "sha256": "2fc22b3b786e786f579668cef3c64fc86551d2f3d98c3cf15ac76b20a5db652b",
+      "bytes": 2758
+    },
+    {
+      "path": "game/assets/CINDER-MAW-PROVENANCE.json",
+      "sha256": "6a19a3fd17fd8d9d6226f11a23b07df052e1ec79576bfa198153abfada4d2591",
+      "bytes": 2518
+    },
+    {
+      "path": "game/assets/audio/KOKORO-CODE-LICENSE.txt",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "bytes": 11357
+    },
+    {
+      "path": "game/assets/audio/PROVENANCE.json",
+      "sha256": "5a89c17fc1c85f3a7b1b2914b223310d53742ee845b50946200e701bb01f732c",
+      "bytes": 1692
+    },
+    {
+      "path": "game/assets/audio/pilot-radio-v042.mp3",
+      "sha256": "690f360c405f8b272e205736327d3e04715dfcb8bce4ea09d2b8ce633a3334f0",
+      "bytes": 264429
+    },
+    {
+      "path": "game/assets/audio/pilot-radio-v052.mp3",
+      "sha256": "b381f2c2543dcba050b43d052919f7d7585d27a43d2b60e2a82b11f6a3cd6d27",
+      "bytes": 279980
+    },
+    {
+      "path": "game/assets/audio/pilot-radio-v054.mp3",
+      "sha256": "300660ecb958a28ab159d4d293c2a77ce433efe389b7e8fc9703311c6a09ac41",
+      "bytes": 333164
+    },
+    {
+      "path": "game/assets/cinder-maw-v02.glb",
+      "sha256": "216f3d871630f7063ece5dd48f912699a198c01d874c7d2e6aa64fdd011d41c0",
+      "bytes": 4449728
+    },
+    {
+      "path": "game/assets/demon-002.glb",
+      "sha256": "f79a2bf49fd6487b82e55f6c37b364abd34eb3d0b10986a04398b3f07500c4f9",
+      "bytes": 347876
+    },
+    {
+      "path": "game/assets/field-guide/PLASMA-PROVENANCE.json",
+      "sha256": "2e7d2a466b68825ffb2f1bbeeb92130a277417b77e5a13a26f7a2f07e9b68710",
+      "bytes": 370
+    },
+    {
+      "path": "game/assets/field-guide/creepers.png",
+      "sha256": "5b48a3b9424f846370764fe846f90285c32f7d18a18237d39e3e106a0ab86673",
+      "bytes": 72523
+    },
+    {
+      "path": "game/assets/field-guide/dancers.png",
+      "sha256": "1e1dc9cc63bba3589abad71103c19064b3caeeaf93d7140cd0075810721638cb",
+      "bytes": 46959
+    },
+    {
+      "path": "game/assets/field-guide/dragons.png",
+      "sha256": "b635f0b5ee69a5eb8ac8a3e259b9079ad8b6cb06b639bafc162128cde0c9d092",
+      "bytes": 15910
+    },
+    {
+      "path": "game/assets/field-guide/eggs.png",
+      "sha256": "8a435ce0f56e7e8d97e9b34a0fe7e76803c060e4a7383497b710da5e63d9868b",
+      "bytes": 77974
+    },
+    {
+      "path": "game/assets/field-guide/plasma.png",
+      "sha256": "cdf599536bf654b86b53a71fa45762b61c9532b460bec8a8a962cdb83c7b4170",
+      "bytes": 92357
+    },
+    {
+      "path": "game/assets/field-guide/queen.png",
+      "sha256": "8ec5ecf91ebdca1baebb17e384516d135e5b9abe52f39c35a6ebbade63d8ec77",
+      "bytes": 11942
+    },
+    {
+      "path": "game/assets/field-guide/rimmers.png",
+      "sha256": "76e50ccdc5ad169eef638743efc69f478ac082704f5eb20104f5bed63b3387d7",
+      "bytes": 80789
+    },
+    {
+      "path": "game/assets/field-guide/tanks.jpg",
+      "sha256": "40cf7622952c15bed326d70d0d87b83be977290f68c0caa9bf8d2c3c37ea54c6",
+      "bytes": 36211
+    },
+    {
+      "path": "game/assets/geology/PROVENANCE.json",
+      "sha256": "f24b534b48366b22fdcee3fdd43238447c628a16f7da52d9d675802cc9e74cb6",
+      "bytes": 1429
+    },
+    {
+      "path": "game/assets/geology/ROCK-FACE-01-PROVENANCE.json",
+      "sha256": "6af7fa86071af6a7ab4ec35aebc3328127faf018d6432415d617cdfc79589751",
+      "bytes": 5023
+    },
+    {
+      "path": "game/assets/geology/dark_rock_02_diff_1k.jpg",
+      "sha256": "d680b4a8ff4659a413228533cecabbd1a5fc17aa0ee7c508516b6c3df3d37531",
+      "bytes": 592238
+    },
+    {
+      "path": "game/assets/geology/dark_rock_02_nor_gl_1k.jpg",
+      "sha256": "23cbe8492ee16acbfde6fbc55ea45015931f46f6347b41ac1fa80b6650f97051",
+      "bytes": 1028621
+    },
+    {
+      "path": "game/assets/geology/rock_face_01_geometry.glb",
+      "sha256": "7b4f1c178bb7aa2c7f6036017541e64e2f06e9f7c53495c29e90b49f03740d82",
+      "bytes": 477744
+    },
+    {
+      "path": "game/assets/gunner-plane.svg",
+      "sha256": "915369207ab8bd127d8313d0f2e0d82dc6c793d9699582108d2a5219b426945b",
+      "bytes": 400
+    },
+    {
+      "path": "game/assets/hive-chapter.jpg",
+      "sha256": "0f8cfb7591427016a52af34929b254dca68c67fb8ffadf060f43919e1e5d685c",
+      "bytes": 288973
+    },
+    {
+      "path": "game/assets/ranks/PROVENANCE.json",
+      "sha256": "3a24934ac55423f5421c293540d9f747d8e44a339c774c0a8ddc644051fb969b",
+      "bytes": 874
+    },
+    {
+      "path": "game/assets/ranks/baby.png",
+      "sha256": "faf01da190605551cb871ebfccf7f0e5e798a9e8ef3e4a3509f601c065e6ffbd",
+      "bytes": 1742345
+    },
+    {
+      "path": "game/assets/ranks/civilian.png",
+      "sha256": "505e6fab90354be564946d6ceaff5326a03edb2ce51145e97e1b6295e09982d8",
+      "bytes": 2016552
+    },
+    {
+      "path": "game/assets/ranks/gunner.png",
+      "sha256": "80c177e0daebe65eaa3c6627b14d5fcd87806b46e55427bafe4cd52a001897f3",
+      "bytes": 1975189
+    },
+    {
+      "path": "game/assets/ranks/hero.png",
+      "sha256": "dd0806b59fcb7c521100ad4ad8554a4bd33739be91392c822e879e18082634ef",
+      "bytes": 1945969
+    },
+    {
+      "path": "game/assets/ranks/top-gunner.png",
+      "sha256": "f5994b031627a2441c25699bef4ddad39a0565b4125756333585c76347b621c8",
+      "bytes": 1952649
+    },
+    {
+      "path": "game/assets/siege-002.glb",
+      "sha256": "88d7904d6dd869aa225dc83ca86a8f59dbe81ada83f08469aaf0dcb2a5defbd0",
+      "bytes": 396688
+    },
+    {
+      "path": "game/index.html",
+      "sha256": "7e42ae063d8d61b4da7f562ffc4adbb1f731741af8355ea642501959107bf31e",
+      "bytes": 11693
+    },
+    {
+      "path": "game/main.js",
+      "sha256": "dd574a3a2ae7cc152b6a40bec124279a17475e36e3ad333405226ca943acfad6",
+      "bytes": 155244
+    },
+    {
+      "path": "game/mobile-entry.js",
+      "sha256": "26d8d9c70cb447412d6a4861cfe4e55c864f820e80e464b9cb529478b0cc3697",
+      "bytes": 3350
+    },
+    {
+      "path": "game/src/aircraft-surfaces.js",
+      "sha256": "970e5284c88903174000598a8380d8086e042a3d047c899d54604a9433cbbe7e",
+      "bytes": 5085
+    },
+    {
+      "path": "game/src/ash-volume.js",
+      "sha256": "5e593327a9d271dbb2a7c19fbb20a8c08aa4c8fefc1c8035a7d39afb8214a914",
+      "bytes": 1439
+    },
+    {
+      "path": "game/src/ashborn-sculpt.js",
+      "sha256": "0c1510b647debb127f7ebf87981bd3bedb218db34a4f3eb852ab3c2b8ff04c28",
+      "bytes": 3903
+    },
+    {
+      "path": "game/src/asset-kit.js",
+      "sha256": "b02cadadadf4fa165a630f4c3a6859eb61a31d613314695795dd99e7f57fc17a",
+      "bytes": 17439
+    },
+    {
+      "path": "game/src/audio-palette.js",
+      "sha256": "477f8a2415c7bfd011c038ab004d683852eecf4ae985aaf38b560f48703d4401",
+      "bytes": 12269
+    },
+    {
+      "path": "game/src/audio-preparation-worker.js",
+      "sha256": "8570f1bd907797e56dd5a36745f5be0cc531551e17a89dd268adb2512c6cfe3e",
+      "bytes": 1281
+    },
+    {
+      "path": "game/src/bank-demons.js",
+      "sha256": "bd7109d4ea3f467ab2c10db8f31b5b3eef87453863fa67b3191045a8957f9628",
+      "bytes": 24299
+    },
+    {
+      "path": "game/src/basalt-detail.js",
+      "sha256": "684e17beabe175b829d45fdc10f5755622afcd233aa35942e5f0d1b84e6fd74f",
+      "bytes": 3214
+    },
+    {
+      "path": "game/src/blast-world.js",
+      "sha256": "e4a9e39981e8d0ff4f26e2b97e3dbf66c6016ac57156b202f1da7f664c4c3493",
+      "bytes": 4440
+    },
+    {
+      "path": "game/src/bomber-exterior.js",
+      "sha256": "11a1718003791864bfbc52b8b0c4ab641e75d44a6b1fbd2132fb6434c15d6e43",
+      "bytes": 28305
+    },
+    {
+      "path": "game/src/caldera-light.js",
+      "sha256": "c1c416fcf6c16155943a27239f7bed141746ffa4d876035142039d0555ca85cc",
+      "bytes": 2372
+    },
+    {
+      "path": "game/src/cannon-round.js",
+      "sha256": "bcefa29bcc0a14b5e046f510bf6b295934ff26810a3a3d22ece7debd7cf49a74",
+      "bytes": 3977
+    },
+    {
+      "path": "game/src/cinder-maw.js",
+      "sha256": "445a38603962632073f3a945133b4c92524adf073362f550f7e80fc834802cf7",
+      "bytes": 5709
+    },
+    {
+      "path": "game/src/cinematic-pass.js",
+      "sha256": "a8166df0fca37de9d06805181cf74482612678c8070195b9efa50ba1b06f892b",
+      "bytes": 21327
+    },
+    {
+      "path": "game/src/cliff-outcrops.js",
+      "sha256": "332ff79c930792e351ab35a3fe8169aa757f14b8211a8b89114ffba9d9eb9913",
+      "bytes": 5892
+    },
+    {
+      "path": "game/src/combat-balance.js",
+      "sha256": "52ad6b010e87e2fcf5ef19d10be63d01a873e3eb95b54b1a56b1d6a7234df0bc",
+      "bytes": 2083
+    },
+    {
+      "path": "game/src/creature-audio.js",
+      "sha256": "d660d9d30d430f0f740d2ee082c2eab248714a0704317da8ee5b5b53d4b5638d",
+      "bytes": 4224
+    },
+    {
+      "path": "game/src/creature-keratin.js",
+      "sha256": "f9f68a7804efcae9aabc0ca209df4ecf8252d7f0cb735c9e527520369accf7b2",
+      "bytes": 5004
+    },
+    {
+      "path": "game/src/creature-pose.js",
+      "sha256": "9fdb516a4001680391fed54c95f516d16fd0ff906217a33742502556813889ad",
+      "bytes": 6498
+    },
+    {
+      "path": "game/src/creature-tracking.js",
+      "sha256": "86dd9fda85481c27b84ecadb949e3b77b73967981776b24f4f1641e9d9e88a9d",
+      "bytes": 17977
+    },
+    {
+      "path": "game/src/dance-circle.js",
+      "sha256": "7fe6dc2e934a1f973fec682cd440733197e2aa21677e3cf83d8e88facc796f9c",
+      "bytes": 15509
+    },
+    {
+      "path": "game/src/egg-nests.js",
+      "sha256": "05b9124fc3098c688a71bdf49659ec445dedaebbc2821fcf75d8ad1ba13bd1da",
+      "bytes": 35695
+    },
+    {
+      "path": "game/src/ending-flight.js",
+      "sha256": "1bb344cba18d05025171187e7e10ddfc2de770d430a13a83fc5364a75423909c",
+      "bytes": 8266
+    },
+    {
+      "path": "game/src/gun-bubble.js",
+      "sha256": "20805e4adb7260336edf0ae390c9a28e1624728027dbc40d9f39c74d4a9845f2",
+      "bytes": 3509
+    },
+    {
+      "path": "game/src/gunner-station.js",
+      "sha256": "9234857557196c6e3f7230260950a98753b027527ca32d6a01543b31ae8562cd",
+      "bytes": 8288
+    },
+    {
+      "path": "game/src/hell-sky.js",
+      "sha256": "77664d13d8208ae61179ab5cb5cd4987d1342fb56c7eec1dd113ba8381567ac5",
+      "bytes": 8030
+    },
+    {
+      "path": "game/src/hell-world.js",
+      "sha256": "714113cc9e25984b7b0ae9e6375f8cfaf6e7fdba6c3ec137eb3d012fefe45d66",
+      "bytes": 38886
+    },
+    {
+      "path": "game/src/high-scores.js",
+      "sha256": "7754a536db411dbdd08ff177dfa01e97299cb7101c1da513a96d6879851ea1d1",
+      "bytes": 7957
+    },
+    {
+      "path": "game/src/horde-field.js",
+      "sha256": "9676c3d2d49717c8a336b50f2bbd08c8ceb6c750ae7560f137e9c1fc5bda7e19",
+      "bytes": 8374
+    },
+    {
+      "path": "game/src/lava-surface.js",
+      "sha256": "50b080590cec19b460c502b5573027a42e8147588c3c7e6afa5f5a35585c90a6",
+      "bytes": 2211
+    },
+    {
+      "path": "game/src/machined-finish.js",
+      "sha256": "87b4646670cd48034bec377155ccc949a09a01655939d3fee7fac299170fd2ce",
+      "bytes": 2930
+    },
+    {
+      "path": "game/src/mayhem-audio.js",
+      "sha256": "a81c520f4a2c0fecbd22517e486256f00ff2779da62dc1a74405908d7b16ef60",
+      "bytes": 47649
+    },
+    {
+      "path": "game/src/mayhem-fx.js",
+      "sha256": "3736eeb28275ee7118c0cf3dfdeac1c80aec4151a5389bcf41a24dde4c16ab40",
+      "bytes": 33100
+    },
+    {
+      "path": "game/src/mission-rating.js",
+      "sha256": "edf729db2b4c45d237ef8ccae5cad7133b7d904e97316f138df9d013b2ca0639",
+      "bytes": 3525
+    },
+    {
+      "path": "game/src/mission-screen.js",
+      "sha256": "b725b6088738f92adc84cfe7bb843ba292c6e20db7d63bd14e1ea00ba1c42e71",
+      "bytes": 17279
+    },
+    {
+      "path": "game/src/opening-camera.js",
+      "sha256": "7626a14948ccbf4e338dab7927095ea40ae8ee353474237daac4dd736a1dcbd3",
+      "bytes": 7872
+    },
+    {
+      "path": "game/src/pilot-audio-map.js",
+      "sha256": "b10ed4e086db3e14d551f1545b29edacbc78d6a828fb69ecb312c8597077dd57",
+      "bytes": 1153
+    },
+    {
+      "path": "game/src/pilot-lines.js",
+      "sha256": "224f6fda671d2a624582a22c77f33b23359093fd517303364b5fde5da275bd00",
+      "bytes": 1528
+    },
+    {
+      "path": "game/src/pilot-queue.js",
+      "sha256": "d915b0c14b8240b7a8b87de859fedfb1675856923b4ec74c6948a4dbe6716e26",
+      "bytes": 2011
+    },
+    {
+      "path": "game/src/pilot-radio.js",
+      "sha256": "83c752957f6e2ffb5e9bcb8805c6bfe18d1233492675def415fe932adadd1245",
+      "bytes": 7629
+    },
+    {
+      "path": "game/src/plasma-bugs.js",
+      "sha256": "f67f7d210896a73409eeeed715dbb52fb463a6d6c3010447e0522ba302b48e19",
+      "bytes": 10747
+    },
+    {
+      "path": "game/src/plasma-burst.js",
+      "sha256": "4d8ffa73e81f037817fdf55754cea5a71b07ae7f322e6caa4b5189123ef3bd2e",
+      "bytes": 7070
+    },
+    {
+      "path": "game/src/play-tracking.js",
+      "sha256": "550578dff4fca1864ee34850e149007afe3ae97d888b80caedd2db7ac3a0276b",
+      "bytes": 1095
+    },
+    {
+      "path": "game/src/queen-attack-order.js",
+      "sha256": "6a0d67f3ca75b27f3886dc626272ee2b318ade9e4efe787b955ebc535244fa28",
+      "bytes": 1148
+    },
+    {
+      "path": "game/src/queen-collision-model.js",
+      "sha256": "7f7aca8b7f00e2e0c81c688e6c887c25a9418ea740bf065afce7c6766f587001",
+      "bytes": 13096
+    },
+    {
+      "path": "game/src/queen-encounter.js",
+      "sha256": "eaabe29fbbae0720413dd611977275afc3e955b25a22365a510829905616f1ec",
+      "bytes": 12572
+    },
+    {
+      "path": "game/src/queen-model.js",
+      "sha256": "7af313ade42b7ff505466db90fa323e5953a594d207656eed652101a4f30da47",
+      "bytes": 15954
+    },
+    {
+      "path": "game/src/queen-surface.js",
+      "sha256": "55c3436ebaa16aa9d35816c96f51e997be28c2facc64924fd533fbb326131570",
+      "bytes": 17412
+    },
+    {
+      "path": "game/src/queen-transport.js",
+      "sha256": "7fd854c1c476b7b9008461155a3cc2ae4c73735e0a6414cfcfeb1d92fc9389a7",
+      "bytes": 2450
+    },
+    {
+      "path": "game/src/rimmer-model.js",
+      "sha256": "f41ba5b4860273de33cf482d5670a203c36afda27d94b6338f02516000e9383b",
+      "bytes": 10340
+    },
+    {
+      "path": "game/src/rimmer-sting.js",
+      "sha256": "4bade9c96f04b2deda5c80fc67a1ac6237f413ca0d844dab36b9739a0ee943b9",
+      "bytes": 8652
+    },
+    {
+      "path": "game/src/rimmers.js",
+      "sha256": "43a14acc24098facecd88e92c1679fb9a53ec13ecc643d4cbe2b66973339df67",
+      "bytes": 13727
+    },
+    {
+      "path": "game/src/river-profile.js",
+      "sha256": "1c332d4f30faf8301afb3f37bd101672853d1bf49edf06ede1f0ecdc07c2e036",
+      "bytes": 1006
+    },
+    {
+      "path": "game/src/roman-ruins.js",
+      "sha256": "f9fb6ba696d1c13e82c42203647fd0fcdbfeeb5c9349bc14c6b9f5d6f70fd41d",
+      "bytes": 17360
+    },
+    {
+      "path": "game/src/rotary-gun.js",
+      "sha256": "bcacc8a941f8bababe6891412cdbb1d5adec74e80368de38f151c4b187bde9a4",
+      "bytes": 25364
+    },
+    {
+      "path": "game/src/sky-activity.js",
+      "sha256": "06c3ef75ab6e5f4c8b25eed6f6e25fec73a546e22b73d73ccf16ec038d08f54a",
+      "bytes": 11540
+    },
+    {
+      "path": "game/src/sphere-overlap-bound.js",
+      "sha256": "a02d41b6fbb2432907734f777c8964447066e9d49ef1f42185029665ec7c2ee4",
+      "bytes": 1057
+    },
+    {
+      "path": "game/src/static-raycast.js",
+      "sha256": "67b0475cbb50f1719ab4b43e6ac94a1fbed25cc09cc3c8adda954bbe2406ee78",
+      "bytes": 10872
+    },
+    {
+      "path": "game/src/tanker-audio.js",
+      "sha256": "515202334663da8760f79eace3c693f6918d4ba0e1500318f3e4a0dda3b7f8d7",
+      "bytes": 2344
+    },
+    {
+      "path": "game/src/tanker-bug.js",
+      "sha256": "63b0424b623eafe537ac714ed19cfb5d039a47058c623b3386318ed0f1941b5f",
+      "bytes": 12136
+    },
+    {
+      "path": "game/src/tanker-spray.js",
+      "sha256": "cf6aef8a5975c5a1226cc2ba91c186e5642d8167bf15e96b8ba4efb1c7d3ae67",
+      "bytes": 13502
+    },
+    {
+      "path": "game/src/wall-climb.js",
+      "sha256": "d4d8e08cca9825cf584096683be856dcbc7fb03ca0124ab9460db381cd06c425",
+      "bytes": 6355
+    },
+    {
+      "path": "game/src/wet-impact.js",
+      "sha256": "73085cd8020d0d42b384b8330f682ab6458aed56465ea98f1c034e2987860688",
+      "bytes": 1010
+    },
+    {
+      "path": "game/src/window-damage.js",
+      "sha256": "20fe8eaf60a6fd651beef47629137e8d85db4150f4a771f262a62d3e26701a48",
+      "bytes": 8362
+    },
+    {
+      "path": "game/styles.css",
+      "sha256": "a205705a2cfebcc5a5e173716b4974a227323b9b12ba5065982adf3641df795a",
+      "bytes": 38112
+    },
+    {
+      "path": "game/vendor/BufferGeometryUtils.js",
+      "sha256": "7a3064d076c3225ed582c8ff52a72e4a0658e5c209c32a894892da4a43fec8ca",
+      "bytes": 32061
+    },
+    {
+      "path": "game/vendor/GLTFLoader.js",
+      "sha256": "9491025f1a228dff6b16332e35080dd68a1ad23089b254492dcdb735dbf9deaa",
+      "bytes": 109758
+    },
+    {
+      "path": "game/vendor/NOTICE.md",
+      "sha256": "68e8e61fc85c15e0e4fa42621657d7c8dcfde41958c68c52130ad4d585636213",
+      "bytes": 252
+    },
+    {
+      "path": "game/vendor/three.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    }
+  ],
+  "note": "Development v0.54.7 with personal/deployment references removed, telemetry disabled, local diagnostics, lossless image metadata removal and private model notes removed. Gameplay otherwise preserved."
+}

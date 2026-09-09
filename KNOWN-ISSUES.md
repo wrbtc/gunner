@@ -1,0 +1,39 @@
+# Development issues — v0.54.7
+
+## Safari startup timeout
+
+Reported environment: Apple M1, Safari 17.6. Scene assembly ran from 6.950s to
+22.417s after page start (15.467s duration). Egg-collision preparation then ran
+from 27.706s to 58.294s and timed out. Graphics preparation was not reached.
+These are stage timestamps from one reported device run, not universal timings.
+
+Start with `game/src/egg-nests.js` → `prepareCollision`, the loading deadline and
+cancellation paths in `game/src/mission-screen.js`, and the startup caller in
+`game/main.js`.
+
+A conditional liveness flaw was demonstrated with injected clock readings: the
+2ms preparation loop can schedule another slice without advancing the iterator.
+This is a source-level finding, not a reproduced Safari root cause. Recurring
+title rendering and incomplete cancellation are additional investigation leads.
+Preserve collision results and meaningful readiness gates when fixing progress;
+increasing deadlines alone does not prove a fix.
+
+## Replay performance
+
+Some bounded Chromium runs showed replay cadence around 33.3ms versus roughly
+16.7ms on the first flight, including on more than one source revision. The cause
+was not established. Avoid attributing it to a specific patch without a controlled
+comparison. Local contract tests do not validate sustained GPU performance.
+
+## Testing and patch requests
+
+For each browser run, record exact browser/engine version, OS, device or VM,
+graphics backend, fresh/warm cache state and actual steps exercised. Mark missing
+platforms as untested. A browser emulation setting does not establish another OS
+or physical-device result.
+
+Exercise fresh startup, Start, audio activation, gameplay, pause/resume, loss/win,
+replay and loading failure recovery. Measure stage durations separately from page
+timestamps. Use local score fixtures; never send test submissions to a live game.
+Submit focused patches with reproduction steps and regression tests. Report what
+was actually run rather than inferring success from source inspection.
