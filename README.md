@@ -3,7 +3,9 @@
 A desktop browser arcade flight game built with JavaScript, Three.js and Web Audio.
 Fly through a volcanic canyon, destroy nests and creatures, and survive the Queen.
 
-This is the **latest development snapshot, v0.54.8**.
+**Play Gunner: https://gunner.satoshis.watch/**
+
+This is **v0.54.9, the golden master release**.
 It includes the complete game runtime, procedural geometry and shaders, models,
 textures, illustrations, recorded dialogue, audio synthesis, and optional score
 backend source. Three.js is vendored; no frontend build or package install is needed.
@@ -31,20 +33,22 @@ python3 -m venv .venv
 
 Open the loopback URL printed by that command. Its score database is temporary
 and discarded on exit. It connects only to a local in-process backend. Loading
-failure diagnostics are enabled at `http://127.0.0.1:8000/` in static mode.
+failure diagnostics are enabled on the public game and at `http://127.0.0.1:8000/`.
 
 ## Development status
 
-**Known issue: startup can fail on Safari.** A reported Apple M1 / Safari 17.6 run
-completed scene construction, then timed out preparing egg collisions before
-graphics preparation. A successful Chromium run does not establish Safari support.
+The v0.54.8 loading fixes received a smooth-play report on an Apple M3. This
+release preserves that gameplay. Apple M1 testing is pending; the historical
+v0.54.7 Safari timeout and unconfirmed replay-cadence reports remain documented.
+No claim of universal browser support or sustained frame rate is made.
 See [KNOWN-ISSUES.md](KNOWN-ISSUES.md) for timings and investigation entry points.
 
 This export preserves gameplay behavior, with these publication adaptations:
 
 - Personal paths and original deployment domains were removed.
 - Browser play telemetry is disabled (`enabled:false` in `game/main.js`).
-- Diagnostics use a loopback origin; backend origins use reserved example domains.
+- Diagnostics support the public game and loopback; backend demo origins require
+  configuration before a separate deployment.
 - Database defaults are local, and tests use repository-relative paths.
 - Embedded image metadata and private model review notes were removed; image
   pixels and model geometry, textures and rig are unchanged.
@@ -94,3 +98,13 @@ Poly Haven geology assets are CC0, and the bundled audio provenance records the
 Kokoro generation tools. See [third-party notices](game/THIRD-PARTY-NOTICES.md)
 and the provenance/license files alongside assets. Generative tools were used
 for some original models, illustrations and dialogue audio.
+
+## Release address
+
+`https://gunner.satoshis.watch/` is the canonical public game. The repository
+homepage and HTML canonical/Open Graph URLs point there. The public repository
+does not advertise internal testing sites.
+
+The golden master preserves v0.54.8 gameplay and rendering quality. v0.54.9 adds
+the production address and loading-report support for that origin. Telemetry
+remains disabled. See [KNOWN-ISSUES.md](KNOWN-ISSUES.md) for the testing limits.

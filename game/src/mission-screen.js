@@ -127,7 +127,7 @@ export const loadingSnapshot=()=>Object.freeze({...loading.snapshot(),trace:star
 export const loadingStage=id=>loading.complete(id);
 export const loadingProgress=(id,detail)=>loading.begin(id,detail);
 export const loadingReady=()=>loading.ready();
-const REPORT_BUILD='0.54.8',REPORT_ORIGIN='http://127.0.0.1:8000';
+const REPORT_BUILD='0.54.9',REPORT_ORIGINS=['https://gunner.satoshis.watch','http://127.0.0.1:8000'];
 const reportText=(value,limit)=>String(value??'').slice(0,limit);
 export function buildLoadingFailureReport(state,{origin=globalThis.location?.origin,userAgent=globalThis.navigator?.userAgent,visibilityState=globalThis.document?.visibilityState}={}){
  if(state?.status!=='failed')return null;
@@ -137,7 +137,7 @@ export function buildLoadingFailureReport(state,{origin=globalThis.location?.ori
  return JSON.stringify({build:REPORT_BUILD,origin:reportText(safeOrigin,256),userAgent:reportText(userAgent,512),visibilityAtFailure:['visible','hidden'].includes(visibilityState)?visibilityState:'unavailable',loading},null,2);
 }
 function showLoadingFailureDetails(state){
- if(globalThis.location?.origin!==REPORT_ORIGIN||state.status!=='failed')return;
+ if(!REPORT_ORIGINS.includes(globalThis.location?.origin)||state.status!=='failed')return;
  const section=$('loadingFailureDetails'),detail=$('loadingFailureDetail'),button=$('copyLoadingReport'),disclosure=$('loadingReportDisclosure'),text=$('loadingReport'),status=$('loadingReportCopyStatus');
  if(!section||!detail||!button||!disclosure||!text||!status)return;
  const stage=state.active==='scene'&&state.progress?.label?state.progress.label:activity[state.active]||'Preparing the flight';

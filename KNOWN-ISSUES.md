@@ -1,13 +1,16 @@
-# Development issues — v0.54.8
+# Release validation — v0.54.9
 
-## Safari startup timeout
+## Device validation
 
 v0.54.8 guarantees iterator progress per collision-preparation slice and cancels
 scheduled collision work on timeout. Retry cleanup is scoped to its own attempt.
 Title GPU rendering also pauses during collision preparation, then resumes.
 The corresponding preview candidate passed a bounded Apple M3 Pro Chromium
 148.0.7778.96 / Metal check: Ready, Start, Skip and five seconds of flight.
-Safari device acceptance is still pending.
+A user reported smooth play on an Apple M3. The browser was not specified in
+that report. Apple M1 acceptance is still pending. v0.54.9 preserves these
+gameplay fixes and adds the canonical production address; it does not change
+rendering quality or claim a replay-performance fix.
 The report below describes v0.54.7.
 
 Reported environment: Apple M1, Safari 17.6. Scene assembly ran from 6.950s to
