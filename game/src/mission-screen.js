@@ -32,9 +32,11 @@ export function boundedPreparation(work,{timeoutMs=30000,setTimer=setTimeout,cle
  if(!Number.isFinite(timeoutMs)||timeoutMs<=0)throw TypeError('Invalid preparation deadline');
  return new Promise((resolve,reject)=>{
   const started=now(),timeout=()=>Object.assign(Error('Flight preparation timed out'),{code:'PREPARATION_TIMEOUT'});
-  let settled=false;const finish=(callback,value)=>{if(settled)return;settled=true;clearTimer(timer);callback(value);};
-  const timer=setTimer(()=>finish(reject,timeout()),timeoutMs);
-  Promise.resolve().then(work).then(value=>now()-started>=timeoutMs?finish(reject,timeout()):finish(resolve,value),error=>finish(reject,error));
+  let settled=false,task=null;
+  const finish=(callback,value)=>{if(settled)return;settled=true;clearTimer(timer);callback(value);};
+  // Cancel the in-flight task on deadline so yielded loops stop scheduling.
+  const timer=setTimer(()=>{try{task?.cancel?.();}catch{}finish(reject,timeout());},timeoutMs);
+  Promise.resolve().then(()=>{task=work();return task;}).then(value=>now()-started>=timeoutMs?finish(reject,timeout()):finish(resolve,value),error=>finish(reject,error));
  });
 }
 export function yieldLoadingPaint({frame=globalThis.requestAnimationFrame,cancelFrame=globalThis.cancelAnimationFrame,schedule=setTimeout,cancel=clearTimeout,fallbackMs=100}={}){
@@ -125,7 +127,7 @@ export const loadingSnapshot=()=>Object.freeze({...loading.snapshot(),trace:star
 export const loadingStage=id=>loading.complete(id);
 export const loadingProgress=(id,detail)=>loading.begin(id,detail);
 export const loadingReady=()=>loading.ready();
-const REPORT_BUILD='0.54.7',REPORT_ORIGIN='http://127.0.0.1:8000';
+const REPORT_BUILD='0.54.8',REPORT_ORIGIN='http://127.0.0.1:8000';
 const reportText=(value,limit)=>String(value??'').slice(0,limit);
 export function buildLoadingFailureReport(state,{origin=globalThis.location?.origin,userAgent=globalThis.navigator?.userAgent,visibilityState=globalThis.document?.visibilityState}={}){
  if(state?.status!=='failed')return null;

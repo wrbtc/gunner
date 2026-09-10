@@ -1,6 +1,7 @@
 import {EGG_SITES,isNestingWidth} from './river-profile.js?v=052';
 import * as THREE from '../vendor/three.module.js?v=052';
 import {mergeGeometries} from '../vendor/BufferGeometryUtils.js?v=052';
+import {createSlicedIteratorPreparation} from './sliced-iterator-preparation.js?v=054-8';
 const V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z),UP=V(0,1,0),Z=V(0,0,1),clamp=THREE.MathUtils.clamp;
 function solid(g){const h=g.index?g.toNonIndexed():g.clone();h.deleteAttribute('uv');h.deleteAttribute('color');return h;}
 function ell(p,s){return solid(new THREE.SphereGeometry(1,12,9).scale(...s).translate(...p));}
@@ -125,21 +126,35 @@ export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hit
   // Synchronous fallback is idempotent; ordinary play begins only after prepareCollision.
   collisionIterator ||= buildCollision();while(!collisionIterator.next().done){}
  }
- function prepareCollision(){
+ function prepareCollision(hooks={}){
   if(collisionReady)return Promise.resolve();
   if(preparation)return preparation;
-  collisionIterator ||= buildCollision();const started=performance.now();
-  preparation=new Promise((resolve,reject)=>{
-   function slice(){
-    try{
-     const begin=performance.now();let done=collisionReady;
-     while(!done&&performance.now()-begin<2)done=collisionIterator.next().done;
-     const cost=performance.now()-begin;preparationStats.slices++;preparationStats.cpuMs+=cost;preparationStats.maxSliceMs=Math.max(preparationStats.maxSliceMs,cost);
-     if(done||collisionReady){preparationStats.wallMs=performance.now()-started;resolve();}else setTimeout(slice,0);
-    }catch(error){reject(error);}
-   }
-   setTimeout(slice,0);
-  });return preparation;
+  const iterator=collisionIterator ||= buildCollision();
+  const now=hooks.now||(()=>performance.now());
+  const started=now();
+  const tracked=createSlicedIteratorPreparation(iterator,{
+   now,
+   schedule:hooks.schedule||setTimeout,
+   cancelSchedule:hooks.cancel||clearTimeout,
+   sliceBudgetMs:2,
+   isReady:()=>collisionReady,
+   onSlice:({cost})=>{preparationStats.slices++;preparationStats.cpuMs+=cost;preparationStats.maxSliceMs=Math.max(preparationStats.maxSliceMs,cost);},
+  });
+  const clearSticky=(discard=false)=>{
+   if(preparation!==tracked)return;
+   if(discard&&collisionIterator===iterator)collisionIterator=null;
+   preparation=null;
+  };
+  const abort=tracked.cancel;
+  tracked.cancel=()=>{
+   if(preparation!==tracked)return;
+   // Drop the sticky promise and iterator so a later retry rebuilds from scratch.
+   abort();
+   clearSticky(true);
+  };
+  tracked.then(()=>{if(preparation===tracked){preparationStats.wallMs=now()-started;clearSticky();}},()=>clearSticky(true));
+  preparation=tracked;
+  return preparation;
  }
  function ensureCollision(){rebuildCollision();}
  const sweptBox=new THREE.Box3();

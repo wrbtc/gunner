@@ -1,5 +1,5 @@
 {
-  "version": "0.54.7",
+  "version": "0.54.8",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -117,14 +117,14 @@
       "bytes": 477744
     },
     {
-      "path": "game/assets/gunner-plane.svg",
-      "sha256": "915369207ab8bd127d8313d0f2e0d82dc6c793d9699582108d2a5219b426945b",
-      "bytes": 400
-    },
-    {
       "path": "game/assets/gunner-chapter.jpg",
       "sha256": "0f8cfb7591427016a52af34929b254dca68c67fb8ffadf060f43919e1e5d685c",
       "bytes": 288973
+    },
+    {
+      "path": "game/assets/gunner-plane.svg",
+      "sha256": "915369207ab8bd127d8313d0f2e0d82dc6c793d9699582108d2a5219b426945b",
+      "bytes": 400
     },
     {
       "path": "game/assets/ranks/PROVENANCE.json",
@@ -163,17 +163,17 @@
     },
     {
       "path": "game/index.html",
-      "sha256": "811f1fd0a456aac91d2a27b426e86ca2121e9508ea4c43b0ebf73affd9eaa2ad",
+      "sha256": "da86fc4d32c4ded9cf20b0e64044722f4a3d50c4c8f1d6756dce1e9cae681dc9",
       "bytes": 11694
     },
     {
       "path": "game/main.js",
-      "sha256": "c7541b85f1fecbd689bb577019a2b6c870ae767a780348c938a9f0aaf15ad0a0",
-      "bytes": 155176
+      "sha256": "81a4d01cffa74b949f166138413611cdcab721b4572ac475af79c21d3e701f45",
+      "bytes": 155519
     },
     {
       "path": "game/mobile-entry.js",
-      "sha256": "26d8d9c70cb447412d6a4861cfe4e55c864f820e80e464b9cb529478b0cc3697",
+      "sha256": "7c0ff2a19da2b4caa63f1bbbda37972fac8e06464bad62b2ec2318f0c9fd7019",
       "bytes": 3350
     },
     {
@@ -283,8 +283,8 @@
     },
     {
       "path": "game/src/egg-nests.js",
-      "sha256": "05b9124fc3098c688a71bdf49659ec445dedaebbc2821fcf75d8ad1ba13bd1da",
-      "bytes": 35695
+      "sha256": "ccd695108814062d093fe3fa710121ded7ed1bb2caff7e2c22d3b96db34e327c",
+      "bytes": 36170
     },
     {
       "path": "game/src/ending-flight.js",
@@ -348,8 +348,8 @@
     },
     {
       "path": "game/src/mission-screen.js",
-      "sha256": "0b91e426f18246b653428e561674099a80ef5a348726a81e6a434ac0934f362a",
-      "bytes": 17281
+      "sha256": "7a07b76b62f8541bf7b2435a2ee7f113ac3c3c3efcb085b7b48317da15ff90a1",
+      "bytes": 17429
     },
     {
       "path": "game/src/opening-camera.js",
@@ -457,6 +457,11 @@
       "bytes": 11540
     },
     {
+      "path": "game/src/sliced-iterator-preparation.js",
+      "sha256": "f31f26b20f6ab2a51eaa90bc73aa34f9cbb15f422c0e4d63457367ceac253bcf",
+      "bytes": 1724
+    },
+    {
       "path": "game/src/sphere-overlap-bound.js",
       "sha256": "a02d41b6fbb2432907734f777c8964447066e9d49ef1f42185029665ec7c2ee4",
       "bytes": 1057
@@ -522,5 +527,5 @@
       "bytes": 1272972
     }
   ],
-  "note": "Development v0.54.7 standardized on Gunner names, with personal/deployment references removed, telemetry disabled, local diagnostics, lossless image metadata removal and private model notes removed. Gameplay otherwise preserved."
+  "note": "Gunner v0.54.8: collision preparation progress and attempt-owned cancellation. Public privacy adaptations retained; Safari acceptance pending."
 }

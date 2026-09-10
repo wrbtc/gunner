@@ -1,6 +1,14 @@
-# Development issues — v0.54.7
+# Development issues — v0.54.8
 
 ## Safari startup timeout
+
+v0.54.8 guarantees iterator progress per collision-preparation slice and cancels
+scheduled collision work on timeout. Retry cleanup is scoped to its own attempt.
+Title GPU rendering also pauses during collision preparation, then resumes.
+The corresponding preview candidate passed a bounded Apple M3 Pro Chromium
+148.0.7778.96 / Metal check: Ready, Start, Skip and five seconds of flight.
+Safari device acceptance is still pending.
+The report below describes v0.54.7.
 
 Reported environment: Apple M1, Safari 17.6. Scene assembly ran from 6.950s to
 22.417s after page start (15.467s duration). Egg-collision preparation then ran
@@ -13,8 +21,8 @@ cancellation paths in `game/src/mission-screen.js`, and the startup caller in
 
 A conditional liveness flaw was demonstrated with injected clock readings: the
 2ms preparation loop can schedule another slice without advancing the iterator.
-This is a source-level finding, not a reproduced Safari root cause. Recurring
-title rendering and incomplete cancellation are additional investigation leads.
+This is a source-level finding, not a reproduced Safari root cause. v0.54.8
+also addresses concurrent title rendering and scheduled-work cancellation.
 Preserve collision results and meaningful readiness gates when fixing progress;
 increasing deadlines alone does not prove a fix.
 
