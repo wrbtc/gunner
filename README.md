@@ -5,7 +5,9 @@ Fly through a volcanic canyon, destroy nests and creatures, and survive the Quee
 
 **Play Gunner: https://gunner.satoshis.watch/**
 
-This is **v0.54.9, the golden master release**.
+This is **v0.54.10**, the complete walkie-radio voice update to the v0.54.9 golden master.
+All 12 pilot lines use the supplied radio takes, including push-to-talk open/close sounds.
+Gameplay and rendering remain the golden master.
 It includes the complete game runtime, procedural geometry and shaders, models,
 textures, illustrations, recorded dialogue, audio synthesis, and optional score
 backend source. Three.js is vendored; no frontend build or package install is needed.

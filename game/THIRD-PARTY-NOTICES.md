@@ -53,3 +53,14 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+## Pilot recordings
+
+The current pilot uses supplied AI-generated MiniMax speech-2.8-hd recordings
+with the stock English_PassionateWarrior voice and supplied walkie-radio effects.
+The provenance, source recording hashes and assembled sprite hash are recorded
+in assets/audio/PROVENANCE.json. No voice model or generation service runs in the game.
+
+Retained earlier pilot recordings use Kokoro-82M am_fenrir. Their generation
+provenance remains in the same JSON; the upstream code license is preserved in
+assets/audio/KOKORO-CODE-LICENSE.txt.

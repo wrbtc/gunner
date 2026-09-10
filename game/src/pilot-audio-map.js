@@ -1,55 +1,55 @@
-// PCM-derived offsets; original eleven clips unchanged. Mono MP3.
+// PCM-derived timings include each complete supplied radio clip; 50 ms silent guards separate clips.
 export const PILOT_AUDIO=Object.freeze({
-  "url": "../assets/audio/pilot-radio-v054.mp3",
+  "url": "../assets/audio/pilot-radio-v05410.mp3",
   "clips": {
     "mission": {
-      "offset": 0,
-      "duration": 5.455
+      "offset": 0.0,
+      "duration": 6.75
     },
     "boarding": {
-      "offset": 5.455,
-      "duration": 1.88
+      "offset": 6.8,
+      "duration": 1.817375
     },
     "weapons": {
-      "offset": 7.335,
-      "duration": 2.505
+      "offset": 8.667375,
+      "duration": 2.7229375
     },
     "nests": {
-      "offset": 9.84,
-      "duration": 3.455
+      "offset": 11.4403125,
+      "duration": 3.8375
     },
     "altar": {
-      "offset": 13.295,
-      "duration": 3.08
+      "offset": 15.3278125,
+      "duration": 3.5240416666666667
     },
     "queenApproach": {
-      "offset": 16.375,
-      "duration": 2.03
+      "offset": 18.901854166666666,
+      "duration": 2.1889166666666666
     },
     "queenIntro": {
-      "offset": 18.405,
-      "duration": 3.855
+      "offset": 21.140770833333335,
+      "duration": 3.907125
     },
     "queenCombat": {
-      "offset": 22.26,
-      "duration": 2.905
+      "offset": 25.097895833333332,
+      "duration": 3.0131875
     },
     "queenReload": {
-      "offset": 25.165000000000003,
-      "duration": 2.33
-    },
-    "topTen": {
-      "offset": 27.495000000000005,
-      "duration": 5.03
-    },
-    "mayday": {
-      "offset": 32.525000000000006,
-      "duration": 2.38
+      "offset": 28.161083333333334,
+      "duration": 2.3754791666666666
     },
     "victory": {
-      "offset": 34.905,
-      "duration": 6.655
+      "offset": 30.5865625,
+      "duration": 9.224541666666667
+    },
+    "mayday": {
+      "offset": 39.861104166666664,
+      "duration": 3.1757291666666667
+    },
+    "topTen": {
+      "offset": 43.08683333333333,
+      "duration": 5.277125
     }
   },
-  "sha256": "300660ecb958a28ab159d4d293c2a77ce433efe389b7e8fc9703311c6a09ac41"
+  "sha256": "dc479951600c366e3145ce3bafe54d9f8593bf1d31f5182ed9ffe6b62bdb0ab2"
 });

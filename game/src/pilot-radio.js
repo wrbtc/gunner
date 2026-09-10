@@ -1,5 +1,5 @@
 import {PILOT_LINES} from './pilot-lines.js?v=054';
-import {PILOT_AUDIO} from './pilot-audio-map.js?v=054';
+import {PILOT_AUDIO} from './pilot-audio-map.js?v=054-10';
 import {createPilotQueue} from './pilot-queue.js?v=052';
 export function createPilotRadio({audio,caption,voiceVolume=.85,captions=true,audioMap=PILOT_AUDIO}){
  const delivered=new Set();let transmission=null,lossRequestedAt=null;

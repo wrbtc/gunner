@@ -1,10 +1,10 @@
 {
-  "version": "0.54.9",
+  "version": "0.54.10",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
-      "bytes": 2744,
-      "sha256": "4fd084cc477a45cdfb38e1f876cd800f0db55f5141d35d3aa026cef00ac9a01e"
+      "bytes": 3288,
+      "sha256": "0ca1ecefef660df036ccc2ccf6429bcff906b45f3daa188e574b0f73a485473e"
     },
     {
       "path": "game/assets/CINDER-MAW-PROVENANCE.json",
@@ -18,8 +18,8 @@
     },
     {
       "path": "game/assets/audio/PROVENANCE.json",
-      "bytes": 1692,
-      "sha256": "5a89c17fc1c85f3a7b1b2914b223310d53742ee845b50946200e701bb01f732c"
+      "bytes": 4425,
+      "sha256": "d943000cd26e23ea0c6396625c49f022f1828afb6b74f6b5a74c1d930b555525"
     },
     {
       "path": "game/assets/audio/pilot-radio-v042.mp3",
@@ -35,6 +35,11 @@
       "path": "game/assets/audio/pilot-radio-v054.mp3",
       "bytes": 333164,
       "sha256": "300660ecb958a28ab159d4d293c2a77ce433efe389b7e8fc9703311c6a09ac41"
+    },
+    {
+      "path": "game/assets/audio/pilot-radio-v05410.mp3",
+      "bytes": 775825,
+      "sha256": "dc479951600c366e3145ce3bafe54d9f8593bf1d31f5182ed9ffe6b62bdb0ab2"
     },
     {
       "path": "game/assets/cinder-maw-v02.glb",
@@ -163,18 +168,18 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 11825,
-      "sha256": "bf84c2012ce7a25803bc15865b2d8f164e1d985dadb5b2027001b20feb6654f1"
+      "bytes": 11827,
+      "sha256": "6877da74de5cf7a7dfaa7e6e593f89b6127558e81e6a37e6e99c52cc4ba446a3"
     },
     {
       "path": "game/main.js",
-      "bytes": 155519,
-      "sha256": "acf3ae324beee2e7ee3cbaf79b7548b6b42a927f1783cac21b6b67afbc2c30a6"
+      "bytes": 155524,
+      "sha256": "567f3934ee585e0d949a1f6ed9e0fbb14b866b23b563be5e5805ae7fc55fe8ea"
     },
     {
       "path": "game/mobile-entry.js",
-      "bytes": 3350,
-      "sha256": "b26f16997017766b5fbf43fa61a3bbabc97d31346257c2097562152e21c01076"
+      "bytes": 3351,
+      "sha256": "efb92eaecf20ac4e5506c47fc92ab4152077bc5735bf7e01d6819e9e047515ed"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -348,8 +353,8 @@
     },
     {
       "path": "game/src/mission-screen.js",
-      "bytes": 17474,
-      "sha256": "2f2a6e5ba942bccb20190b7a68bee879b34f8de505f02d08b55bf0737d3a47ec"
+      "bytes": 17475,
+      "sha256": "40a1a16c00f250eb621787c1eb3da83460e8171bb315104a756fa71f1159bcfc"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -358,8 +363,8 @@
     },
     {
       "path": "game/src/pilot-audio-map.js",
-      "bytes": 1153,
-      "sha256": "b10ed4e086db3e14d551f1545b29edacbc78d6a828fb69ecb312c8597077dd57"
+      "bytes": 1330,
+      "sha256": "ff575b3f8f817ae353457082b441dc08bc09eaeb77a5497afd7f74f4064bef34"
     },
     {
       "path": "game/src/pilot-lines.js",
@@ -373,8 +378,8 @@
     },
     {
       "path": "game/src/pilot-radio.js",
-      "bytes": 7629,
-      "sha256": "83c752957f6e2ffb5e9bcb8805c6bfe18d1233492675def415fe932adadd1245"
+      "bytes": 7632,
+      "sha256": "9bb0b3b53bc4c6a056a900825c6fa2e649d9678ced4e84913bc4ba52711f2dcb"
     },
     {
       "path": "game/src/plasma-bugs.js",

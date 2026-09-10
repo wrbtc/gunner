@@ -1,43 +1,129 @@
 {
-  "voice": "Kokoro82M am_fenrir stock American male",
-  "generation": "Offline CPU, original fictional pilot dialogue, no voice cloning",
-  "upstream": "https://huggingface.co/hexgrad/Kokoro-82M/tree/f3ff3571791e39611d31c381e3a41a3af07b4987",
-  "code": "https://github.com/hexgrad/kokoro/tree/dfb907a02bba8152ca444717ca5d78747ccb4bec",
-  "modelCardLicense": "apache-2.0; model repository supplies model-card declaration rather than separate LICENSE",
-  "runtime": "Only compressed recording is shipped. Model, Python, torch and inference dependencies remain production tools.",
-  "processing": "Exact original v052 PCM prefix, one newly synthesized victory take appended at34.905s,6.655s. Same radio filter and stockvoice; mono64kbps MP3. No human audition.",
-  "seconds": 41.56,
+  "voice": "MiniMax English_PassionateWarrior stock voice",
+  "model": "speech-2.8-hd",
+  "generation": "User-supplied AI-generated fictional pilot dialogue",
+  "processing": "Supplied walkie-radio processing retained, including PTT open/close and steady static. Decoded to mono 48 kHz PCM, concatenated with 50 ms silent guards, encoded once at 128 kbps. No additional filters, pitch, speed or level changes.",
   "file": {
-    "name": "pilot-radio-v054.mp3",
-    "bytes": 333164,
-    "sha256": "300660ecb958a28ab159d4d293c2a77ce433efe389b7e8fc9703311c6a09ac41"
+    "name": "pilot-radio-v05410.mp3",
+    "bytes": 775825,
+    "sha256": "dc479951600c366e3145ce3bafe54d9f8593bf1d31f5182ed9ffe6b62bdb0ab2"
   },
-  "humanAuditioned": false,
-  "reusedUnchangedClips": [
-    "mission",
-    "boarding",
-    "weapons",
-    "nests",
-    "altar",
-    "queenApproach",
-    "queenIntro",
-    "queenCombat",
-    "queenReload",
-    "topTen",
-    "mayday"
+  "seconds": 48.41395833333333,
+  "sources": [
+    {
+      "id": "mission",
+      "bytes": 81836,
+      "sha256": "93aadc848bf79c2412ec71d4637f18d26ed7c68ea8747f6224ee8c061e9d59ab",
+      "frames": 324000
+    },
+    {
+      "id": "boarding",
+      "bytes": 22508,
+      "sha256": "48cf56a0546fedc75ae1fc8b003af7304c00e8c366fce11f994504ab8397283a",
+      "frames": 87234
+    },
+    {
+      "id": "weapons",
+      "bytes": 33452,
+      "sha256": "95ec19683cb859c467e22b085ced67c0c8c5ff5cb816a92c0efd9539530bc6a7",
+      "frames": 130701
+    },
+    {
+      "id": "nests",
+      "bytes": 46700,
+      "sha256": "c6e4c85ac397b70a65c7bbac53d4acacde7723f3f51f5c5b007fb467775a2dd3",
+      "frames": 184200
+    },
+    {
+      "id": "altar",
+      "bytes": 42956,
+      "sha256": "1e082c96b2c9c338316c147665ef4a4ab4b462042b88afcf4057a70c7f4212dc",
+      "frames": 169154
+    },
+    {
+      "id": "queenApproach",
+      "bytes": 27116,
+      "sha256": "6f28f0fa2f3e4c3c43e89afb051f5dc4b85cf1c4611d73bca1a87ba769d5c709",
+      "frames": 105068
+    },
+    {
+      "id": "queenIntro",
+      "bytes": 47564,
+      "sha256": "a773d144bfb65ea6ea119bcd04e6612135f3ae5aec74a715152839e9b415bd5e",
+      "frames": 187542
+    },
+    {
+      "id": "queenCombat",
+      "bytes": 36908,
+      "sha256": "69a2105dece29183765dac6137ec1e9a79606b86647905ce09031972324a411b",
+      "frames": 144633
+    },
+    {
+      "id": "queenReload",
+      "bytes": 29132,
+      "sha256": "0d8bc2c0d5d7d51b8311669cd10d30a8e69e62aa7c3ecef88ad1b0da02936485",
+      "frames": 114023
+    },
+    {
+      "id": "victory",
+      "bytes": 111500,
+      "sha256": "40885fa6c1d6e49ae89f9ee404cb69870448c37636d8574eae0d8aa1f5584a4e",
+      "frames": 442778
+    },
+    {
+      "id": "mayday",
+      "bytes": 38924,
+      "sha256": "852a55add3ac3558ee30b70d1123cb44160232c94e21300c43ba7f149cb203b5",
+      "frames": 152435
+    },
+    {
+      "id": "topTen",
+      "bytes": 63980,
+      "sha256": "2d93e941000fc078ecf07faada5f31a2fa8faeecb624259023e996ef96d8696a",
+      "frames": 253302
+    }
   ],
-  "newClips": [
-    "victory"
-  ],
-  "integratedLUFS": -19.2,
-  "modelPins": {
-    "kokoro-v1_0.pth": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4",
-    "config.json": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f",
-    "am_fenrir.pt": "98e507eca1db08230ae3b6232d59c10aec9630022d19accac4f5d12fcec3c37a"
-  },
-  "previousRecording": {
-    "name": "pilot-radio-v052.mp3",
-    "bytes": 279980,
-    "sha256": "b381f2c2543dcba050b43d052919f7d7585d27a43d2b60e2a82b11f6a3cd6d27"
+  "previousRecordingProvenance": {
+    "voice": "Kokoro82M am_fenrir stock American male",
+    "generation": "Offline CPU, original fictional pilot dialogue, no voice cloning",
+    "upstream": "https://huggingface.co/hexgrad/Kokoro-82M/tree/f3ff3571791e39611d31c381e3a41a3af07b4987",
+    "code": "https://github.com/hexgrad/kokoro/tree/dfb907a02bba8152ca444717ca5d78747ccb4bec",
+    "modelCardLicense": "apache-2.0; model repository supplies model-card declaration rather than separate LICENSE",
+    "runtime": "Only compressed recording is shipped. Model, Python, torch and inference dependencies remain production tools.",
+    "processing": "Exact original v052 PCM prefix, one newly synthesized victory take appended at34.905s,6.655s. Same radio filter and stockvoice; mono64kbps MP3. No human audition.",
+    "seconds": 41.56,
+    "file": {
+      "name": "pilot-radio-v054.mp3",
+      "bytes": 333164,
+      "sha256": "300660ecb958a28ab159d4d293c2a77ce433efe389b7e8fc9703311c6a09ac41"
+    },
+    "humanAuditioned": false,
+    "reusedUnchangedClips": [
+      "mission",
+      "boarding",
+      "weapons",
+      "nests",
+      "altar",
+      "queenApproach",
+      "queenIntro",
+      "queenCombat",
+      "queenReload",
+      "topTen",
+      "mayday"
+    ],
+    "newClips": [
+      "victory"
+    ],
+    "integratedLUFS": -19.2,
+    "modelPins": {
+      "kokoro-v1_0.pth": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4",
+      "config.json": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f",
+      "am_fenrir.pt": "98e507eca1db08230ae3b6232d59c10aec9630022d19accac4f5d12fcec3c37a"
+    },
+    "previousRecording": {
+      "name": "pilot-radio-v052.mp3",
+      "bytes": 279980,
+      "sha256": "b381f2c2543dcba050b43d052919f7d7585d27a43d2b60e2a82b11f6a3cd6d27"
+    }
   }
 }
