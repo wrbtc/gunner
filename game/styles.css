@@ -437,6 +437,10 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 #intro.mission-poster .mission-masthead h1{
   text-shadow:0 2px 28px rgba(0,0,0,.65);
 }
+#intro.mission-poster .mission-edition{
+  margin:0;color:#c5ccb6;opacity:.88;white-space:nowrap;
+  text-shadow:0 1px 8px rgba(0,0,0,.7);
+}
 #intro.mission-poster .poster-body{
   flex:1 1 auto;display:grid;
   grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr);

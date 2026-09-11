@@ -198,8 +198,8 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 13220,
-      "sha256": "c0dd6ee045fffa0a9c57c65f9429486aa108f8e3476f8bd5bd4d1084d5df7a1b"
+      "bytes": 13307,
+      "sha256": "538a5a10eea81e491ede22ab81a4fdda3a1cbdd3320527c17be8db483e72b24b"
     },
     {
       "path": "game/main.js",
@@ -403,8 +403,8 @@
     },
     {
       "path": "game/src/mission-screen.js",
-      "bytes": 24527,
-      "sha256": "46978704b5c8180f6bf476f4319fcd18ff5ac521cb470b9612ce22e753bacbaf"
+      "bytes": 24638,
+      "sha256": "0d763584d0b2919a1a497ba0a2e3e9924030c358e424f739180542ba9b09f83b"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -573,8 +573,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 56427,
-      "sha256": "95bdb97b176e2c9f5c2ae5662fd6d55e8ba0520fcc3ace4b306718bbbdc2c5dc"
+      "bytes": 56566,
+      "sha256": "a35fb66bd8fbe2cb3625f1a7f9eec875e7ca214e03802910c461c7d4ec810c68"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",

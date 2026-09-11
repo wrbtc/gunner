@@ -46,9 +46,14 @@ assert.match(styles,/#intro\.mission-poster \.poster-soon\{[^}]*order:1/);
 assert.match(styles,/@media\(max-height:760px\)[\s\S]*#intro\.mission-poster \.poster-soon\{display:none\}/);
 assert.match(styles,/@media\(max-height:850px\)[\s\S]*#intro\.mission-poster \.poster-soon h2,[\s\S]*display:none/);
 assert.match(styles,/#intro\.mission-poster \.poster-body\{[\s\S]*align-items:end/);
-for(const id of ['loadingSystems','loadStatus','startButton','loadingFailureDetails','copyLoadingReport','fieldGuideButton','settingsButton','menuMusicButton','reportFailedLoad']){
+for(const id of ['loadingSystems','loadStatus','startButton','loadingFailureDetails','copyLoadingReport','fieldGuideButton','settingsButton','menuMusicButton','reportFailedLoad','missionBuild']){
   assert.equal((index.match(new RegExp(`id="${id}"`,'g'))||[]).length,1,`${id} must appear exactly once`);
 }
+assert.match(index,/<p id="missionBuild" class="mission-edition" aria-label="Release version"><\/p>/);
+assert.ok(index.indexOf('class="mission-masthead"')<index.indexOf('id="missionBuild"'));
+assert.ok(index.indexOf('id="missionBuild"')<index.indexOf('class="deployment-action"'),'build label must not sit in the Deploy stack');
+assert.doesNotMatch(index,/>v?0\.54\.\d+</,'HTML must not hardcode the release identity');
+assert.match(styles,/#intro\.mission-poster \.mission-edition\{/);
 assert.match(styles,/#intro\.mission-poster>\.chapter-image\{/);
 assert.match(styles,/object-position:50% 45%/);
 assert.match(styles,/@media\(max-width:850px\)/);
@@ -83,6 +88,8 @@ assert.match(styles,/#intro\.mission-poster\{[\s\S]*overflow:auto/);
 assert.doesNotMatch(styles,/#intro\.mission-poster\{padding:0;overflow:hidden/);
 assert.match(styles,/\.ammo-progress\{display:grid;grid-template-columns:repeat\(12/);
 const briefing=read('src/mission-screen.js').toString('utf8');
+assert.match(briefing,/export const REPORT_BUILD='0\.54\.34'/);
+assert.match(briefing,/missionBuild\.textContent='v'\+REPORT_BUILD/);
 const loadingItems=briefing.match(/LOADING_ITEMS=Object\.freeze\(\[([^\]]+)\]/)?.[1].split(',').filter(Boolean)||[];
 assert.equal(loadingItems.length,24,'24-stage ammo loader must remain');
 assert.equal(createHash('sha256').update(read('assets/gunner-chapter.jpg')).digest('hex'),'eac79b6993bbe6a32f77cf0c61ae3e9bf5f9dd431607c0a5b333cc7768644b52');
