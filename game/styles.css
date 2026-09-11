@@ -440,7 +440,7 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 #intro.mission-poster .poster-body{
   flex:1 1 auto;display:grid;
   grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr);
-  gap:clamp(18px,4vw,48px);align-items:start;
+  gap:clamp(18px,4vw,48px);align-items:end;
   min-height:0;overflow:visible;
 }
 #intro.mission-poster .poster-left{display:flex;flex-direction:column;gap:22px;max-width:520px;min-height:0;min-width:0;overflow:hidden}
@@ -466,7 +466,7 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 #intro.mission-poster .mission-orders>span:last-child{color:#c9d0bc}
 #intro.mission-poster .poster-right{
   display:flex;flex-direction:column;align-items:stretch;gap:16px;
-  justify-content:flex-start;min-height:0;min-width:0;overflow:visible;
+  justify-content:flex-end;min-height:0;min-width:0;overflow:visible;
 }
 #intro.mission-poster .poster-soon{
   text-align:right;color:#c5cbb8;flex:0 0 auto;order:1;overflow:hidden;min-width:0;
@@ -603,8 +603,9 @@ html[data-app-short] #intro.mission-poster .mission-footer{margin-top:8px;paddin
   #intro.mission-poster .mission-footer{margin-top:8px;padding-top:8px}
   #intro.mission-poster #loadingSystems{margin-bottom:0}
   #intro.mission-poster #startButton{min-height:54px}
+  #intro.mission-poster .poster-soon{display:none}
 }
-/* ~650–720px Safari content height. Quiet COMING SOON only; keep brass Deploy at 54px. */
+/* ~650–720px Safari content height. Coming Soon already dropped at 760px; keep brass Deploy at 54px. */
 @media(max-height:720px){
   #intro.mission-poster .mission-masthead h1{font-size:clamp(36px,5.4vw,52px)}
   #intro.mission-poster .poster-soon h2,
