@@ -1,5 +1,5 @@
 {
-  "version": "0.54.28",
+  "version": "0.54.29",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -198,18 +198,18 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 13164,
-      "sha256": "75c38cf6b0a8fc56538385aae713aa32373bb9797527ef93da1f47dffe278c11"
+      "bytes": 13220,
+      "sha256": "cfb5b96f31f73bf684109d65f410eff7f9aadf980b28b9d63b18b2db129c6369"
     },
     {
       "path": "game/main.js",
       "bytes": 157915,
-      "sha256": "ee9061a416a36d0c0851c75eeda1e6ebecaa6a71a23891b9aca470b6e88a6ecc"
+      "sha256": "7200d36d4695c36de3dccb1401fc3b9db7328a676ae49a7a0c398994ef77d82c"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "6fcc1879c39e5c17ef31e6da3c7ea9a69f535a2f6ff9fbae868c778205064d64"
+      "sha256": "5496b32b7950c06641d06b727f0760ae713334e0e23b8e0e6ce5c4fe867a085b"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -404,7 +404,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 24527,
-      "sha256": "c4cc0c93d452526c9b13cf28cfb3cf35f87ff8a8b1824227751a8e188cb4cc6e"
+      "sha256": "7df5cd765d2f16b3122f6309f92055d8544c5acc7ed147a79bb5725b1ca1fc0d"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -573,8 +573,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 55007,
-      "sha256": "2cdf7cdc0ae65180dde4ffad65693a71c0002c37c5b5d135f79b2e6ffbda0c61"
+      "bytes": 56366,
+      "sha256": "6de8989c8d4f3c0931081add023efe9933019464330cd326e95f62023337e0fc"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.28 runtime with the short-desktop deployment controls kept inside 864px, 720px, and 650px viewports, a visible failed-load report path, supplied Queen cinematic samples, explicit click-to-play music consent, bounded graphics diagnostics, and an in-flight FPS counter. Public privacy adaptations retained; physical Intel Safari performance acceptance remains pending."
+  "note": "Gunner v0.54.29 runtime with the short-desktop hierarchy start-packed, Coming Soon quieted, and ammo, Deploy, failed-load reporting, and footer controls kept inside 864px, 720px, and 650px viewports. Explicit click-to-play music consent, supplied Queen cinematic samples, bounded diagnostics, and the in-flight FPS counter remain. Public privacy adaptations retained; physical Intel Safari performance acceptance remains pending."
 }
