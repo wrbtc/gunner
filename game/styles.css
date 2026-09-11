@@ -497,10 +497,23 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 }
 #intro.mission-poster .loading-failure{margin-top:0}
 #intro.mission-poster .loading-failure .report-load-button{margin:8px 0 0}
+/* Fail-path REPORT/COPY stay gold fill and in the reserved deploy row — idle Report stays outline so Deploy remains the primary CTA. */
+#intro.mission-poster.load-failed .report-load-button,
+#intro.mission-poster .loading-failure .report-load-button{
+  background:#c4aa68;border:1px solid #e7d29b;color:#0b100b;
+  box-shadow:0 0 0 3px rgba(6,10,7,.55);text-shadow:none;
+}
+#intro.mission-poster.load-failed .report-load-button:hover,
+#intro.mission-poster.load-failed .report-load-button:focus-visible,
+#intro.mission-poster .loading-failure .report-load-button:hover,
+#intro.mission-poster .loading-failure .report-load-button:focus-visible{
+  background:#e3c888;color:#0b100b;
+}
 #intro.mission-poster.load-failed .poster-soon{display:none}
 #intro.mission-poster.load-failed .poster-body{align-items:start;overflow:auto;flex:0 1 auto}
 #intro.mission-poster.load-failed .poster-right{justify-content:flex-start}
 #intro.mission-poster.load-failed .deployment-action{flex:0 0 auto}
+#intro.mission-poster.load-failed .mission-footer{margin-top:auto}
 #intro.mission-poster .mission-footer{
   flex:0 0 auto;margin-top:10px;border-top:1px solid rgba(235,231,215,.18);
   padding-top:10px;color:#d7ddcb;position:relative;z-index:3;flex-wrap:wrap;gap:12px;

@@ -63,13 +63,23 @@ bugs after v0.54.23 shipped `REPORT FAILED LOAD` as a footer `quietButton`:
 - `REPORT FAILED LOAD` was faint 11px text next to PLAY MUSIC, crushed into the
   Dock, so the tester could not start a copy-report QA pass.
 
-This branch moves that control into the Deploy column as a 44px gold
-`.report-load-button`, styles `COPY LOADING REPORT` the same way, and clips
-poster columns so copy cannot paint over the footer.
+This branch keeps `REPORT FAILED LOAD` in the reserved deploy column. Idle
+Report is a 44px outline so DEPLOY GUNNER stays the primary gold CTA. On the
+fail path (`#intro.load-failed` and `.loading-failure`), REPORT and COPY use
+the same gold fill as Deploy and stay in that reserved row.
 
-Fail UI: `#intro.load-failed` packs the gold RETRY / REPORT FAILED LOAD / COPY
-LOADING REPORT stack to the start of the deploy column so those controls stay
-initially in-viewport on ~650–720px Safari+Dock heights.
+`--app-inset-bottom` is now capped at **24px** (layout viewport minus visual
+viewport only). The older short-window pad was **56px** at `max-height:850px`
+and **64px** at `650px`, applied inside an already-visible visual box, which
+could push Deploy below the Dock-safe fold.
+
+An alternate column lock (ammo → DEPLOY → Coming Soon, `flex-start`, no
+`overflow:hidden` on the column) is left for a follow-up re-diff. This pass
+keeps Coming Soon in the poster body and a reserved deploy row under it.
+
+Fail UI: `#intro.load-failed` packs RETRY / gold REPORT / gold COPY in the
+reserved deploy row so those controls stay initially in-viewport on ~650–864px
+Safari+Dock heights.
 
 Stage budgets after the stall watchdog:
 

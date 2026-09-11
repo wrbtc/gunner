@@ -9,6 +9,9 @@
     if(visual&&layout)height=Math.min(visual,layout);
     var offsetTop=vv&&vv.offsetTop?vv.offsetTop:0;
     var insetBottom=0;
+    // Cap leftover layout-vs-visual slack at 24px. The old 56px/64px Dock pad
+    // sat inside an already-visible visualViewport box and pushed Deploy under
+    // the fold. This 24px only covers innerHeight minus visualViewport remainder.
     if(layout>height+offsetTop)insetBottom=Math.min(24,layout-height-offsetTop);
     root.style.setProperty('--app-height',Math.round(height)+'px');
     root.style.setProperty('--app-offset-top',Math.round(offsetTop)+'px');
