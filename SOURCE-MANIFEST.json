@@ -1,5 +1,5 @@
 {
-  "version": "0.54.10",
+  "version": "0.54.19",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -20,6 +20,26 @@
       "path": "game/assets/audio/PROVENANCE.json",
       "bytes": 4425,
       "sha256": "d943000cd26e23ea0c6396625c49f022f1828afb6b74f6b5a74c1d930b555525"
+    },
+    {
+      "path": "game/assets/audio/gunner-lose-v05416.mp3",
+      "bytes": 1026092,
+      "sha256": "f4990a82c92e4944b656ff2ecad3efac1c67f0f712becc43a93fdf74254bbcd6"
+    },
+    {
+      "path": "game/assets/audio/gunner-menu-theme-v05413.mp3",
+      "bytes": 3546268,
+      "sha256": "e9f8ce2215bdac7e7b30f78cefd79dd81c3c4084b2ae99a434c1a535fa845048"
+    },
+    {
+      "path": "game/assets/audio/gunner-menu-theme-v05416.mp3",
+      "bytes": 3522092,
+      "sha256": "61cc104313ca2af6e6f4b7e79292e39c1c130e8aa10f00dd639904061df4041d"
+    },
+    {
+      "path": "game/assets/audio/gunner-win-v05416.mp3",
+      "bytes": 2881580,
+      "sha256": "1afb17975040d9edeb0c3aff557b28a08bf382e143c2776ffffa2061dc1628ba"
     },
     {
       "path": "game/assets/audio/pilot-radio-v042.mp3",
@@ -123,8 +143,8 @@
     },
     {
       "path": "game/assets/gunner-chapter.jpg",
-      "bytes": 288973,
-      "sha256": "0f8cfb7591427016a52af34929b254dca68c67fb8ffadf060f43919e1e5d685c"
+      "bytes": 301577,
+      "sha256": "48279a1ee93faa97cede7b72e0c0c418f8be9fdc48e6a6e380a78e61fbf57645"
     },
     {
       "path": "game/assets/gunner-plane.svg",
@@ -168,18 +188,18 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 11827,
-      "sha256": "6877da74de5cf7a7dfaa7e6e593f89b6127558e81e6a37e6e99c52cc4ba446a3"
+      "bytes": 12516,
+      "sha256": "5766b06ca0fb0c242d3a19b1944a35c0b3c4a43a49d586d59273447bffbef3cc"
     },
     {
       "path": "game/main.js",
-      "bytes": 155524,
-      "sha256": "567f3934ee585e0d949a1f6ed9e0fbb14b866b23b563be5e5805ae7fc55fe8ea"
+      "bytes": 157570,
+      "sha256": "78c3ef6e3b8d179e9fa37293dd6fe9efdb3ac176fc35cc17de4b2f263885ffbb"
     },
     {
       "path": "game/mobile-entry.js",
-      "bytes": 3351,
-      "sha256": "efb92eaecf20ac4e5506c47fc92ab4152077bc5735bf7e01d6819e9e047515ed"
+      "bytes": 3396,
+      "sha256": "c389a10d6c63b787818d38bc2c6022d0a47b283d8b2358d65c6e57a6ca93ace4"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -213,8 +233,8 @@
     },
     {
       "path": "game/src/bank-demons.js",
-      "bytes": 24301,
-      "sha256": "6296abef4cb51332a930749bf956f903f03edfa1c3a13741e954e6d38485bda0"
+      "bytes": 25947,
+      "sha256": "72447470d5aa6c404b1fae61fb48075d06bbcaf924a918dc1b944056bbb378df"
     },
     {
       "path": "game/src/basalt-detail.js",
@@ -228,8 +248,8 @@
     },
     {
       "path": "game/src/bomber-exterior.js",
-      "bytes": 28299,
-      "sha256": "796e40a52f76a2b4133dce050941ae85759b2c0861a4c0aa47f9173594b0a8f6"
+      "bytes": 28244,
+      "sha256": "e3ce1af677cc96f78fd0cb468684049797a8ccbec669034b51141a3fdcb14f05"
     },
     {
       "path": "game/src/caldera-light.js",
@@ -248,8 +268,8 @@
     },
     {
       "path": "game/src/cinematic-pass.js",
-      "bytes": 21327,
-      "sha256": "a8166df0fca37de9d06805181cf74482612678c8070195b9efa50ba1b06f892b"
+      "bytes": 26163,
+      "sha256": "5cd55f809e455f1b0b3c0c271f5df8998984ac6fc72bc3e9bf3dbab651d8e2c5"
     },
     {
       "path": "game/src/cliff-outcrops.js",
@@ -288,13 +308,23 @@
     },
     {
       "path": "game/src/egg-nests.js",
-      "bytes": 36170,
-      "sha256": "027d685dff2c28f61c6f60f299d5d13a22dc279436464350c1847989bdc67688"
+      "bytes": 37544,
+      "sha256": "0d9fd549809ed08aa968125e395a14200d85a715c0be5adeee6e8cd9e06a72da"
     },
     {
       "path": "game/src/ending-flight.js",
       "bytes": 8266,
       "sha256": "1bb344cba18d05025171187e7e10ddfc2de770d430a13a83fc5364a75423909c"
+    },
+    {
+      "path": "game/src/field-guide-viewer.js",
+      "bytes": 7697,
+      "sha256": "63a1dd889cd6864ad53e70475dbb63ead8edc242a52d0c90d1e5ed1d086713d4"
+    },
+    {
+      "path": "game/src/guide-models.js",
+      "bytes": 2940,
+      "sha256": "3a549e57a40f0503970189b0999fdac443b313fbe43ed9b573aacd3420721bca"
     },
     {
       "path": "game/src/gun-bubble.js",
@@ -347,14 +377,19 @@
       "sha256": "3736eeb28275ee7118c0cf3dfdeac1c80aec4151a5389bcf41a24dde4c16ab40"
     },
     {
+      "path": "game/src/menu-music.js",
+      "bytes": 3206,
+      "sha256": "a2df7816864ec48c0e0d84fc7dfdf07877e76dba1983965c4a425ec828468d33"
+    },
+    {
       "path": "game/src/mission-rating.js",
       "bytes": 3525,
       "sha256": "edf729db2b4c45d237ef8ccae5cad7133b7d904e97316f138df9d013b2ca0639"
     },
     {
       "path": "game/src/mission-screen.js",
-      "bytes": 17475,
-      "sha256": "40a1a16c00f250eb621787c1eb3da83460e8171bb315104a756fa71f1159bcfc"
+      "bytes": 21408,
+      "sha256": "6be6462a710b1b6b3fb6828331495805a3f86c85d8efd3126c4177ec767ddf39"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -363,13 +398,13 @@
     },
     {
       "path": "game/src/pilot-audio-map.js",
-      "bytes": 1330,
-      "sha256": "ff575b3f8f817ae353457082b441dc08bc09eaeb77a5497afd7f74f4064bef34"
+      "bytes": 1240,
+      "sha256": "81511da6b6ff5baeeab9dcac1c9c950cd4b2627f971429c09ee7b8b6bdcc59e9"
     },
     {
       "path": "game/src/pilot-lines.js",
-      "bytes": 1528,
-      "sha256": "224f6fda671d2a624582a22c77f33b23359093fd517303364b5fde5da275bd00"
+      "bytes": 1395,
+      "sha256": "926433c04b1dae7176b38132c6c978fa5ad9792ec1131cbe046fa4e951982d73"
     },
     {
       "path": "game/src/pilot-queue.js",
@@ -378,8 +413,8 @@
     },
     {
       "path": "game/src/pilot-radio.js",
-      "bytes": 7632,
-      "sha256": "9bb0b3b53bc4c6a056a900825c6fa2e649d9678ced4e84913bc4ba52711f2dcb"
+      "bytes": 7603,
+      "sha256": "0f39fb4e20e93ba61e3d748deeea2d56d8a5f48b115181699ec692720065c8b0"
     },
     {
       "path": "game/src/plasma-bugs.js",
@@ -457,6 +492,11 @@
       "sha256": "bcacc8a941f8bababe6891412cdbb1d5adec74e80368de38f151c4b187bde9a4"
     },
     {
+      "path": "game/src/satoshi-markings.js",
+      "bytes": 3589,
+      "sha256": "b19c3ab5cb9871c6455c321513e8c04b54b6a045768bee70a2a1f97c327b2b26"
+    },
+    {
       "path": "game/src/sky-activity.js",
       "bytes": 11540,
       "sha256": "06c3ef75ab6e5f4c8b25eed6f6e25fec73a546e22b73d73ccf16ec038d08f54a"
@@ -465,6 +505,11 @@
       "path": "game/src/sliced-iterator-preparation.js",
       "bytes": 1724,
       "sha256": "f31f26b20f6ab2a51eaa90bc73aa34f9cbb15f422c0e4d63457367ceac253bcf"
+    },
+    {
+      "path": "game/src/sonar.js",
+      "bytes": 3132,
+      "sha256": "57db10833184077a8a3cdd504f9cbac3539508f41b835625f099ef47b7683352"
     },
     {
       "path": "game/src/sphere-overlap-bound.js",
@@ -508,8 +553,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 38116,
-      "sha256": "719420c0dac3cc966b6f29a9aa7f9a7b0f81f9639390613b59f5f1c6fe0da988"
+      "bytes": 42462,
+      "sha256": "9f99d51401b0267a045af456025ed0da24e0473042e7a7ca0dcfea415a6169a4"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",
@@ -532,5 +577,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.8: collision preparation progress and attempt-owned cancellation. Public privacy adaptations retained; Safari acceptance pending."
+  "note": "Gunner v0.54.19 production source with bounded graphics diagnostics and an in-flight FPS counter. Public privacy adaptations retained; Apple M1 and sustained cross-platform performance acceptance remain pending."
 }

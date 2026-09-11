@@ -1,7 +1,8 @@
+import {menuMusic} from './src/menu-music.js?v=054-16';
 import {missionBenchmark,missionRating,createRankReveal} from './src/mission-rating.js?v=054-6';
-import {loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-10';
+import {setGuideModelProvider,guideViewerStats,loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-19';
 import {createPlayTracking} from './src/play-tracking.js?v=052';
-import {createPilotRadio} from './src/pilot-radio.js?v=054-10';
+import {createPilotRadio} from './src/pilot-radio.js?v=054-16';
 import {createQueenEncounter} from './src/queen-encounter.js?v=052';
 import {createPlasmaBursts} from './src/plasma-burst.js?v=054-5';
 import {createPlasmaBugs} from './src/plasma-bugs.js?v=054-5';
@@ -21,11 +22,11 @@ import {CANNON,createCannonRounds} from './src/cannon-round.js?v=052';
 import {createRomanRuinsAsync} from './src/roman-ruins.js?v=054-6';
 import {createStaticRaycast} from './src/static-raycast.js?v=052';
 import * as THREE from './vendor/three.module.js?v=052';
-import {createEggNests} from './src/egg-nests.js?v=054-9';
+import {createEggNests} from './src/egg-nests.js?v=054-16';
 import {createBankDemons} from './src/bank-demons.js?v=054-5';
 import {createBlastWorld} from './src/blast-world.js?v=052';
 import {createHellWorld} from './src/hell-world.js?v=054';
-import {createCinematicPass} from './src/cinematic-pass.js?v=054-6';
+import {createCinematicPass} from './src/cinematic-pass.js?v=054-18';
 import {createCalderaEnvironment} from './src/caldera-light.js?v=052';
 import {createMayhemFX} from './src/mayhem-fx.js?v=054-5';
 import {SoundEngine as MayhemSoundEngine} from './src/mayhem-audio.js?v=054-6';
@@ -34,7 +35,7 @@ import {upgradeGunBubble} from './src/gun-bubble.js?v=052';
 import {buildRotaryGun,createSpentCaseGeometry,createLinkGeometry,createGatlingHeat} from './src/rotary-gun.js?v=052';
 import {createHordeField} from './src/horde-field.js?v=052';
 import {createCreatureTracking} from './src/creature-tracking.js?v=052';
-import {createBomberExterior} from './src/bomber-exterior.js?v=052';
+import {createBomberExterior} from './src/bomber-exterior.js?v=054-17';
 import {createOpeningCamera} from './src/opening-camera.js?v=052';
 let assetKit=null, bankDemons=null, blastWorld=null, eggNests=null, romanRuins=null;
 let pilot=null;
@@ -71,7 +72,7 @@ const dom = {
   pause: $('#pause'), resume: $('#resumeButton'), result: $('#result'), replay: $('#replayButton'),
   opening: $('#opening'), openingLabel: $('#openingLabel'), openingTitle: $('#openingTitle'), skipOpening: $('#skipOpening'), openingFade: $('#openingFade'),
   unsupported: $('#unsupported'), hullFill: $('#hullFill'), hullValue: $('#hullValue'),
-  routeFill: $('#routeFill'), distance: $('#distanceValue'), score: $('#scoreValue'),
+  routeFill: $('#routeFill'), distance: $('#distanceValue'), score: $('#scoreValue'), fps: $('#fpsValue'),
   cannonArc: $('#cannonArc'), cannonText: $('#cannonText'), status: $('#statusLine'), reticle: $('#reticle'),
   blocked: $('#blocked'), threats: $('#threats'), damage: $('#damageVeil'), whiteout: $('#whiteout'),
   resultTitle: $('#resultTitle'), resultOverline: $('#resultOverline'), finalHull: $('#finalHull'), finalScore: $('#finalScore')
@@ -119,7 +120,17 @@ renderer.toneMappingExposure = 1.04;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.info.autoReset = false;
-const frameMetrics = { calls: 0, triangles: 0, points: 0, frameMs: 0 };
+const frameMetrics = { calls: 0, triangles: 0, points: 0, frameMs: 0, fps: 0 };
+const fpsSample = { started: 0, frames: 0 };
+function updateFps(now) {
+  const span=now-fpsSample.started;
+  if(!fpsSample.started||span>2000){fpsSample.started=now;fpsSample.frames=0;return;}
+  fpsSample.frames++;
+  if(span<500)return;
+  const fps=Math.max(0,Math.round(fpsSample.frames*1000/span));
+  frameMetrics.fps=fps;dom.fps.textContent=String(fps);dom.fps.dataset.band=fps<30?'low':fps<50?'watch':'good';
+  fpsSample.started=now;fpsSample.frames=0;
+}
 const hooks = { update: null, onShot: null, onImpact: null, onEnemyHit: null, onCannon: null, onReset: null };
 let worldCollisionMeshes = [];
 let worldGroundAt = null;
@@ -629,13 +640,16 @@ const planePos=new THREE.Vector3(),lastPlanePos=new THREE.Vector3(),planeVel=new
 
 function progress(){return THREE.MathUtils.clamp((currentFlightProgress()-game.flightStart)/(1-game.flightStart),0,1);}
 function reducedOpening(){return reducedMotion.matches||preferences.reduced;}
+// Lighter effects keep the authored opening; only the OS motion preference
+// selects its stationary, fading alternative.
+function reducedOpeningMotion(){return reducedMotion.matches;}
 function presentationClock(){if(endingFlight?.started)return game.time+game.presentationOffset+endingFlight.stats().time;return game.title?game.titleTime:game.opening?game.openingTime:game.time+game.presentationOffset;}
 function flightProgressAt(time){return game.flightStart+(1-game.flightStart)*THREE.MathUtils.clamp((time-game.flightDelay)/RUN_SECONDS,0,1);}
 function currentFlightProgress(){
   if(game.title)return APPROACH_START;
   if(game.opening){
     const t=game.openingTime/OPENING_SECONDS;
-    if(reducedOpening())return game.openingTime<13.6?APPROACH_START:APPROACH_END;
+    if(reducedOpeningMotion())return game.openingTime<13.6?APPROACH_START:APPROACH_END;
     return THREE.MathUtils.lerp(APPROACH_START,APPROACH_END,t);
   }
   return queen?.flightProgress(flightProgressAt(game.time))??flightProgressAt(game.time);
@@ -774,11 +788,15 @@ function fireRound(){
   else if(hit.kind==='queen-arm'){queen.hit(hit.actor,hit.point,GUN.damage);game.hitMarker=.15;}
   else if(hit.kind==='plasma'){plasmaBugs.hit(hit.actor,hit.point,GUN.damage);game.hitMarker=.15;}
   else if(hit.kind==='egg'){eggNests.hit(hit.actor,hit.point,GUN.damage);game.hitMarker=.12;}
-  // Surface-specific effects below own the whole impact; no generic spark layer.
+  // Restore pre-v054 lava hits only; other surfaces retain current profiles.
+  if(hit.kind==='terrain'&&hit.surface==='lava'){
+    particles.burst(hit.point,10,new THREE.Color(0xff601c),15,.55);
+    if(fxRng.next()>.6)emitSmoke(hit.point,2.3,.65,0x65594c);
+  }
   const b=bullets[bulletCursor++%bullets.length];b.active=true;b.start.copy(muzzle);b.end.copy(hit.point);b.distance=muzzle.distanceTo(hit.point);b.travel=0;b.pos.copy(muzzle);b.prev.copy(muzzle);b.vel.copy(direction).multiplyScalar(1600);b.life=Math.min(.36,b.distance/1600+.045);b.mesh.visible=false;
   const gun=craft.guns[side];gun.rotary.onShot();gun.flash.material.opacity=preferences.reduced?.3:1;gun.flash.scale.setScalar(fxRng.range(.34,.52));gun.assembly.position.z=(gun.baseZ||0)+(preferences.reduced?.035:.075);spawnCasing(side);game.shake=Math.min(.065,game.shake+.009);audio.gun(side);
   runReview.shots++;if(['enemy','dragon','siege','hostile','tanker-fireball','fodder','queen-arm','plasma','egg'].includes(hit.kind))runReview.hits++;
-  const impactMaterial=hit.kind==='airframe'||hit.kind==='siege'?'metal':hit.kind==='egg'?'egg':hit.kind.startsWith('queen')?'queen':['enemy','fodder','rimmer','plasma'].includes(hit.kind)?'flesh':hit.surface==='lava'?hellWorld.lavaAt(hit.point).kind:'rock';
+  const impactMaterial=hit.kind==='airframe'||hit.kind==='siege'?'metal':hit.kind==='egg'?'egg':hit.kind.startsWith('queen')?'queen':['enemy','fodder','rimmer','plasma'].includes(hit.kind)?'flesh':hit.surface==='lava'?'lava':'rock';
   const record={impactMaterial,side,kind:hit.kind,targetId:hit.actor?.id||null,muzzle:muzzle.toArray(),end:hit.point.toArray(),distance:+b.distance.toFixed(3),damageImmediate:true};
   game.lastShot=record;logEvent('player-shot',record);emitHook('onShot',{...record,muzzle:muzzle.clone(),end:hit.point.clone(),direction:direction.clone()});
   emitHook('onImpact',{kind:hit.kind,position:hit.point.clone(),actor:hit.actor||null});
@@ -1051,12 +1069,21 @@ const threatNodes=Array.from({length:3},()=>{const el=document.createElement('di
 const warningNodes=Array.from({length:2},()=>{const el=document.createElement('div');el.className='attackWarning';el.hidden=true;dom.threats.appendChild(el);return el;});
 const exitCue=document.createElement('div');exitCue.id='exitDirectionCue';exitCue.setAttribute('aria-hidden','true');
 Object.assign(exitCue.style,{position:'absolute',color:'#e1fbff',font:'700 11px system-ui,sans-serif',letterSpacing:'.16em',textShadow:'0 0 12px #c9faff,0 2px 4px #000',textAlign:'center',transform:'translate(-50%,-50%)',whiteSpace:'nowrap'});dom.hud.appendChild(exitCue);
-const uiCache={lastHud:-Infinity,lastCannonTime:-Infinity,cannonImpact:null,status:''};
+const uiCache={lastHud:-Infinity,lastCannonTime:-Infinity,cannonImpact:null,status:null};
 const heatGauge=$('#gunHeat'),heatFill=$('#gunHeatFill'),heatLabel=$('#gunHeatLabel');
 function exitDirection(){
   camera.updateWorldMatrix(true,false);const local=camera.worldToLocal(rift.position.clone()),ndc=rift.position.clone().project(camera);
   const forward=local.z<0&&Math.abs(ndc.x)<.78&&Math.abs(ndc.y)<.72;
   return {active:game.time>=68&&!game.ended&&(!queen||queen.cleared),forward,bearing:Math.atan2(local.x,-local.z),local:local.toArray(),ndc:ndc.toArray()};
+}
+// Threats own attention; only one routine instructional surface speaks at a time.
+function selectFlightGuidance({time,opening,urgent,feedback,status,criticalStatus=false}){
+  if(opening)return {lesson:'',feedback:'',status:''};
+  if(criticalStatus)return {lesson:'',feedback:'',status};
+  if(urgent)return {lesson:'',feedback:'',status:''};
+  if(feedback)return {lesson:'',feedback,status:''};
+  const lesson=time<7?'DESTROY THE EGGS · HOLD LMB TO FIRE':time<14?'SPACE · HEAVY CANNON   /   R · TURN AROUND':'';
+  return {lesson,feedback:'',status:lesson?'':status};
 }
 function updateUI(now=performance.now(),force=false){
   dom.reticle.classList.toggle('kill',game.time<runReview.killUntil);dom.reticle.classList.toggle('hot',game.gunHeld&&!gunHeat.overheated);dom.reticle.classList.toggle('overheated',gunHeat.overheated);dom.reticle.classList.toggle('hit',game.hitMarker>0);dom.blocked.classList.toggle('show',game.muzzleBlocked);dom.damage.style.opacity=String(game.flash*.45);
@@ -1080,8 +1107,8 @@ function updateUI(now=performance.now(),force=false){
    const el=warningNodes[warningCount++];el.hidden=false;el.style.left=(50+ndc.x*50)+'%';el.style.top=(50-ndc.y*50)+'%';el.textContent=(e.tanker?'TANK':'CREEPER')+' · '+Math.max(0,e.timer).toFixed(1)+'s';
   }
   for(let i=warningCount;i<warningNodes.length;i++)warningNodes[i].hidden=true;
-  const feedback=$('#combatFeedback');feedback.textContent=gunHeat.overheated?'GUNS COOLING · SPACE FOR CANNON':game.time<runReview.armorUntil?'ARMORED · AIM FOR A RED TIP':game.time<runReview.cueUntil?runReview.lastCue:game.time<runReview.killUntil?'TARGET DOWN':'';
-  const lesson=$('#flightLesson');lesson.textContent=game.time<7&&!game.opening?'DESTROY THE EGGS · HOLD LMB TO FIRE':game.time<14&&!game.opening?'SPACE · HEAVY CANNON   /   R · TURN AROUND':'';
+  const feedbackText=gunHeat.overheated?'GUNS COOLING · SPACE FOR CANNON':game.time<runReview.armorUntil?'ARMORED · AIM FOR A RED TIP':game.time<runReview.cueUntil?runReview.lastCue:game.time<runReview.killUntil?'TARGET DOWN':'';
+
   dom.reticle.classList.toggle('cannon-ready',game.cannonCooldown<=0&&!game.opening);
   const exit=exitDirection();exitCue.hidden=!exit.active||game.paused;
   if(exit.active){const right=exit.bearing>=0;exitCue.style.left=exit.forward?`${50+exit.ndc[0]*40}%`:(right?'84%':'16%');exitCue.style.top=exit.forward?`${Math.max(18,50-exit.ndc[1]*38)}%`:'33%';exitCue.textContent=exit.forward?'ESCAPE · THE EXIT':right?'THE EXIT →':'← THE EXIT';}
@@ -1091,7 +1118,9 @@ function updateUI(now=performance.now(),force=false){
   if(queen?.quiet&&!queen.cleared){const qs=queen.stats();status=qs.phase==='combat'?(qs.reloading?'<b>QUEEN RELOADING.</b> DESTROY THE RED TENTACLE TIPS.':'<b>HOVER LOCK.</b> HIT THE RED TIPS. SHOOT DOWN INCOMING FIRE.'):'<b>WEAPONS LOCKED.</b> THE QUEEN IS AHEAD.';dom.distance.textContent=qs.hover?'HOVER LOCK':'QUEEN NESTING GROUND';}
   if(queen?.cleared)status='<b>THE QUEEN IS DOWN.</b> THE PILOT HAS THE EXIT.';
   if(game.time<runReview.cueUntil&&runReview.repair&&queen?.quiet&&!queen.cleared)status='<b>EMERGENCY PATCH.</b> HULL RESTORED TO 60 FOR THE FINAL FIGHT.';
-  if(status!==uiCache.status){dom.status.innerHTML=status;uiCache.status=status;}
+  const guidance=selectFlightGuidance({time:game.time,opening:game.opening,urgent:threats.length>0,feedback:feedbackText,status,criticalStatus:!!queen?.quiet||!!queen?.cleared||exit.active});
+  $('#flightLesson').textContent=guidance.lesson;$('#combatFeedback').textContent=guidance.feedback;
+  if(guidance.status!==uiCache.status){dom.status.innerHTML=guidance.status;uiCache.status=guidance.status;}
 }
 
 const openingCopy={
@@ -1107,10 +1136,10 @@ function sampleDanceBudget(){return 8;}
 function updateOpeningPresentation(){
   const external=game.title||game.opening||!!endingFlight?.started||!!queen?.cinematic;
   // The outside of the aircraft shares the canyon's motivated key light.
-  const reveal=endingFlight?.started||queen?.cinematic?1:game.title?1:game.opening?(reducedOpening()?(game.openingTime<13.6?1:0):1-THREE.MathUtils.smoothstep(game.openingTime,10.4,13.0)):0;
+  const reveal=endingFlight?.started||queen?.cinematic?1:game.title?1:game.opening?(reducedOpeningMotion()?(game.openingTime<13.6?1:0):1-THREE.MathUtils.smoothstep(game.openingTime,10.4,13.0)):0;
   for(const {source,light} of aircraftRevealLights){light.position.copy(source.position);light.color.copy(source.color);light.intensity=source.intensity*reveal;}
   if(external&&!endingFlight?.started&&!queen?.cinematic&&openingCamera){
-    const state=openingCamera.sample(game.title?0:game.openingTime,{aspect:camera.aspect,reducedMotion:!game.title&&reducedOpening(),gunnerFov:playerFov});
+    const state=openingCamera.sample(game.title?0:game.openingTime,{aspect:camera.aspect,reducedMotion:!game.title&&reducedOpeningMotion(),gunnerFov:playerFov});
     dom.openingFade.style.opacity=String(game.opening?state.fade||0:0);
     if(game.opening&&state.phase!==openingPhase){
       openingPhase=state.phase;const copy=openingCopy[state.phase]||openingCopy.entering;
@@ -1134,6 +1163,7 @@ function render(now){
   if(loadingSnapshot().status==='failed'||!sceneAssemblyComplete)return;
   windowDamage?.advanceTime();
   const wallTime=now/1000,elapsed=Math.max(0,wallTime-game.lastFrame),dt=Math.min(.05,elapsed);game.lastFrame=wallTime;
+  updateFps(now);
   if(game.running&&!game.paused&&!game.ended&&!game.captureFreeze&&!game.contextLost&&!document.hidden)playTracking.tick(elapsed);
   if(game.title&&!document.hidden&&!game.contextLost)game.titleTime+=dt;
   if(game.opening&&game.running&&!game.paused&&!game.captureFreeze&&!game.contextLost){
@@ -1175,7 +1205,7 @@ function render(now){
       frameMetrics.frameMs=elapsed*1000;
     }else{
       renderer.info.reset();
-      cinematic.render(scene,camera,{time:visualTime,reducedMotion:reducedOpening(),worldOnly:WORLD_ONLY,exterior:exteriorView});
+      cinematic.render(scene,camera,{time:visualTime,reducedMotion:reducedOpening(),reducedEffects:preferences.reduced,worldOnly:WORLD_ONLY,exterior:exteriorView});
       frameMetrics.calls=renderer.info.render.calls;frameMetrics.triangles=renderer.info.render.triangles;frameMetrics.points=renderer.info.render.points;frameMetrics.frameMs=elapsed*1000;
     }
   }
@@ -1209,24 +1239,26 @@ function reset(){
 function start({skipOpening=false,legacyRoute=false}={}){
   if(!bootCompleted||!graphicsReady||loadingSnapshot().status==='failed')return;
   if(dom.start.disabled||game.contextLost)return;
+  menuMusic?.setActive(false);
   const measure=!firstStartMeasured;if(measure)startupMark('first-start-reset','begin');reset();if(measure)startupMark('first-start-reset','end');game.running=true;game.flightStart=legacyRoute?0:APPROACH_END;dom.intro.hidden=true;
   playTracking.start();
   if(measure)startupMark('first-start-audio','begin');audio.start();if(measure){startupMark('first-start-audio','end');firstStartMeasured=true;}void pilot?.prime();audio.setScene(skipOpening?'canyon':'approach');if(!QA_MODE)requestPointerCapture();
   if(skipOpening){dom.hud.classList.add('visible');updatePlane(0);logEvent('run-start');}
   else{game.opening=true;dom.opening.hidden=false;dom.hud.classList.remove('visible');updatePlane(0);updateOpeningPresentation();logEvent('opening-start');}
 }
-function pause(){if((!game.running&&!endingFlight?.active)||game.paused)return;game.paused=true;game.accumulator=0;game.gunHeld=false;audio.pause();dom.pause.hidden=false;$('#pauseEyebrow').textContent='FLIGHT SUSPENDED';$('#pauseTitle').textContent='PAUSED';$('#pauseDescription').textContent='The plane and every attack are frozen.';dom.resume.textContent=endingFlight?.active?'CONTINUE THE LAST FLIGHT':game.opening?'CONTINUE THE APPROACH':'RETURN TO THE GUN';document.exitPointerLock?.();dom.resume.focus({preventScroll:true});logEvent('paused');}
-function resume(){if(!game.paused||game.contextLost)return;game.paused=false;game.accumulator=0;dom.pause.hidden=true;audio.start();if(!endingFlight?.started&&!QA_MODE)requestPointerCapture();game.lastFrame=performance.now()/1000;logEvent('resumed');}
+function pause(){if((!game.running&&!endingFlight?.active)||game.paused)return;game.paused=true;game.accumulator=0;game.gunHeld=false;audio.pause();menuMusic?.setActive(true);dom.pause.hidden=false;$('#pauseEyebrow').textContent='FLIGHT SUSPENDED';$('#pauseTitle').textContent='PAUSED';$('#pauseDescription').textContent='The plane and every attack are frozen.';dom.resume.textContent=endingFlight?.active?'CONTINUE THE LAST FLIGHT':game.opening?'CONTINUE THE APPROACH':'RETURN TO THE GUN';document.exitPointerLock?.();dom.resume.focus({preventScroll:true});logEvent('paused');}
+function resume(){if(!game.paused||game.contextLost)return;game.paused=false;game.accumulator=0;dom.pause.hidden=true;menuMusic?.setActive(false);audio.start();if(!endingFlight?.started&&!QA_MODE)requestPointerCapture();game.lastFrame=performance.now()/1000;logEvent('resumed');}
 const playTracking=createPlayTracking({enabled:false,
   snapshot:()=>({score:Math.max(0,Math.round(game.score)),hull:Math.max(0,Math.min(100,Math.round(game.hull))),eggs:eggNests?.rupturedCount()||0,progress:Math.round(Math.max(0,Math.min(1,currentFlightProgress()))*10000)})});
 addEventListener('pagehide',()=>playTracking.flush());
 document.addEventListener('visibilitychange',()=>{if(document.hidden)playTracking.flush();});
 let ratingBenchmark=0,rankResultWon=false;
 const rankReveal=createRankReveal({root:$('#rankReveal'),face:$('#rankFace'),title:$('#rankTitle'),percent:$('#rankPercent'),caption:$('#rankTaunt'),benchmarkLabel:$('#rankBenchmark'),button:$('#rankContinue'),reduced:reducedOpening,onContinue:()=>showResult(rankResultWon),onStartup:startupMark});
-function showRank(won){rankResultWon=won;audio.finishPresentation();pilot?.showResult();$('#ending').hidden=true;dom.result.hidden=true;rankReveal.show(missionRating(game.score,ratingBenchmark));document.exitPointerLock?.();}
+function showRank(won){rankResultWon=won;audio.finishPresentation();pilot?.showResult();$('#ending').hidden=true;dom.result.hidden=true;rankReveal.show(missionRating(game.score,ratingBenchmark));menuMusic?.setOutcome(won,{restart:true});document.exitPointerLock?.();}
 const highScores=createHighScores({table:$('#scoreRows'),form:$('#scoreEntry'),input:$('#initials'),submit:$('#submitScore'),status:$('#scoreStatus'),scope:$('#scoreScope'),refreshButton:$('#retryScores'),onQualified:()=>pilot?.topTen()});
 function endRun(won){
   if(game.ended||won&&queen&&!queen.cleared)return;queen?.cancel();
+  menuMusic?.setActive(false);
   game.ended=true;game.running=false;game.gunHeld=false;game.paused=false;game.accumulator=0;game.flash=0;game.shake=0;
   craft.cannon?.reset();rimmers?.sting.reset();audio.sceneAmbienceGain=1;audio.startEnding(won);for(const b of bullets){b.active=false;b.mesh.visible=false;}for(const h of hostile){h.active=false;h.group.visible=false;}mayhemFX.reset();dom.pause.hidden=true;dom.hud.classList.remove('visible');dom.opening.hidden=true;dom.openingFade.style.opacity='0';
   if(won)game.score+=2000+Math.ceil(game.hull)*10;
@@ -1427,7 +1459,7 @@ function qaCoreChecks(){
   return {kind:'diagnostic-core-checks',passed:checks.filter(c=>c.pass).length,total:checks.length,checks};
 }
 const qaApi={
-  version:'0.54.10',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
+  version:'0.54.19',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
   start:()=>start({skipOpening:true,legacyRoute:true}),beginOpening:()=>start(),skipOpening:()=>finishOpening(true),openingState:()=>({active:game.opening,title:game.title,time:game.openingTime,phase:openingPhase,flightProgress:currentFlightProgress(),camera:camera.position.toArray(),quaternion:camera.quaternion.toArray(),fov:camera.fov,fade:Number(dom.openingFade.style.opacity)||0,exterior:bomberExterior?.stats(),cameraPath:openingCamera?.stats()}),seekOpening:(seconds)=>{game.openingTime=THREE.MathUtils.clamp(seconds,0,OPENING_SECONDS);game.captureFreeze=true;updatePlane(0);updateOpeningPresentation();return true;},reset:qaReset,pause,resume,setTime:(seconds)=>{game.time=THREE.MathUtils.clamp(seconds,0,RUN_SECONDS);updatePlane(0);creatureTracking?.seek(game.time);},setView:(yaw,pitch)=>{game.yaw=yaw;game.pitch=THREE.MathUtils.clamp(pitch,-1.38,.95);updatePlane(0);},turnAround,toggleRear:turnAround,fireCannon,fireRound,damage:(amount=6)=>damageHull(amount,planePos),explode:()=>explode(planePos.clone().addScaledVector(planeTangent,70),14),preview:setPreview,
   events:()=>game.eventLog.slice(),runtime:gunnerRuntime,trace:qaTrace,replay:qaReplay,checkCore:qaCoreChecks,
   aimAt:(target)=>{const actor=typeof target==='string'?enemies.concat(siege).find(e=>e.id===target):null;qaAimAt(actor?actorCenter(actor):new THREE.Vector3().fromArray(target));},
@@ -1606,9 +1638,9 @@ await assembly.step('audio',async ()=>{
 });
 assembly.dispose();
 
-pilot=createPilotRadio({audio,caption:$('#pilotCaption'),voiceVolume:preferences.voice,captions:preferences.captions});
+pilot=createPilotRadio({audio,caption:$('#pilotCaption'),voiceVolume:preferences.voice,captions:preferences.captions,onVoiceDucking:active=>menuMusic?.setVoiceDucking(active)});
 ratingBenchmark=missionBenchmark({eggs:eggNests.eggs.length,enemies:enemies.map(enemyKind),fodder:scenicDemons.length,siege:siege.length,plasma:plasmaBugs.actors.length,dragonSlots:hellWorld.skyActivity.dragons.length,queenArms:queen.arms.length});
-Object.assign(gunnerRuntime,{rankReveal,missionRating:score=>missionRating(score,ratingBenchmark),ratingBenchmark,showRank,gunBubble,pilot,atmosphereBatches,hitFeedback,queen,plasmaBursts,plasmaBugs,rimmers,tankerBugs,tankerSpray,sampleDanceBudget,danceDeviceBudget,danceSite,windowDamage,hellWorld,mayhemFX,cannonVisuals,CANNON,assetKit,cinematic,hordeField,creatureTracking,bankDemons,blastWorld,eggNests,romanRuins,assetsReady:true,assetFallback:worldBootstrap.degraded||assetBootstrap.degraded,bomberExterior,openingCamera,endingFlight,highScores,endRun,skipEnding,finishOpening,currentFlightProgress,presentationClock});
+Object.assign(gunnerRuntime,{guideViewerStats,rankReveal,missionRating:score=>missionRating(score,ratingBenchmark),ratingBenchmark,showRank,gunBubble,pilot,atmosphereBatches,hitFeedback,queen,plasmaBursts,plasmaBugs,rimmers,tankerBugs,tankerSpray,sampleDanceBudget,danceDeviceBudget,danceSite,windowDamage,hellWorld,mayhemFX,cannonVisuals,CANNON,assetKit,cinematic,hordeField,creatureTracking,bankDemons,blastWorld,eggNests,romanRuins,assetsReady:true,assetFallback:worldBootstrap.degraded||assetBootstrap.degraded,bomberExterior,openingCamera,endingFlight,highScores,endRun,skipEnding,finishOpening,currentFlightProgress,presentationClock});
 const volumeInput=$('#volume'),sensitivityInput=$('#sensitivity'),fovInput=$('#fov');
 volumeInput.addEventListener('input',()=>{preferences.volume=Number(volumeInput.value)/100;audio.setVolume(preferences.volume);savePreferences();});
 $('#voiceVolume').addEventListener('input',()=>{preferences.voice=Number($('#voiceVolume').value)/100;pilot.setVolume(preferences.voice);savePreferences();});
@@ -1630,7 +1662,7 @@ audio.setVolume(preferences.volume);audio.setMusicVolume(preferences.music);came
 settingsReady=true;$('#settingsButton').disabled=false;sceneAssemblyComplete=true;
 // Render the completed scene while preparing exact static collisions in yielded slices.
 // Start stays disabled until first-use work is finished; no index build lands on the first shot.
-dom.start.textContent='PREPARING FLIGHT…';
+dom.start.textContent='DEPLOY GUNNER';
 startupMark('scene-construction','end');
 loadingProgress('collision');await yieldLoadingPaint();
 if(loadingSnapshot().status==='failed')throw preparationError('Flight preparation already failed');
@@ -1646,6 +1678,7 @@ await prepareFlightGraphics();
 startupMark('graphics','end');
 if(!loadingStage('shaders'))throw preparationError('Flight preparation already failed');
 startupMark('startup','ready');
+setGuideModelProvider(async id=>{const {buildGuideModel}=await import('./src/guide-models.js');return buildGuideModel(id,{eggNests,plasmaBugs,cinderModel});});
 bootCompleted=true;graphicsReady=true;dom.start.disabled=false;dom.start.textContent='DEPLOY GUNNER';
 if(query.has('preview'))setPreview(query.get('preview'));
 else if(QA_MODE){qaReset();if(CAPTURE){dom.intro.hidden=true;dom.hud.classList.add('visible');}}

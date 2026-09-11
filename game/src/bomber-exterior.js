@@ -1,3 +1,4 @@
+import {addSatoshiMarkings} from './satoshi-markings.js';
 import {agedAircraftMaterial} from './aircraft-surfaces.js?v=052';
 import * as THREE from '../vendor/three.module.js?v=052';
 import { mergeGeometries } from '../vendor/BufferGeometryUtils.js?v=052';
@@ -124,7 +125,7 @@ function makeBatch(parent, materials) {
 /** The same exterior is used by the opening camera and the gunner view. */
 export function createBomberExterior({ craft }) {
   if (!craft?.plane || !craft?.socket) throw new Error('Bomber exterior requires the existing aircraft and belly socket');
-  const group = new THREE.Group(); group.name = 'GUNNER 07 — worn twin-prop attack bomber';
+  const group = new THREE.Group(); group.name = 'Satoshi veteran attack bomber';
   group.layers.set(1); craft.plane.add(group);
   const materials = {
     olive: weathered('Faded olive aircraft paint', 0x4c5140, .48, .62, .20),
@@ -136,7 +137,6 @@ export function createBomberExterior({ craft }) {
     primer: agedAircraftMaterial('Exposed muted protective primer',0x66603d,.12,.92,{wear:.4,paint:false}),
     brass: new THREE.MeshStandardMaterial({ color: 0xbda878, metalness: .5, roughness: .56 }),
     glass: new THREE.MeshStandardMaterial({ color: 0x1f3d42, metalness: .70, roughness: .22 }),
-    mark: new THREE.MeshStandardMaterial({ color: 0xb7b49a, roughness: .8, metalness: .12 }),
   };
   const batch = makeBatch(group, materials), seams = [], rivetPositions = [];
   const line = (...points) => { for (let i = 1; i < points.length; i++) seams.push(...points[i - 1], ...points[i]); };
@@ -177,8 +177,10 @@ export function createBomberExterior({ craft }) {
     for(let v=0;v<nv;v++)for(let u=0;u<nu;u++){const a=v*(nu+1)+u,b=a+nu+1;indices.push(a,a+1,b,b,a+1,b+1);}
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(points,3));g.setIndex(indices);g.computeVertexNormals();return g;
   }
-  const repairSites=[[-4.1,2.90,.59,.20],[-.1,3.48,.76,.17],[3.2,2.57,.46,.22],[-5.5,5.55,.39,.20],[-2.0,.38,.64,.19],[2.45,.20,.57,.25],[.5,1.15,.49,.18]];
-  for(const [i,[z,a,hz,ha]]of repairSites.entries()){
+  // Retire the port nose repair covering Satoshi; retain original site indices
+  // so the remaining panels keep their exact materials and fasteners.
+  const repairSites=[[-4.1,2.90,.59,.20],[-.1,3.48,.76,.17],[3.2,2.57,.46,.22],[-5.5,5.55,.39,.20],[-2.0,.38,.64,.19],[2.45,.20,.57,.25],[.5,1.15,.49,.18]].map((site,index)=>({site,index})).slice(1);
+  for(const {index:i,site:[z,a,hz,ha]}of repairSites){
     batch.add('primer',patch(z,a,hz+.04,ha+.035,.017));
     batch.add(i%3===1?'panel':'repair',patch(z,a,hz,ha,.025));
     for(const v of [-.87,.87])for(let u=-.8;u<=.81;u+=.4)rivetPositions.push(skin(z+v*hz,a+u*ha+v*.08,.047));
@@ -206,9 +208,7 @@ export function createBomberExterior({ craft }) {
     line([side * 1.88, 2.397, 1.80], [side * 4.45, 2.358, 1.76], [side * 8.25, 2.505, 1.56]);
     line([side * 4.8, 2.33, -1.48], [side * 4.8, 2.33, 2.46]);
     line([side * 7.75, 2.51, -.32], [side * 7.75, 2.51, 1.98]);
-    // Short, worn wing-identification stripes; no borrowed insignia.
-    batch.add('mark', new THREE.BoxGeometry(.27, .018, 1.45), [side * 7.08, 2.545, .68], [0, side * -.05, side * .075]);
-    batch.add('mark', new THREE.BoxGeometry(.12, .019, 1.30), [side * 7.41, 2.565, .76], [0, side * -.05, side * .075]);
+
   }
 
   // Engine nacelles: cowl lip, recessed face, cooling cylinders, exhaust pipes.
@@ -441,7 +441,7 @@ export function createBomberExterior({ craft }) {
       if (o.isMesh) { meshes++; triangles += (o.geometry.index?.count || o.geometry.getAttribute('position').count) / 3 * (o.isInstancedMesh ? o.count : 1); }
       if (o.isLineSegments) lineSegments += o.geometry.getAttribute('position').count / 2;
     });
-    return { active, disposed, meshDraws: meshes, triangles, lineSegments, rivets: rivetPositions.length,
+    return { markings:markings.stats(), active, disposed, meshDraws: meshes, triangles, lineSegments, rivets: rivetPositions.length,
       fieldRepairs:repairSites.length,sealedImpactScars:scars.length,tiltDegrees:hoverLift*90,tiltPods:tiltPods.length,propellers: propellers.length, propellerAngles: propellers.map(p => p.rotation.z),
       time: lastTime, reducedMotion: reduced, forward: '-Z',
       bounds: { min: localBounds.min.toArray(), max: localBounds.max.toArray() },
@@ -449,6 +449,7 @@ export function createBomberExterior({ craft }) {
   }
   function dispose() {
     if (disposed) return;
+    markings.dispose();
     const geometries = new Set(), ownedMaterials = new Set(Object.values(materials));
     group.traverse(o => { if (o.geometry) geometries.add(o.geometry); if (o.material) for (const m of Array.isArray(o.material) ? o.material : [o.material]) ownedMaterials.add(m); });
     geometries.forEach(g => g.dispose()); ownedMaterials.forEach(m => m.dispose());
@@ -459,6 +460,7 @@ export function createBomberExterior({ craft }) {
   // and rotating armour. Transparent glass/prop blur and flashes do not block.
   const airframeCollision=[];
   group.traverse(o=>{if(o.isMesh&&o!==cannonFlash&&!(Array.isArray(o.material)?o.material:[o.material]).some(m=>m.transparent))airframeCollision.push(o);});
+  const markings=addSatoshiMarkings(group,skin);
   update(0);
-  return { airframeCollision, group, update, setHover(value){hoverLift=THREE.MathUtils.clamp(value,0,1);tiltPods.forEach(p=>p.rotation.x=hoverLift*Math.PI/2);},setVisible, stats, dispose, cannon, undersideCollision };
+  return { markings, airframeCollision, group, update, setHover(value){hoverLift=THREE.MathUtils.clamp(value,0,1);tiltPods.forEach(p=>p.rotation.x=hoverLift*Math.PI/2);},setVisible, stats, dispose, cannon, undersideCollision };
 }

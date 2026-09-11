@@ -7,7 +7,7 @@ const start=render.indexOf("if(!game.contextLost&&!graphicsPreparation&&loadingS
 assert.ok(start>0);
 const tail=render.slice(start,render.lastIndexOf('}'));
 const present=new Function('env',`const {game,graphicsPreparation,loadingSnapshot,renderer,cinematic,frameMetrics,requestAnimationFrame,render}=env;
-const scene={},camera={},visualTime=1,reducedOpening=()=>false,WORLD_ONLY=false,exteriorView=true,elapsed=.02;
+const preferences={reduced:false},scene={},camera={},visualTime=1,reducedOpening=()=>false,WORLD_ONLY=false,exteriorView=true,elapsed=.02;
 ${tail}`);
 let checks=0;
 for(const [status,active,lost,preparing,expected] of [

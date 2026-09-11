@@ -14,14 +14,22 @@ export function createStartupTrace({now=()=>performance.now(),limit=96}={}){
   events.push(Object.freeze({name:String(name).slice(0,80),state:String(state).slice(0,24),at:now(),...(outcome===null?{}:{outcome:String(outcome).slice(0,40)})}));
  },snapshot:()=>cached||(cached=Object.freeze({events:Object.freeze(events.slice()),dropped}))});
 }
-const startupTrace=createStartupTrace();
-export const startupMark=(name,state,outcome)=>startupTrace.mark(name,state,outcome);
+const startupTrace=createStartupTrace();let onStartupChange=()=>{};
+export const startupMark=(name,state,outcome)=>{startupTrace.mark(name,state,outcome);onStartupChange();};
+export const LOADING_ITEMS=Object.freeze(['world','models','aircraft','creatures','grounding','tracking','support-index','tanks','blast','nests','ruins','gallery','dance','bank','spray','rimmers','plasma','collision-map','climbers','queen','atmosphere','audio','collision','shaders']);
+export function completedLoadingItems(state,events){
+ const done=new Set(state.completed);
+ for(const event of events)if(event.name.startsWith('assembly:')&&event.state==='end'){
+  const id=event.name.slice(9);done.add(id==='collision'?'collision-map':id);
+ }
+ return LOADING_ITEMS.filter(id=>done.has(id));
+}
 startupMark('briefing','ready');
 export function createLoadingController(onChange=()=>{}){
  const completed=new Set();let status='preparing',active='assets',progress=null,error=null;
  const snapshot=()=>Object.freeze({status,active,completed:Object.freeze([...completed]),progress:progress?Object.freeze({...progress}):null,error:error?Object.freeze({...error}):null});
  const publish=()=>{onChange(snapshot());return status!=='failed';};
- return Object.freeze({snapshot,begin(id,detail=null){if(status==='failed')return false;if(!activity[id])throw Error('Unknown preparation activity');status='preparing';active=id;progress=detail?{stage:detail.stage,completed:detail.completed,total:detail.total,...(typeof detail.label==='string'?{label:detail.label.slice(0,80)}:{})}:null;return publish();},
+ return Object.freeze({snapshot,begin(id,detail=null){if(status==='failed')return false;if(!activity[id])throw Error('Unknown preparation activity');status='preparing';active=id;progress=detail?{stage:detail.stage,completed:detail.completed,total:detail.total,...(typeof detail.label==='string'?{label:detail.label.slice(0,80)}:{}),...(detail.preTimeoutSnapshot?{preTimeoutSnapshot:detail.preTimeoutSnapshot}:{})}:null;return publish();},
   complete(id){if(status==='failed')return false;if(!stages[id])throw Error('Unknown preparation stage');completed.add(id);if(completed.size===4){status='ready';progress=null;}return publish();},
   ready(){if(status==='failed')return false;if(completed.size!==4)throw Error('Flight preparation is incomplete');status='ready';progress=null;return publish();},
   fail(reason){if(status==='failed')return false;status='failed';error={code:reason?.code||'PREPARATION_FAILED',message:String(reason?.message||reason||'Flight preparation failed')};return publish();}
@@ -108,32 +116,35 @@ export function createPreparationSequence({canceled=()=>false,now=()=>performanc
 }
 
 function renderLoading(state){
- for(const id of state.completed){const node=$('prep-'+id);if(node&&node.dataset.complete!=='true'){node.dataset.complete='true';node.setAttribute('aria-label',stages[id]);}}
+ const row=globalThis.document?.querySelector?.('.ammo-progress');
+ if(row&&!row.children.length)for(const id of LOADING_ITEMS){const bullet=document.createElement('i');bullet.id='prep-'+id;row.append(bullet);}
+ const done=completedLoadingItems(state,startupTrace.snapshot().events);
+ for(const id of LOADING_ITEMS){const bullet=$('prep-'+id);if(bullet)bullet.dataset.complete=String(done.includes(id));}
  const node=$('loadStatus');if(!node)return;
- let detail=activity[state.active];
- if(state.active==='scene'&&state.progress?.label)detail=state.progress.label;
- if(state.active==='shaders'&&state.progress){
-  const labels={submit:'Preparing flight visuals',link:'Checking flight visuals','first-use':'Finishing flight checks'};
-  detail=labels[state.progress.stage]||detail;
-  // Submission objects and linked programs use different units and totals.
-  // Keep their exact counters in the read-only snapshot, not a false percent.
- }
- const text=state.status==='failed'?'Flight preparation could not finish. Please retry.':state.status==='ready'?'Ready for deployment':detail+' · '+state.completed.length+' of 4 systems ready';
+ const text=state.status==='failed'?'Flight preparation could not finish. Please retry.':state.status==='ready'?'Ready for deployment':`${done.length} of ${LOADING_ITEMS.length} preparation items complete`;
  if(node.textContent!==text)node.textContent=text;
- node.classList.toggle('ready',state.status==='ready');$('loadingSystems')?.setAttribute('aria-busy',String(state.status==='preparing'));
+ node.classList.toggle('ready',state.status==='ready');node.classList.toggle('failed',state.status==='failed');
+ $('loadingSystems')?.setAttribute('aria-busy',String(state.status==='preparing'));
+ if(row)row.dataset.failed=String(state.status==='failed');
 }
 const loading=createLoadingController(renderLoading);
+onStartupChange=()=>renderLoading(loading.snapshot());onStartupChange();
 export const loadingSnapshot=()=>Object.freeze({...loading.snapshot(),trace:startupTrace.snapshot()});
 export const loadingStage=id=>loading.complete(id);
 export const loadingProgress=(id,detail)=>loading.begin(id,detail);
 export const loadingReady=()=>loading.ready();
-const REPORT_BUILD='0.54.10',REPORT_ORIGINS=['https://gunner.satoshis.watch','http://127.0.0.1:8000'];
+const REPORT_BUILD='0.54.19',REPORT_ORIGINS=['https://gunner.satoshis.watch','http://127.0.0.1:8000'];
 const reportText=(value,limit)=>String(value??'').slice(0,limit);
 export function buildLoadingFailureReport(state,{origin=globalThis.location?.origin,userAgent=globalThis.navigator?.userAgent,visibilityState=globalThis.document?.visibilityState}={}){
  if(state?.status!=='failed')return null;
  let safeOrigin='unavailable';try{safeOrigin=new URL(origin).origin;}catch{}
  const trace=state.trace||{events:[],dropped:0},events=trace.events.slice(0,96);
- const loading={status:state.status,active:state.active,completed:[...state.completed],progress:state.progress?{stage:state.progress.stage,completed:state.progress.completed,total:state.progress.total,...(state.progress.label?{label:reportText(state.progress.label,80)}:{})}:null,error:state.error?{code:reportText(state.error.code,80),message:reportText(state.error.message,2048)}:null,trace:{events:events.map(e=>({name:reportText(e.name,80),state:reportText(e.state,24),at:e.at,...(e.outcome===undefined?{}:{outcome:reportText(e.outcome,40)})})),dropped:trace.dropped+Math.max(0,trace.events.length-96)}};
+ const clipGraphicsSnapshot=value=>{
+  if(!value||typeof value!=='object')return null;
+  const number=name=>Number.isFinite(value[name])?value[name]:null,text=(name,limit)=>value[name]==null?null:reportText(value[name],limit);
+  return {lastPhase:text('lastPhase',32),lastCompletedPhase:text('lastCompletedPhase',32),variant:text('variant',64),layer:number('layer'),jobIndex:number('jobIndex'),totalJobs:number('totalJobs'),batchIndex:number('batchIndex'),jobBatchCount:number('jobBatchCount'),submittedObjects:number('submittedObjects'),totalObjects:number('totalObjects'),discoveredPrograms:number('discoveredPrograms'),finishedPrograms:number('finishedPrograms'),pendingProgramIds:Array.isArray(value.pendingProgramIds)?value.pendingProgramIds.slice(0,24).map(id=>reportText(id,48)):[],elapsedMs:number('elapsedMs'),maxCompileMs:number('maxCompileMs'),recentCompileMs:number('recentCompileMs'),maxReadyPollMs:number('maxReadyPollMs'),recentReadyPollMs:number('recentReadyPollMs'),maxUniformsMs:number('maxUniformsMs'),recentUniformsMs:number('recentUniformsMs'),maxAttributesMs:number('maxAttributesMs'),recentAttributesMs:number('recentAttributesMs'),maxIntrospectMs:number('maxIntrospectMs'),recentIntrospectMs:number('recentIntrospectMs'),contextLost:typeof value.contextLost==='boolean'?value.contextLost:null,parallelCompile:typeof value.parallelCompile==='boolean'?value.parallelCompile:null,compilerNote:text('compilerNote',160),exceptionCode:text('exceptionCode',80),exceptionMessage:text('exceptionMessage',160)};
+ };
+ const loading={status:state.status,active:state.active,completed:[...state.completed],progress:state.progress?{stage:state.progress.stage,completed:state.progress.completed,total:state.progress.total,...(state.progress.label?{label:reportText(state.progress.label,80)}:{}),...(state.progress.preTimeoutSnapshot?{preTimeoutSnapshot:clipGraphicsSnapshot(state.progress.preTimeoutSnapshot)}:{})}:null,error:state.error?{code:reportText(state.error.code,80),message:reportText(state.error.message,2048)}:null,trace:{events:events.map(e=>({name:reportText(e.name,80),state:reportText(e.state,24),at:e.at,...(e.outcome===undefined?{}:{outcome:reportText(e.outcome,40)})})),dropped:trace.dropped+Math.max(0,trace.events.length-96)}};
  return JSON.stringify({build:REPORT_BUILD,origin:reportText(safeOrigin,256),userAgent:reportText(userAgent,512),visibilityAtFailure:['visible','hidden'].includes(visibilityState)?visibilityState:'unavailable',loading},null,2);
 }
 function showLoadingFailureDetails(state){
@@ -168,6 +179,13 @@ export function loadingFailure(error,{reload=()=>globalThis.location.reload()}={
  $('hud')?.classList.remove('visible');
 }
 if(typeof window!=='undefined')Object.defineProperty(window,'__GUNNER_LOADING__',{get:loadingSnapshot,configurable:false});
+let guideModelProvider=null,guideViewer=null,guideViewerPromise=null;
+export function setGuideModelProvider(provider){guideModelProvider=provider;if($('fieldGuide')?.open)void openGuideViewer();}
+export const guideViewerStats=()=>guideViewer?.stats()||{models:[],contexts:0};
+async function openGuideViewer(button=null){
+ if(!guideViewerPromise)guideViewerPromise=import('./field-guide-viewer.js').then(({createFieldGuideViewer})=>guideViewer=createFieldGuideViewer({dialog:$('fieldGuide'),provider:()=>guideModelProvider})).catch(error=>{guideViewerPromise=null;throw error;});
+ try{await guideViewerPromise;if($('fieldGuide')?.open){if(button)guideViewer.show(button);await guideViewer.prepare();}}catch{ /* Existing image identification remains available; retry on next open. */ }
+}
 export const FIELD_GUIDE=Object.freeze([
  ['eggs','Brood eggs','THE OBJECTIVE','Membranous eggs cluster in nests and in the ruins.','Shoot the eggs directly. Each rupture adds to your score; clear clusters with the heavy cannon.'],
  ['creepers','Creepers','MUD THROWERS','Dark humanoids climb the walls and patrol the banks. Their mud coats the glass.','Hit them during the throwing windup to interrupt. Keep the guns on one while tracking the next threat.'],
@@ -183,16 +201,21 @@ if(dialog&&trigger){
  const grid=$('guideEntries');
  for(const [id,name,tag,description,counter]of FIELD_GUIDE){
   const card=document.createElement('article');card.className='guide-entry';card.dataset.creature=id;
-  const mark=document.createElement('figure');mark.className='guide-portrait '+id;
-  const portrait=document.createElement('img');portrait.dataset.src='./assets/field-guide/'+id+(id==='tanks'?'.jpg':'.png')+'?v=054';portrait.alt=id==='queen'?"The Queen's silhouette; her appearance remains unknown":name+' — model identification';portrait.width=512;portrait.height=384;portrait.decoding='async';mark.append(portrait);
+  const mark=document.createElement('button');mark.type='button';mark.className='guide-portrait guide-model-trigger '+id;mark.setAttribute('aria-label','Enlarge '+name);mark.setAttribute('aria-haspopup','dialog');mark.setAttribute('aria-expanded','false');
+  const portrait=document.createElement('img');portrait.dataset.src='./assets/field-guide/'+id+(id==='tanks'?'.jpg':'.png')+'?v=054';portrait.alt=id==='queen'?"The Queen's silhouette; her appearance remains unknown":name+' — model identification';portrait.width=512;portrait.height=384;portrait.decoding='async';mark.append(portrait);const enlarge=document.createElement('span');enlarge.className='guide-enlarge';enlarge.textContent=id==='dragons'||id==='queen'?'ENLARGE ↗':'VIEW 3D ↗';mark.append(enlarge);
   const copy=document.createElement('div');
-  for(const [tagName,text,cls]of [['span',tag,'guide-tag'],['h3',name,''],['p',description,''],['h4','COUNTERPLAY',''],['p',counter,'guide-counter']]){const node=document.createElement(tagName);node.textContent=text;if(cls)node.className=cls;copy.append(node);}
+  for(const [tagName,text,cls]of [['span',tag,'guide-tag'],['h3',name,''],['h4','COUNTERPLAY',''],['p',counter,'guide-counter']]){const node=document.createElement(tagName);node.textContent=text;if(cls)node.className=cls;copy.append(node);}
+  const details=document.createElement('details');details.className='guide-details';
+  const summary=document.createElement('summary');summary.textContent='Dossier details';
+  const descriptionNode=document.createElement('p');descriptionNode.textContent=description;
+  details.append(summary,descriptionNode);copy.append(details);
   card.append(mark,copy);grid.append(card);
  }
  function close(){dialog.close();}
- trigger.addEventListener('click',()=>{for(const img of dialog.querySelectorAll('img[data-src]')){if(!img.src)img.src=img.dataset.src;}dialog.showModal();trigger.setAttribute('aria-expanded','true');$('closeGuide').focus();});
+ trigger.addEventListener('click',()=>{for(const img of dialog.querySelectorAll('img[data-src]')){if(!img.src)img.src=img.dataset.src;}dialog.showModal();trigger.setAttribute('aria-expanded','true');$('closeGuide').focus();void openGuideViewer();});
+ dialog.addEventListener('click',e=>{const button=e.target.closest?.('.guide-model-trigger');if(button)void openGuideViewer(button);});
  $('closeGuide').addEventListener('click',close);
  dialog.addEventListener('click',e=>{const b=dialog.getBoundingClientRect();if(e.target===dialog&&(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom))close();});
  dialog.addEventListener('close',()=>{trigger.setAttribute('aria-expanded','false');trigger.focus();});
- dialog.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Tab'){const nodes=[...dialog.querySelectorAll('button,a[href],[tabindex="0"]')];const first=nodes[0],last=nodes.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
+ dialog.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Tab'){const nodes=[...dialog.querySelectorAll('button,a[href],summary,[tabindex="0"]')];const first=nodes[0],last=nodes.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
 }

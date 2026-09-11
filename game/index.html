@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://gunner.satoshis.watch/">
   <link rel="canonical" href="https://gunner.satoshis.watch/">
   <link rel="icon" type="image/svg+xml" href="./assets/gunner-plane.svg?v=052">
-  <link rel="stylesheet" href="./styles.css?v=054-6-report1">
+  <link rel="stylesheet" href="./styles.css?v=054-19">
 </head>
 <body>
   <noscript><section class="device-noscript" aria-labelledby="no-script-heading">
@@ -36,13 +36,13 @@
     <header class="mission-masthead"><div><span class="mission-kicker">ONE PLANE. ALL OF HELL.</span><h1>GUNNER</h1></div><span class="mission-edition">FLIGHT OPERATIONS<br>CHAPTER SELECT</span></header>
     <div class="chapter-layout">
       <section class="chapter chapter-gunner" aria-labelledby="gunnerTitle">
-        <img class="chapter-image" data-src="./assets/gunner-chapter.jpg?v=052" alt="The gunner aircraft flying through the volcanic canyon">
-        <div class="chapter-copy"><span class="chapter-number">CHAPTER 01 · AVAILABLE</span><h2 id="gunnerTitle">GUNNER</h2><p>Break the Queen. Burn the brood.<br>Bring us home.</p></div>
+        <img class="chapter-image" data-src="./assets/gunner-chapter.jpg?v=054-17" alt="Satoshi, the bomber with three Queen victory stamps, flying through the volcanic canyon">
+        <div class="chapter-copy"><span class="chapter-number">CHAPTER 01 · AVAILABLE</span><h2 id="gunnerTitle">THE QUEEN</h2><p>Break the Queen. Burn the brood.<br>Bring us home.</p></div>
       </section>
       <section class="chapter chapter-soon" aria-labelledby="nextChapter"><span class="chapter-number">CHAPTER 02</span><div class="unknown-sector" aria-hidden="true">?</div><h2 id="nextChapter">UNCHARTED</h2><p>COMING SOON</p><span class="sector-note">The next flight is still beyond the horizon.</span></section>
     </div>
     <div class="deployment-bar"><div class="mission-orders"><span class="mission-kicker">YOUR ORDERS</span><p>Destroy the eggs. Defeat the Queen.</p><span>The pilot flies. You have the guns.</span></div>
-      <div class="deployment-action"><div id="loadingSystems" aria-label="Flight preparation" aria-busy="true"><div class="ammo-progress" aria-hidden="true"><i id="prep-world"></i><i id="prep-models"></i><i id="prep-collision"></i><i id="prep-shaders"></i></div><span id="loadStatus" role="status" aria-live="polite">Preparing flight systems…</span></div><button id="startButton" type="button" disabled>PREPARING FLIGHT…</button>
+      <div class="deployment-action"><div id="loadingSystems" aria-label="Flight preparation" aria-busy="true"><div class="ammo-progress" aria-hidden="true"></div><span id="loadStatus" role="status" aria-live="polite">Preparing flight systems…</span></div><button id="startButton" type="button" disabled>DEPLOY GUNNER</button>
         <section id="loadingFailureDetails" class="loading-failure" aria-label="Loading problem" hidden>
           <p id="loadingFailureDetail"></p>
           <button id="copyLoadingReport" class="quietButton" type="button">COPY LOADING REPORT</button>
@@ -51,7 +51,10 @@
         </section>
       </div>
     </div>
-    <footer class="mission-footer"><div class="mission-links"><button id="fieldGuideButton" type="button" class="quietButton" aria-haspopup="dialog" aria-controls="fieldGuide" aria-expanded="false">ALIEN FIELD GUIDE <span>↗</span></button><button id="settingsButton" disabled type="button" class="quietButton">SOUND &amp; CONTROLS</button></div><p>MOUSE · AIM &amp; FIRE &nbsp; / &nbsp; SPACE · HEAVY CANNON &nbsp; / &nbsp; ESC · PAUSE</p></footer>
+    <audio id="menuMusicTrack" src="./assets/audio/gunner-menu-theme-v05416.mp3" preload="none" loop></audio>
+    <audio id="winMusicTrack" src="./assets/audio/gunner-win-v05416.mp3" preload="none" loop></audio>
+    <audio id="loseMusicTrack" src="./assets/audio/gunner-lose-v05416.mp3" preload="none" loop></audio>
+    <footer class="mission-footer"><div class="mission-links"><button id="fieldGuideButton" type="button" class="quietButton" aria-haspopup="dialog" aria-controls="fieldGuide" aria-expanded="false">ALIEN FIELD GUIDE <span>↗</span></button><button id="settingsButton" disabled type="button" class="quietButton">SOUND &amp; CONTROLS</button><button id="menuMusicButton" type="button" class="quietButton" aria-pressed="false">PLAY MUSIC</button></div><p>MOUSE · AIM &amp; FIRE &nbsp; / &nbsp; SPACE · HEAVY CANNON &nbsp; / &nbsp; ESC · PAUSE</p></footer>
   </main>
   <dialog id="fieldGuide" aria-labelledby="guideTitle"><div class="guide-header"><div><span class="mission-kicker">KNOW WHAT YOU’RE SHOOTING</span><h2 id="guideTitle">ALIEN FIELD GUIDE</h2></div><button id="closeGuide" type="button" aria-label="Close alien field guide">CLOSE ×</button></div><p class="guide-intro">Gunner · Identification &amp; counterplay</p><div id="guideEntries" tabindex="0" aria-label="Alien entries"></div></dialog>
 
@@ -86,6 +89,9 @@
       <div class="readout scoreReadout">
         <span class="label">SCORE</span>
         <strong id="scoreValue">000000</strong>
+        <div class="fpsReadout" aria-label="Current frames per second">
+          <span class="label">FPS</span><strong id="fpsValue">—</strong>
+        </div>
       </div>
     </div>
 
@@ -127,8 +133,9 @@
       <label for="sensitivity">AIM SPEED <input id="sensitivity" type="range" min="30" max="170" value="100"></label>
       <label for="fov">FIELD OF VIEW <input id="fov" type="range" min="58" max="82" value="66"></label>
       <label class="check"><input id="invertAim" type="checkbox"> INVERT VERTICAL AIM</label>
-      <label class="check"><input id="reducedEffects" type="checkbox"> REDUCED FLASH &amp; MOTION</label>
+      <label class="check"><input id="reducedEffects" type="checkbox" title="Less flash and shake, with lighter shading. The opening movie still plays."> REDUCED EFFECTS</label>
     </div>
+    <button id="pauseMusicButton" type="button" class="quietButton" aria-pressed="false">PLAY MUSIC</button>
     <button id="resumeButton" type="button">RETURN TO THE GUN</button>
   </section>
 
@@ -177,6 +184,6 @@
     <p>This gun bubble needs a WebGL 2-capable browser.</p>
   </div>
 
-  <script type="module" src="./mobile-entry.js?v=desktop-054-10" data-game-entry="./main.js?v=054-10"></script>
+  <script type="module" src="./mobile-entry.js?v=desktop-054-19" data-game-entry="./main.js?v=054-19"></script>
 </body>
 </html>

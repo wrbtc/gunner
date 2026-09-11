@@ -36,6 +36,19 @@ float ember=vEmber;
 float burn=fleshNoise(vFlesh*3.3),grain=fleshNoise(vFlesh*61.);
 vec3 cold=mix(vec3(.015,.021,.027),vec3(.052,.060,.067),burn)*(.83+grain*.17);
 diffuseColor.rgb=mix(cold,vec3(.30,.064,.007)*(.80+burn*.20),ember);`);s.fragmentShader=s.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance+=vHitAmount*vec3(.9,.48,.17)*(.055+.20*pow(1.-abs(dot(normal,normalize(vViewPosition))),2.));totalEmissiveRadiance+=ember*vec3(1.25,.22,.009)*(.40+.36*pow(1.-abs(dot(normal,normalize(vViewPosition))),1.5));');};m.customProgramCacheKey=()=> 'gunner-052-orange-spirit-ashborn';return m;}
+// Independent museum pose from the same authored anatomy and skin shader.
+export function createBankGuideModel(ember=false){
+ const geos=anatomy(),root=new THREE.Group(),skin=skinMaterial();
+ geos.eyes=merge([-1,1].map(s=>ellipsoid(s*.17,.10,-.31,.080,.070,.050,0xffffff)));
+ for(const g of Object.values(geos)){const count=g.attributes.position.count;g.setAttribute('hitAmount',new THREE.BufferAttribute(new Float32Array(count),1));g.setAttribute('emberAmount',new THREE.BufferAttribute(new Float32Array(count).fill(ember?1:0),1));}
+ const eyes=new THREE.MeshBasicMaterial({color:ember?0xffb842:0xff180e});
+ function part(key,pos,scale=V(1,1,1),q=new THREE.Quaternion()){const m=new THREE.Mesh(geos[key],key==='eyes'?eyes:skin);m.name='Guide '+key;m.position.copy(pos);m.scale.copy(scale);m.quaternion.copy(q);root.add(m);return m;}
+ function segment(key,a,b){part(key,a,V(1,a.distanceTo(b),1),new THREE.Quaternion().setFromUnitVectors(UP,b.clone().sub(a).normalize()));}
+ const hip=V(0,2.8,0),chest=V(0,4.15,-.2),head=V(0,5.55,-.7);
+ part('hip',hip);part('torso',chest);part('neck',head.clone().add(V(0,-.6,.1)));part('head',head);part('eyes',head);
+ for(const side of [-1,1]){const shoulder=chest.clone().add(V(side*.8,.55,0)),elbow=V(side*1.45,ember?5.2:3.15,-.15),hand=V(side*1.7,ember?6.4:1.9,-.55),knee=V(side*.75,1.4,-.25),foot=V(side*.75,.16,.15);segment('upper',shoulder,elbow);segment('lower',elbow,hand);part('hand',hand,V(side<0?-1:1,1,1));segment('thigh',hip.clone().add(V(side*.4,0,0)),knee);segment('shin',knee,foot);part('foot',foot);}
+ root.name=ember?'Dancing Creeper — field guide':'Creeper — field guide';return root;
+}
 export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=null}){
  const group=new THREE.Group();group.name='Forty bank Creepers and eight Ember dancers';scene.add(group);
  const geos=anatomy(),mat=skinMaterial(),parts={};

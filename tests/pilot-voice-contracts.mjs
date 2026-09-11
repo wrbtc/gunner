@@ -10,7 +10,7 @@ assert.equal(createHash('sha256').update(audio).digest('hex'),PILOT_AUDIO.sha256
 assert.ok(audio.length<1572864);
 let previousEnd=-.05;
 for(const [id,clip] of Object.entries(PILOT_AUDIO.clips)){
-  assert.ok(Math.abs(clip.offset-previousEnd-.05)<1e-6,id+' guard');
+  assert.ok(clip.offset-previousEnd>=.05-1e-6,id+' guard or retired clip gap');
   assert.ok(clip.duration>0&&clip.offset+clip.duration<150.5,id+' bounds');
   previousEnd=clip.offset+clip.duration;
   let stops=[];const q=createPilotQueue({lines:PILOT_LINES,onStop:(item,reason)=>stops.push(reason)});
@@ -21,4 +21,4 @@ for(const [id,clip] of Object.entries(PILOT_AUDIO.clips)){
   q.update(.1,{paused:true});assert.equal(q.stats().active.id,id);
   q.update(.1);assert.equal(q.stats().active,null);assert.deepEqual(stops,['finished']);
 }
-console.log('All 12 pilot lines mapped, bounded, hash-bound and scheduled for complete clip duration.');
+console.log('All 11 active pilot lines mapped, bounded, hash-bound and scheduled for complete clip duration.');

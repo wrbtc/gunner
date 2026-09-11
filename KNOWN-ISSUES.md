@@ -1,4 +1,4 @@
-# Release validation — v0.54.9
+# Release validation — v0.54.19
 
 ## Device validation
 
@@ -8,9 +8,11 @@ Title GPU rendering also pauses during collision preparation, then resumes.
 The corresponding preview candidate passed a bounded Apple M3 Pro Chromium
 148.0.7778.96 / Metal check: Ready, Start, Skip and five seconds of flight.
 A user reported smooth play on an Apple M3. The browser was not specified in
-that report. Apple M1 acceptance is still pending. v0.54.9 preserves these
-gameplay fixes and adds the canonical production address; it does not change
-rendering quality or claim a replay-performance fix.
+that report. A later Safari report on an older macOS machine reached the loaded
+game, but the hardware was not confirmed to be Apple silicon. Apple M1
+acceptance is still pending. v0.54.19 preserves these gameplay fixes, adds
+bounded graphics-preparation diagnostics and exposes an in-flight FPS counter;
+it does not claim a replay-performance fix.
 The report below describes v0.54.7.
 
 Reported environment: Apple M1, Safari 17.6. Scene assembly ran from 6.950s to
@@ -35,6 +37,9 @@ Some bounded Chromium runs showed replay cadence around 33.3ms versus roughly
 16.7ms on the first flight, including on more than one source revision. The cause
 was not established. Avoid attributing it to a specific patch without a controlled
 comparison. Local contract tests do not validate sustained GPU performance.
+An informal Windows run was also reported as slow, without controlled FPS or
+hardware measurements. Linux performance has not yet been characterized. Use
+the built-in FPS counter and record the environment details below when testing.
 
 ## Testing and patch requests
 

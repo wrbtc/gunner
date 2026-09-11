@@ -31,11 +31,6 @@ export const PILOT_LINES=Object.freeze({
     "priority": 4,
     "ttl": 8
   },
-  "queenIntro": {
-    "text": "That's our Queen. Watch those tentacles, they look dangerous.",
-    "priority": 4,
-    "ttl": 10
-  },
   "queenCombat": {
     "text": "Hover locked. Break those red tips gunner",
     "priority": 5,

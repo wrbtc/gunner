@@ -86,6 +86,10 @@ kbd { color: #f6dfb9; background: rgba(0,0,0,.55); border: 1px solid #594a3c; pa
 .readout { min-width: 190px; }
 .readout strong { display: block; margin-top: 6px; font-size: 21px; letter-spacing: .08em; }
 .scoreReadout { text-align: right; }
+.fpsReadout { display: flex; justify-content: flex-end; align-items: baseline; gap: 7px; margin-top: 8px; }
+.fpsReadout strong { display: inline; margin: 0; color: var(--ice); font: 700 13px/1 ui-monospace,monospace; letter-spacing: .06em; }
+#fpsValue[data-band="watch"] { color: #efbd79; }
+#fpsValue[data-band="low"] { color: #ff8d68; }
 .meter { width: min(260px,23vw); height: 5px; margin-top: 9px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.12); }
 .meter i { display: block; width: 100%; height: 100%; background: linear-gradient(90deg,#af2511,#ff9f3a,#e7fcff); box-shadow: 0 0 12px rgba(255,116,35,.7); }
 .objective { min-width: 230px; text-align: center; }
@@ -201,8 +205,9 @@ kbd { color: #f6dfb9; background: rgba(0,0,0,.55); border: 1px solid #594a3c; pa
 .quietButton{min-width:0;margin-top:16px;padding:9px 13px;background:rgba(7,12,16,.7);border-color:#73848c;color:#c9dce2;box-shadow:none;font-size:10px}
 .notice{color:#c5c7c6;line-height:1.7;font-size:12px}
 .hudTop{text-shadow:0 2px 5px #000}
-.hudTop .label,.objectiveOverline{color:#d3e2e5;letter-spacing:.22em}
-.hullReadout,.scoreReadout,.objective{background:linear-gradient(#060b10b8,#060b1000);padding:10px 12px 14px}
+.hudTop .label,.objectiveOverline{color:#d3e2e5;font-size:11px;letter-spacing:.14em}
+.hullReadout,.scoreReadout,.objective{background:linear-gradient(#060b10d9,#060b10b8);padding:10px 12px 14px}
+.hullReadout{justify-self:start}.scoreReadout{justify-self:end}
 .objective{margin-top:-2px}
 .meter{height:6px}.meter i{background:#d6edf1;box-shadow:0 0 7px #8baab455}
 .route i,.route b{box-shadow:none}.route b{width:6px;height:6px;top:-2px;background:#c3dfe5}
@@ -210,17 +215,17 @@ kbd { color: #f6dfb9; background: rgba(0,0,0,.55); border: 1px solid #594a3c; pa
 #reticle .ring{inset:14px;border-color:#e5f2f2;box-shadow:0 0 4px #000}
 #reticle.hit .ring{border-color:#fff0b0;transform:scale(.73);box-shadow:0 0 8px #fff2}
 #reticle.kill .ring{border-color:#9debd5;transform:scale(1.16);box-shadow:0 0 12px #9debd544}
-#combatFeedback{position:absolute;left:50%;top:calc(50% + 46px);transform:translateX(-50%);max-width:80vw;text-align:center;color:#e8f1e8;font:700 11px/1.5 system-ui,sans-serif;letter-spacing:.08em;text-shadow:0 2px 5px #000}
+#combatFeedback{position:absolute;left:50%;top:calc(50% + 46px);transform:translateX(-50%);max-width:80vw;padding:6px 10px;background:#071015e6;text-align:center;color:#e8f1e8;font:700 12px/1.5 system-ui,sans-serif;letter-spacing:.08em;text-shadow:0 2px 5px #000}
 #flightLesson{position:absolute;top:23%;left:50%;transform:translateX(-50%);text-align:center;padding:9px 15px;color:#ecf4f2;background:#071116b3;border:1px solid #bfd5dd38;font:600 12px/1.5 system-ui,sans-serif;letter-spacing:.07em}
-#flightLesson:empty,#combatFeedback:empty{display:none}
+#flightLesson:empty,#combatFeedback:empty,#statusLine:empty{display:none}
 .attackWarning{position:absolute;transform:translate(-50%,-130%);padding:5px 8px 6px;border-bottom:2px solid #ffe6a1;background:#100b06d9;box-shadow:0 2px 9px #0008;color:#ffe6a1;font:700 11px/1.3 system-ui,sans-serif;letter-spacing:.08em;white-space:nowrap}
 .attackWarning:after{content:'';position:absolute;top:100%;left:50%;width:1px;height:13px;background:#ffe6a1}
 .attackWarning[hidden],#skipQueen[hidden]{display:none}
 .threat{color:#ffe6a1;filter:drop-shadow(0 2px 3px #000);animation:none;font-size:30px}
-#statusLine{font:600 12px/1.6 system-ui,sans-serif;letter-spacing:.03em;border-color:#adc9d0;background:linear-gradient(90deg,#061016d9,#06101600);max-width:calc(100% - 100px);color:#c0ccd0}
+#statusLine{font:600 12px/1.6 system-ui,sans-serif;letter-spacing:.03em;border-color:#adc9d0;background:#061016e6;max-width:calc(100% - 100px);color:#c0ccd0}
 #statusLine b{color:#edf4f2}
-#cannonGauge{width:70px;height:70px;background:#071015b8;border-radius:50%;box-shadow:0 0 0 1px #a9cad233}
-#cannonGauge svg{width:70px;height:70px}#cannonGauge span{inset:20px 0 0}#cannonGauge b{font:700 11px/1.2 system-ui}#cannonGauge small{margin-top:4px;font:600 9px system-ui;color:#d2e6ec}
+#cannonGauge{width:70px;height:70px;background:#071015e6;border-radius:50%;box-shadow:0 0 0 1px #a9cad233}
+#cannonGauge svg{width:70px;height:70px}#cannonGauge span{inset:20px 0 0}#cannonGauge b{font:700 11px/1.2 system-ui}#cannonGauge small{margin-top:4px;font:600 11px system-ui;color:#d2e6ec;letter-spacing:.08em}
 #skipQueen{position:fixed;bottom:3vh;right:4vw;z-index:25;min-width:0;padding:12px 16px;background:#071015d9;border-color:#9cabb0;color:#e0eaee;box-shadow:none;font-size:11px}
 .runReview{width:min(510px,90vw);font-family:system-ui,sans-serif;margin:2px 0 16px}
 .runReview strong{display:block;color:#d0e6e8;font-size:12px;letter-spacing:.13em}.runReview span{display:block;margin:7px 0;color:#b7c4c7;font-size:10px;letter-spacing:.1em}
@@ -233,15 +238,15 @@ kbd { color: #f6dfb9; background: rgba(0,0,0,.55); border: 1px solid #594a3c; pa
 
 /* Temperature stays beside the weapon readout, outside the aiming area. */
 #gunHeat{flex:0 0 220px;width:220px;margin:0 22px 5px auto;padding:7px 8px;background:#071015d9;border:1px solid #aec5ca26;color:#d4e1df;text-shadow:0 2px 4px #000}
-#gunHeatLabel{display:block;font:700 9px/1.4 system-ui,sans-serif;letter-spacing:.075em;margin-bottom:7px}
+#gunHeatLabel{display:block;font:700 11px/1.4 system-ui,sans-serif;letter-spacing:.035em;margin-bottom:7px}
 .gunHeatTrack{position:relative;height:5px;background:#0a121bd9;box-shadow:0 0 0 1px #aec5ca38;overflow:hidden}
 #gunHeatFill{display:block;height:100%;width:100%;transform:scaleX(0);transform-origin:left;background:#acc6c9}
 .gunHeatTrack b{position:absolute;left:75%;top:0;height:100%;width:1px;background:#0a121b}
 #gunHeat.warm{color:#efbd79}#gunHeat.warm #gunHeatFill{background:#e0a766}
 #gunHeat.venting{color:#ffaf82}#gunHeat.venting #gunHeatFill{background:#ee8059}
 #reticle.overheated .ring{border-color:#ed9369;opacity:.7}#reticle.overheated .dot{background:#ed9369}
-@media(max-width:1000px){#gunHeat{flex-basis:180px;width:180px;margin:0 18px 5px}#statusLine{flex:1;min-width:0;max-width:none}#cannonGauge{flex-shrink:0}}
-@media(max-width:700px){#gunHeat{flex-basis:156px;width:156px;margin-inline:12px}#gunHeatLabel{font-size:9px}#gunHeat .gunHeatTrack{height:4px}}
+@media(max-width:1000px){#gunHeat{flex-basis:180px;width:180px;margin:0 18px 5px auto}#statusLine{flex:1;min-width:0;max-width:none}#cannonGauge{flex-shrink:0}}
+@media(max-width:700px){#gunHeat{flex-basis:170px;width:170px;margin:0 12px 5px auto}#gunHeatLabel{font-size:11px}#gunHeat .gunHeatTrack{height:4px}}
 
 /* v040: a compact flight report with the objective as the dominant readout. */
 .buildTag{font:10px/1.4 ui-monospace,monospace;color:#a99174;letter-spacing:.15em;margin-top:-12px}
@@ -304,7 +309,15 @@ html[data-device="mobile"], html[data-device="mobile"] body { height: auto; min-
 .loading-failure{margin-top:12px;font:12px/1.5 system-ui,sans-serif;color:#d4c8aa}.loading-failure p{margin:6px 0}.loading-failure .quietButton{margin:4px 0;max-width:100%}.loading-failure summary{cursor:pointer;color:#bcc6ae;padding:6px 0}.loading-failure textarea{display:block;box-sizing:border-box;width:100%;max-width:100%;margin:6px 0 0;padding:10px;background:#111610;color:#d3d9c9;border:1px solid #69715b;font:11px/1.5 monospace;resize:vertical}.loading-failure [role=status]:empty{display:none}
 .mission-footer{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:17px 0}.mission-links{display:flex;gap:22px}.mission-links button{font:700 11px/1.5 system-ui,sans-serif;letter-spacing:.1em;min-width:0;padding:8px 0;color:#d3d9c9;background:none;border:0;box-shadow:none}.mission-links button:hover{color:#e9cd8a;background:none}.mission-links button span{margin-left:10px}.mission-footer p{font:10px/1.6 monospace;color:#9fa894;margin:0;text-align:right}
 #fieldGuide{width:min(1050px,92vw);max-height:88vh;background:#111610;color:#e3e7db;border:1px solid #69715b;padding:28px;overflow:auto}#fieldGuide::backdrop{background:rgba(0,0,0,.85)}.guide-header{flex-shrink:0;background:#111610;padding-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:20px}.guide-header h2{font:clamp(27px,4vw,40px)/1.2 Impact,sans-serif;letter-spacing:.045em;margin:6px 0}.guide-header button{min-width:90px;background:none;box-shadow:none;padding:12px;border-color:#67705a;font-size:10px}.guide-intro{font:12px/1.5 system-ui,sans-serif;color:#a8b29c;border-bottom:1px solid #424d37;padding-bottom:20px}
-#guideEntries{display:grid;grid-template-columns:1fr 1fr;gap:0 26px;outline-offset:6px}.guide-entry{display:flex;gap:15px;padding:22px 0;border-bottom:1px solid #333d2a}.guide-portrait{margin:0;width:155px;flex:none;align-self:flex-start;aspect-ratio:1/1.1;display:flex;align-items:center;background:radial-gradient(ellipse at center,#293025 0,#131a12 65%);border:1px solid #343f2e}.guide-portrait img{display:block;width:100%;height:auto;object-fit:contain}.guide-portrait.queen{background:radial-gradient(ellipse at center,#25291c 0,#11160f 65%)}.guide-tag{font:9px/1.4 monospace;color:#a2ae92;letter-spacing:.15em}.guide-entry h3{font:24px/1.2 Impact,sans-serif;letter-spacing:.03em;margin:4px 0 10px}.guide-entry p{font:12px/1.65 system-ui,sans-serif;margin:6px 0;color:#b5c0ab}.guide-entry h4{font:9px/1.5 monospace;letter-spacing:.12em;color:#d3b779;margin:16px 0 2px}.guide-entry .guide-counter{color:#e0e5d5}
+#guideEntries{display:grid;grid-template-columns:1fr 1fr;gap:0 26px;outline-offset:6px}.guide-entry{display:flex;gap:15px;padding:22px 0;border-bottom:1px solid #333d2a}.guide-portrait{margin:0;width:170px;flex:none;overflow:hidden;justify-content:center;align-self:flex-start;aspect-ratio:1/1.1;display:flex;align-items:center;background:radial-gradient(ellipse at center,#293025 0,#131a12 65%);border:1px solid #343f2e}.guide-portrait img{display:block;width:100%;height:auto;object-fit:contain}.guide-portrait.queen{background:radial-gradient(ellipse at center,#25291c 0,#11160f 65%)}.guide-tag{font:10px/1.4 monospace;color:#a2ae92;letter-spacing:.09em}.guide-entry h3{font:24px/1.2 Impact,sans-serif;letter-spacing:.03em;margin:4px 0 10px}.guide-entry p{font:13px/1.55 system-ui,sans-serif;margin:6px 0;color:#b5c0ab}.guide-entry h4{font:10px/1.5 monospace;letter-spacing:.08em;color:#d3b779;margin:12px 0 2px}.guide-entry .guide-counter{color:#e0e5d5}
+/* Dossier descriptions are secondary; identification and counterplay stay visible. */
+.guide-entry > div{min-width:0}
+.guide-portrait.creepers img,.guide-portrait.rimmers img,.guide-portrait.dragons img{filter:brightness(1.65);transform:scale(1.12)}
+.guide-details{margin-top:12px}
+.guide-details summary{width:fit-content;padding:5px 0;color:#c4cdb7;cursor:pointer;font:600 11px/1.5 system-ui,sans-serif;letter-spacing:.03em}
+.guide-details summary:hover{color:#e9cd8a}
+.guide-details summary:focus-visible{outline:2px solid #d3b779;outline-offset:4px}
+.guide-details[open] summary{color:#d3b779}
 @media(max-width:850px){.mission-masthead{margin-bottom:18px}.chapter-layout{grid-template-columns:minmax(0,1.7fr) minmax(180px,1fr)}.chapter{height:300px;min-height:0}.chapter-copy{left:18px;bottom:18px}.deployment-action{width:270px}.mission-orders p{font-size:15px}.mission-footer{align-items:flex-start;flex-direction:column;gap:8px}.mission-footer p{text-align:left}.mission-links{gap:18px}}
 @media(max-width:600px){.chapter-layout{grid-template-columns:1fr}.chapter-soon{height:150px;min-height:150px}.unknown-sector{font-size:48px}.chapter-soon h2{margin:8px 0 0;font-size:18px}.sector-note{display:none}.chapter-soon .chapter-number{top:16px;left:16px}.deployment-bar{align-items:stretch;flex-direction:column;gap:14px}.deployment-action{width:100%}.mission-edition{display:none}#guideEntries{grid-template-columns:1fr}#fieldGuide{padding:20px}.guide-header{align-items:flex-start}}
 @media(max-height:760px) and (min-width:851px){#intro.mission-screen{padding-top:22px;padding-bottom:16px}.mission-masthead{padding-bottom:14px;margin-bottom:16px}.mission-masthead h1{font-size:76px}.chapter{height:290px;min-height:240px}.deployment-bar{padding:14px 0}.mission-footer{padding:12px 0}}
@@ -356,3 +369,32 @@ html[data-device="mobile"], html[data-device="mobile"] body { height: auto; min-
 body:has(#rankReveal:not([hidden])) .pilot-caption{bottom:18px}
 body:has(#result:not([hidden])) .pilot-caption{top:8px;bottom:auto;width:min(760px,90vw);padding:6px 12px;font-size:12px}
 body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
+
+/* Satoshi's compact phosphor instrument stays outside the aiming field. */
+
+#loadingSystems{display:block;min-height:56px;margin-bottom:14px;position:relative;width:100%}
+.ammo-progress{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:7px 8px;width:100%}
+.ammo-progress i{box-sizing:border-box;justify-self:center;width:14px;height:24px;background:transparent;border:1px solid #8a8c6e;border-radius:55% 55% 2px 2px;position:relative}
+.ammo-progress i::after{content:'';position:absolute;left:-2px;right:-2px;bottom:3px;border-top:1px solid #8a8c6e}
+.ammo-progress i[data-complete=true]{background:#c2a567;border-color:#d4bd80}.ammo-progress i[data-complete=true]::after{border-color:#e1ce95}
+.ammo-progress[data-failed=true] i[data-complete=false]{border-color:#a3694d}
+#loadStatus{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#loadStatus.failed{position:static;width:auto;height:auto;overflow:visible;clip-path:none;white-space:normal;display:block;margin-top:8px;color:#dfb398}
+
+.guide-model-trigger{position:relative;padding:0;cursor:zoom-in;box-shadow:none;border:1px solid #495541;border-radius:0;min-height:0;color:#d9dbc7}
+.guide-model-trigger:hover{border-color:#d3b779;transform:none}.guide-model-trigger:focus-visible{outline:2px solid #d3b779;outline-offset:3px}
+.guide-enlarge{position:absolute;bottom:0;left:0;right:0;padding:8px 3px;background:#0b1414df;font:10px/1.2 monospace;letter-spacing:.05em}
+.guide-portrait img[data-model-ready=true]{filter:none;transform:none;width:100%;height:100%;object-fit:contain}
+#guideModelDialog{width:min(900px,94vw);padding:20px;border:1px solid #788067;background:#101916;color:#e1e3d1;max-height:94vh;overflow:auto}
+#guideModelDialog::backdrop{background:#000d}#guideModelDialog header{display:flex;align-items:center;justify-content:space-between;gap:15px}#guideModelDialog h2{font:32px/1.2 Impact,sans-serif;margin:4px 0 16px}
+#guideModelDialog button{font:12px/1.2 monospace;letter-spacing:.03em;background:#1a281f;border:1px solid #6b775e;color:#e1e3d1;padding:12px;box-shadow:none}
+.guide-model-stage{width:100%;height:min(55vh,520px);min-height:160px;display:flex;align-items:center;justify-content:center;background:#121b17;overflow:hidden}
+.guide-model-stage canvas{display:block;width:100%!important;height:100%!important;cursor:grab}.guide-model-stage canvas:active{cursor:grabbing}.guide-model-stage img{max-width:100%;max-height:100%;object-fit:contain}
+.guide-model-tools{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:14px;font:11px monospace;color:#b9c5ad}.guide-model-tools[hidden]{display:none}.guide-model-status{font:12px system-ui,sans-serif;color:#cdbf94}.guide-model-status:empty{display:none}
+@media(max-width:600px){#guideModelDialog{padding:14px}.guide-model-tools{gap:6px;font-size:9px}.guide-model-tools button{padding:9px!important}}
+
+/* Keep model controls compact and clear old species paint behind rendered thumbnails. */
+.guide-model-trigger:has(img[data-model-ready=true]){background:#121b17}
+#guideModelDialog button{min-width:44px;width:auto}
+#guideModelDialog .guide-model-close{min-width:88px}
+#guideModelDialog .guide-model-tools{flex-wrap:wrap}

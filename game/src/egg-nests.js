@@ -188,10 +188,18 @@ export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hit
  }
  function addGallery({routeLength,ruins}){
    if(gallery)return gallery;
-   gallery={entryMetres:1550,exitMetres:1250,denseFromMetres:1470,denseToMetres:1290,quietFromMetres:1800,guardId:'ashborn-20',guardReadyMetres:1515,rejections:{missing:0,slope:0,heat:0,ruin:0,overlap:0,visibility:0,attachment:0},candidates:0};
+   gallery={entryMetres:1550,exitMetres:1250,denseFromMetres:1470,denseToMetres:1290,quietFromMetres:1800,guardId:'ashborn-20',guardReadyMetres:1515,targetCount:234,rejections:{missing:0,slope:0,heat:0,ruin:0,overlap:0,visibility:0,attachment:0},candidates:0};
    const sightRay=new THREE.Raycaster();
+   // Preserve the original sparse slots first, then infill across the entire
+   // same canyon reach. One bounded target per wall avoids a packed entrance
+   // and empty exit while retaining attachment and gameplay clearances.
+   const slots=[];
+   for(let column=0;column<23;column++)for(let row=1;row<9;row++)slots.push({column,row,original:column%2===0&&row%2===1});
+   slots.sort((a,b)=>Number(b.original)-Number(a.original)||(a.original?(a.column-b.column||a.row-b.row):((a.column*73+a.row*151)%367-(b.column*73+b.row*151)%367)));
    for(const side of [-1,1]){const cluster={id:clusters.length,eggs:[],p:1-1380/routeLength,side,nursery:true};clusters.push(cluster);
-    for(let column=0;column<23;column+=2)for(let row=1;row<9;row+=2){
+    const wallTarget=side===1?gallery.targetCount-nursery.length:gallery.targetCount/2;
+    for(const {column,row}of slots){
+     if(cluster.eggs.length>=wallTarget)break;
      const d=1470-column*180/22+(row%2)*2.5,p=1-d/routeLength,c=centerAt(p),y=23+row*8.8+Math.sin(column*2.4+row*.8)*.85;
      gallery.candidates++;const hit=hitRock(side,y,c.z,c.x);if(!hit){gallery.rejections.missing++;continue;}
      if(Math.abs(hit.normal.y)>.82){gallery.rejections.slope++;continue;}
@@ -209,14 +217,14 @@ export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hit
     }
    }
    gallery.count=nursery.length;gallery.bySide=[-1,1].map(side=>({side,count:nursery.filter(e=>e.side===side).length,minY:Math.min(...nursery.filter(e=>e.side===side).map(e=>e.center.y)),maxY:Math.max(...nursery.filter(e=>e.side===side).map(e=>e.center.y))}));
-   if(nursery.length<35||nursery.length>100||gallery.bySide.some(s=>s.count<15))throw new Error('Insufficient clear egg-gallery wall coverage');
+   if(nursery.length<220||nursery.length>gallery.targetCount||gallery.bySide.some(s=>s.count<105))throw new Error('Insufficient clear egg-gallery wall coverage');
    buildNurseryBatches();root.updateMatrixWorld(true);return gallery;
  }
  const rootThreadGeometry=new THREE.CylinderGeometry(.016,.045,1,6,3);
  // Thin adhesive threads replace the old thick cone/spike silhouette. Shared
  // bowed geometry keeps the same root endpoints, instance count and draw call.
  const threadPosition=rootThreadGeometry.attributes.position;for(let i=0;i<threadPosition.count;i++){const bend=Math.sin((threadPosition.getY(i)+.5)*Math.PI);threadPosition.setX(i,threadPosition.getX(i)+bend*.035);}rootThreadGeometry.computeVertexNormals();
- const rootThreadBatch=new THREE.InstancedMesh(rootThreadGeometry,glueMat,2048);rootThreadBatch.name='Wall-seated brood root filaments';rootThreadBatch.count=0;rootThreadBatch.frustumCulled=false;rootThreadBatch.instanceMatrix.setUsage(THREE.DynamicDrawUsage);root.add(rootThreadBatch);
+ const rootThreadBatch=new THREE.InstancedMesh(rootThreadGeometry,glueMat,4096);rootThreadBatch.name='Wall-seated brood root filaments';rootThreadBatch.count=0;rootThreadBatch.frustumCulled=false;rootThreadBatch.instanceMatrix.setUsage(THREE.DynamicDrawUsage);root.add(rootThreadBatch);
  const rootThreadMatrix=new THREE.Matrix4();
  function makeRootFilaments(a,group,id){
    const filaments=[],inverse=group.matrixWorld.clone().invert();
@@ -323,5 +331,12 @@ let cursor={drop:0,flap:0,splat:0,tether:0},ruptures=0;
  function present(){const alpha=clamp(effectAccumulator*30,0,1);for(const e of eggs)if(e.dead&&e.embryo.visible)e.embryo.position.copy(e.group.worldToLocal(e.bodyPrev.clone().lerp(e.bodyWorld,alpha)));for(const a of [...drops,...flaps])if(a.active)a.mesh.position.copy(a.prev).lerp(a.pos,alpha);for(const t of tethers)if(t.active){const start=t.owner.center.clone().addScaledVector(t.owner.normal,-1),end=t.prev.clone().lerp(t.pos,alpha),d=end.sub(start);t.mesh.position.copy(start).addScaledVector(d,.5);t.mesh.quaternion.setFromUnitVectors(UP,d.clone().normalize());t.mesh.scale.y=d.length();}
  }
  function reset(){rootThreadBatch.count=0;effectAccumulator=0;seed=0xe6611;cursor={drop:0,flap:0,splat:0,tether:0};ruptures=0;for(const e of eggs){e.hp=65;e.hitFlash=0;e.dead=false;e.credited=false;e.shell.visible=true;e.shell.scale.set(e.radius,e.radius,e.length);e.socket.visible=false;e.cord.visible=true;e.embryo.visible=true;e.embryo.position.copy(e.bodyOrigin);e.embryo.rotation.copy(e.bodyRotation);e.embryo.scale.setScalar(e.stage===2?1.12:1.1);e.landed=false;e.releaseAge=0;e.ruptureAt=null;e.vel.set(0,0,0);e.group.visible=true;}for(const a of [...drops,...flaps,...splats,...tethers]){a.active=false;a.life=0;a.mesh.visible=false;}uniforms.uReveal.value=1;for(const {mesh}of [...nurseryBatches,...effectBatches])mesh.count=0;}
- root.updateMatrixWorld(true);return {root,eggs,rupturedCount:()=>ruptures,clusters,hazards,uniforms,addGallery,addQueenBrood,rebuildCollision,prepareCollision,get gallery(){return gallery;},nurseryBatches,effectBatches,trace,traceDebris,hit,update,reset,pools:{drops,flaps,splats,tethers},stats:()=>({collision:{ready:collisionReady,builds:collisionBuilds,entries:collisionEntries.length,...preparationStats},gallery,nurseryDrawBatches:nurseryBatches.length,effectDrawBatches:effectBatches.length,clusters:clusters.length,eggs:eggs.length,stages:[0,1,2].map(s=>eggs.filter(e=>e.stage===s).length),intact:eggs.filter(e=>!e.dead).length,ruptures,activeDrops:drops.filter(d=>d.active).length,activeFlaps:flaps.filter(d=>d.active).length,activeSplats:splats.filter(d=>d.active).length,activeTethers:tethers.filter(d=>d.active).length,fallingEmbryos:eggs.filter(e=>e.dead&&e.embryo.visible&&!e.landed).length,minHeatClearance:Math.min(...eggs.map(e=>e.clearance)),caps:{drops:drops.length,flaps:flaps.length,splats:splats.length,tethers:tethers.length}})};
+ function guideModel(){
+  const source=eggs.find(e=>!e.nursery&&!e.queenEgg),display=new THREE.Group();
+  // Canonical intact shell/embryo, with independent shader uniforms/material.
+  const shell=new THREE.Mesh(source.shell.geometry.clone(),shellMaterial({uReveal:{value:1}}));shell.scale.copy(source.shell.scale);shell.renderOrder=2;display.add(shell);
+  const embryo=new THREE.Mesh(source.embryo.geometry.clone(),source.embryo.material.clone());embryo.scale.copy(source.embryo.scale);embryo.position.copy(source.bodyOrigin);embryo.rotation.copy(source.bodyRotation);display.add(embryo);
+  display.rotation.x=-Math.PI/2;display.name='Intact brood egg — field guide';return display;
+ }
+ root.updateMatrixWorld(true);return {guideModel,root,eggs,rupturedCount:()=>ruptures,clusters,hazards,uniforms,addGallery,addQueenBrood,rebuildCollision,prepareCollision,get gallery(){return gallery;},nurseryBatches,effectBatches,trace,traceDebris,hit,update,reset,pools:{drops,flaps,splats,tethers},stats:()=>({collision:{ready:collisionReady,builds:collisionBuilds,entries:collisionEntries.length,...preparationStats},gallery,nurseryDrawBatches:nurseryBatches.length,effectDrawBatches:effectBatches.length,clusters:clusters.length,eggs:eggs.length,stages:[0,1,2].map(s=>eggs.filter(e=>e.stage===s).length),intact:eggs.filter(e=>!e.dead).length,ruptures,activeDrops:drops.filter(d=>d.active).length,activeFlaps:flaps.filter(d=>d.active).length,activeSplats:splats.filter(d=>d.active).length,activeTethers:tethers.filter(d=>d.active).length,fallingEmbryos:eggs.filter(e=>e.dead&&e.embryo.visible&&!e.landed).length,minHeatClearance:Math.min(...eggs.map(e=>e.clearance)),caps:{drops:drops.length,flaps:flaps.length,splats:splats.length,tethers:tethers.length}})};
 }

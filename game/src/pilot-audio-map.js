@@ -26,10 +26,6 @@ export const PILOT_AUDIO=Object.freeze({
       "offset": 18.901854166666666,
       "duration": 2.1889166666666666
     },
-    "queenIntro": {
-      "offset": 21.140770833333335,
-      "duration": 3.907125
-    },
     "queenCombat": {
       "offset": 25.097895833333332,
       "duration": 3.0131875

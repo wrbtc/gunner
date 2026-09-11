@@ -1,11 +1,12 @@
-import {PILOT_LINES} from './pilot-lines.js?v=054';
-import {PILOT_AUDIO} from './pilot-audio-map.js?v=054-10';
+import {PILOT_LINES} from './pilot-lines.js?v=054-16';
+import {PILOT_AUDIO} from './pilot-audio-map.js?v=054-16';
 import {createPilotQueue} from './pilot-queue.js?v=052';
-export function createPilotRadio({audio,caption,voiceVolume=.85,captions=true,audioMap=PILOT_AUDIO}){
+export function createPilotRadio({audio,caption,voiceVolume=.85,captions=true,audioMap=PILOT_AUDIO,onVoiceDucking=()=>{}}){
+ const duck=active=>{audio.setVoiceDucking?.(active);onVoiceDucking(active);};
  const delivered=new Set();let transmission=null,lossRequestedAt=null;
  let loadMs=0,decodeMs=0,voiceGeneration=0,buffer=null,load='idle',loadGeneration=0,controller=null,source=null,gain=null,gainContext=null,volume=voiceVolume,showCaptions=captions,visibleText='',result=false,won=false,paused=false,routeSeen=new Set(),openingBoarded=false,lastProgress=0,fetchBytes=0,decodedBytes=0,lateDecodes=0,playedAudio=0,activeAudio=0,maxActiveAudio=0;
  function renderCaption(){const text=visibleText?'PILOT · '+visibleText:'',hidden=!showCaptions||!visibleText||paused;if(caption.textContent!==text)caption.textContent=text;if(caption.hidden!==hidden)caption.hidden=hidden;}
- function stopVoice(){voiceGeneration++;if(source){try{source.stop();}catch{}source.disconnect();source=null;}activeAudio=0;audio.setVoiceDucking?.(false);visibleText='';renderCaption();}
+ function stopVoice(){voiceGeneration++;if(source){try{source.stop();}catch{}source.disconnect();source=null;}activeAudio=0;duck(false);visibleText='';renderCaption();}
  const queue=createPilotQueue({lines:PILOT_LINES,onStart:item=>{
   transmission=item;item.deliveryQualified=showCaptions;visibleText=item.text;renderCaption();const clip=audioMap.clips[item.id],ctx=audio.ctx;
   if(!buffer||!clip||volume<=0||audio.muted||audio.volume<=0||!ctx||ctx.state==='closed')return;
@@ -14,7 +15,7 @@ export function createPilotRadio({audio,caption,voiceVolume=.85,captions=true,au
    // resume() can settle after reset, interruption, mute, or a new context.
    if(generation!==voiceGeneration||audio.ctx!==ctx||ctx.state!=='running'||paused||volume<=0||audio.muted||audio.volume<=0||queue.clock-item.startedAt>1.5)return;
    if(gainContext!==ctx){gain?.disconnect();gain=ctx.createGain();gain.connect(audio.master);gainContext=ctx;}
-   gain.gain.value=volume*.9;source=ctx.createBufferSource();source.buffer=buffer;source.connect(gain);source.start(0,clip.offset,clip.duration);item.deliveryQualified=true;item.endsAt=queue.clock+clip.duration;activeAudio=1;maxActiveAudio=Math.max(maxActiveAudio,activeAudio);playedAudio++;audio.setVoiceDucking?.(true);
+   gain.gain.value=volume*.9;source=ctx.createBufferSource();source.buffer=buffer;source.connect(gain);source.start(0,clip.offset,clip.duration);item.deliveryQualified=true;item.endsAt=queue.clock+clip.duration;activeAudio=1;maxActiveAudio=Math.max(maxActiveAudio,activeAudio);playedAudio++;duck(true);
   }
   if(result){const resumed=audio.resumeRadioOnly?.();if(ctx.state==='running')start();else Promise.resolve(resumed).then(start).catch(()=>{});}else start();
  },onStop:(item,reason)=>{if(reason==='finished'&&item.deliveryQualified)delivered.add(item.id);transmission=null;stopVoice();}});
@@ -42,7 +43,6 @@ export function createPilotRadio({audio,caption,voiceVolume=.85,captions=true,au
   if(type==='opening-start')request('mission');
   else if(type==='run-start'){queue.clear('boarding-complete');request('weapons');}
   else if(type==='queen-phase'&&data.phase==='calm'){queue.clear('queen-approach');request('queenApproach');}
-  else if(type==='queen-phase'&&data.phase==='intro')request('queenIntro');
   else if(type==='queen-combat-start'){queue.clear('combat-start');request('queenCombat');}
   else if(type==='queen-reload-start')request('queenReload');
   else if(type==='queen-phase'&&data.phase==='death'){queue.clear('queen-down');request('victory');}
@@ -53,7 +53,7 @@ export function createPilotRadio({audio,caption,voiceVolume=.85,captions=true,au
   if(result&&paused!==wasPaused){if(paused)audio.pause?.();else audio.resumeRadioOnly?.();}
   renderCaption();
   if(paused)return;
-  if(source&&(volume<=0||audio.muted||audio.volume<=0)){try{source.stop();}catch{}source.disconnect();source=null;activeAudio=0;audio.setVoiceDucking?.(false);}
+  if(source&&(volume<=0||audio.muted||audio.volume<=0)){try{source.stop();}catch{}source.disconnect();source=null;activeAudio=0;duck(false);}
   if(state.opening&&!openingBoarded&&state.openingTime>=9){openingBoarded=true;request('boarding');}
   if(state.running&&!state.opening&&!state.ended){
    const p=state.progress;

@@ -5,9 +5,10 @@ Fly through a volcanic canyon, destroy nests and creatures, and survive the Quee
 
 **Play Gunner: https://gunner.satoshis.watch/**
 
-This is **v0.54.10**, the complete walkie-radio voice update to the v0.54.9 golden master.
-All 12 pilot lines use the supplied radio takes, including push-to-talk open/close sounds.
-Gameplay and rendering remain the golden master.
+This is **v0.54.19**, the current production source. It includes the complete
+walkie-radio voice set, current aircraft and field guide, opening and outcome
+presentation, the 24-stage loading path, bounded Safari graphics diagnostics,
+and an always-visible in-flight FPS counter.
 It includes the complete game runtime, procedural geometry and shaders, models,
 textures, illustrations, recorded dialogue, audio synthesis, and optional score
 backend source. Three.js is vendored; no frontend build or package install is needed.
@@ -39,10 +40,12 @@ failure diagnostics are enabled on the public game and at `http://127.0.0.1:8000
 
 ## Development status
 
-The v0.54.8 loading fixes received a smooth-play report on an Apple M3. This
-release preserves that gameplay. Apple M1 testing is pending; the historical
-v0.54.7 Safari timeout and unconfirmed replay-cadence reports remain documented.
-No claim of universal browser support or sustained frame rate is made.
+The v0.54.8 loading fixes received a smooth-play report on an Apple M3. A later
+Safari report on an older macOS machine reached the loaded game, but the machine
+was not confirmed to be Apple silicon. Apple M1 acceptance therefore remains
+pending. v0.54.19 adds bounded shader-preparation evidence to failure reports
+and an FPS readout for real-device testing. No claim of universal browser
+support or sustained frame rate is made.
 See [KNOWN-ISSUES.md](KNOWN-ISSUES.md) for timings and investigation entry points.
 
 This export preserves gameplay behavior, with these publication adaptations:
@@ -107,6 +110,6 @@ for some original models, illustrations and dialogue audio.
 homepage and HTML canonical/Open Graph URLs point there. The public repository
 does not advertise internal testing sites.
 
-The golden master preserves v0.54.8 gameplay and rendering quality. v0.54.9 adds
-the production address and loading-report support for that origin. Telemetry
-remains disabled. See [KNOWN-ISSUES.md](KNOWN-ISSUES.md) for the testing limits.
+This export matches the production v0.54.19 game, subject only to the publication
+adaptations listed above. Telemetry remains disabled. See
+[KNOWN-ISSUES.md](KNOWN-ISSUES.md) for the testing limits.

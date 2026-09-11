@@ -4,6 +4,7 @@ import * as THREE from '../vendor/three.module.js?v=052';
 // Bloom is evaluated at quarter resolution; the aiming image stays full resolution.
 export function createCinematicPass(renderer) {
   const quality={heat:true,contact:true};
+  let reducedEffectsActive=false;
   const options={type:THREE.HalfFloatType,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,depthBuffer:false};
   const hdr=new THREE.WebGLRenderTarget(1,1,{...options,depthBuffer:true,samples:4});
   hdr.depthTexture=new THREE.DepthTexture(1,1,THREE.UnsignedIntType);
@@ -107,15 +108,50 @@ export function createCinematicPass(renderer) {
     }
     const entry={generation,scene,camera,listeners:new Set(onProgress?[onProgress]:[])};
     preparation=entry;preparedPrograms=0;preparedPointLightCounts=[];
-    const report=(stage,completed,total)=>{
+    const report=(stage,completed,total,detail=null)=>{
       if(preparation!==entry)return;
-      preparationStatus={stage,completed,total};
+      preparationStatus={stage,completed,total,...(detail||{})};
       // Observers cannot change whether graphics preparation succeeds.
       for(const listener of entry.listeners)try{listener({...preparationStatus});}catch{}
     };
     async function run(){
       const started=performance.now(),roots=lightVariants?.roots||[],maximum=lightVariants?.maxVisible??0;
       const programs=new Set(),finished=new Set(),pointLightCounts=new Set();
+      // Keep the hot path to counters and clock reads. The bounded program list,
+      // context query and report object are created once, only if preparation fails.
+      const diag={
+        lastPhase:'init',lastCompletedPhase:null,variant:null,layer:null,
+        jobIndex:null,totalJobs:0,batchIndex:null,jobBatchCount:0,
+        submittedObjects:0,totalObjects:0,
+        maxCompileMs:0,recentCompileMs:0,maxReadyPollMs:0,recentReadyPollMs:0,
+        maxUniformsMs:0,recentUniformsMs:0,maxAttributesMs:0,recentAttributesMs:0,
+        maxIntrospectMs:0,recentIntrospectMs:0,parallelCompile:null,compilerNote:null
+      };
+      const setPhase=(phase,extra={})=>{Object.assign(diag,{lastPhase:phase,...extra});};
+      const recordTiming=(kind,ms)=>{diag[`recent${kind}Ms`]=ms;if(ms>diag[`max${kind}Ms`])diag[`max${kind}Ms`]=ms;};
+      const timed=(phase,kind,work)=>{setPhase(phase);const before=performance.now();try{return work();}finally{recordTiming(kind,performance.now()-before);}};
+      const pendingIds=()=>{
+        const ids=[];
+        for(const program of programs){if(!finished.has(program)){ids.push(String(program?.id??'?').slice(0,48));if(ids.length===24)break;}}
+        return ids;
+      };
+      const contextLost=()=>{try{return !!gl.isContextLost();}catch{return null;}};
+      const snapshot=error=>({
+        lastPhase:diag.lastPhase,lastCompletedPhase:diag.lastCompletedPhase,
+        variant:diag.variant,layer:diag.layer,jobIndex:diag.jobIndex,totalJobs:diag.totalJobs,
+        batchIndex:diag.batchIndex,jobBatchCount:diag.jobBatchCount,
+        submittedObjects:diag.submittedObjects,totalObjects:diag.totalObjects,
+        discoveredPrograms:programs.size,finishedPrograms:finished.size,pendingProgramIds:pendingIds(),
+        elapsedMs:Math.round(performance.now()-started),
+        maxCompileMs:Math.round(diag.maxCompileMs),recentCompileMs:Math.round(diag.recentCompileMs),
+        maxReadyPollMs:Math.round(diag.maxReadyPollMs),recentReadyPollMs:Math.round(diag.recentReadyPollMs),
+        maxUniformsMs:Math.round(diag.maxUniformsMs),recentUniformsMs:Math.round(diag.recentUniformsMs),
+        maxAttributesMs:Math.round(diag.maxAttributesMs),recentAttributesMs:Math.round(diag.recentAttributesMs),
+        maxIntrospectMs:Math.round(diag.maxIntrospectMs),recentIntrospectMs:Math.round(diag.recentIntrospectMs),
+        contextLost:contextLost(),parallelCompile:diag.parallelCompile,compilerNote:diag.compilerNote,
+        exceptionCode:String(error?.code||'PREPARATION_FAILED').slice(0,80),
+        exceptionMessage:String(error?.message||error||'Flight preparation failed').slice(0,160)
+      });
       const canceled=()=>generation!==contextGeneration||gl.isContextLost();
       function assertTime(){
         if(performance.now()-started>=timeoutMs)throw Object.assign(new Error('Graphics preparation timed out'),{code:'PREPARATION_TIMEOUT'});
@@ -173,6 +209,7 @@ export function createCinematicPass(renderer) {
       }
       function submit(job,objects){
         const previousTarget=renderer.getRenderTarget(),previousMaterial=quad.material;
+        const compileStarted=performance.now();
         try{
           return withLightState(job,()=>{
             if(job.capture){quad.material=freezeCopy;renderer.setRenderTarget(frozenFrame);}
@@ -186,6 +223,8 @@ export function createCinematicPass(renderer) {
             }
           });
         }finally{
+          recordTiming('Compile',performance.now()-compileStarted);
+          if(diag.parallelCompile===null){try{diag.parallelCompile=!!gl.getExtension?.('KHR_parallel_shader_compile');}catch{diag.parallelCompile=null;}}
           quad.material=previousMaterial;renderer.setRenderTarget(previousTarget);
         }
       }
@@ -205,14 +244,20 @@ export function createCinematicPass(renderer) {
         for(const job of plannedJobs){const signature=lightSignature(job);if(!signatures.has(signature)){signatures.add(signature);jobs.push(job);}}
         jobs.push({capture:true,objects:[quad]});
         const total=jobs.reduce((sum,job)=>sum+job.objects.length,0);let submitted=0;
+        diag.totalJobs=jobs.length;diag.totalObjects=total;diag.submittedObjects=0;
+        setPhase('submit',{jobIndex:0,batchIndex:0});
         report('submit',0,total);await yieldTask();
         if(canceled()){report('canceled',0,total);return false;}assertTime();resize();
-        for(const job of jobs){
+        for(let jobIndex=0;jobIndex<jobs.length;jobIndex++){
+          const job=jobs[jobIndex],jobBatchCount=Math.ceil(Math.max(1,job.objects.length)/16);
+          Object.assign(diag,{jobIndex,jobBatchCount,layer:job.capture?null:job.layer,variant:job.capture?'capture':`L${job.layer}:c${job.count}:r${job.revealed}`});
           // Each compile call has at most sixteen original objects. Even empty
           // worlds pass through submit so actual light-count coverage is recorded.
-          for(let offset=0;offset<Math.max(1,job.objects.length);offset+=16){
+          for(let offset=0,batchIndex=0;offset<Math.max(1,job.objects.length);offset+=16,batchIndex++){
             if(canceled()){report('canceled',submitted,total);return false;}assertTime();
-            const objects=job.objects.slice(offset,offset+16);submit(job,objects);submitted+=objects.length;
+            setPhase('compile',{batchIndex});
+            const objects=job.objects.slice(offset,offset+16);submit(job,objects);assertTime();
+            submitted+=objects.length;diag.submittedObjects=submitted;diag.lastCompletedPhase='compile';
             report('submit',submitted,total);await yieldTask();
           }
           // Finish this variant before adding another queue of shader work.
@@ -222,8 +267,17 @@ export function createCinematicPass(renderer) {
             const begin=performance.now(),previousFinished=finished.size;let visited=0;
             for(const program of pending){
               if(canceled())break;assertTime();
-              if(program.isReady()){
-                program.getUniforms();program.getAttributes();finished.add(program);
+              const ready=timed('link-ready-poll','ReadyPoll',()=>program.isReady());
+              assertTime();diag.lastCompletedPhase='link-ready-poll';
+              if(ready){
+                const introspectStarted=performance.now();
+                try{
+                  timed('uniforms','Uniforms',()=>program.getUniforms());assertTime();diag.lastCompletedPhase='uniforms';
+                  timed('attributes','Attributes',()=>program.getAttributes());assertTime();diag.lastCompletedPhase='attributes';
+                  const details=program?.diagnostics;
+                  if(details){const note=[details.runnable===false?'not-runnable':'',details.programLog,details.vertexShader?.log,details.fragmentShader?.log].filter(Boolean).join(' | ');if(note)diag.compilerNote=String(note).slice(0,160);}
+                }finally{recordTiming('Introspect',performance.now()-introspectStarted);}
+                finished.add(program);
               }
               if(++visited>=8||performance.now()-begin>=4)break;
             }
@@ -240,11 +294,12 @@ export function createCinematicPass(renderer) {
         }
         if(canceled()){report('canceled',finished.size,programs.size);return false;}assertTime();
         preparedPrograms=programs.size;preparedPointLightCounts=[...pointLightCounts].sort((a,b)=>a-b);
-        report('ready',programs.size,programs.size);return true;
+        setPhase('ready');diag.lastCompletedPhase='ready';report('ready',programs.size,programs.size);return true;
       }catch(error){
         if(canceled()){report('canceled',finished.size,programs.size);return false;}
         if(!error.code)error.code='PREPARATION_FAILED';
-        report(error.code==='PREPARATION_TIMEOUT'?'timed-out':'failed',finished.size,programs.size);throw error;
+        const frozen=snapshot(error);
+        report(error.code==='PREPARATION_TIMEOUT'?'timed-out':'failed',finished.size,programs.size,{preTimeoutSnapshot:frozen});throw error;
       }finally{
         yieldChannel?.port1.close();yieldChannel?.port2.close();resumeYield=null;
         if(preparation===entry)preparation=null;
@@ -254,13 +309,17 @@ export function createCinematicPass(renderer) {
     // in-flight entry, and concurrent callers share exactly this promise.
     entry.promise=Promise.resolve().then(run);return entry.promise;
   }
-  function render(scene,camera,{time=0,reducedMotion=false,worldOnly=false,exterior=false}={}){
+  function render(scene,camera,{time=0,reducedMotion=false,reducedEffects=false,worldOnly=false,exterior=false}={}){
+    // Reduced effects skips contact shading while retaining the prepared
+    // 4x MSAA target; switching sample counts can cause a first-use GPU hitch.
+    reducedEffectsActive=!!reducedEffects;
+    const contactEnabled=quality.contact&&!reducedEffectsActive;
     // The world has an eight-metre flight clearance. Giving it its own near
     // plane preserves depth precision; the close gun keeps its original plane.
     const weaponNear=camera.near;camera.near=exterior?weaponNear:Math.max(.5,weaponNear);camera.updateProjectionMatrix();
     resize();renderer.setRenderTarget(hdr);renderer.autoClear=true;camera.layers.set(0);
     renderer.render(scene,camera);
-    if(quality.contact&&(!exterior||worldOnly)){
+    if(contactEnabled&&(!exterior||worldOnly)){
       // Copy colour only. Exterior aircraft still use the world's untouched
       // multisampled depth; the interior clears it at the original boundary.
       applyContact(camera);
@@ -275,7 +334,7 @@ export function createCinematicPass(renderer) {
       if(!exterior)renderer.clearDepth();
       camera.layers.set(1);renderer.render(scene,camera);camera.layers.set(0);
       scene.background=bg;renderer.autoClear=true;
-      if(quality.contact)applyContact(camera,exterior?1:.045);
+      if(contactEnabled)applyContact(camera,exterior?1:.045);
     }
     draw(extract,ping);blur.uniforms.tImage.value=ping.texture;blur.uniforms.uDirection.value.set(1/ping.width,0);draw(blur,pong);
     blur.uniforms.tImage.value=pong.texture;blur.uniforms.uDirection.value.set(0,1/ping.height);draw(blur,ping);
@@ -290,5 +349,5 @@ export function createCinematicPass(renderer) {
     // Drop GPU ownership while Three's old context tables still own it. Keep
     // target/texture objects so material uniforms and sting identity survive.
     for(const t of [hdr,ping,pong,contact,contactPing,shaded,frozenFrame])t.dispose();
-  },recoverContext(){stingRecoveryPending=true;},postMaterial:composite,captureStingFrame,stingSnapshot:()=>({target:frozenFrame,serial:snapshotSerial}),exposure:composite.uniforms.uExposure,stats:()=>({preparedPrograms,preparation:{...preparationStatus},preparedPointLightCounts:[...preparedPointLightCounts],worldMsaaSamples:hdr.samples,worldNear:.5,contactOcclusionSamples:quality.contact?8:0,contactScale:.5}),dispose(){for(const t of [hdr,ping,pong,contact,contactPing,shaded,frozenFrame])t.dispose();for(const m of [extract,blur,composite,freezeCopy,occlusion,contactBlur,contactComposite,copy])m.dispose();quad.geometry.dispose();}};
+  },recoverContext(){stingRecoveryPending=true;},postMaterial:composite,captureStingFrame,stingSnapshot:()=>({target:frozenFrame,serial:snapshotSerial}),exposure:composite.uniforms.uExposure,stats:()=>({preparedPrograms,preparation:{...preparationStatus},preparedPointLightCounts:[...preparedPointLightCounts],reducedEffects:reducedEffectsActive,worldMsaaSamples:hdr.samples,worldNear:.5,contactOcclusionSamples:quality.contact&&!reducedEffectsActive?8:0,contactScale:.5}),dispose(){for(const t of [hdr,ping,pong,contact,contactPing,shaded,frozenFrame])t.dispose();for(const m of [extract,blur,composite,freezeCopy,occlusion,contactBlur,contactComposite,copy])m.dispose();quad.geometry.dispose();}};
 }

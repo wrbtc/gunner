@@ -70,7 +70,7 @@ await check('failed-preparation-stops-the-actual-render-loop-before-updates',()=
 await check('actual-gl-draw-gate-blocks-failure-after-preparation-owner-clears',()=>{
  const begin=main.indexOf('  if(!game.contextLost&&!graphicsPreparation'),end=main.indexOf('  requestAnimationFrame(render);',begin),source=main.slice(begin,end);
  let draws=0,resets=0;const renderer={info:{reset(){resets++;},render:{calls:1,triangles:2,points:3}}},cinematic={render(){draws++;}};
- const execute=new Function('game','graphicsPreparation','loadingSnapshot','renderer','cinematic',`const scene={},camera={},visualTime=0,reducedOpening=()=>false,WORLD_ONLY=false,exteriorView=true,frameMetrics={},elapsed=0;${source}`);
+ const execute=new Function('game','graphicsPreparation','loadingSnapshot','renderer','cinematic',`const preferences={reduced:false},scene={},camera={},visualTime=0,reducedOpening=()=>false,WORLD_ONLY=false,exteriorView=true,frameMetrics={},elapsed=0;${source}`);
  execute({contextLost:false},null,()=>({status:'failed'}),renderer,cinematic);assert.equal(draws,0);assert.equal(resets,0);
  execute({contextLost:false},{},()=>({status:'preparing'}),renderer,cinematic);assert.equal(draws,0);
  execute({contextLost:false},null,()=>({status:'ready'}),renderer,cinematic);assert.equal(draws,1);assert.equal(resets,1);
@@ -78,7 +78,7 @@ await check('actual-gl-draw-gate-blocks-failure-after-preparation-owner-clears',
 await check('actual-start-handler-rejects-partial-or-failed-preparation',()=>{
  const source=main.slice(main.indexOf('function start('),main.indexOf('function pause()',main.indexOf('function start(')));
  const marker=Error('ready start reached reset');
- const factory=new Function('bootCompleted','graphicsReady','status','reset',`const firstStartMeasured=true,loadingSnapshot=()=>({status}),dom={start:{disabled:false}},game={contextLost:false};${source};return start;`);
+ const factory=new Function('bootCompleted','graphicsReady','status','reset',`const menuMusic=null,firstStartMeasured=true,loadingSnapshot=()=>({status}),dom={start:{disabled:false}},game={contextLost:false};${source};return start;`);
  for(const [boot,graphics,status]of [[false,false,'preparing'],[true,false,'preparing'],[true,true,'failed']])factory(boot,graphics,status,()=>{throw marker;})();
  assert.throws(()=>factory(true,true,'ready',()=>{throw marker;})(),error=>error===marker);
 });
@@ -103,8 +103,8 @@ await check('new-context-waits-for-stale-preparation-before-rebuilding',async()=
 await check('player-copy-does-not-conflate-changing-preparation-counter-units',()=>{
  const status={textContent:'',classList:{toggle(){}}};globalThis.document={getElementById:id=>id==='loadStatus'?status:null};
  try{
-  loadingProgress('shaders',{stage:'submit',completed:100,total:100});assert.match(status.textContent,/Preparing flight visuals/);assert.ok(!status.textContent.includes('%'));assert.equal(loadingSnapshot().progress.completed,100);
-  loadingProgress('shaders',{stage:'link',completed:1,total:20});assert.match(status.textContent,/Checking flight visuals/);assert.ok(!status.textContent.includes('%'));assert.deepEqual(loadingSnapshot().progress,{stage:'link',completed:1,total:20});
+  loadingProgress('shaders',{stage:'submit',completed:100,total:100});assert.match(status.textContent,/preparation items complete/);assert.ok(!status.textContent.includes('%'));assert.equal(loadingSnapshot().progress.completed,100);
+  loadingProgress('shaders',{stage:'link',completed:1,total:20});assert.match(status.textContent,/preparation items complete/);assert.ok(!status.textContent.includes('%'));assert.deepEqual(loadingSnapshot().progress,{stage:'link',completed:1,total:20});
   const trace=loadingSnapshot().trace;for(let i=0;i<100;i++)loadingProgress('shaders',{stage:'link',completed:i,total:100});assert.equal(loadingSnapshot().trace,trace);
  }finally{delete globalThis.document;}
 });
