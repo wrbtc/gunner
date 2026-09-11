@@ -1,7 +1,7 @@
 import {EGG_SITES,isNestingWidth} from './river-profile.js?v=052';
 import * as THREE from '../vendor/three.module.js?v=052';
 import {mergeGeometries} from '../vendor/BufferGeometryUtils.js?v=052';
-import {createSlicedIteratorPreparation} from './sliced-iterator-preparation.js?v=054-9';
+import {createSlicedIteratorPreparation} from './sliced-iterator-preparation.js?v=054-21';
 const V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z),UP=V(0,1,0),Z=V(0,0,1),clamp=THREE.MathUtils.clamp;
 function solid(g){const h=g.index?g.toNonIndexed():g.clone();h.deleteAttribute('uv');h.deleteAttribute('color');return h;}
 function ell(p,s){return solid(new THREE.SphereGeometry(1,12,9).scale(...s).translate(...p));}
@@ -134,8 +134,7 @@ export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hit
   const started=now();
   const tracked=createSlicedIteratorPreparation(iterator,{
    now,
-   schedule:hooks.schedule||setTimeout,
-   cancelSchedule:hooks.cancel||clearTimeout,
+   ...(hooks.schedule?{schedule:hooks.schedule,cancelSchedule:hooks.cancel||clearTimeout}:{}),
    sliceBudgetMs:2,
    isReady:()=>collisionReady,
    onSlice:({cost})=>{preparationStats.slices++;preparationStats.cpuMs+=cost;preparationStats.maxSliceMs=Math.max(preparationStats.maxSliceMs,cost);},

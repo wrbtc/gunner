@@ -12,7 +12,33 @@
   <meta property="og:url" content="https://gunner.satoshis.watch/">
   <link rel="canonical" href="https://gunner.satoshis.watch/">
   <link rel="icon" type="image/svg+xml" href="./assets/gunner-plane.svg?v=052">
-  <link rel="stylesheet" href="./styles.css?v=054-20-c24">
+  <link rel="stylesheet" href="./styles.css?v=054-21-vv">
+  <script>
+    (function(){
+      var root=document.documentElement;
+      function syncAppViewport(){
+        var vv=window.visualViewport;
+        var height=vv&&vv.height?vv.height:(window.innerHeight||root.clientHeight);
+        var offsetTop=vv&&vv.offsetTop?vv.offsetTop:0;
+        var layout=window.innerHeight||height;
+        var insetBottom=Math.max(0,layout-height-offsetTop);
+        var screenH=window.screen&&window.screen.height||0;
+        var availH=window.screen&&window.screen.availHeight||screenH;
+        var outer=window.outerHeight||0;
+        var reserved=screenH-availH;
+        if(reserved>=48&&outer>=screenH-16)insetBottom=Math.max(insetBottom,Math.min(72,reserved-24));
+        root.style.setProperty('--app-height',Math.round(height)+'px');
+        root.style.setProperty('--app-offset-top',Math.round(offsetTop)+'px');
+        root.style.setProperty('--app-inset-bottom',Math.round(insetBottom)+'px');
+      }
+      syncAppViewport();
+      window.addEventListener('resize',syncAppViewport);
+      if(window.visualViewport){
+        visualViewport.addEventListener('resize',syncAppViewport);
+        visualViewport.addEventListener('scroll',syncAppViewport);
+      }
+    })();
+  </script>
 </head>
 <body>
   <noscript><section class="device-noscript" aria-labelledby="no-script-heading">
@@ -216,6 +242,6 @@
     <p>This gun bubble needs a WebGL 2-capable browser.</p>
   </div>
 
-  <script type="module" src="./mobile-entry.js?v=desktop-054-19" data-game-entry="./main.js?v=054-19"></script>
+  <script type="module" src="./mobile-entry.js?v=desktop-054-21" data-game-entry="./main.js?v=054-21"></script>
 </body>
 </html>

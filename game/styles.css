@@ -5,6 +5,12 @@
   --ice: #edfaff;
   --ash: #a89e90;
   --panel: rgba(10, 8, 7, .72);
+  --app-height: 100%;
+  --app-offset-top: 0px;
+  --app-inset-bottom: env(safe-area-inset-bottom, 0px);
+}
+@supports (height: 100svh) {
+  :root { --app-height: 100svh; }
 }
 
 * { box-sizing: border-box; }
@@ -400,21 +406,28 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 #guideModelDialog .guide-model-tools{flex-wrap:wrap}
 
 /* === Concept-24 poster menu (0.54.19-safe): full-bleed art + overlay UI === */
-#intro.mission-poster{padding:0;overflow:hidden;background:#0b100b}
+/* Size to the visual viewport, not a tall 100vh/layout box that can sit under Safari chrome or the macOS Dock. */
+#intro.mission-poster{
+  padding:0;overflow:auto;overscroll-behavior:none;background:#0b100b;
+  inset:auto;top:var(--app-offset-top,0px);left:0;right:0;width:100%;
+  height:var(--app-height,100%);max-height:100%;
+}
 #intro.mission-poster>.chapter-image{
   position:absolute;inset:0;width:100%;height:100%;
   object-fit:cover;object-position:50% 45%;
   z-index:0;display:block;pointer-events:none;
 }
 #intro.mission-poster .mission-frame{
-  position:relative;z-index:1;min-height:100%;
+  position:relative;z-index:1;min-height:100%;box-sizing:border-box;
   display:flex;flex-direction:column;
-  padding:clamp(18px,3.2vh,36px) clamp(18px,3.5vw,48px) clamp(14px,2.4vh,28px);
+  padding:max(clamp(14px,2.6vh,36px),env(safe-area-inset-top,0px))
+          clamp(18px,3.5vw,48px)
+          max(clamp(16px,2.4vh,28px),env(safe-area-inset-bottom,0px),var(--app-inset-bottom,0px));
   background:linear-gradient(90deg,rgba(6,10,7,.78) 0%,rgba(6,10,7,.35) 42%,rgba(6,10,7,.15) 62%,rgba(6,10,7,.55) 100%),
              linear-gradient(0deg,rgba(6,10,7,.82) 0%,rgba(6,10,7,.2) 38%,rgba(6,10,7,.35) 100%);
-  box-sizing:border-box;
 }
 #intro.mission-poster .mission-masthead{
+  flex:0 0 auto;
   border-bottom:1px solid rgba(235,231,215,.22);
   padding-bottom:14px;margin-bottom:18px;
   display:flex;justify-content:space-between;align-items:flex-end;
@@ -423,12 +436,12 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
   text-shadow:0 2px 28px rgba(0,0,0,.65);
 }
 #intro.mission-poster .poster-body{
-  flex:1;display:grid;
+  flex:1 1 auto;display:grid;
   grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr);
   gap:clamp(18px,4vw,48px);align-items:end;
   min-height:0;
 }
-#intro.mission-poster .poster-left{display:flex;flex-direction:column;gap:22px;max-width:520px}
+#intro.mission-poster .poster-left{display:flex;flex-direction:column;gap:22px;max-width:520px;min-height:0}
 #intro.mission-poster .poster-chapter{position:static;left:auto;bottom:auto;right:auto}
 #intro.mission-poster .poster-chapter h2{
   font:clamp(42px,5.5vw,72px)/1 Impact,'Arial Narrow',sans-serif;
@@ -450,18 +463,18 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 #intro.mission-poster .mission-orders>span:last-child{color:#c9d0bc}
 #intro.mission-poster .poster-right{
   display:flex;flex-direction:column;align-items:stretch;gap:16px;
-  justify-content:flex-end;
+  justify-content:flex-end;min-height:0;
 }
 #intro.mission-poster .poster-soon{
-  text-align:right;color:#c5cbb8;
+  text-align:right;color:#c5cbb8;flex:0 0 auto;
 }
 #intro.mission-poster .poster-soon h2{
-  font:22px/1.2 Impact,sans-serif;letter-spacing:.1em;margin:6px 0;color:#e6e2d2;
+  font:22px/1.15 Impact,sans-serif;letter-spacing:.1em;margin:6px 0;color:#e6e2d2;
 }
 #intro.mission-poster .poster-soon .sector-note{
   max-width:none;margin:0;font:12px/1.45 system-ui,sans-serif;color:#aeb6a0;
 }
-#intro.mission-poster .deployment-action{width:100%;max-width:340px;margin-left:auto}
+#intro.mission-poster .deployment-action{width:100%;max-width:340px;margin-left:auto;flex:0 0 auto}
 #intro.mission-poster #loadingSystems{flex-direction:column;align-items:stretch;gap:8px;margin-bottom:10px}
 #intro.mission-poster #loadStatus{text-shadow:0 1px 8px rgba(0,0,0,.8)}
 #intro.mission-poster #startButton{
@@ -470,7 +483,7 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 }
 #intro.mission-poster #startButton:disabled{opacity:.72}
 #intro.mission-poster .mission-footer{
-  margin-top:18px;border-top:1px solid rgba(235,231,215,.18);
+  flex:0 0 auto;margin-top:18px;border-top:1px solid rgba(235,231,215,.18);
   padding-top:12px;color:#d7ddcb;
 }
 #intro.mission-poster .mission-footer p{color:#c5ccb6;text-shadow:0 1px 8px rgba(0,0,0,.7)}
@@ -480,4 +493,29 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
   #intro.mission-poster .poster-right{align-items:stretch}
   #intro.mission-poster .poster-soon{text-align:left}
   #intro.mission-poster .deployment-action{max-width:none;margin-left:0}
+}
+/* Short Safari windows (13-inch MacBook + toolbar + Dock): compact type, keep chrome in-flow. */
+@media(max-height:850px){
+  #intro.mission-poster .mission-frame{
+    padding-top:max(12px,env(safe-area-inset-top,0px));
+    padding-bottom:max(56px,env(safe-area-inset-bottom,0px),var(--app-inset-bottom,0px));
+  }
+  #intro.mission-poster .mission-masthead{padding-bottom:8px;margin-bottom:10px}
+  #intro.mission-poster .mission-masthead h1{font-size:clamp(48px,7vw,76px);margin:6px 0 0}
+  #intro.mission-poster .poster-body{align-items:stretch;gap:clamp(12px,2vh,24px)}
+  #intro.mission-poster .poster-left{gap:12px}
+  #intro.mission-poster .poster-chapter h2{font-size:clamp(32px,4.4vw,52px);margin:4px 0 6px}
+  #intro.mission-poster .poster-soon h2{font-size:18px;margin:4px 0;line-height:1.1}
+  #intro.mission-poster .mission-orders{padding-top:10px}
+  #intro.mission-poster .mission-orders p{font-size:15px;margin:4px 0}
+  #intro.mission-poster .poster-right{gap:10px;justify-content:flex-end}
+  #intro.mission-poster .mission-footer{margin-top:10px;padding-top:8px}
+  #intro.mission-poster #loadingSystems{margin-bottom:8px}
+}
+@media(max-height:700px){
+  #intro.mission-poster .mission-masthead h1{font-size:clamp(40px,6.4vw,58px)}
+  #intro.mission-poster .poster-soon .sector-note{display:none}
+  #intro.mission-poster .mission-orders>span:last-child{display:none}
+  #intro.mission-poster #startButton{padding:13px 16px;min-height:46px}
+  #intro.mission-poster .ammo-progress i{height:20px}
 }

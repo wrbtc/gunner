@@ -127,7 +127,26 @@ await check('egg-nests-prepareCollision-uses-sliced-helper-and-clears-sticky-sta
  assert.match(nests,/tracked\.cancel/);
  assert.match(nests,/collisionIterator=null/);
  assert.match(nests,/clearSticky/);
+ assert.match(nests,/\.\.\.\(hooks\.schedule\?\{schedule:hooks\.schedule,cancelSchedule:hooks\.cancel\|\|clearTimeout\}:\{\}\)/);
+ assert.doesNotMatch(nests,/schedule:hooks\.schedule\|\|setTimeout/);
  assert.doesNotMatch(nests,/while\(!done&&performance\.now\(\)-begin<2\)done=collisionIterator\.next\(\)\.done/);
+});
+
+await check('default-slice-scheduler-uses-message-channel-and-closes-ports',async()=>{
+ const Native=globalThis.MessageChannel;
+ let constructed=0,closed=0,posted=0;
+ globalThis.MessageChannel=class{
+  constructor(){
+   constructed++;
+   const inner=new Native();
+   this.port1={set onmessage(fn){inner.port1.onmessage=fn;},get onmessage(){return inner.port1.onmessage;},close(){closed++;inner.port1.close();}};
+   this.port2={close(){closed++;inner.port2.close();},postMessage(data){posted++;inner.port2.postMessage(data);}};
+  }
+ };
+ try{
+  await createSlicedIteratorPreparation(steps(8),{sliceBudgetMs:2});
+  assert.equal(constructed,1);assert.ok(posted>=1);assert.equal(closed,2);
+ }finally{globalThis.MessageChannel=Native;}
 });
 
 const mission=readFileSync(new URL('../game/src/mission-screen.js',import.meta.url),'utf8');
