@@ -154,7 +154,7 @@ await check('invalid-options-reject-before-submission-and-do-not-lock-retry',asy
  await assert.rejects(f.cinema.prepare(f.world,f.camera,{...f.options,lightVariants:{roots:[],maxVisible:1}}),/Invalid light visibility bound/);assert.equal(f.calls.length,0);assert.equal(await f.cinema.prepare(f.world,f.camera,f.options),true);
 });
 await check('single-blocking-driver-call-cannot-escape-final-deadline-check',async()=>{
- const f=fixture();f.setDelay(30);await assert.rejects(f.cinema.prepare(f.world,f.camera,{...f.options,timeoutMs:20}),e=>e.code==='PREPARATION_TIMEOUT');assert.equal(f.cinema.stats().preparedPrograms,0);f.restored();
+ const f=fixture();f.setCompileDelay(50);await assert.rejects(f.cinema.prepare(f.world,f.camera,{...f.options,timeoutMs:20}),e=>e.code==='PREPARATION_TIMEOUT');assert.equal(f.cinema.stats().preparedPrograms,0);f.restored();
 });
 await check('first-use-batches-are-bounded-and-slow-first-program-does-not-starve-others',async()=>{
  const f=fixture();for(const object of f.worldObjects)object.material=new T.MeshStandardMaterial();
