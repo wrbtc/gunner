@@ -1,0 +1,33 @@
+{
+  "source": "https://polyhaven.com/a/dark_rock_02",
+  "author": "Amal Kumar",
+  "license": "CC0-1.0",
+  "licenseEvidence": "https://polyhaven.com/license",
+  "files": [
+    {
+      "file": "dark_rock_02_diff_1k.jpg",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/dark_rock_02/dark_rock_02_diff_1k.jpg",
+      "sha256": "09cf66947bfe49fa1278ff341159063a43d96aae0bdf9f21536ff94feddef322",
+      "bytes": 592452
+    },
+    {
+      "file": "dark_rock_02_disp_1k.jpg",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/dark_rock_02/dark_rock_02_disp_1k.jpg",
+      "sha256": "bfa40abd47a88f32af11900f04d2e21b85a09e2ce90c76efcb4dc8e2b69f79b1",
+      "bytes": 206430
+    },
+    {
+      "file": "dark_rock_02_nor_gl_1k.jpg",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/dark_rock_02/dark_rock_02_nor_gl_1k.jpg",
+      "sha256": "011bec5690fa6bba771e745603cbd400d4cbe21ae254af0330680b3a1a7d9a92",
+      "bytes": 1028835
+    },
+    {
+      "file": "dark_rock_02_rough_1k.jpg",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/dark_rock_02/dark_rock_02_rough_1k.jpg",
+      "sha256": "ab2645db4a2fa7120d7d14063cfa2d0b3b3c8cb37736eaf115d5924871eb7040",
+      "bytes": 503425
+    }
+  ],
+  "exportNote": "Source download hashes below describe the originals. Runtime JPEG metadata was removed losslessly; SOURCE-MANIFEST.json gives exported hashes."
+}
