@@ -410,7 +410,7 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 #intro.mission-poster{
   padding:0;overflow:auto;overscroll-behavior:none;background:#0b100b;
   inset:auto;top:var(--app-offset-top,0px);left:0;right:0;width:100%;
-  height:var(--app-height,100%);max-height:100%;
+  height:var(--app-height,100%);max-height:var(--app-height,100%);
 }
 #intro.mission-poster>.chapter-image{
   position:absolute;inset:0;width:100%;height:100%;
@@ -418,11 +418,11 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
   z-index:0;display:block;pointer-events:none;
 }
 #intro.mission-poster .mission-frame{
-  position:relative;z-index:1;min-height:100%;box-sizing:border-box;
+  position:relative;z-index:1;height:100%;max-height:100%;min-height:0;box-sizing:border-box;
   display:flex;flex-direction:column;
   padding:max(clamp(14px,2.6vh,36px),env(safe-area-inset-top,0px))
           clamp(18px,3.5vw,48px)
-          max(clamp(16px,2.4vh,28px),env(safe-area-inset-bottom,0px),var(--app-inset-bottom,0px));
+          max(clamp(12px,1.8vh,20px),env(safe-area-inset-bottom,0px),var(--app-inset-bottom,0px));
   background:linear-gradient(90deg,rgba(6,10,7,.78) 0%,rgba(6,10,7,.35) 42%,rgba(6,10,7,.15) 62%,rgba(6,10,7,.55) 100%),
              linear-gradient(0deg,rgba(6,10,7,.82) 0%,rgba(6,10,7,.2) 38%,rgba(6,10,7,.35) 100%);
 }
@@ -475,33 +475,35 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 #intro.mission-poster .poster-soon .sector-note{
   max-width:none;margin:0;font:12px/1.45 system-ui,sans-serif;color:#aeb6a0;
 }
-#intro.mission-poster .deployment-action{width:100%;max-width:340px;margin-left:auto;flex:0 0 auto;display:flex;flex-direction:column;gap:10px}
-#intro.mission-poster #loadingSystems{flex-direction:column;align-items:stretch;gap:8px;margin-bottom:0}
+/* Reserved deploy row: ammo + DEPLOY stay in-flow above the footer, never packed into overflow under Coming Soon. */
+#intro.mission-poster .deployment-action{width:100%;max-width:340px;margin:0 0 0 auto;flex:0 0 auto;display:flex;flex-direction:column;gap:8px;min-width:0}
+#intro.mission-poster #loadingSystems{flex-direction:column;align-items:stretch;gap:8px;margin-bottom:0;min-height:0}
 #intro.mission-poster #loadStatus{text-shadow:0 1px 8px rgba(0,0,0,.8)}
 #intro.mission-poster #startButton{
-  width:100%;background:#c4aa68;border-color:#c4aa68;color:#0b100b;
-  font:700 13px/1 system-ui,sans-serif;letter-spacing:.12em;padding:16px 18px;
+  width:100%;background:#c4aa68;border:1px solid #e7d29b;color:#0b100b;
+  font:700 14px/1 system-ui,sans-serif;letter-spacing:.14em;padding:16px 18px;min-height:54px;
+  box-shadow:0 0 0 3px rgba(6,10,7,.55);
 }
-#intro.mission-poster #startButton:disabled{opacity:.72}
+#intro.mission-poster #startButton:disabled{opacity:.86}
 #intro.mission-poster .report-load-button{
-  display:block;width:100%;max-width:340px;margin:0;min-height:44px;padding:13px 16px;
-  background:#c4aa68;border:1px solid #e7d29b;color:#0b100b;
-  font:700 12px/1.15 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;
-  box-shadow:0 0 0 3px rgba(6,10,7,.55);text-shadow:none;cursor:pointer;
+  display:block;width:100%;max-width:340px;margin:0;min-height:44px;padding:10px 14px;
+  background:transparent;border:1px solid rgba(196,170,104,.72);color:#e8e0c4;
+  font:700 11px/1.15 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;
+  box-shadow:none;text-shadow:0 1px 8px rgba(0,0,0,.7);cursor:pointer;
 }
 #intro.mission-poster .report-load-button:hover,
 #intro.mission-poster .report-load-button:focus-visible{
-  background:#e3c888;outline:2px solid #ffe7a8;outline-offset:3px;
+  background:rgba(196,170,104,.2);outline:2px solid #ffe7a8;outline-offset:3px;color:#f3ebd2;
 }
 #intro.mission-poster .loading-failure{margin-top:0}
 #intro.mission-poster .loading-failure .report-load-button{margin:8px 0 0}
 #intro.mission-poster.load-failed .poster-soon{display:none}
-#intro.mission-poster.load-failed .poster-body{align-items:start;overflow:auto}
+#intro.mission-poster.load-failed .poster-body{align-items:start;overflow:auto;flex:0 1 auto}
 #intro.mission-poster.load-failed .poster-right{justify-content:flex-start}
 #intro.mission-poster.load-failed .deployment-action{flex:0 0 auto}
 #intro.mission-poster .mission-footer{
-  flex:0 0 auto;margin-top:18px;border-top:1px solid rgba(235,231,215,.18);
-  padding-top:12px;color:#d7ddcb;position:relative;z-index:3;flex-wrap:wrap;gap:12px;
+  flex:0 0 auto;margin-top:10px;border-top:1px solid rgba(235,231,215,.18);
+  padding-top:10px;color:#d7ddcb;position:relative;z-index:3;flex-wrap:wrap;gap:12px;
   background:linear-gradient(0deg,rgba(6,10,7,.72),rgba(6,10,7,.2));
 }
 #intro.mission-poster .mission-links{flex-wrap:wrap;row-gap:8px}
@@ -513,28 +515,67 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
   #intro.mission-poster .poster-soon{text-align:left}
   #intro.mission-poster .deployment-action{max-width:none;margin-left:0}
 }
-/* Dock-safe bottom inset on short windows. 13-inch 1280×800 + Safari chrome + Dock. */
+/* 1280×~864 Safari + Dock: CSS max-height can miss this class; html[data-app-short] uses visualViewport. */
+@media(max-height:920px){
+  #intro.mission-poster .mission-frame{
+    padding-top:max(10px,env(safe-area-inset-top,0px));
+    padding-bottom:max(12px,env(safe-area-inset-bottom,0px),var(--app-inset-bottom,0px));
+  }
+  #intro.mission-poster .mission-masthead{padding-bottom:8px;margin-bottom:10px}
+  #intro.mission-poster .mission-masthead h1{font-size:clamp(48px,6.6vw,84px);margin:6px 0 0}
+  #intro.mission-poster .poster-body{align-items:end;gap:clamp(10px,1.8vh,20px)}
+  #intro.mission-poster .poster-left{gap:10px}
+  #intro.mission-poster .poster-chapter h2{font-size:clamp(32px,4.2vw,56px);margin:4px 0 6px}
+  #intro.mission-poster .poster-soon .sector-note{display:none}
+  #intro.mission-poster .poster-soon h2{font-size:18px;margin:4px 0;line-height:1.1}
+  #intro.mission-poster .mission-orders{padding-top:8px}
+  #intro.mission-poster .mission-orders p{font-size:15px;margin:4px 0}
+  #intro.mission-poster .poster-right{justify-content:flex-end;gap:8px}
+  #intro.mission-poster .deployment-action{gap:6px}
+  #intro.mission-poster .ammo-progress{gap:5px 6px}
+  #intro.mission-poster .ammo-progress i{height:20px}
+  #intro.mission-poster .mission-footer{margin-top:8px;padding-top:8px}
+}
+html[data-app-short] #intro.mission-poster .mission-frame{
+  padding-top:max(10px,env(safe-area-inset-top,0px));
+  padding-bottom:max(12px,env(safe-area-inset-bottom,0px),var(--app-inset-bottom,0px));
+}
+html[data-app-short] #intro.mission-poster .mission-masthead{padding-bottom:8px;margin-bottom:10px}
+html[data-app-short] #intro.mission-poster .mission-masthead h1{font-size:clamp(48px,6.6vw,84px);margin:6px 0 0}
+html[data-app-short] #intro.mission-poster .poster-body{align-items:end;gap:clamp(10px,1.8vh,20px)}
+html[data-app-short] #intro.mission-poster .poster-left{gap:10px}
+html[data-app-short] #intro.mission-poster .poster-chapter h2{font-size:clamp(32px,4.2vw,56px);margin:4px 0 6px}
+html[data-app-short] #intro.mission-poster .poster-soon .sector-note{display:none}
+html[data-app-short] #intro.mission-poster .poster-soon h2{font-size:18px;margin:4px 0;line-height:1.1}
+html[data-app-short] #intro.mission-poster .mission-orders{padding-top:8px}
+html[data-app-short] #intro.mission-poster .mission-orders p{font-size:15px;margin:4px 0}
+html[data-app-short] #intro.mission-poster .poster-right{justify-content:flex-end;gap:8px}
+html[data-app-short] #intro.mission-poster .deployment-action{gap:6px}
+html[data-app-short] #intro.mission-poster .ammo-progress{gap:5px 6px}
+html[data-app-short] #intro.mission-poster .ammo-progress i{height:20px}
+html[data-app-short] #intro.mission-poster .mission-footer{margin-top:8px;padding-top:8px}
+/* Keep legacy 850/760 hooks; reserved deploy row plus modest inset replace the old 56px Dock pad. */
 @media(max-height:850px){
   #intro.mission-poster .mission-frame{
-    padding-top:max(12px,env(safe-area-inset-top,0px));
-    padding-bottom:max(56px,env(safe-area-inset-bottom,0px),var(--app-inset-bottom,0px));
+    padding-top:max(10px,env(safe-area-inset-top,0px));
+    padding-bottom:max(12px,env(safe-area-inset-bottom,0px),var(--app-inset-bottom,0px));
   }
   #intro.mission-poster .poster-body{align-items:stretch}
   #intro.mission-poster .poster-right{justify-content:flex-end}
 }
 /* Poster-specific 760px compaction. Legacy max-height:760px only shrank .chapter / .deployment-bar, not this overlay. */
 @media(max-height:760px){
-  #intro.mission-poster .mission-masthead{padding-bottom:8px;margin-bottom:10px}
-  #intro.mission-poster .mission-masthead h1{font-size:clamp(48px,7vw,76px);margin:6px 0 0}
-  #intro.mission-poster .poster-body{gap:clamp(12px,2vh,24px)}
-  #intro.mission-poster .poster-left{gap:12px}
-  #intro.mission-poster .poster-chapter h2{font-size:clamp(32px,4.4vw,52px);margin:4px 0 6px}
-  #intro.mission-poster .poster-soon h2{font-size:18px;margin:4px 0;line-height:1.1}
-  #intro.mission-poster .mission-orders{padding-top:10px}
+  #intro.mission-poster .mission-masthead{padding-bottom:8px;margin-bottom:8px}
+  #intro.mission-poster .mission-masthead h1{font-size:clamp(44px,6.2vw,72px);margin:4px 0 0}
+  #intro.mission-poster .poster-body{gap:clamp(8px,1.6vh,18px)}
+  #intro.mission-poster .poster-left{gap:8px}
+  #intro.mission-poster .poster-chapter h2{font-size:clamp(30px,4vw,50px);margin:2px 0 4px}
+  #intro.mission-poster .poster-soon h2{font-size:17px;margin:2px 0;line-height:1.1}
+  #intro.mission-poster .mission-orders{padding-top:8px}
   #intro.mission-poster .mission-orders p{font-size:15px;margin:4px 0}
-  #intro.mission-poster .poster-right{gap:10px}
-  #intro.mission-poster .mission-footer{margin-top:10px;padding-top:8px}
-  #intro.mission-poster #loadingSystems{margin-bottom:8px}
+  #intro.mission-poster .poster-right{gap:8px}
+  #intro.mission-poster .mission-footer{margin-top:8px;padding-top:8px}
+  #intro.mission-poster #loadingSystems{margin-bottom:0}
 }
 /* ~650–720px Safari content height on short desktops. Keep Uncharted/footer from colliding. */
 @media(max-height:720px){
@@ -544,16 +585,23 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
   #intro.mission-poster .poster-chapter p{
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
   }
-  #intro.mission-poster #startButton{padding:13px 16px;min-height:46px}
+  #intro.mission-poster #startButton{padding:14px 16px;min-height:50px}
   #intro.mission-poster .ammo-progress i{height:20px}
-  #intro.mission-poster .report-load-button{min-height:44px;padding:12px 14px}
+  #intro.mission-poster .report-load-button{min-height:44px;padding:10px 12px}
   #intro.mission-poster.load-failed .poster-chapter p,
   #intro.mission-poster.load-failed .mission-orders{display:none}
   #intro.mission-poster.load-failed .mission-masthead{padding-bottom:6px;margin-bottom:8px}
 }
+html[data-app-short] #intro.mission-poster .mission-orders>span:last-child{display:none}
+html[data-app-short] #intro.mission-poster .poster-chapter p{
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+html[data-app-short] #intro.mission-poster.load-failed .poster-chapter p,
+html[data-app-short] #intro.mission-poster.load-failed .mission-orders{display:none}
 @media(max-height:650px){
   #intro.mission-poster .mission-frame{
-    padding-bottom:max(64px,env(safe-area-inset-bottom,0px),var(--app-inset-bottom,0px));
+    padding-bottom:max(12px,env(safe-area-inset-bottom,0px),var(--app-inset-bottom,0px));
   }
   #intro.mission-poster .poster-chapter p{font-size:14px}
+  #intro.mission-poster #startButton{padding:13px 16px;min-height:48px}
 }

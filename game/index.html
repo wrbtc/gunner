@@ -12,8 +12,8 @@
   <meta property="og:url" content="https://gunner.satoshis.watch/">
   <link rel="canonical" href="https://gunner.satoshis.watch/">
   <link rel="icon" type="image/svg+xml" href="./assets/gunner-plane.svg?v=052">
-  <link rel="stylesheet" href="./styles.css?v=054-26">
-  <script src="./src/app-viewport.js?v=054-26"></script>
+  <link rel="stylesheet" href="./styles.css?v=054-28">
+  <script src="./src/app-viewport.js?v=054-28"></script>
 </head>
 <body>
   <noscript><section class="device-noscript" aria-labelledby="no-script-heading">
@@ -61,21 +61,21 @@
             <h2 id="nextChapter">Uncharted</h2>
             <p class="sector-note">The next flight is still beyond the horizon.</p>
           </div>
-          <div class="deployment-action">
-            <div id="loadingSystems" aria-label="Flight preparation" aria-busy="true">
-              <div class="ammo-progress" aria-hidden="true"></div>
-              <span id="loadStatus" role="status" aria-live="polite">Preparing flight systems…</span>
-            </div>
-            <button id="startButton" type="button" disabled>DEPLOY GUNNER</button>
-            <button id="reportFailedLoad" type="button" class="report-load-button" aria-controls="loadingFailureDetails" aria-expanded="false">REPORT FAILED LOAD</button>
-            <section id="loadingFailureDetails" class="loading-failure" aria-label="Loading problem" hidden>
-              <p id="loadingFailureDetail"></p>
-              <button id="copyLoadingReport" class="report-load-button" type="button">COPY LOADING REPORT</button>
-              <p id="loadingReportCopyStatus" role="status" aria-live="polite"></p>
-              <details id="loadingReportDisclosure"><summary>Show loading report</summary><textarea id="loadingReport" readonly rows="7" aria-label="Loading report" spellcheck="false"></textarea></details>
-            </section>
-          </div>
         </div>
+      </div>
+      <div class="deployment-action">
+        <div id="loadingSystems" aria-label="Flight preparation" aria-busy="true">
+          <div class="ammo-progress" aria-hidden="true"></div>
+          <span id="loadStatus" role="status" aria-live="polite">Preparing flight systems…</span>
+        </div>
+        <button id="startButton" type="button" disabled>DEPLOY GUNNER</button>
+        <button id="reportFailedLoad" type="button" class="report-load-button" aria-controls="loadingFailureDetails" aria-expanded="false">REPORT FAILED LOAD</button>
+        <section id="loadingFailureDetails" class="loading-failure" aria-label="Loading problem" hidden>
+          <p id="loadingFailureDetail"></p>
+          <button id="copyLoadingReport" class="report-load-button" type="button">COPY LOADING REPORT</button>
+          <p id="loadingReportCopyStatus" role="status" aria-live="polite"></p>
+          <details id="loadingReportDisclosure"><summary>Show loading report</summary><textarea id="loadingReport" readonly rows="7" aria-label="Loading report" spellcheck="false"></textarea></details>
+        </section>
       </div>
       <footer class="mission-footer">
         <div class="mission-links">

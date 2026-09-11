@@ -33,9 +33,16 @@ still attaches deadline evidence so copy-loading reports are never missing
 `preTimeoutSnapshot`.
 
 The menu fix sizes the overlay from `visualViewport` / `100svh` / safe-area
-insets, allows overflow scroll, adds a Dock-safe bottom inset, and adds
-poster-specific `max-height: 760px` / `720px` / `650px` rules. Art, FPS counter,
-and the ammo-progress loader stay in place.
+insets, allows overflow scroll, and keeps a reserved deploy row so the 24 ammo
+ticks and DEPLOY GUNNER cannot pack below a Dock-safe view. Compaction applies
+at `max-height: 920px` and via `html[data-app-short]` (visual viewport), not only
+the older 850/760/720/650 poster rules. Art, FPS counter, and the ammo-progress
+loader stay in place.
+
+A later Intel Safari measurement at about **1207×864** (window plus Dock) showed
+`.ammo-progress` and `#startButton` still below the fold because those controls
+lived under Coming Soon in an end-aligned column, and `max-height: 850px` never
+fired. Lift the deploy cluster into a non-shrinking row above the footer.
 
 Concept-24 poster CSS (`#intro.mission-poster`, styles class around 054-20-c24)
 did not fit that window:
@@ -45,7 +52,8 @@ did not fit that window:
 - no short-viewport poster compaction — legacy `@media(max-height:760px)` only
   shrank `.chapter` / `.deployment-bar`, which the poster no longer uses
 - ~1280×800 class with Safari chrome + Dock → about **650–720px** content height
-- footer behind the Dock; COMING SOON / Uncharted compressed; bottom controls cramped
+- ~1280×~864 class (toolbar plus Dock) missed the old `max-height: 850px` pad
+- footer behind the Dock; COMING SOON / Uncharted compressed; ammo ticks and Deploy below the fold
 
 A follow-up production screenshot from the same browser class showed two more
 bugs after v0.54.23 shipped `REPORT FAILED LOAD` as a footer `quietButton`:
