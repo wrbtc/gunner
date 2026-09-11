@@ -244,6 +244,7 @@ export function reportFailedLoad(){
  return reported;
 }
 $('reportFailedLoad')?.addEventListener('click',reportFailedLoad);
+$('qaStuckLoad')?.addEventListener('click',reportFailedLoad);
 export function loadingFailure(error,{reload=()=>globalThis.location.reload()}={}){
  if(loading.snapshot().status==='failed')return;
  const current=loadingSnapshot();

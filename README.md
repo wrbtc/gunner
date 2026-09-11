@@ -9,9 +9,11 @@ This is the **v0.54.36 runtime with the concept-24 menu**, matching current
 production. It fits the briefing to short desktop viewports, keeps its report
 controls clear of the macOS Dock, and adds the supplied Queen reveal growl and raised-arms shriek,
 timed to the cinematic, and keeps menu/outcome music silent until the player
-explicitly presses `PLAY MUSIC`. The briefing also includes a discreet footer `QA` disclosure with
-`REPORT FAILED LOAD`, which opens a bounded copyable diagnostic without failing
-the loader or sending data automatically. It includes the full-poster chapter presentation, complete
+explicitly presses `PLAY MUSIC`. Idle Deploy is ammo → DEPLOY only. `REPORT FAILED LOAD` and the copy-report
+block stay hidden until `#intro.load-failed`. Other tester chrome collapses
+into a quiet footer `QA` disclosure after `PLAY MUSIC`. The fail-path gold
+REPORT/COPY controls stay in the reserved deploy row. Diagnostics never send
+data automatically. It includes the full-poster chapter presentation, complete
 walkie-radio voice set, current aircraft and field guide, opening and outcome
 presentation, the 24-stage loading path, bounded Safari graphics diagnostics,
 and an always-visible in-flight FPS counter.

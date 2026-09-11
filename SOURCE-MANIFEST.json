@@ -198,8 +198,8 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 13398,
-      "sha256": "d90e9e13ff94c394aa970e2fcbc69d15747f3f63579726a00264b8fe269840e6"
+      "bytes": 13523,
+      "sha256": "a873dd5747b2382edda5b9ea27c6cb2f523c9d280765730007fa9ed1ab817463"
     },
     {
       "path": "game/main.js",
@@ -403,8 +403,8 @@
     },
     {
       "path": "game/src/mission-screen.js",
-      "bytes": 26737,
-      "sha256": "af47dd0df0906788b48a6f8fc4aaf39165817d40f944569588044a0d88354e51"
+      "bytes": 26799,
+      "sha256": "58c64989439be579a03698dbd7ff8cd5bd736d30ba5182d94affdb3c605be59b"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -573,8 +573,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 57434,
-      "sha256": "b2e3ec4b08efebf9abad519e4103f36865597b05131f2e8b8f68a61f4cd95360"
+      "bytes": 57863,
+      "sha256": "8b2a81fc5e76b0512a54636eb65338558e9055a74fde9bb245055d1cd61f3624"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.36 is a menu-layout follow-up: typical laptop heights keep end-pack so ammo and DEPLOY sit just above a fold-anchored footer, while start-pack remains on html[data-app-short] (visual viewport \u2264864) and the 850/760 short locks so Intel Safari + Dock still clears Deploy by \u22658px. Idle REPORT FAILED LOAD moves into a discreet footer QA disclosure; fail-path COPY stays in the reserved deploy row. Hidden-tab deadline pause, present-hold, Reduced auto, Intel-class uniform deferral, conserved light-count variants, Coming Soon removed below 760px, explicit click-to-play music consent, supplied Queen cinematic samples, bounded diagnostics, and the in-flight FPS counter remain. Soft-GPU stays off. Public privacy adaptations retained; physical Intel Safari performance acceptance remains pending."
+  "note": "Gunner v0.54.36 is a menu-layout follow-up: typical laptop heights keep end-pack so ammo and DEPLOY sit just above a fold-anchored footer, while start-pack remains on html[data-app-short] (visual viewport \u2264864) and the 850/760 short locks so Intel Safari + Dock still clears Deploy by \u22658px. Idle Deploy is ammo \u2192 DEPLOY only; REPORT FAILED LOAD and the copy-report block stay hidden until #intro.load-failed, where they use the gold fail-path fill. Other tester chrome is a quiet footer QA disclosure after PLAY MUSIC. Hidden-tab deadline pause, present-hold, Reduced auto, Intel-class uniform deferral, conserved light-count variants, Coming Soon removed below 760px, explicit click-to-play music consent, supplied Queen cinematic samples, bounded diagnostics, and the in-flight FPS counter remain. Soft-GPU stays off. Public privacy adaptations retained; physical Intel Safari performance acceptance remains pending."
 }

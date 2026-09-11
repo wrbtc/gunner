@@ -84,10 +84,11 @@ bugs after v0.54.23 shipped `REPORT FAILED LOAD` as a footer `quietButton`:
 - `REPORT FAILED LOAD` was faint 11px text next to PLAY MUSIC, crushed into the
   Dock, so the tester could not start a copy-report QA pass.
 
-Idle `REPORT FAILED LOAD` now lives in a collapsed footer `QA` disclosure so
-the first screen matches the concept-24 CTA band (ammo → DEPLOY → Coming Soon).
-On the fail path (`#intro.load-failed` and `.loading-failure`), COPY stays a
-gold 44px control in the reserved deploy row.
+Idle/success Deploy is ammo → DEPLOY only. `#reportFailedLoad` and the
+copy-report block stay hidden until `#intro.load-failed`, where REPORT and
+COPY use the gold 44px fail-path fill in the reserved deploy row. Other
+tester chrome is a quiet footer `QA` disclosure after PLAY MUSIC — not a
+second brass CTA and not a poster badge.
 
 `--app-inset-bottom` is now capped at **24px** (layout viewport minus visual
 viewport only). The older short-window pad was **56px** at `max-height:850px`
@@ -188,8 +189,9 @@ unchanged. Soft-GPU stays off.
 
 v0.54.36 is a menu-layout follow-up only: typical laptop heights keep
 end-pack (ammo + DEPLOY above a fold-anchored footer), start-pack stays on
-the short Intel Safari + Dock class, and idle Report moves into a discreet
-footer QA disclosure. Soft-GPU stays off.
+the short Intel Safari + Dock class, idle Deploy is ammo → DEPLOY only,
+and tester chrome is fail-path gold Report/Copy plus a quiet footer QA
+disclosure. Soft-GPU stays off.
 
 ## Pause / hidden present hold and reduced auto
 

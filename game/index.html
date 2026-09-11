@@ -63,6 +63,7 @@
               <span id="loadStatus" role="status" aria-live="polite">Preparing flight systems…</span>
             </div>
             <button id="startButton" type="button" disabled>DEPLOY GUNNER</button>
+            <button id="reportFailedLoad" type="button" class="report-load-button" aria-controls="loadingFailureDetails" aria-expanded="false">REPORT FAILED LOAD</button>
             <section id="loadingFailureDetails" class="loading-failure" aria-label="Loading problem" hidden>
               <p id="loadingFailureDetail"></p>
               <button id="copyLoadingReport" class="report-load-button" type="button">COPY LOADING REPORT</button>
@@ -83,8 +84,8 @@
           <button id="settingsButton" disabled type="button" class="quietButton">SOUND &amp; CONTROLS</button>
           <button id="menuMusicButton" type="button" class="quietButton" aria-pressed="false">PLAY MUSIC</button>
           <details class="qa-diagnostics">
-            <summary>QA</summary>
-            <button id="reportFailedLoad" type="button" class="quietButton" aria-controls="loadingFailureDetails" aria-expanded="false">REPORT FAILED LOAD</button>
+            <summary class="quietButton">QA</summary>
+            <button id="qaStuckLoad" type="button" class="quietButton">REPORT STUCK LOAD</button>
           </details>
         </div>
         <p>MOUSE · AIM &amp; FIRE &nbsp; / &nbsp; SPACE · HEAVY CANNON &nbsp; / &nbsp; ESC · PAUSE</p>
