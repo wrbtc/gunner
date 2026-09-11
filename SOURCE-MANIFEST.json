@@ -1,5 +1,5 @@
 {
-  "version": "0.54.29",
+  "version": "0.54.30",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -199,17 +199,17 @@
     {
       "path": "game/index.html",
       "bytes": 13220,
-      "sha256": "5599a95715d7b232cfda4d318bff74a850af46b3eec705b6a98b58b351e29ef6"
+      "sha256": "c1cb400367c4955f101b428e343def03820b9473a3c6862266d393037a5e5087"
     },
     {
       "path": "game/main.js",
       "bytes": 157915,
-      "sha256": "7200d36d4695c36de3dccb1401fc3b9db7328a676ae49a7a0c398994ef77d82c"
+      "sha256": "77f17ef864edd8fc07650eb55a3d970be8b64819441dca07dd18b3755dc68d50"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "5496b32b7950c06641d06b727f0760ae713334e0e23b8e0e6ce5c4fe867a085b"
+      "sha256": "46f354b18596ce701e9d68ff9ddfcdaee4e70828380f840c52890955892a1d4e"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -404,7 +404,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 24527,
-      "sha256": "7df5cd765d2f16b3122f6309f92055d8544c5acc7ed147a79bb5725b1ca1fc0d"
+      "sha256": "6d0377acf83dc5c25ada5bd32ca95cc21dbcd765e19c0b6d444cc22e708c46e7"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.29 runtime with the short-desktop Deploy hierarchy lock: ammo then DEPLOY then Coming Soon, flex-start on short heights, no column clip, quiet Coming Soon at 850px and dropped at 760px. Visible failed-load report path, supplied Queen cinematic samples, explicit click-to-play music consent, bounded graphics diagnostics, and an in-flight FPS counter. Public privacy adaptations retained; physical Intel Safari performance acceptance remains pending."
+  "note": "Gunner v0.54.30 runtime with tall menus end-packed, short menus start-packed, Coming Soon removed below 760px, and ammo, Deploy, failed-load reporting, and footer controls kept inside tested desktop viewports. Explicit click-to-play music consent, supplied Queen cinematic samples, bounded diagnostics, and the in-flight FPS counter remain. Public privacy adaptations retained; physical Intel Safari performance acceptance remains pending."
 }
