@@ -1,5 +1,5 @@
 {
-  "version": "0.54.23",
+  "version": "0.54.24",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -198,18 +198,18 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 13151,
-      "sha256": "559f4598ea33d89455d5733bae242f000dff95a144b46b35c8690284927cd598"
+      "bytes": 14383,
+      "sha256": "d20d61bbbe2e7e8ffa18751bad01beec3ff3f354ee7e3f50b40f2e977d621d7d"
     },
     {
       "path": "game/main.js",
       "bytes": 157914,
-      "sha256": "c2802cbe7a0594dfd5235e86a587f0d62a0b8a79816aacc166ffa6fbc4a06cbc"
+      "sha256": "a6b7e8222695fa6ca729ea8b7c8cd420d566f5ac29e942227e53a26c7cea588c"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 3396,
-      "sha256": "1c7a46bacfe1dd913e36b92373397e7e2c4cc4b3eb131cabb4f883dd4c229c0f"
+      "sha256": "db5d2c994e96fa63617459cb4f5ce60b225bedcc22b1d82ed45bdca7bf069014"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -318,8 +318,8 @@
     },
     {
       "path": "game/src/egg-nests.js",
-      "bytes": 37544,
-      "sha256": "0d9fd549809ed08aa968125e395a14200d85a715c0be5adeee6e8cd9e06a72da"
+      "bytes": 37554,
+      "sha256": "9b3251645c50dea7f5da14bd352385cd0c77cf3b244ca26273ac30082c7cf5c3"
     },
     {
       "path": "game/src/ending-flight.js",
@@ -398,8 +398,8 @@
     },
     {
       "path": "game/src/mission-screen.js",
-      "bytes": 22109,
-      "sha256": "7ca6c7d80ac22e0523135cdad2f0978e824cc91c349b464fbad440db8796a75a"
+      "bytes": 22182,
+      "sha256": "7c0194eb8a6de2c20f79a304673ff440812e4c3b985805587e29d89c0684ab23"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -518,8 +518,8 @@
     },
     {
       "path": "game/src/sliced-iterator-preparation.js",
-      "bytes": 1724,
-      "sha256": "f31f26b20f6ab2a51eaa90bc73aa34f9cbb15f422c0e4d63457367ceac253bcf"
+      "bytes": 2748,
+      "sha256": "16ed362b929bb1dfb6878bc3a449c8281b68bb8afac35d6c69da7bae04f37027"
     },
     {
       "path": "game/src/sonar.js",
@@ -568,8 +568,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 46263,
-      "sha256": "2fc8690a0b18a8c7606b3df8807e192473dbbd40284c1223998869ce1e71f45d"
+      "bytes": 50240,
+      "sha256": "0e2b1ffd6356d65b25d784a83c8c4c51f64f4ac71fed4a33025fac6f27ee5ec6"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",
@@ -592,5 +592,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.23 runtime with a tester-triggered bounded loading-failure report, Bruno and Gina’s Queen cinematic samples, explicit music consent, concept-24 menu, bounded graphics diagnostics and an in-flight FPS counter. Public privacy adaptations retained; sustained cross-platform performance acceptance remains pending."
+  "note": "Gunner v0.54.24 runtime with a short-desktop and Dock-safe briefing, visible loading-report controls, MessageChannel collision preparation, Bruno and Gina’s Queen cinematic samples, explicit music consent, bounded graphics diagnostics and an in-flight FPS counter. Public privacy adaptations retained; sustained cross-platform performance acceptance remains pending."
 }

@@ -13,7 +13,7 @@ assert.match(index,/class="mission-frame"/);
 assert.match(index,/class="poster-body"/);
 assert.match(index,/id="fpsValue"/);
 assert.match(index,/class="ammo-progress"/);
-assert.match(index,/styles\.css\?v=054-23-report/);
+assert.match(index,/styles\.css\?v=054-24/);
 assert.match(index,/visualViewport/);
 assert.match(index,/--app-height/);
 assert.match(index,/--app-inset-bottom/);

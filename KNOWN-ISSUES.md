@@ -1,4 +1,4 @@
-# Release validation — v0.54.23
+# Release validation — v0.54.24
 
 ## Intel MacBook Pro 2016 / Monterey Safari (Iris 550)
 
