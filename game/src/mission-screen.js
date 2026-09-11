@@ -36,16 +36,67 @@ export function createLoadingController(onChange=()=>{}){
   fail(reason){if(status==='failed')return false;status='failed';error={code:reason?.code||'PREPARATION_FAILED',message:String(reason?.message||reason||'Flight preparation failed')};return publish();}
  });
 }
-export function boundedPreparation(work,{timeoutMs=30000,setTimer=setTimeout,clearTimer=clearTimeout,now=()=>performance.now()}={}){
+// Background tabs starve rAF/MessageChannel. Wall clocks keep running, so a
+// hidden interval must not burn the visible construction/preparation budget.
+function pageIsHidden(doc=globalThis.document){
+ const state=doc?.visibilityState;
+ if(typeof state==='string')return state!=='visible';
+ return !!doc?.hidden;
+}
+function watchPageVisibility(onChange,subscribe,doc=globalThis.document){
+ if(typeof subscribe==='function')return subscribe(onChange)||(()=>{});
+ if(typeof doc?.addEventListener!=='function')return ()=>{};
+ doc.addEventListener('visibilitychange',onChange);
+ return ()=>doc.removeEventListener?.('visibilitychange',onChange);
+}
+function createVisibleDeadline({now,timeoutMs,hidden=pageIsHidden,subscribe,setTimer,clearTimer}={}){
+ const started=now();
+ let hiddenMs=0,hiddenSince=null,timer=null,closed=false,armed=false,onExpired=null;
+ const unseen=()=>{try{return !!hidden();}catch{return false;}};
+ const sync=()=>{
+  const t=now(),hide=unseen();
+  if(hide){if(hiddenSince===null)hiddenSince=t;}
+  else if(hiddenSince!==null){hiddenMs+=Math.max(0,t-hiddenSince);hiddenSince=null;}
+  return t;
+ };
+ const remainingMs=()=>{
+  const t=sync();
+  const end=hiddenSince===null?t:hiddenSince;
+  return Math.max(0,timeoutMs-(end-started-hiddenMs));
+ };
+ const stopTimer=()=>{if(timer!==null){clearTimer(timer);timer=null;}};
+ const arm=()=>{
+  if(closed||!armed)return;
+  stopTimer();
+  const left=remainingMs();
+  if(left<=0)return false;
+  if(unseen())return;
+  timer=setTimer(()=>{
+   timer=null;
+   if(closed||!armed)return;
+   sync();
+   if(unseen())return;
+   onExpired?.();
+  },left);
+ };
+ const unwatch=watchPageVisibility(()=>{if(closed)return;sync();if(arm()===false)onExpired?.();},subscribe);
+ return {remainingMs,start(expire){
+  if(closed||armed)return;
+  armed=true;onExpired=expire;
+  if(arm()===false)expire();
+ },release(){if(closed)return;closed=true;onExpired=null;stopTimer();unwatch();}};
+}
+export function boundedPreparation(work,{timeoutMs=30000,setTimer=setTimeout,clearTimer=clearTimeout,now=()=>performance.now(),hidden=pageIsHidden,subscribe}={}){
  if(typeof work!=='function')throw TypeError('Preparation requires a task');
  if(!Number.isFinite(timeoutMs)||timeoutMs<=0)throw TypeError('Invalid preparation deadline');
  return new Promise((resolve,reject)=>{
-  const started=now(),timeout=()=>Object.assign(Error('Flight preparation timed out'),{code:'PREPARATION_TIMEOUT'});
+  const timeout=()=>Object.assign(Error('Flight preparation timed out'),{code:'PREPARATION_TIMEOUT'});
+  const deadline=createVisibleDeadline({now,timeoutMs,hidden,subscribe,setTimer,clearTimer});
   let settled=false,task=null;
-  const finish=(callback,value)=>{if(settled)return;settled=true;clearTimer(timer);callback(value);};
+  const finish=(callback,value)=>{if(settled)return;settled=true;deadline.release();callback(value);};
   // Cancel the in-flight task on deadline so yielded loops stop scheduling.
-  const timer=setTimer(()=>{try{task?.cancel?.();}catch{}finish(reject,timeout());},timeoutMs);
-  Promise.resolve().then(()=>{task=work();return task;}).then(value=>now()-started>=timeoutMs?finish(reject,timeout()):finish(resolve,value),error=>finish(reject,error));
+  deadline.start(()=>{try{task?.cancel?.();}catch{}finish(reject,timeout());});
+  Promise.resolve().then(()=>{task=work();return task;}).then(value=>deadline.remainingMs()<=0?finish(reject,timeout()):finish(resolve,value),error=>finish(reject,error));
  });
 }
 export function yieldLoadingPaint({frame=globalThis.requestAnimationFrame,cancelFrame=globalThis.cancelAnimationFrame,schedule=setTimeout,cancel=clearTimeout,fallbackMs=100}={}){
@@ -62,23 +113,25 @@ export function yieldLoadingPaint({frame=globalThis.requestAnimationFrame,cancel
 }
 // Keep construction ordered while allowing input/paint between complete steps
 // and bounded internal batches. Cancellation is checked after every async gap.
-export function createPreparationSequence({canceled=()=>false,now=()=>performance.now(),timeoutMs=30000,paint=yieldLoadingPaint,task=null,onStep=()=>{},Channel=globalThis.MessageChannel,setTimer=setTimeout,clearTimer=clearTimeout,fallbackMs=100}={}){
+export function createPreparationSequence({canceled=()=>false,now=()=>performance.now(),timeoutMs=30000,paint=yieldLoadingPaint,task=null,onStep=()=>{},Channel=globalThis.MessageChannel,setTimer=setTimeout,clearTimer=clearTimeout,fallbackMs=100,hidden=pageIsHidden,subscribe}={}){
  if(!Number.isFinite(timeoutMs)||timeoutMs<=0)throw TypeError('Invalid construction deadline');
  if(!Number.isFinite(fallbackMs)||fallbackMs<=0)throw TypeError('Invalid construction task fallback');
  if(task!==null&&typeof task!=='function')throw TypeError('Construction task must be a function');
- const started=now();let busy=false,checkpointBusy=false,failure=null,channel=null,channelTried=false,pending=null,serial=0,deadlineTimer=null;
+ const deadline=createVisibleDeadline({now,timeoutMs,hidden,subscribe,setTimer,clearTimer});
+ let busy=false,checkpointBusy=false,failure=null,channel=null,channelTried=false,pending=null,serial=0;
  const timeout=()=>Object.assign(Error('Flight construction timed out'),{code:'PREPARATION_TIMEOUT'});
  const cancelError=()=>Object.assign(Error('Flight construction was canceled'),{code:'PREPARATION_CANCELED'});
- const remainingMs=()=>Math.max(0,timeoutMs-(now()-started));
+ const remainingMs=()=>deadline.remainingMs();
  const check=()=>{if(failure)throw failure;if(canceled())throw cancelError();if(remainingMs()<=0)throw timeout();};
  const closeChannel=()=>{const owned=channel;channel=null;if(owned){owned.port1.onmessage=null;owned.port1.close();owned.port2.close();}};
  const settle=(entry,error=null)=>{if(pending!==entry)return;pending=null;clearTimer(entry.timer);if(error)entry.reject(error);else entry.resolve();};
- const dispose=(error=cancelError())=>{failure ||= error;closeChannel();if(deadlineTimer!==null){clearTimer(deadlineTimer);deadlineTimer=null;}if(pending)settle(pending,failure);};
+ const dispose=(error=cancelError())=>{failure ||= error;closeChannel();deadline.release();if(pending)settle(pending,failure);};
  function ensureChannel(){
   if(channelTried)return;channelTried=true;
   // One deadline owns the whole sequence, including idle gaps between steps.
   // It also closes ports if unrelated initialization throws between those steps.
-  deadlineTimer=setTimer(()=>dispose(timeout()),remainingMs());
+  // Hidden-tab time is excluded; the timer is paused until the page is visible.
+  deadline.start(()=>dispose(timeout()));
   if(typeof Channel==='function'){
    try{channel=new Channel();const owned=channel;owned.port1.onmessage=event=>{if(channel===owned&&pending?.id===event.data)settle(pending);};}
    catch{closeChannel();}
@@ -134,7 +187,7 @@ export const loadingSnapshot=()=>Object.freeze({...loading.snapshot(),trace:star
 export const loadingStage=id=>{const ok=loading.complete(id);if(ok)bootHeartbeat();return ok;};
 export const loadingProgress=(id,detail)=>{const ok=loading.begin(id,detail);if(ok)bootHeartbeat();return ok;};
 export const loadingReady=()=>loading.ready();
-export const REPORT_BUILD='0.54.34';
+export const REPORT_BUILD='0.54.35';
 const REPORT_ORIGINS=['https://gunner.satoshis.watch','http://127.0.0.1:8000'];
 const missionBuild=$('missionBuild');
 if(missionBuild)missionBuild.textContent='v'+REPORT_BUILD;

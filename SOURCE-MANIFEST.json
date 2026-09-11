@@ -1,5 +1,5 @@
 {
-  "version": "0.54.34",
+  "version": "0.54.35",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -199,17 +199,17 @@
     {
       "path": "game/index.html",
       "bytes": 13307,
-      "sha256": "538a5a10eea81e491ede22ab81a4fdda3a1cbdd3320527c17be8db483e72b24b"
+      "sha256": "8e7abf4bcb3a93820f241fb79d188211b6d4cac116b28bf1ddf7065c48b18904"
     },
     {
       "path": "game/main.js",
       "bytes": 159245,
-      "sha256": "688e902b7a6fd1a800e538c3cdbda4ffba1413fee890deff72a48f195934f031"
+      "sha256": "43d47674dc20a13f4c9f6675c4fbcf70aa22eb6edadac4c4001b3f49ed18410e"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "443bb1dd4ebce6b15178720a693d337f390e1909ce23bcbe2eaf7ad0f5596aa1"
+      "sha256": "c0ef438f4c3fc94c64de1280b11ccbfd561d80186ceb4f1bff537cbf014ae54a"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -403,8 +403,8 @@
     },
     {
       "path": "game/src/mission-screen.js",
-      "bytes": 24638,
-      "sha256": "0d763584d0b2919a1a497ba0a2e3e9924030c358e424f739180542ba9b09f83b"
+      "bytes": 26737,
+      "sha256": "4cc91d114e23744d8d0f2454c254a2153bc617286d7eb2b3936d1848e74ebb5a"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.34 runtime holds the last cinematic frame while paused or hidden and can auto-enable Reduced Effects after a sustained low HUD FPS band. It keeps Intel-class shader first-use uniform deferral, conserved light-count variants, tall menus end-packed, short menus start-packed, Coming Soon removed below 760px, and ammo, Deploy, failed-load reporting, and footer controls inside tested desktop viewports. Explicit click-to-play music consent, supplied Queen cinematic samples, bounded diagnostics, and the in-flight FPS counter remain. Public privacy adaptations retained; physical Intel Safari performance acceptance remains pending. Identity advanced so production cache-bust tags and the version-advance check no longer collide with the earlier 054-33 short-desktop markers."
+  "note": "Gunner v0.54.35 pauses scene-construction and bounded-preparation deadlines while the document is not visible, so a hidden-tab interval cannot spend the visible 30s budget. It keeps the last cinematic frame while paused or hidden and can auto-enable Reduced Effects after a sustained low HUD FPS band. It keeps Intel-class shader first-use uniform deferral, conserved light-count variants, tall menus end-packed, short menus start-packed, Coming Soon removed below 760px, and ammo, Deploy, failed-load reporting, and footer controls inside tested desktop viewports. Explicit click-to-play music consent, supplied Queen cinematic samples, bounded diagnostics, and the in-flight FPS counter remain. Soft-GPU stays off. Public privacy adaptations retained; physical Intel Safari performance acceptance remains pending."
 }

@@ -5,7 +5,12 @@ import {readFileSync} from 'node:fs';
 import {createPreparationSequence} from '../game/src/mission-screen.js';
 const names=[],check=async(name,fn)=>{await fn();names.push(name);};
 const flush=async()=>{for(let i=0;i<8;i++)await Promise.resolve();};
-function harness({mode='normal',timeoutMs=30000,fallbackMs=100}={}){
+function visibility(){
+ let hidden=false;
+ const listeners=[];
+ return {hidden:()=>hidden,setHidden(value){hidden=!!value;for(const fn of listeners.slice())fn();},subscribe(fn){listeners.push(fn);return ()=>{const i=listeners.indexOf(fn);if(i>=0)listeners.splice(i,1);};}};
+}
+function harness({mode='normal',timeoutMs=30000,fallbackMs=100,hidden=()=>false,subscribe}={}){
  let clock=0,nextTimer=0,constructed=0,peakTimers=0,postCount=0;
  const timers=new Map(),timerHistory=[],channels=[],messages=[];
  const setTimer=(fn,delay)=>{const id=++nextTimer,entry={id,fn,delay,at:clock+delay};timers.set(id,entry);timerHistory.push(entry);peakTimers=Math.max(peakTimers,timers.size);return id;};
@@ -16,7 +21,7 @@ function harness({mode='normal',timeoutMs=30000,fallbackMs=100}={}){
    this.closed=[0,0];this.port1={onmessage:null,close:()=>this.closed[0]++};this.port2={close:()=>this.closed[1]++,postMessage:data=>{postCount++;if(mode==='post-fails')throw Error('post failed');messages.push({owner:this,handler:this.port1.onmessage,data});}};channels.push(this);
   }
  }
- const options={Channel:mode==='missing'?null:Channel,now:()=>clock,setTimer,clearTimer,timeoutMs,fallbackMs,paint:async()=>{}};
+ const options={Channel:mode==='missing'?null:Channel,now:()=>clock,setTimer,clearTimer,timeoutMs,fallbackMs,paint:async()=>{},hidden,subscribe};
  const fire=id=>{const e=timers.get(id);assert.ok(e,'Requested timer must be pending');clock=Math.max(clock,e.at);timers.delete(id);e.fn();};
  const fireNext=()=>{const e=[...timers.values()].sort((a,b)=>a.at-b.at||a.id-b.id)[0];assert.ok(e);fire(e.id);};
  const deliver=()=>{const m=messages.shift();assert.ok(m,'One message must be posted');if(!m.owner.closed[0])m.owner.port1.onmessage?.({data:m.data});return m;};
@@ -85,6 +90,30 @@ await check('overlapping-checkpoint-rejects-without-canceling-its-current-owner'
 await check('remaining-time-uses-the-original-clock-without-mutating-sequence',()=>{
  const h=harness({timeoutMs:30}),s=createPreparationSequence(h.options);assert.ok(Object.isFrozen(s));assert.equal(s.remainingMs(),30);h.setClock(12);assert.equal(s.remainingMs(),18);assert.equal(s.remainingMs(),18);h.setClock(35);assert.equal(s.remainingMs(),0);assert.equal(h.constructed,0);assert.equal(h.timers.size,0);s.dispose();assertClosed(h);
 });
+await check('hidden-interval-is-excluded-from-the-construction-deadline',async()=>{
+ const v=visibility(),h=harness({timeoutMs:30,...v}),s=createPreparationSequence(h.options);
+ const p=s.checkpoint();assert.equal(h.timers.size,2);
+ h.setClock(5);v.setHidden(true);assert.equal(s.remainingMs(),25);assert.equal(h.timers.size,1,'deadline timer pauses while hidden');
+ h.setClock(40);assert.equal(s.remainingMs(),25);assert.equal(h.timers.size,1);
+ v.setHidden(false);assert.equal(s.remainingMs(),25);
+ const deadline=[...h.timers.values()].find(t=>t.delay===25);assert.ok(deadline,'visible resume rearms the remaining budget');
+ h.deliver();await p;assert.equal(s.remainingMs(),25);s.dispose();assertClosed(h);
+});
+await check('hidden-then-visible-around-the-wall-does-not-trip-construction-timeout',async()=>{
+ const v=visibility(),h=harness({timeoutMs:30,...v}),s=createPreparationSequence({...h.options,paint:async()=>{}});
+ const work=s.step('plasma',()=>'bugs');await flush();
+ h.setClock(8);v.setHidden(true);h.setClock(41);v.setHidden(false);
+ assert.equal(s.remainingMs(),22);h.deliver();assert.equal(await work,'bugs');s.dispose();assertClosed(h);
+});
+await check('visible-stall-still-fails-after-hidden-time-is-excluded',async()=>{
+ const v=visibility(),h=harness({timeoutMs:30,...v}),s=createPreparationSequence(h.options),p=s.checkpoint();
+ h.setClock(10);v.setHidden(true);h.setClock(50);v.setHidden(false);assert.equal(s.remainingMs(),20);
+ h.setClock(70);h.deliver();await assert.rejects(p,e=>e.code==='PREPARATION_TIMEOUT');assertClosed(h);assert.equal(s.remainingMs(),0);
+});
+await check('late-message-during-hidden-interval-cannot-spend-paused-budget',async()=>{
+ const v=visibility(),h=harness({timeoutMs:20,...v}),s=createPreparationSequence(h.options),p=s.checkpoint();
+ v.setHidden(true);h.setClock(21);h.deliver();await p;assert.equal(s.remainingMs(),20);s.dispose();assertClosed(h);
+});
 await check('injected-task-contract-retains-order-without-allocating-default-scheduler',async()=>{
  const h=harness(),log=[],s=createPreparationSequence({...h.options,task:async()=>log.push('task'),paint:async()=>log.push('paint')});await s.step('a',async()=>{log.push('first');await s.checkpoint();log.push('last');});assert.deepEqual(log,['paint','first','task','last','task']);assert.equal(h.constructed,0);assert.equal(h.timers.size,0);s.dispose();assertClosed(h);
 });
@@ -101,6 +130,17 @@ await check('actual-main-retains-the-construction-owner-for-failure-cleanup',()=
  const assignment=main.split('\n').find(line=>line.startsWith('const assembly=startupAssembly=createPreparationSequence('));assert.ok(assignment);
  let options;const owner={},game={contextLost:false};const result=new Function('createPreparationSequence','game','loadingSnapshot','startupMark','loadingProgress','assemblyLabels',`let startupAssembly=null;${assignment}return {assembly,startupAssembly};`)(value=>{options=value;return owner;},game,()=>({status:'preparing'}),()=>{},()=>{},{});
  assert.equal(result.assembly,owner);assert.equal(result.startupAssembly,owner);assert.equal(options.canceled(),false);game.contextLost=true;assert.equal(options.canceled(),true);
+ assert.equal(options.timeoutMs,undefined);assert.equal(options.hidden,undefined);
+});
+await check('construction-deadline-defaults-exclude-hidden-page-time',()=>{
+ const mission=readFileSync(new URL('../game/src/mission-screen.js',import.meta.url),'utf8');
+ assert.match(mission,/function pageIsHidden/);
+ assert.match(mission,/state!=='visible'/);
+ assert.match(mission,/visibilitychange/);
+ assert.match(mission,/function createVisibleDeadline/);
+ assert.match(mission,/hidden=pageIsHidden/);
+ assert.match(mission,/timeoutMs=30000/);
+ assert.doesNotMatch(mission,/timeoutMs=6[0-9]000/);
 });
 await check('actual-main-disposes-after-final-atmosphere-step-completes',async()=>{
  const finalStep=main.split('\n').find(line=>line.startsWith("await assembly.step('atmosphere',")),disposal=main.split('\n').find(line=>line==='assembly.dispose();');assert.ok(finalStep);assert.ok(disposal);assert.ok(main.indexOf(disposal)>main.indexOf(finalStep));assert.ok(main.indexOf(disposal)<main.indexOf('pilot=createPilotRadio('));

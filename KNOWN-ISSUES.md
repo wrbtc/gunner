@@ -1,4 +1,4 @@
-# Release validation — v0.54.34
+# Release validation — v0.54.35
 
 ## Older Intel Safari / short desktop viewport
 
@@ -168,6 +168,21 @@ comparison. Local contract tests do not validate sustained GPU performance.
 An informal Windows run was also reported as slow, without controlled FPS or
 hardware measurements. Linux performance has not yet been characterized. Use
 the built-in FPS counter and record the environment details below when testing.
+
+## Hidden-tab scene construction deadline
+
+A later Intel-class Safari load on **gunner.satoshis.watch** (build 0.54.34)
+completed world+models, then hit `PREPARATION_TIMEOUT` at about 32s during
+scene construction (`Preparing plasma bugs`) with `visibilityAtFailure=hidden`.
+Retry with the window frontmost entered flight. That is background-tab
+starvation of rAF/MessageChannel: the construction wall kept burning while
+the tab was hidden, not a graphics/uniforms stall.
+
+v0.54.35 pauses the scene-construction and bounded-preparation deadlines
+while `document.visibilityState !== 'visible'` and counts only visible
+elapsed time. Visible-tab stalls still fail at the existing 30s budget.
+Graphics-prep uniforms deferral, present-hold, and Reduced auto are
+unchanged. Soft-GPU stays off.
 
 ## Pause / hidden present hold and reduced auto
 

@@ -14,6 +14,12 @@ await check('cancel-during-internal-batch-stops-later-work-and-steps',async()=>{
 await check('constructor-failure-latches-without-completing-or-later-construction',async()=>{const log=[],failure=Error('bad terrain'),s=createPreparationSequence({paint:async()=>{},onStep:(n,v)=>log.push(v)});await assert.rejects(s.step('a',()=>{throw failure;}),e=>e===failure);await assert.rejects(s.step('b',()=>assert.fail()));assert.deepEqual(log,['begin']);});
 await check('overlapping-construction-is-rejected-without-canceling-owner',async()=>{const wait=pending();let work=0;const s=createPreparationSequence({paint:()=>wait.promise,task:async()=>{}}),a=s.step('a',()=>work++);await assert.rejects(s.step('b',()=>work++),/sequential/);wait.resolve();await a;assert.equal(work,1);});
 await check('elapsed-deadline-after-blocking-constructor-cannot-report-complete',async()=>{let now=0;const events=[],s=createPreparationSequence({now:()=>now,timeoutMs:10,paint:async()=>{},onStep:(n,v)=>events.push(v)});await assert.rejects(s.step('a',()=>{now=11;}),e=>e.code==='PREPARATION_TIMEOUT');assert.deepEqual(events,['begin']);});
+await check('hidden-interval-during-constructor-does-not-count-against-deadline',async()=>{
+ let now=0,hidden=false;const listeners=[],events=[];
+ const s=createPreparationSequence({now:()=>now,timeoutMs:10,paint:async()=>{},task:async()=>{},hidden:()=>hidden,subscribe:fn=>{listeners.push(fn);return()=>{};},onStep:(n,v)=>events.push(v)});
+ const value=await s.step('plasma',()=>{now=4;hidden=true;for(const fn of listeners)fn();now=40;hidden=false;for(const fn of listeners)fn();return 'bugs';});
+ assert.equal(value,'bugs');assert.equal(s.remainingMs(),6);assert.deepEqual(events,['begin','end']);s.dispose();
+});
 await check('cancel-at-final-task-rejects-ownership-before-next-step',async()=>{let canceled=false;const s=createPreparationSequence({canceled:()=>canceled,paint:async()=>{},task:async()=>{canceled=true;}});await assert.rejects(s.step('a',()=>7),e=>e.code==='PREPARATION_CANCELED');});
 const main=readFileSync(new URL('../game/main.js',import.meta.url),'utf8');
 await check('actual-render-function-does-not-touch-half-built-scene',()=>{

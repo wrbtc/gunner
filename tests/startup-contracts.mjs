@@ -18,6 +18,19 @@ await check('bounded-task-propagates-rejection-and-clears-timer',async()=>{const
 await check('bounded-task-times-out-and-does-not-accept-late-success',async()=>{const t=timers(),work=deferred(),promise=boundedPreparation(()=>work.promise,t);const rejected=assert.rejects(promise,e=>e.code==='PREPARATION_TIMEOUT');await tick();t.fire();await rejected;work.resolve('late');await tick();assert.equal(t.tasks.size,0);});
 await check('bounded-task-success-clears-timeout',async()=>{const t=timers();assert.equal(await boundedPreparation(()=>42,t),42);assert.equal(t.tasks.size,0);});
 await check('blocked-task-cannot-win-after-its-wall-deadline',async()=>{const t=timers();let now=0;await assert.rejects(boundedPreparation(()=>{now=50;return true;},{...t,now:()=>now,timeoutMs:10}),e=>e.code==='PREPARATION_TIMEOUT');assert.equal(t.tasks.size,0);});
+await check('hidden-interval-is-excluded-from-the-preparation-deadline',async()=>{
+ let now=0,hidden=false,id=0;const listeners=[],tasks=new Map();
+ const work=deferred(),promise=boundedPreparation(()=>work.promise,{timeoutMs:10,now:()=>now,setTimer:(fn,delay)=>{const key=++id;tasks.set(key,{fn,delay});return key;},clearTimer:key=>tasks.delete(key),hidden:()=>hidden,subscribe:fn=>{listeners.push(fn);return()=>{};}});
+ await tick();assert.equal(tasks.size,1);now=3;hidden=true;for(const fn of listeners)fn();assert.equal(tasks.size,0);
+ now=20;hidden=false;for(const fn of listeners)fn();assert.equal([...tasks.values()][0].delay,7);
+ work.resolve('ok');await tick();assert.equal(await promise,'ok');assert.equal(tasks.size,0);
+});
+await check('hidden-time-cannot-rescue-a-spent-visible-preparation-budget',async()=>{
+ let now=0,hidden=false,id=0;const listeners=[],tasks=new Map();
+ const work=deferred(),promise=boundedPreparation(()=>work.promise,{timeoutMs:10,now:()=>now,setTimer:(fn,delay)=>{const key=++id;tasks.set(key,{fn,delay});return key;},clearTimer:key=>tasks.delete(key),hidden:()=>hidden,subscribe:fn=>{listeners.push(fn);return()=>{};}});
+ const rejected=assert.rejects(promise,e=>e.code==='PREPARATION_TIMEOUT');await tick();
+ now=11;hidden=true;for(const fn of listeners)fn();await rejected;assert.equal(tasks.size,0);work.resolve('late');await tick();
+});
 await check('invalid-task-and-deadline-reject-before-scheduling',()=>{assert.throws(()=>boundedPreparation(null));assert.throws(()=>boundedPreparation(()=>true,{timeoutMs:0}));});
 await check('loading-paint-yield-waits-for-frame-and-following-task',async()=>{let frame,task,done=false;const wait=yieldLoadingPaint({frame:fn=>frame=fn,schedule:fn=>task=fn}).then(()=>done=true);await tick();assert.equal(done,false);frame();await tick();assert.equal(done,false);task();await wait;assert.equal(done,true);});
 await check('suspended-animation-frame-yield-has-a-cleaned-up-fallback',async()=>{const t=timers(),canceled=[];let delivered;const wait=yieldLoadingPaint({frame:fn=>{delivered=fn;return 19;},cancelFrame:id=>canceled.push(id),schedule:t.setTimer,cancel:t.clearTimer});t.fire();await wait;assert.deepEqual(canceled,[19]);assert.equal(t.tasks.size,0);delivered();assert.equal(t.tasks.size,0);});
