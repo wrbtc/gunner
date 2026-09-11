@@ -1,4 +1,4 @@
-# Release validation — v0.54.29
+# Release validation — v0.54.30
 
 ## Older Intel Safari / short desktop viewport
 
@@ -22,7 +22,7 @@ absent. Trace: collision end ~56799ms, graphics begin ~56800ms, startup failed
 
 The primary remaining bug is the **shader submit stall**. At that submit rate
 the remaining light-count jobs still overrun cinematic's 30s budget after the
-watchdog. v0.54.29 conserves intermediate plasma light-count variants when
+watchdog. v0.54.30 conserves intermediate plasma light-count variants when
 remaining serial compile work exceeds 80% of remaining graphics time. Fast
 compilers (modern Safari/Chrome, `compileMs` under 16ms or
 `KHR_parallel_shader_compile`) keep every planned job. Conserved runs still
@@ -79,6 +79,8 @@ first in `.poster-right`, `justify-content: flex-start`, no `overflow: hidden`
 on that column, and a Dock-safe bottom inset of at least 8px. Short viewports
 (`max-height: 920px` / `850px` and `html[data-app-short]`) collapse Uncharted
 and the sector note so at most a quiet COMING SOON line follows Deploy.
+At `max-height: 760px` that line is dropped if the CTA would still fight the
+Dock. Tall viewports keep end-packing when Deploy already clears the Dock.
 Masthead shrinks before the brass DEPLOY control (54px).
 
 Fail UI: `#intro.load-failed` packs RETRY / gold REPORT / gold COPY in the

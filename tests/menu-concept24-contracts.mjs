@@ -13,8 +13,8 @@ assert.match(index,/class="mission-frame"/);
 assert.match(index,/class="poster-body"/);
 assert.match(index,/id="fpsValue"/);
 assert.match(index,/class="ammo-progress"/);
-assert.match(index,/styles\.css\?v=054-32/);
-assert.match(index,/<script src="\.\/src\/app-viewport\.js\?v=054-32"><\/script>/);
+assert.match(index,/styles\.css\?v=054-33/);
+assert.match(index,/<script src="\.\/src\/app-viewport\.js\?v=054-33"><\/script>/);
 assert.doesNotMatch(index,/<script>\s*\(function/);
 const viewport=read('src/app-viewport.js').toString('utf8');
 assert.match(viewport,/visualViewport/);
@@ -37,9 +37,15 @@ assert.match(styles,/@media\(max-height:720px\)[\s\S]*#intro\.mission-poster\.lo
 assert.match(styles,/#intro\.mission-poster \.chapter-copy,/);
 assert.match(styles,/#intro\.mission-poster \.poster-left\{[\s\S]*overflow:hidden/);
 assert.match(styles,/Short-desktop deploy hierarchy/);
+assert.match(styles,/#intro\.mission-poster \.poster-right\{[\s\S]*justify-content:flex-end/);
 assert.match(styles,/#intro\.mission-poster \.poster-right\{[\s\S]*justify-content:flex-start/);
 assert.match(styles,/#intro\.mission-poster \.poster-right\{[\s\S]*overflow:visible/);
 assert.doesNotMatch(styles,/#intro\.mission-poster \.poster-right\{[^}]*overflow:hidden/);
+assert.match(styles,/#intro\.mission-poster \.deployment-action\{[^}]*order:0/);
+assert.match(styles,/#intro\.mission-poster \.poster-soon\{[^}]*order:1/);
+assert.match(styles,/@media\(max-height:760px\)[\s\S]*#intro\.mission-poster \.poster-soon\{display:none\}/);
+assert.match(styles,/@media\(max-height:850px\)[\s\S]*#intro\.mission-poster \.poster-soon h2,[\s\S]*display:none/);
+assert.match(styles,/#intro\.mission-poster \.poster-body\{[\s\S]*align-items:end/);
 for(const id of ['loadingSystems','loadStatus','startButton','loadingFailureDetails','copyLoadingReport','fieldGuideButton','settingsButton','menuMusicButton','reportFailedLoad']){
   assert.equal((index.match(new RegExp(`id="${id}"`,'g'))||[]).length,1,`${id} must appear exactly once`);
 }
@@ -65,6 +71,8 @@ assert.match(viewport,/Math\.min\(24,layout-height-offsetTop\)/);
 assert.match(styles,/@media\(max-height:920px\)/);
 assert.match(styles,/@media\(max-height:920px\)[\s\S]*#intro\.mission-poster \.poster-soon h2,[\s\S]*display:none/);
 assert.match(styles,/@media\(max-height:850px\)[\s\S]*#intro\.mission-poster \.poster-right\{justify-content:flex-start;overflow:visible/);
+assert.match(styles,/@media\(max-height:920px\)[\s\S]*#intro\.mission-poster \.ammo-progress i\{width:14px;height:22px\}/);
+assert.match(styles,/@media\(max-height:920px\)[\s\S]*#intro\.mission-poster #startButton\{min-height:54px\}/);
 assert.match(styles,/padding-bottom:max\(8px/);
 assert.doesNotMatch(styles,/@media\(max-height:720px\)[\s\S]*#intro\.mission-poster #startButton\{[^}]*min-height:50px/);
 assert.match(styles,/html\[data-app-short\] #intro\.mission-poster \.poster-soon h2,/);
