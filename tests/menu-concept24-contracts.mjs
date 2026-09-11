@@ -74,6 +74,7 @@ assert.match(styles,/@media\(max-height:650px\)/);
 assert.match(styles,/#intro\.mission-poster \.mission-footer\{[\s\S]*flex:0 0 auto/);
 assert.match(styles,/#intro\.mission-poster \.mission-footer\{[\s\S]*margin-top:auto/);
 assert.match(styles,/#intro\.mission-poster \.qa-diagnostics/);
+assert.match(styles,/#intro\.mission-poster \.qa-diagnostics:not\(\[open\]\) #reportFailedLoad\{display:none\}/);
 assert.match(styles,/#intro\.mission-poster \.deployment-action\{[\s\S]*flex:0 0 auto/);
 assert.match(styles,/#intro\.mission-poster \.mission-frame\{[\s\S]*height:100%/);
 assert.match(styles,/#intro\.mission-poster #startButton\{[\s\S]*min-height:54px/);
