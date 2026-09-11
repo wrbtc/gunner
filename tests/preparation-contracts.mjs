@@ -15,9 +15,10 @@ function fixture(){
  const airLight=new T.PointLight();airLight.layers.set(1);world.add(airLight);
  const roots=Array.from({length:3},(_,i)=>{const o=new T.Group();o.visible=i===1;o.add(new T.PointLight());world.add(o);return o;});
  const reveal=new T.Group();reveal.visible=true;reveal.add(new T.PointLight());world.add(reveal);
- const originalTarget=new T.WebGLRenderTarget(2,2);let target=originalTarget,lost=false,ready=true,fail=null,delayUniform=0;
+ const originalTarget=new T.WebGLRenderTarget(2,2);let target=originalTarget,lost=false,ready=true,fail=null,delayUniform=0,delayCompile=0;
  const calls=[],props=new Map(),programs=[],progress=[];
  const renderer={getContext:()=>({isContextLost:()=>lost}),getRenderTarget:()=>target,setRenderTarget:t=>{target=t;},getDrawingBufferSize:v=>v.set(1400,900),properties:{get:m=>props.get(m)},compile(selection,view,actualScene){
+  if(delayCompile){const stop=performance.now()+delayCompile;while(performance.now()<stop){}}
   assert.ok(actualScene);assert.notEqual(selection,actualScene);
   const objects=[],sourceLights=[];selection.traverse(o=>objects.push(o));selection.traverseVisible(o=>{if(o.isLight)sourceLights.push(o);});assert.equal(sourceLights.length,0);
   assert.ok(objects.length<=16);let count=0;actualScene.traverseVisible(o=>{if(o.isPointLight&&o.layers.test(view.layers))count++;});
@@ -35,7 +36,7 @@ function fixture(){
  const cinema=createCinematicPass(renderer);
  const restored=()=>{assert.equal(target,originalTarget);assert.equal(camera.layers.mask,19);assert.equal(reveal.visible,true);assert.deepEqual(roots.map(o=>o.visible),[false,true,false]);assert.equal(plane.parent,world);assert.equal(worldObjects[0].parent,world);};
  const options={reveal:[reveal],lightVariants:{roots,maxVisible:2},onProgress:p=>{try{restored();}catch(error){observerErrors.push(error.message);}progress.push(p);}};
- return {world,camera,cinema,options,calls,props,programs,progress,worldObjects,plane,shared,ground,air,roots,reveal,restored,setReady:v=>{ready=v;},setLost:v=>{lost=v;},setFailure:v=>{fail=v;},setDelay:v=>{delayUniform=v;}};
+ return {world,camera,cinema,options,calls,props,programs,progress,worldObjects,plane,shared,ground,air,roots,reveal,restored,setReady:v=>{ready=v;},setLost:v=>{lost=v;},setFailure:v=>{fail=v;},setDelay:v=>{delayUniform=v;},setCompileDelay:v=>{delayCompile=v;}};
 }
 await check('exact-layer-selection-preserves-hidden-materials-and-shared-layer-objects',async()=>{
  const f=fixture();assert.equal(await f.cinema.prepare(f.world,f.camera,f.options),true);
@@ -56,6 +57,20 @@ await check('bound-five-dedup-keeps-all-seven-world-counts-one-cockpit-and-captu
  assert.equal(f.calls.filter(c=>!c.capture&&c.mask===2).length,1);assert.equal(f.calls.filter(c=>c.capture).length,1);assert.equal(f.calls.length,23);
  assert.deepEqual(f.cinema.stats().preparedPointLightCounts,[11,12,13,14,15,16,17]);
  assert.equal(f.progress.find(p=>p.stage==='submit').total,7*36+2+1);f.restored();assert.ok(extra.every(root=>!root.visible));
+});
+await check('slow-compile-conserves-intermediate-light-count-jobs',async()=>{
+ const f=fixture();for(let i=0;i<9;i++)f.world.add(new T.PointLight());
+ const extra=Array.from({length:5},()=>{const root=new T.Group();root.visible=false;root.add(new T.PointLight());f.world.add(root);return root;});
+ f.setCompileDelay(30);
+ const options={...f.options,lightVariants:{roots:[...f.roots,...extra],maxVisible:5},timeoutMs:400};
+ assert.equal(await f.cinema.prepare(f.world,f.camera,options),true);
+ assert.deepEqual([...new Set(worldJobs(f).map(c=>c.count))],[11,17]);
+ assert.equal(f.calls.filter(c=>!c.capture&&c.mask===2).length,1);assert.equal(f.calls.filter(c=>c.capture).length,1);
+ assert.ok(f.calls.length<23);assert.equal(f.calls.length,8);
+ assert.deepEqual(f.cinema.stats().preparedPointLightCounts,[11,17]);
+ const firstSubmit=f.progress.find(p=>p.stage==='submit'),lastSubmit=f.progress.filter(p=>p.stage==='submit').at(-1);
+ assert.equal(firstSubmit.total,7*36+2+1);assert.ok(lastSubmit.total<firstSubmit.total);
+ assert.equal(f.progress.at(-1).stage,'ready');f.restored();assert.ok(extra.every(root=>!root.visible));
 });
 await check('shadow-light-reveal-never-collapses-with-equal-unshadowed-point-count',async()=>{
  const f=fixture();f.reveal.children[0].castShadow=true;await f.cinema.prepare(f.world,f.camera,f.options);

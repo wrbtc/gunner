@@ -1,4 +1,4 @@
-# Release validation — v0.54.26
+# Release validation — v0.54.27
 
 ## Older Intel Safari / short desktop viewport
 
@@ -14,6 +14,29 @@ diagnostic. v0.54.26 replaces that outer wall with a 60-second stall watchdog:
 startup and loading progress re-arm it, while a full interval without progress
 fails as `STARTUP_TIMEOUT` and preserves one bounded pre-timeout snapshot.
 
+Live copy-loading report on **gunner.satoshis.watch** (build 0.54.25, Safari 17.6
+on that Intel class): `loading.active` shaders, progress submit 1392/12616,
+`PREPARATION_TIMEOUT` / "Flight preparation timed out", `preTimeoutSnapshot`
+absent. Trace: collision end ~56799ms, graphics begin ~56800ms, startup failed
+~61327ms (~4.5s into graphics). Visibility at failure: visible.
+
+The primary remaining bug is the **shader submit stall**. At that submit rate
+the remaining light-count jobs still overrun cinematic's 30s budget after the
+watchdog. v0.54.27 conserves intermediate plasma light-count variants when
+remaining serial compile work exceeds 80% of remaining graphics time. Fast
+compilers (modern Safari/Chrome, `compileMs` under 16ms or
+`KHR_parallel_shader_compile`) keep every planned job. Conserved runs still
+compile the in-flight job, the fullest remaining world and cockpit counts, and
+capture, then shrink `progress.total`. Timeout still emits exactly one cinematic
+`preTimeoutSnapshot`. A `PREPARATION_TIMEOUT` fail without a cinematic snapshot
+still attaches deadline evidence so copy-loading reports are never missing
+`preTimeoutSnapshot`.
+
+The menu fix sizes the overlay from `visualViewport` / `100svh` / safe-area
+insets, allows overflow scroll, adds a Dock-safe bottom inset, and adds
+poster-specific `max-height: 760px` / `720px` / `650px` rules. Art, FPS counter,
+and the ammo-progress loader stay in place.
+
 Concept-24 poster CSS (`#intro.mission-poster`, styles class around 054-20-c24)
 did not fit that window:
 
@@ -23,11 +46,6 @@ did not fit that window:
   shrank `.chapter` / `.deployment-bar`, which the poster no longer uses
 - ~1280×800 class with Safari chrome + Dock → about **650–720px** content height
 - footer behind the Dock; COMING SOON / Uncharted compressed; bottom controls cramped
-
-The menu fix sizes the overlay from `visualViewport` / `100svh` / safe-area
-insets, allows overflow scroll, adds a Dock-safe bottom inset, and adds
-poster-specific `max-height: 760px` / `720px` / `650px` rules. Art, FPS counter,
-and the ammo-progress loader stay in place.
 
 A follow-up production screenshot from the same browser class showed two more
 bugs after v0.54.23 shipped `REPORT FAILED LOAD` as a footer `quietButton`:
@@ -41,9 +59,11 @@ This branch moves that control into the Deploy column as a 44px gold
 `.report-load-button`, styles `COPY LOADING REPORT` the same way, and clips
 poster columns so copy cannot paint over the footer.
 
-Load may still fail on this browser class. The visible copy-report control is the
-first diagnostic step; treat a timeout rewrite as a follow-up after that report.
-Inventory:
+Fail UI: `#intro.load-failed` packs the gold RETRY / REPORT FAILED LOAD / COPY
+LOADING REPORT stack to the start of the deploy column so those controls stay
+initially in-viewport on ~650–720px Safari+Dock heights.
+
+Stage budgets after the stall watchdog:
 
 | Stage | Owner | Wall budget | Yield style |
 | --- | --- | --- | --- |
@@ -54,14 +74,13 @@ Inventory:
 | Audio PCM | `prepareBuffers` | min(10s, assembly remaining) | worker; fallback on timeout |
 
 Older integrated Intel graphics with Safari can be a weak GL driver path:
-`KHR_parallel_shader_compile` may be missing, compile/link can block the 30s
-graphics budget, and nested
-`setTimeout(0)` collision slices can spend most of the 30s collision budget idle.
-This revision only changes collision slice scheduling to MessageChannel by
-default (same yield class as graphics prep). Deadlines, shader compile, and
-readiness gates are unchanged. Increasing timeouts alone is not treated as a
-fix. Capture a loading report from this Intel Safari before any broader load
-change.
+`KHR_parallel_shader_compile` may be missing, and compile/link can block the 30s
+graphics budget. Nested `setTimeout(0)` collision slices can spend most of the
+30s collision budget idle. Shader submit now degrades by dropping intermediate
+light-count jobs when projected remaining compile work cannot finish in time.
+A later Intel copy-report should show either a successful boot with
+`compilerNote` `conserved-light-variants`, or a graphics-layer timeout with
+`Graphics preparation timed out` and exactly one cinematic `preTimeoutSnapshot`.
 
 ## Device validation
 

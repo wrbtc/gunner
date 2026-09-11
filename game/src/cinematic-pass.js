@@ -115,7 +115,7 @@ export function createCinematicPass(renderer) {
       for(const listener of entry.listeners)try{listener({...preparationStatus});}catch{}
     };
     async function run(){
-      const started=performance.now(),roots=lightVariants?.roots||[],maximum=lightVariants?.maxVisible??0;
+      const started=performance.now(),deadline=started+timeoutMs,roots=lightVariants?.roots||[],maximum=lightVariants?.maxVisible??0;
       const programs=new Set(),finished=new Set(),pointLightCounts=new Set();
       // Keep the hot path to counters and clock reads. The bounded program list,
       // context query and report object are created once, only if preparation fails.
@@ -243,13 +243,16 @@ export function createCinematicPass(renderer) {
         const signatures=new Set(),jobs=[];
         for(const job of plannedJobs){const signature=lightSignature(job);if(!signatures.has(signature)){signatures.add(signature);jobs.push(job);}}
         jobs.push({capture:true,objects:[quad]});
-        const total=jobs.reduce((sum,job)=>sum+job.objects.length,0);let submitted=0;
+        let total=jobs.reduce((sum,job)=>sum+job.objects.length,0);let submitted=0;
         diag.totalJobs=jobs.length;diag.totalObjects=total;diag.submittedObjects=0;
         setPhase('submit',{jobIndex:0,batchIndex:0});
         report('submit',0,total);await yieldTask();
         if(canceled()){report('canceled',0,total);return false;}assertTime();resize();
-        for(let jobIndex=0;jobIndex<jobs.length;jobIndex++){
-          const job=jobs[jobIndex],jobBatchCount=Math.ceil(Math.max(1,job.objects.length)/16);
+        const remainingJobs=jobs.slice();
+        const batchesFor=job=>Math.ceil(Math.max(1,job.objects.length)/16);
+        let jobIndex=0,conserved=false;
+        while(remainingJobs.length){
+          const job=remainingJobs.shift(),jobBatchCount=batchesFor(job);
           Object.assign(diag,{jobIndex,jobBatchCount,layer:job.capture?null:job.layer,variant:job.capture?'capture':`L${job.layer}:c${job.count}:r${job.revealed}`});
           // Each compile call has at most sixteen original objects. Even empty
           // worlds pass through submit so actual light-count coverage is recorded.
@@ -258,6 +261,26 @@ export function createCinematicPass(renderer) {
             setPhase('compile',{batchIndex});
             const objects=job.objects.slice(offset,offset+16);submit(job,objects);assertTime();
             submitted+=objects.length;diag.submittedObjects=submitted;diag.lastCompletedPhase='compile';
+            // Weak serial compilers (missing KHR_parallel_shader_compile, or a
+            // blocking compile of 16ms+) cannot finish every plasma light-count
+            // variant inside the graphics budget. Keep the in-flight job, the
+            // fullest remaining world and cockpit counts, and capture.
+            if(!conserved&&remainingJobs.length){
+              const compileMs=Math.max(diag.maxCompileMs,diag.recentCompileMs);
+              const compileLooksSerial=diag.parallelCompile===false||compileMs>=16;
+              const currentLeft=Math.max(0,job.objects.length-(offset+objects.length));
+              const remainingWork=(Math.ceil(currentLeft/16)+remainingJobs.reduce((sum,queued)=>sum+batchesFor(queued),0))*Math.max(1,compileMs);
+              if(compileLooksSerial&&remainingWork>Math.max(0,deadline-performance.now())*0.8){
+                conserved=true;
+                const keep=[],lastWorld=[...remainingJobs].reverse().find(queued=>!queued.capture&&queued.layer===0);
+                const lastCockpit=[...remainingJobs].reverse().find(queued=>!queued.capture&&queued.layer===1);
+                const capture=remainingJobs.find(queued=>queued.capture);
+                for(const queued of [lastWorld,lastCockpit,capture])if(queued&&!keep.includes(queued))keep.push(queued);
+                remainingJobs.length=0;remainingJobs.push(...keep);
+                total=submitted+currentLeft+remainingJobs.reduce((sum,queued)=>sum+queued.objects.length,0);
+                diag.totalObjects=total;diag.totalJobs=jobIndex+1+remainingJobs.length;diag.compilerNote='conserved-light-variants';
+              }
+            }
             report('submit',submitted,total);await yieldTask();
           }
           // Finish this variant before adding another queue of shader work.
@@ -275,7 +298,7 @@ export function createCinematicPass(renderer) {
                   timed('uniforms','Uniforms',()=>program.getUniforms());assertTime();diag.lastCompletedPhase='uniforms';
                   timed('attributes','Attributes',()=>program.getAttributes());assertTime();diag.lastCompletedPhase='attributes';
                   const details=program?.diagnostics;
-                  if(details){const note=[details.runnable===false?'not-runnable':'',details.programLog,details.vertexShader?.log,details.fragmentShader?.log].filter(Boolean).join(' | ');if(note)diag.compilerNote=String(note).slice(0,160);}
+                  if(details){const note=[details.runnable===false?'not-runnable':'',details.programLog,details.vertexShader?.log,details.fragmentShader?.log].filter(Boolean).join(' | ');if(note&&diag.compilerNote!=='conserved-light-variants')diag.compilerNote=String(note).slice(0,160);}
                 }finally{recordTiming('Introspect',performance.now()-introspectStarted);}
                 finished.add(program);
               }
@@ -291,6 +314,7 @@ export function createCinematicPass(renderer) {
             if(pending.length&&stalledPolls>=pending.length){stalledPolls=0;await new Promise(resolve=>setTimeout(resolve,10));}
             else await yieldTask();
           }
+          jobIndex++;
         }
         if(canceled()){report('canceled',finished.size,programs.size);return false;}assertTime();
         preparedPrograms=programs.size;preparedPointLightCounts=[...pointLightCounts].sort((a,b)=>a-b);
