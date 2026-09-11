@@ -1,5 +1,5 @@
 {
-  "version": "0.54.27",
+  "version": "0.54.28",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -198,18 +198,18 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 13220,
-      "sha256": "82766da9ea715a21937e06cf537bb68e156beb8278aee0d1958c0fa58d90cf3e"
+      "bytes": 13164,
+      "sha256": "75c38cf6b0a8fc56538385aae713aa32373bb9797527ef93da1f47dffe278c11"
     },
     {
       "path": "game/main.js",
       "bytes": 157915,
-      "sha256": "10349b3ae81487f45de7d956437c75cdcd2b052307b3f19f8fa3a7004d6dd0ff"
+      "sha256": "ee9061a416a36d0c0851c75eeda1e6ebecaa6a71a23891b9aca470b6e88a6ecc"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "74224114d94fb1ae692dd25f5ee72c3a99bd835948c4109031c7eb9d913a3ff4"
+      "sha256": "6fcc1879c39e5c17ef31e6da3c7ea9a69f535a2f6ff9fbae868c778205064d64"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -218,8 +218,8 @@
     },
     {
       "path": "game/src/app-viewport.js",
-      "bytes": 1101,
-      "sha256": "1cb8e0931dc98a8cb74e5a65600561784e614223b9db0c36be87e866dbc442f8"
+      "bytes": 1504,
+      "sha256": "a575addac3b247be15152e5d344ff340b9088531770d1316e3945f307def31b8"
     },
     {
       "path": "game/src/ash-volume.js",
@@ -404,7 +404,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 24527,
-      "sha256": "2bbe5d9c670efe10ee7f035609ffb3d27efa799cbbabd02865ca3c66117fef9d"
+      "sha256": "c4cc0c93d452526c9b13cf28cfb3cf35f87ff8a8b1824227751a8e188cb4cc6e"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -573,8 +573,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 50725,
-      "sha256": "a8da8d9c41b7895cfe40f3f52fd7ba65a4f349f50f8d0bff219509050cd98b22"
+      "bytes": 55007,
+      "sha256": "2cdf7cdc0ae65180dde4ffad65693a71c0002c37c5b5d135f79b2e6ffbda0c61"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.27 runtime with Intel-class shader light-count conservation, a progress-sensitive startup stall watchdog, timeout reports that always include one preTimeoutSnapshot, CSP-compatible short-desktop and Dock-safe briefing, visible loading-report controls, MessageChannel collision preparation, supplied Queen cinematic samples, explicit music consent, bounded graphics diagnostics and an in-flight FPS counter. Public privacy adaptations retained; sustained cross-platform performance acceptance remains pending."
+  "note": "Gunner v0.54.28 runtime with the short-desktop deployment controls kept inside 864px, 720px, and 650px viewports, a visible failed-load report path, supplied Queen cinematic samples, explicit click-to-play music consent, bounded graphics diagnostics, and an in-flight FPS counter. Public privacy adaptations retained; physical Intel Safari performance acceptance remains pending."
 }
