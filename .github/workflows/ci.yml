@@ -1,0 +1,74 @@
+name: Gunner CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gunner-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: JavaScript release contracts
+        run: npm test
+      - name: Python backend contracts
+        run: |
+          python -m pip install --disable-pip-version-check -r backend/requirements.txt
+          python -m unittest discover -s tests -p 'test_*.py'
+      - name: Source manifest and privacy gate
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          import re
+          import subprocess
+
+          package = json.loads(Path("package.json").read_text())
+          manifest = json.loads(Path("SOURCE-MANIFEST.json").read_text())
+          assert manifest["version"] == package["version"]
+          expected = {
+              row["path"]: {"bytes": row["bytes"], "sha256": row["sha256"]}
+              for row in manifest["files"]
+          }
+          actual = {}
+          for path in sorted(Path("game").rglob("*")):
+              assert not path.is_symlink()
+              if path.is_file():
+                  body = path.read_bytes()
+                  actual[path.as_posix()] = {
+                      "bytes": len(body),
+                      "sha256": hashlib.sha256(body).hexdigest(),
+                  }
+          assert actual == expected
+          metadata = subprocess.check_output(
+              ["git", "log", "--format=%an%x00%ae%x00%cn%x00%ce"], text=True
+          ).splitlines()
+          expected_identity = "Gunner contributors\0contributors@users.noreply.github.com\0Gunner contributors\0contributors@users.noreply.github.com"
+          assert metadata and all(row == expected_identity for row in metadata)
+          private_path = re.compile(rb"/(?:Users|home)/[A-Za-z0-9._-]+/")
+          for root in (Path("game"), Path("tests"), Path("backend")):
+              for path in root.rglob("*"):
+                  if path.is_file() and not path.is_symlink():
+                      assert not private_path.search(path.read_bytes()), path
+          PY
