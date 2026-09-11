@@ -67,8 +67,13 @@ jobs:
           expected_identity = "Gunner contributors\0contributors@users.noreply.github.com\0Gunner contributors\0contributors@users.noreply.github.com"
           assert metadata and all(row == expected_identity for row in metadata)
           private_path = re.compile(rb"/(?:Users|home)/[A-Za-z0-9._-]+/")
+          email_pattern = re.compile(rb"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I)
+          text_suffixes = {".css", ".html", ".js", ".json", ".md", ".mjs", ".py", ".txt"}
           for root in (Path("game"), Path("tests"), Path("backend")):
               for path in root.rglob("*"):
                   if path.is_file() and not path.is_symlink():
-                      assert not private_path.search(path.read_bytes()), path
+                      body = path.read_bytes()
+                      assert not private_path.search(body), path
+                      if path.suffix.lower() in text_suffixes and path.name not in {"KOKORO-CODE-LICENSE.txt", "THIRD-PARTY-NOTICES.md"}:
+                          assert not email_pattern.search(body), path
           PY
