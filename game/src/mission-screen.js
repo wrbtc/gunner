@@ -134,7 +134,7 @@ export const loadingSnapshot=()=>Object.freeze({...loading.snapshot(),trace:star
 export const loadingStage=id=>{const ok=loading.complete(id);if(ok)bootHeartbeat();return ok;};
 export const loadingProgress=(id,detail)=>{const ok=loading.begin(id,detail);if(ok)bootHeartbeat();return ok;};
 export const loadingReady=()=>loading.ready();
-const REPORT_BUILD='0.54.33',REPORT_ORIGINS=['https://gunner.satoshis.watch','http://127.0.0.1:8000'];
+const REPORT_BUILD='0.54.34',REPORT_ORIGINS=['https://gunner.satoshis.watch','http://127.0.0.1:8000'];
 export function bootTimeoutEvidence(state,error){
  const progress=state?.progress,events=state?.trace?.events||[],last=events.at(-1);
  const elapsed=Number.isFinite(last?.at)?Math.round(last.at):null;

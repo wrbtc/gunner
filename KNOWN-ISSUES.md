@@ -1,4 +1,4 @@
-# Release validation — v0.54.33
+# Release validation — v0.54.34
 
 ## Older Intel Safari / short desktop viewport
 
