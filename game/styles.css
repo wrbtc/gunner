@@ -494,28 +494,40 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
   #intro.mission-poster .poster-soon{text-align:left}
   #intro.mission-poster .deployment-action{max-width:none;margin-left:0}
 }
-/* Short Safari windows (13-inch MacBook + toolbar + Dock): compact type, keep chrome in-flow. */
+/* Dock-safe bottom inset on short windows. 13-inch 1280×800 + Safari chrome + Dock. */
 @media(max-height:850px){
   #intro.mission-poster .mission-frame{
     padding-top:max(12px,env(safe-area-inset-top,0px));
     padding-bottom:max(56px,env(safe-area-inset-bottom,0px),var(--app-inset-bottom,0px));
   }
+  #intro.mission-poster .poster-body{align-items:stretch}
+  #intro.mission-poster .poster-right{justify-content:flex-end}
+}
+/* Poster-specific 760px compaction. Legacy max-height:760px only shrank .chapter / .deployment-bar, not this overlay. */
+@media(max-height:760px){
   #intro.mission-poster .mission-masthead{padding-bottom:8px;margin-bottom:10px}
   #intro.mission-poster .mission-masthead h1{font-size:clamp(48px,7vw,76px);margin:6px 0 0}
-  #intro.mission-poster .poster-body{align-items:stretch;gap:clamp(12px,2vh,24px)}
+  #intro.mission-poster .poster-body{gap:clamp(12px,2vh,24px)}
   #intro.mission-poster .poster-left{gap:12px}
   #intro.mission-poster .poster-chapter h2{font-size:clamp(32px,4.4vw,52px);margin:4px 0 6px}
   #intro.mission-poster .poster-soon h2{font-size:18px;margin:4px 0;line-height:1.1}
   #intro.mission-poster .mission-orders{padding-top:10px}
   #intro.mission-poster .mission-orders p{font-size:15px;margin:4px 0}
-  #intro.mission-poster .poster-right{gap:10px;justify-content:flex-end}
+  #intro.mission-poster .poster-right{gap:10px}
   #intro.mission-poster .mission-footer{margin-top:10px;padding-top:8px}
   #intro.mission-poster #loadingSystems{margin-bottom:8px}
 }
-@media(max-height:700px){
+/* ~650–720px Safari content height on the Intel 13-inch (Phil QA). Keep Uncharted/footer from colliding. */
+@media(max-height:720px){
   #intro.mission-poster .mission-masthead h1{font-size:clamp(40px,6.4vw,58px)}
   #intro.mission-poster .poster-soon .sector-note{display:none}
   #intro.mission-poster .mission-orders>span:last-child{display:none}
   #intro.mission-poster #startButton{padding:13px 16px;min-height:46px}
   #intro.mission-poster .ammo-progress i{height:20px}
+}
+@media(max-height:650px){
+  #intro.mission-poster .mission-frame{
+    padding-bottom:max(64px,env(safe-area-inset-bottom,0px),var(--app-inset-bottom,0px));
+  }
+  #intro.mission-poster .poster-chapter p{font-size:14px}
 }

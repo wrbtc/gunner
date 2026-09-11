@@ -2,22 +2,29 @@
 
 ## Intel MacBook Pro 2016 / Monterey Safari (Iris 550)
 
-Confirmed from About This Mac on a live Hive (`hive.satoshis.watch`) screenshot:
-MacBook Pro (13-inch, 2016, Four Thunderbolt 3 Ports), macOS Monterey 12.7.6,
-2.9 GHz Dual-Core Intel Core i5, 8 GB 2133 MHz LPDDR3, Intel Iris Graphics 550
-1536 MB, Safari. The concept-24 poster menu did not fit: bottom chrome
-(MOUSE / SPACE, COMING SOON / Uncharted, ammo-progress ticks) sat under the
-macOS Dock on a short Safari window.
+Phil (QA) confirmed the Intel device and the menu diagnosis on live Hive
+(`hive.satoshis.watch`): MacBook Pro (13-inch, 2016, Four Thunderbolt 3 Ports),
+macOS Monterey 12.7.6, 2.9 GHz Dual-Core Intel Core i5, 8 GB 2133 MHz LPDDR3,
+Intel Iris Graphics 550 1536 MB, Safari. About This Mac in the original
+screenshot matches this box.
 
-The poster overlay used a full layout-viewport box (`position:fixed; inset:0`
-plus `overflow:hidden`) with bottom-aligned copy. That combination loses to
-Safari chrome + Dock + an 800-logical-pixel 13-inch display. The menu fix sizes
-the overlay from `visualViewport` / `100svh` / safe-area insets, keeps footer and
-loader in-flow, and compacts type on short heights. Art and FPS counter are
-unchanged.
+Concept-24 poster CSS (`#intro.mission-poster`, styles class around 054-20-c24)
+did not fit that window:
 
-Load still fails on this class of machine in the same family as the M1 Safari
-collision/shader timeouts below. Inventory:
+- `overflow:hidden` clipped the overlay instead of scrolling
+- `.poster-body` packed to the bottom (`align-items:end`)
+- no short-viewport poster compaction — legacy `@media(max-height:760px)` only
+  shrank `.chapter` / `.deployment-bar`, which the poster no longer uses
+- ~1280×800 class with Safari chrome + Dock → about **650–720px** content height
+- footer behind the Dock; COMING SOON / Uncharted compressed; bottom controls cramped
+
+The menu fix sizes the overlay from `visualViewport` / `100svh` / safe-area
+insets, allows overflow scroll, adds a Dock-safe bottom inset, and adds
+poster-specific `max-height: 760px` / `720px` / `650px` rules. Art, FPS counter,
+and the ammo-progress loader stay in place.
+
+Load still fails on this class of machine. Roland will supply a COPY LOADING
+REPORT separately; treat load as triage until that report lands. Inventory:
 
 | Stage | Owner | Wall budget | Yield style |
 | --- | --- | --- | --- |
