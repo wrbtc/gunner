@@ -5,8 +5,12 @@ Fly through a volcanic canyon, destroy nests and creatures, and survive the Quee
 
 **Play Gunner: https://gunner.satoshis.watch/**
 
-This is the **v0.54.19 runtime with the concept-24 menu**, matching current
-production. It includes the full-poster chapter presentation, complete
+This is the **v0.54.23 runtime with the concept-24 menu**, matching current
+production. It adds Bruno and Gina's Queen reveal growl and raised-arms shriek,
+timed to the cinematic, and keeps menu/outcome music silent until the player
+explicitly presses `PLAY MUSIC`. The briefing also includes `REPORT FAILED LOAD`,
+which opens a bounded copyable diagnostic without failing the loader or sending
+data automatically. It includes the full-poster chapter presentation, complete
 walkie-radio voice set, current aircraft and field guide, opening and outcome
 presentation, the 24-stage loading path, bounded Safari graphics diagnostics,
 and an always-visible in-flight FPS counter.
@@ -44,7 +48,7 @@ failure diagnostics are enabled on the public game and at `http://127.0.0.1:8000
 The v0.54.8 loading fixes received a smooth-play report on an Apple M3. A later
 Safari report on an older macOS machine reached the loaded game, but the machine
 was not confirmed to be Apple silicon. Apple M1 acceptance therefore remains
-pending. v0.54.19 adds bounded shader-preparation evidence to failure reports
+pending. v0.54.19 added bounded shader-preparation evidence to failure reports
 and an FPS readout for real-device testing. The concept-24 release changes only
 the menu structure, styling and chapter image. No claim of universal browser
 support or sustained frame rate is made.
@@ -112,6 +116,6 @@ for some original models, illustrations and dialogue audio.
 homepage and HTML canonical/Open Graph URLs point there. The public repository
 does not advertise internal testing sites.
 
-This export matches the production v0.54.19 runtime with the concept-24 menu,
+This export matches the production v0.54.23 runtime with the concept-24 menu,
 subject only to the publication adaptations listed above. Telemetry remains disabled. See
 [KNOWN-ISSUES.md](KNOWN-ISSUES.md) for the testing limits.

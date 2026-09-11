@@ -47,7 +47,7 @@ if (typeof document !== 'undefined') {
     root: document.documentElement,
     notice: document.getElementById('device-notice'),
     heading: document.getElementById('device-heading'),
-    load: async source => { await import('./src/menu-music.js?v=054-16');const briefing=await import('./src/mission-screen.js?v=054-19');failLoading=briefing.loadingFailure;return import(source); },
+    load: async source => { await import('./src/menu-music.js?v=054-22');const briefing=await import('./src/mission-screen.js?v=054-23-report');failLoading=briefing.loadingFailure;return import(source); },
     source: entry.dataset.gameEntry,
     onError: showFailure,
   });

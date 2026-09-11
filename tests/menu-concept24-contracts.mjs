@@ -13,11 +13,19 @@ assert.match(index,/class="mission-frame"/);
 assert.match(index,/class="poster-body"/);
 assert.match(index,/id="fpsValue"/);
 assert.match(index,/class="ammo-progress"/);
-assert.match(index,/styles\.css\?v=054-21-vv2/);
+assert.match(index,/styles\.css\?v=054-23-report/);
 assert.match(index,/visualViewport/);
 assert.match(index,/--app-height/);
 assert.match(index,/--app-inset-bottom/);
-for(const id of ['loadingSystems','loadStatus','startButton','loadingFailureDetails','copyLoadingReport','fieldGuideButton','settingsButton','menuMusicButton']){
+assert.match(index,/id="reportFailedLoad"[^>]*class="report-load-button"/);
+assert.match(index,/id="copyLoadingReport" class="report-load-button"/);
+assert.ok(index.indexOf('id="startButton"')<index.indexOf('id="reportFailedLoad"'));
+assert.ok(index.indexOf('id="reportFailedLoad"')<index.indexOf('class="mission-footer"'));
+assert.match(styles,/#intro\.mission-poster \.report-load-button\{/);
+assert.match(styles,/#intro\.mission-poster \.report-load-button\{[\s\S]*min-height:44px/);
+assert.match(styles,/#intro\.mission-poster \.chapter-copy,/);
+assert.match(styles,/#intro\.mission-poster \.poster-body\{[\s\S]*overflow:hidden/);
+for(const id of ['loadingSystems','loadStatus','startButton','loadingFailureDetails','copyLoadingReport','fieldGuideButton','settingsButton','menuMusicButton','reportFailedLoad']){
   assert.equal((index.match(new RegExp(`id="${id}"`,'g'))||[]).length,1,`${id} must appear exactly once`);
 }
 assert.match(styles,/#intro\.mission-poster>\.chapter-image\{/);

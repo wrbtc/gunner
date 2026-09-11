@@ -439,22 +439,23 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
   flex:1 1 auto;display:grid;
   grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr);
   gap:clamp(18px,4vw,48px);align-items:end;
-  min-height:0;
+  min-height:0;overflow:hidden;
 }
-#intro.mission-poster .poster-left{display:flex;flex-direction:column;gap:22px;max-width:520px;min-height:0}
-#intro.mission-poster .poster-chapter{position:static;left:auto;bottom:auto;right:auto}
+#intro.mission-poster .poster-left{display:flex;flex-direction:column;gap:22px;max-width:520px;min-height:0;min-width:0;overflow:hidden}
+#intro.mission-poster .chapter-copy,
+#intro.mission-poster .poster-chapter{position:static;left:auto;top:auto;right:auto;bottom:auto;overflow:hidden;min-width:0}
 #intro.mission-poster .poster-chapter h2{
   font:clamp(42px,5.5vw,72px)/1 Impact,'Arial Narrow',sans-serif;
   letter-spacing:.03em;margin:8px 0 10px;color:#ebe7d7;
   text-shadow:0 2px 18px rgba(0,0,0,.7);
 }
 #intro.mission-poster .poster-chapter p{
-  font:15px/1.5 system-ui,sans-serif;color:#e4e6da;margin:0;
+  font:15px/1.45 system-ui,sans-serif;color:#e4e6da;margin:0;
   text-shadow:0 1px 10px rgba(0,0,0,.75);
 }
 #intro.mission-poster .chapter-number{color:#d4bf82;text-shadow:0 1px 8px rgba(0,0,0,.7)}
 #intro.mission-poster .mission-orders{
-  border-top:1px solid rgba(235,231,215,.18);padding-top:14px;
+  border-top:1px solid rgba(235,231,215,.18);padding-top:14px;flex:0 0 auto;
 }
 #intro.mission-poster .mission-orders p{
   font:700 18px/1.35 system-ui,sans-serif;color:#f0ecdf;margin:6px 0;
@@ -463,10 +464,10 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 #intro.mission-poster .mission-orders>span:last-child{color:#c9d0bc}
 #intro.mission-poster .poster-right{
   display:flex;flex-direction:column;align-items:stretch;gap:16px;
-  justify-content:flex-end;min-height:0;
+  justify-content:flex-end;min-height:0;min-width:0;overflow:hidden;
 }
 #intro.mission-poster .poster-soon{
-  text-align:right;color:#c5cbb8;flex:0 0 auto;
+  text-align:right;color:#c5cbb8;flex:0 0 auto;overflow:hidden;min-width:0;
 }
 #intro.mission-poster .poster-soon h2{
   font:22px/1.15 Impact,sans-serif;letter-spacing:.1em;margin:6px 0;color:#e6e2d2;
@@ -474,18 +475,32 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 #intro.mission-poster .poster-soon .sector-note{
   max-width:none;margin:0;font:12px/1.45 system-ui,sans-serif;color:#aeb6a0;
 }
-#intro.mission-poster .deployment-action{width:100%;max-width:340px;margin-left:auto;flex:0 0 auto}
-#intro.mission-poster #loadingSystems{flex-direction:column;align-items:stretch;gap:8px;margin-bottom:10px}
+#intro.mission-poster .deployment-action{width:100%;max-width:340px;margin-left:auto;flex:0 0 auto;display:flex;flex-direction:column;gap:10px}
+#intro.mission-poster #loadingSystems{flex-direction:column;align-items:stretch;gap:8px;margin-bottom:0}
 #intro.mission-poster #loadStatus{text-shadow:0 1px 8px rgba(0,0,0,.8)}
 #intro.mission-poster #startButton{
   width:100%;background:#c4aa68;border-color:#c4aa68;color:#0b100b;
   font:700 13px/1 system-ui,sans-serif;letter-spacing:.12em;padding:16px 18px;
 }
 #intro.mission-poster #startButton:disabled{opacity:.72}
+#intro.mission-poster .report-load-button{
+  display:block;width:100%;max-width:340px;margin:0;min-height:44px;padding:13px 16px;
+  background:#c4aa68;border:1px solid #e7d29b;color:#0b100b;
+  font:700 12px/1.15 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;
+  box-shadow:0 0 0 3px rgba(6,10,7,.55);text-shadow:none;cursor:pointer;
+}
+#intro.mission-poster .report-load-button:hover,
+#intro.mission-poster .report-load-button:focus-visible{
+  background:#e3c888;outline:2px solid #ffe7a8;outline-offset:3px;
+}
+#intro.mission-poster .loading-failure{margin-top:0}
+#intro.mission-poster .loading-failure .report-load-button{margin:8px 0 0}
 #intro.mission-poster .mission-footer{
   flex:0 0 auto;margin-top:18px;border-top:1px solid rgba(235,231,215,.18);
-  padding-top:12px;color:#d7ddcb;
+  padding-top:12px;color:#d7ddcb;position:relative;z-index:3;flex-wrap:wrap;gap:12px;
+  background:linear-gradient(0deg,rgba(6,10,7,.72),rgba(6,10,7,.2));
 }
+#intro.mission-poster .mission-links{flex-wrap:wrap;row-gap:8px}
 #intro.mission-poster .mission-footer p{color:#c5ccb6;text-shadow:0 1px 8px rgba(0,0,0,.7)}
 #intro.mission-poster .mission-links .quietButton{color:#e8e6d8;text-shadow:0 1px 8px rgba(0,0,0,.7)}
 @media(max-width:850px){
@@ -522,8 +537,12 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
   #intro.mission-poster .mission-masthead h1{font-size:clamp(40px,6.4vw,58px)}
   #intro.mission-poster .poster-soon .sector-note{display:none}
   #intro.mission-poster .mission-orders>span:last-child{display:none}
+  #intro.mission-poster .poster-chapter p{
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
   #intro.mission-poster #startButton{padding:13px 16px;min-height:46px}
   #intro.mission-poster .ammo-progress i{height:20px}
+  #intro.mission-poster .report-load-button{min-height:44px;padding:12px 14px}
 }
 @media(max-height:650px){
   #intro.mission-poster .mission-frame{

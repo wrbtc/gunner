@@ -1,9 +1,10 @@
-import {menuMusic} from './src/menu-music.js?v=054-16';
+import {menuMusic} from './src/menu-music.js?v=054-22';
 import {missionBenchmark,missionRating,createRankReveal} from './src/mission-rating.js?v=054-6';
-import {setGuideModelProvider,guideViewerStats,loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-19';
+import {setGuideModelProvider,guideViewerStats,loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-23-report';
 import {createPlayTracking} from './src/play-tracking.js?v=052';
 import {createPilotRadio} from './src/pilot-radio.js?v=054-16';
-import {createQueenEncounter} from './src/queen-encounter.js?v=052';
+import {createQueenEncounter} from './src/queen-encounter.js?v=054-22';
+import {installQueenSampleCues} from './src/queen-sample-cues.js?v=054-22';
 import {createPlasmaBursts} from './src/plasma-burst.js?v=054-5';
 import {createPlasmaBugs} from './src/plasma-bugs.js?v=054-5';
 import {riverWidthAt,NESTING_POOLS} from './src/river-profile.js?v=052';
@@ -626,6 +627,7 @@ const cannonRounds=cannonVisuals.rounds;let cannonCursor=0;
 
 // ----- Original synthesized gun mechanisms and canyon audio -----
 const audio=new MayhemSoundEngine();
+const queenSampleCues=installQueenSampleCues(audio,{growl:$('#queenRevealGrowl'),shriek:$('#queenArmsShriek')});
 const gunHeat=createGatlingHeat();
 const rotorAudioStates=craft.guns.map(g=>({speed:0,side:g.side,held:false}));
 function updateGunMechanisms(dt){
@@ -1044,7 +1046,7 @@ function fixedUpdate(dt){
   game.time+=dt;queen?.update(dt,game.time);
   if(lastQueenPhase!==queen?.phase){
    lastQueenPhase=queen?.phase;
-   if(queen.phase==='calm'&&!runReview.queenReached){runReview.queenReached=true;audio.setScene('queen-calm');audio.cue('queen-reveal');
+   if(queen.phase==='calm'&&!runReview.queenReached){runReview.queenReached=true;audio.setScene('queen-calm');
     const before=game.hull;game.hull=Math.max(game.hull,60);runReview.repair=game.hull-before;
     runReview.lastCue=runReview.repair?'EMERGENCY PATCH · HULL RESTORED TO 60':'NESTING GROUND · HOLD FIRE';runReview.cueUntil=game.time+7;
     logEvent('queen-emergency-patch',{before,after:game.hull,repair:runReview.repair});
@@ -1214,6 +1216,7 @@ function render(now){
 
 function reset(){
   pilot?.reset();
+  queenSampleCues.stop();
   lastQueenPhase='dormant';
   gunHeat.reset();hitFeedback.reset();hellWorld.skyActivity.reset?.();
   Object.assign(runReview,{damage:[],shots:0,hits:0,interruptions:0,repair:0,queenReached:false,lastCue:'',cueUntil:0,killUntil:0,armorUntil:0});
@@ -1242,12 +1245,12 @@ function start({skipOpening=false,legacyRoute=false}={}){
   menuMusic?.setActive(false);
   const measure=!firstStartMeasured;if(measure)startupMark('first-start-reset','begin');reset();if(measure)startupMark('first-start-reset','end');game.running=true;game.flightStart=legacyRoute?0:APPROACH_END;dom.intro.hidden=true;
   playTracking.start();
-  if(measure)startupMark('first-start-audio','begin');audio.start();if(measure){startupMark('first-start-audio','end');firstStartMeasured=true;}void pilot?.prime();audio.setScene(skipOpening?'canyon':'approach');if(!QA_MODE)requestPointerCapture();
+  if(measure)startupMark('first-start-audio','begin');audio.start();queenSampleCues.prime();if(measure){startupMark('first-start-audio','end');firstStartMeasured=true;}void pilot?.prime();audio.setScene(skipOpening?'canyon':'approach');if(!QA_MODE)requestPointerCapture();
   if(skipOpening){dom.hud.classList.add('visible');updatePlane(0);logEvent('run-start');}
   else{game.opening=true;dom.opening.hidden=false;dom.hud.classList.remove('visible');updatePlane(0);updateOpeningPresentation();logEvent('opening-start');}
 }
-function pause(){if((!game.running&&!endingFlight?.active)||game.paused)return;game.paused=true;game.accumulator=0;game.gunHeld=false;audio.pause();menuMusic?.setActive(true);dom.pause.hidden=false;$('#pauseEyebrow').textContent='FLIGHT SUSPENDED';$('#pauseTitle').textContent='PAUSED';$('#pauseDescription').textContent='The plane and every attack are frozen.';dom.resume.textContent=endingFlight?.active?'CONTINUE THE LAST FLIGHT':game.opening?'CONTINUE THE APPROACH':'RETURN TO THE GUN';document.exitPointerLock?.();dom.resume.focus({preventScroll:true});logEvent('paused');}
-function resume(){if(!game.paused||game.contextLost)return;game.paused=false;game.accumulator=0;dom.pause.hidden=true;menuMusic?.setActive(false);audio.start();if(!endingFlight?.started&&!QA_MODE)requestPointerCapture();game.lastFrame=performance.now()/1000;logEvent('resumed');}
+function pause(){if((!game.running&&!endingFlight?.active)||game.paused)return;game.paused=true;game.accumulator=0;game.gunHeld=false;audio.pause();if(!queen?.cinematic)queenSampleCues.pause();menuMusic?.setActive(true);dom.pause.hidden=false;$('#pauseEyebrow').textContent='FLIGHT SUSPENDED';$('#pauseTitle').textContent='PAUSED';$('#pauseDescription').textContent='The plane and every attack are frozen.';dom.resume.textContent=endingFlight?.active?'CONTINUE THE LAST FLIGHT':game.opening?'CONTINUE THE APPROACH':'RETURN TO THE GUN';document.exitPointerLock?.();dom.resume.focus({preventScroll:true});logEvent('paused');}
+function resume(){if(!game.paused||game.contextLost)return;game.paused=false;game.accumulator=0;dom.pause.hidden=true;menuMusic?.setActive(false);audio.start();queenSampleCues.resume();if(!endingFlight?.started&&!QA_MODE)requestPointerCapture();game.lastFrame=performance.now()/1000;logEvent('resumed');}
 const playTracking=createPlayTracking({enabled:false,
   snapshot:()=>({score:Math.max(0,Math.round(game.score)),hull:Math.max(0,Math.min(100,Math.round(game.hull))),eggs:eggNests?.rupturedCount()||0,progress:Math.round(Math.max(0,Math.min(1,currentFlightProgress()))*10000)})});
 addEventListener('pagehide',()=>playTracking.flush());
@@ -1459,7 +1462,7 @@ function qaCoreChecks(){
   return {kind:'diagnostic-core-checks',passed:checks.filter(c=>c.pass).length,total:checks.length,checks};
 }
 const qaApi={
-  version:'0.54.19',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
+  version:'0.54.23',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
   start:()=>start({skipOpening:true,legacyRoute:true}),beginOpening:()=>start(),skipOpening:()=>finishOpening(true),openingState:()=>({active:game.opening,title:game.title,time:game.openingTime,phase:openingPhase,flightProgress:currentFlightProgress(),camera:camera.position.toArray(),quaternion:camera.quaternion.toArray(),fov:camera.fov,fade:Number(dom.openingFade.style.opacity)||0,exterior:bomberExterior?.stats(),cameraPath:openingCamera?.stats()}),seekOpening:(seconds)=>{game.openingTime=THREE.MathUtils.clamp(seconds,0,OPENING_SECONDS);game.captureFreeze=true;updatePlane(0);updateOpeningPresentation();return true;},reset:qaReset,pause,resume,setTime:(seconds)=>{game.time=THREE.MathUtils.clamp(seconds,0,RUN_SECONDS);updatePlane(0);creatureTracking?.seek(game.time);},setView:(yaw,pitch)=>{game.yaw=yaw;game.pitch=THREE.MathUtils.clamp(pitch,-1.38,.95);updatePlane(0);},turnAround,toggleRear:turnAround,fireCannon,fireRound,damage:(amount=6)=>damageHull(amount,planePos),explode:()=>explode(planePos.clone().addScaledVector(planeTangent,70),14),preview:setPreview,
   events:()=>game.eventLog.slice(),runtime:gunnerRuntime,trace:qaTrace,replay:qaReplay,checkCore:qaCoreChecks,
   aimAt:(target)=>{const actor=typeof target==='string'?enemies.concat(siege).find(e=>e.id===target):null;qaAimAt(actor?actorCenter(actor):new THREE.Vector3().fromArray(target));},
@@ -1642,7 +1645,7 @@ pilot=createPilotRadio({audio,caption:$('#pilotCaption'),voiceVolume:preferences
 ratingBenchmark=missionBenchmark({eggs:eggNests.eggs.length,enemies:enemies.map(enemyKind),fodder:scenicDemons.length,siege:siege.length,plasma:plasmaBugs.actors.length,dragonSlots:hellWorld.skyActivity.dragons.length,queenArms:queen.arms.length});
 Object.assign(gunnerRuntime,{guideViewerStats,rankReveal,missionRating:score=>missionRating(score,ratingBenchmark),ratingBenchmark,showRank,gunBubble,pilot,atmosphereBatches,hitFeedback,queen,plasmaBursts,plasmaBugs,rimmers,tankerBugs,tankerSpray,sampleDanceBudget,danceDeviceBudget,danceSite,windowDamage,hellWorld,mayhemFX,cannonVisuals,CANNON,assetKit,cinematic,hordeField,creatureTracking,bankDemons,blastWorld,eggNests,romanRuins,assetsReady:true,assetFallback:worldBootstrap.degraded||assetBootstrap.degraded,bomberExterior,openingCamera,endingFlight,highScores,endRun,skipEnding,finishOpening,currentFlightProgress,presentationClock});
 const volumeInput=$('#volume'),sensitivityInput=$('#sensitivity'),fovInput=$('#fov');
-volumeInput.addEventListener('input',()=>{preferences.volume=Number(volumeInput.value)/100;audio.setVolume(preferences.volume);savePreferences();});
+volumeInput.addEventListener('input',()=>{preferences.volume=Number(volumeInput.value)/100;audio.setVolume(preferences.volume);queenSampleCues.syncVolume();savePreferences();});
 $('#voiceVolume').addEventListener('input',()=>{preferences.voice=Number($('#voiceVolume').value)/100;pilot.setVolume(preferences.voice);savePreferences();});
 $('#pilotCaptions').addEventListener('change',()=>{preferences.captions=$('#pilotCaptions').checked;pilot.setCaptions(preferences.captions);savePreferences();});
 $('#musicVolume').addEventListener('input',()=>{preferences.music=Number($('#musicVolume').value)/100;audio.setMusicVolume(preferences.music);savePreferences();});
@@ -1658,7 +1661,7 @@ try{const saved=JSON.parse(localStorage.getItem('gunner-settings-v1')||'{}');
 }catch{}
 $('#voiceVolume').value=preferences.voice*100;$('#pilotCaptions').checked=preferences.captions;pilot.setVolume(preferences.voice);pilot.setCaptions(preferences.captions);
 volumeInput.value=preferences.volume*100;$('#musicVolume').value=preferences.music*100;sensitivityInput.value=preferences.sensitivity*100;fovInput.value=playerFov;$('#invertAim').checked=preferences.invert;$('#reducedEffects').checked=preferences.reduced;
-audio.setVolume(preferences.volume);audio.setMusicVolume(preferences.music);camera.fov=playerFov;camera.updateProjectionMatrix();mayhemFX.setReducedEffects(preferences.reduced);
+audio.setVolume(preferences.volume);queenSampleCues.syncVolume();audio.setMusicVolume(preferences.music);camera.fov=playerFov;camera.updateProjectionMatrix();mayhemFX.setReducedEffects(preferences.reduced);
 settingsReady=true;$('#settingsButton').disabled=false;sceneAssemblyComplete=true;
 // Render the completed scene while preparing exact static collisions in yielded slices.
 // Start stays disabled until first-use work is finished; no index build lands on the first shot.

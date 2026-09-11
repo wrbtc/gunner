@@ -133,7 +133,7 @@ export const loadingSnapshot=()=>Object.freeze({...loading.snapshot(),trace:star
 export const loadingStage=id=>loading.complete(id);
 export const loadingProgress=(id,detail)=>loading.begin(id,detail);
 export const loadingReady=()=>loading.ready();
-const REPORT_BUILD='0.54.19',REPORT_ORIGINS=['https://gunner.satoshis.watch','http://127.0.0.1:8000'];
+const REPORT_BUILD='0.54.23',REPORT_ORIGINS=['https://gunner.satoshis.watch','http://127.0.0.1:8000'];
 const reportText=(value,limit)=>String(value??'').slice(0,limit);
 export function buildLoadingFailureReport(state,{origin=globalThis.location?.origin,userAgent=globalThis.navigator?.userAgent,visibilityState=globalThis.document?.visibilityState}={}){
  if(state?.status!=='failed')return null;
@@ -147,14 +147,19 @@ export function buildLoadingFailureReport(state,{origin=globalThis.location?.ori
  const loading={status:state.status,active:state.active,completed:[...state.completed],progress:state.progress?{stage:state.progress.stage,completed:state.progress.completed,total:state.progress.total,...(state.progress.label?{label:reportText(state.progress.label,80)}:{}),...(state.progress.preTimeoutSnapshot?{preTimeoutSnapshot:clipGraphicsSnapshot(state.progress.preTimeoutSnapshot)}:{})}:null,error:state.error?{code:reportText(state.error.code,80),message:reportText(state.error.message,2048)}:null,trace:{events:events.map(e=>({name:reportText(e.name,80),state:reportText(e.state,24),at:e.at,...(e.outcome===undefined?{}:{outcome:reportText(e.outcome,40)})})),dropped:trace.dropped+Math.max(0,trace.events.length-96)}};
  return JSON.stringify({build:REPORT_BUILD,origin:reportText(safeOrigin,256),userAgent:reportText(userAgent,512),visibilityAtFailure:['visible','hidden'].includes(visibilityState)?visibilityState:'unavailable',loading},null,2);
 }
+let copyLoadingReportBound=false;
 function showLoadingFailureDetails(state){
  if(!REPORT_ORIGINS.includes(globalThis.location?.origin)||state.status!=='failed')return;
  const section=$('loadingFailureDetails'),detail=$('loadingFailureDetail'),button=$('copyLoadingReport'),disclosure=$('loadingReportDisclosure'),text=$('loadingReport'),status=$('loadingReportCopyStatus');
  if(!section||!detail||!button||!disclosure||!text||!status)return;
  const stage=state.active==='scene'&&state.progress?.label?state.progress.label:activity[state.active]||'Preparing the flight';
- const timedOut=state.error?.code==='PREPARATION_TIMEOUT',contextLost=state.error?.code==='PREPARATION_CANCELED'&&state.error?.message==='Graphics were lost during loading';
- detail.textContent=timedOut?'Loading timed out while '+stage.charAt(0).toLowerCase()+stage.slice(1)+'.':contextLost?'Graphics were lost while preparing the flight.':stage+' stopped before it could finish.';
+ const timedOut=state.error?.code==='PREPARATION_TIMEOUT',contextLost=state.error?.code==='PREPARATION_CANCELED'&&state.error?.message==='Graphics were lost during loading',manuallyReported=state.error?.code==='PLAYER_REPORTED_FAILURE';
+ detail.textContent=manuallyReported?'A tester reported that loading did not finish.':timedOut?'Loading timed out while '+stage.charAt(0).toLowerCase()+stage.slice(1)+'.':contextLost?'Graphics were lost while preparing the flight.':stage+' stopped before it could finish.';
  text.value=buildLoadingFailureReport(state);text.readOnly=true;section.hidden=false;
+ const reportButton=$('reportFailedLoad');if(reportButton)reportButton.setAttribute('aria-expanded','true');
+ try{section.scrollIntoView({block:'nearest',inline:'nearest'});}catch{}
+ if(copyLoadingReportBound)return;
+ copyLoadingReportBound=true;
  let copying=false;
  const manualCopy=()=>{disclosure.open=true;text.focus();text.select();status.textContent='Select and copy the report below.';};
  button.addEventListener('click',async()=>{
@@ -167,6 +172,13 @@ function showLoadingFailureDetails(state){
   finally{copying=false;button.disabled=false;}
  });
 }
+export function reportFailedLoad(){
+ const current=loadingSnapshot();
+ const reported=Object.freeze({...current,status:'failed',error:Object.freeze({code:'PLAYER_REPORTED_FAILURE',message:'Tester reported that loading did not finish'})});
+ showLoadingFailureDetails(reported);
+ return reported;
+}
+$('reportFailedLoad')?.addEventListener('click',reportFailedLoad);
 export function loadingFailure(error,{reload=()=>globalThis.location.reload()}={}){
  if(loading.snapshot().status==='failed')return;
  startupMark('startup','failed',error?.code||'PREPARATION_FAILED');

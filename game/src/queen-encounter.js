@@ -2,13 +2,16 @@ import {createQueenAttackOrder} from './queen-attack-order.js?v=052';
 import * as T from '../vendor/three.module.js?v=052';
 import {createQueenModel,QUEEN_POSITION,QUEEN_ARM_HP} from './queen-model.js?v=052';
 const V=(x=0,y=0,z=0)=>new T.Vector3(x,y,z),clamp=T.MathUtils.clamp,smooth=T.MathUtils.smoothstep;
-export const QUEEN_RULES=Object.freeze({quietAt:.825,introAt:.84,hoverAt:.89,introSeconds:14,deathSeconds:8,reloadSeconds:2.2,firstTellSeconds:2,armTellSeconds:.95,recoverySeconds:.3,interruptRecoverySeconds:.15,randomArmOrder:true,randomAmmoOrder:true,armPoints:4000,defeatPoints:20000});
+export const QUEEN_RULES=Object.freeze({quietAt:.825,introAt:.84,hoverAt:.89,introSeconds:14,deathSeconds:8,reloadSeconds:2.2,firstTellSeconds:2,armTellSeconds:.95,recoverySeconds:.3,interruptRecoverySeconds:.15,randomArmOrder:true,randomAmmoOrder:true,armPoints:4000,defeatPoints:20000,
+ // Intro pose lerps emergence .45→1 over age 0–2 while hover lift runs 1–6.
+ // 1.75 is ~98% emerged, just into the lava-rise window — not the movie cut at 0.
+ revealGrowlAt:1.75,armsShriekAt:8});
 export function createQueenEncounter({scene,camera,craft,game,centerAt,widthAt,bankMeshes,eggNests,hud,playerFov,reduced,launch,burst,clearCombat,award,aimAt,onCleared,audio,logEvent,hitFeedback}){
  const model=createQueenModel({scene,centerAt,widthAt,bankMeshes}),arms=model.arms,eggs=eggNests.addQueenBrood(model.eggSites),ray=new T.Raycaster();
  const ui=document.createElement('div');ui.id='queenHUD';ui.hidden=true;ui.innerHTML='<div class="queen-title">THE QUEEN <span class="queen-count"></span></div><div class="queen-health"><span></span></div><div class="queen-arms"></div><div class="queen-state"></div>';hud.appendChild(ui);
  const bars=arms.map((a,i)=>{const e=document.createElement('span');e.className='queen-arm-bar';e.textContent=String(i+1);ui.querySelector('.queen-arms').appendChild(e);return e;});
  const cinema=document.createElement('div');cinema.id='queenCinema';cinema.hidden=true;cinema.innerHTML='<div class="queen-letterbox top"></div><div class="queen-cinema-copy"><span></span><strong></strong></div><div class="queen-letterbox bottom"></div>';document.body.appendChild(cinema);
- let phase='dormant',age=0,clock=0,cycle=0,armIndex=0,orderIndex=0,shotIndex=0,timer=0,reloading=false,parent=null,savedFov=66,departAge=0,beat='windup',tellDuration=QUEEN_RULES.firstTellSeconds,seenIntro=false;const events=[];
+ let phase='dormant',age=0,clock=0,cycle=0,armIndex=0,orderIndex=0,shotIndex=0,timer=0,reloading=false,parent=null,savedFov=66,departAge=0,beat='windup',tellDuration=QUEEN_RULES.firstTellSeconds,seenIntro=false,playedRevealGrowl=false,playedArmsShriek=false;const events=[];
  const startEye=V(),startQuat=new T.Quaternion(),eye=V(),target=V(),look=new T.Matrix4(),viewQuat=new T.Quaternion(),endEye=V(),endQuat=new T.Quaternion();
  const attackOrder=createQueenAttackOrder();
  const currentArm=()=>arms[armIndex];const alive=()=>arms.filter(a=>!a.dead);const rawProgress=()=>game.flightStart+(1-game.flightStart)*clamp((game.time-(game.flightDelay||0))/88,0,1);
@@ -29,6 +32,8 @@ export function createQueenEncounter({scene,camera,craft,game,centerAt,widthAt,b
   if(phase==='dormant'&&p>=QUEEN_RULES.quietAt){setPhase('calm');clearCombat();game.gunHeld=false;event('weapons-locked');}
   if(phase==='calm'&&p>=QUEEN_RULES.introAt)startMovie('intro');age+=dt;
   if(phase==='intro'){
+   if(!playedRevealGrowl&&age>=QUEEN_RULES.revealGrowlAt){playedRevealGrowl=true;audio?.cue('queen-reveal');event('reveal-growl');}
+   if(!playedArmsShriek&&age>=QUEEN_RULES.armsShriekAt){playedArmsShriek=true;audio?.cue('queen-arms-shriek');event('arms-shriek');}
    for(let i=0;i<eggs.length;i++)if(!eggs[i].laid&&age>=2.1+i*.72){eggs[i].laid=true;event('egg-laid',{arm:i+1,egg:eggs[i].id});}
    if(age+1e-8>=QUEEN_RULES.introSeconds)beginCombat();
   }else if(phase==='combat'){
@@ -69,7 +74,7 @@ export function createQueenEncounter({scene,camera,craft,game,centerAt,widthAt,b
  }
  function trace(origin,direction,maxDistance){if(phase!=='combat')return null;const collisionRoot=model.collisionRoot||model.root;collisionRoot.updateMatrixWorld(true);ray.set(origin,direction);ray.far=maxDistance;const candidates=collisionRoot.children.filter(n=>n.isMesh&&!n.isInstancedMesh&&!arms.some(a=>a.mesh===n)&&!n.name.includes('Lava')&&!n.name.includes('lava'));for(const a of arms)if(!a.dead){candidates.push(a.mesh);a.tip.traverse(n=>{if(n.isMesh)candidates.push(n);});}const h=ray.intersectObjects(candidates,false)[0];if(!h)return null;const a=arms.find(a=>a.mesh===h.object||h.object.parent===a.tip);return{kind:a&&a.mesh!==h.object?'queen-arm':'queen-shell',actor:a||model,distance:h.distance,point:h.point.clone(),normal:h.face.normal.clone().transformDirection(h.object.matrixWorld)};}
  function hit(a,point,damage){if(phase!=='combat'||!a||a.dead)return false;a.hp=Math.max(0,a.hp-damage);hitFeedback?.hit(a);audio.creature('queenArm',point,false);audio.confirmHit();game.hitMarker=.16;event('arm-hit',{arm:a.index+1,damage,hp:a.hp});if(a.hp)return false;audio.creature('queenArm',point,true);a.dead=true;a.commitment=false;a.deathAt=clock;a.mesh.visible=a.tip.visible=false;for(const s of a.suckers)s.visible=false;burst(a.muzzle.getWorldPosition(V()),{scale:1.5,source:a.id});if(!a.credited){a.credited=true;award(QUEEN_RULES.armPoints,a.id);}event('arm-destroyed',{arm:a.index+1});if(!alive().length)startMovie('death');return true;}
- function reset(){restoreCamera();attackOrder.reset();phase='dormant';age=clock=cycle=armIndex=orderIndex=shotIndex=timer=departAge=0;reloading=false;beat='windup';tellDuration=QUEEN_RULES.firstTellSeconds;events.length=0;model.reset();model.root.visible=false;ui.hidden=cinema.hidden=true;craft.setHover?.(0);for(const e of eggs){e.laid=false;e.group.scale.setScalar(1);}}
+ function reset(){restoreCamera();attackOrder.reset();phase='dormant';age=clock=cycle=armIndex=orderIndex=shotIndex=timer=departAge=0;reloading=false;beat='windup';tellDuration=QUEEN_RULES.firstTellSeconds;playedRevealGrowl=playedArmsShriek=false;events.length=0;model.reset();model.root.visible=false;ui.hidden=cinema.hidden=true;craft.setHover?.(0);for(const e of eggs){e.laid=false;e.group.scale.setScalar(1);}}
  function canSkipCinematic(){return age>=1&&(phase==='death'||phase==='intro'&&seenIntro);}
  function skipCinematic(){if(game.paused||game.ended||!canSkipCinematic())return false;event('cinematic-skipped');if(phase==='intro')beginCombat();else finish();return true;}
  function cancel(){restoreCamera();ui.hidden=cinema.hidden=true;craft.setHover?.(0);}
