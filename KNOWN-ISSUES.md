@@ -74,11 +74,12 @@ viewport only). The older short-window pad was **56px** at `max-height:850px`
 and **64px** at `650px`, applied inside an already-visible visual box, which
 could push Deploy below the Dock-safe fold.
 
-The preparing/ready column now uses the same start-pack as the fail path:
-ammo → DEPLOY → Coming Soon in `.poster-right`, `justify-content: flex-start`,
-and no `overflow: hidden` on that column. Short viewports (`max-height: 920px`
-and `html[data-app-short]`) collapse Coming Soon so the first paint shows ammo
-ticks and DEPLOY above the Dock.
+The preparing/ready column uses the short-desktop design lock: ammo → DEPLOY
+first in `.poster-right`, `justify-content: flex-start`, no `overflow: hidden`
+on that column, and a Dock-safe bottom inset of at least 8px. Short viewports
+(`max-height: 920px` / `850px` and `html[data-app-short]`) collapse Uncharted
+and the sector note so at most a quiet COMING SOON line follows Deploy.
+Masthead shrinks before the brass DEPLOY control (54px).
 
 Fail UI: `#intro.load-failed` packs RETRY / gold REPORT / gold COPY in the
 reserved deploy row so those controls stay initially in-viewport on ~650–864px
