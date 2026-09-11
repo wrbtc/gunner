@@ -1,5 +1,5 @@
 {
-  "version": "0.54.22",
+  "version": "0.54.23",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -198,18 +198,18 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 12989,
-      "sha256": "34110518980a20ba3fa2c88f8fff5def00d5b34c7bbf0ec9af5e127377c0e025"
+      "bytes": 13151,
+      "sha256": "559f4598ea33d89455d5733bae242f000dff95a144b46b35c8690284927cd598"
     },
     {
       "path": "game/main.js",
       "bytes": 157914,
-      "sha256": "dfac6b29dabe032f34622abfc5a3c651a9f8191806473fd4b52c2710c5dbaa2e"
+      "sha256": "c2802cbe7a0594dfd5235e86a587f0d62a0b8a79816aacc166ffa6fbc4a06cbc"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 3396,
-      "sha256": "2c39619484fc5d0a64eea799602656e280149e880e2a8f22c2065cdf1145a1dc"
+      "sha256": "1c7a46bacfe1dd913e36b92373397e7e2c4cc4b3eb131cabb4f883dd4c229c0f"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -398,8 +398,8 @@
     },
     {
       "path": "game/src/mission-screen.js",
-      "bytes": 21408,
-      "sha256": "61b49c4f84d4216248bd1b35532f237d6419dde19b11c11b2601855e18c8bd56"
+      "bytes": 22109,
+      "sha256": "7ca6c7d80ac22e0523135cdad2f0978e824cc91c349b464fbad440db8796a75a"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -592,5 +592,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.22 runtime with Bruno and Gina’s Queen cinematic samples, explicit music consent, concept-24 menu, bounded graphics diagnostics and an in-flight FPS counter. Public privacy adaptations retained; sustained cross-platform performance acceptance remains pending."
+  "note": "Gunner v0.54.23 runtime with a tester-triggered bounded loading-failure report, Bruno and Gina’s Queen cinematic samples, explicit music consent, concept-24 menu, bounded graphics diagnostics and an in-flight FPS counter. Public privacy adaptations retained; sustained cross-platform performance acceptance remains pending."
 }

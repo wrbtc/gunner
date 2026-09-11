@@ -13,7 +13,7 @@ assert.match(index,/class="mission-frame"/);
 assert.match(index,/class="poster-body"/);
 assert.match(index,/id="fpsValue"/);
 assert.match(index,/class="ammo-progress"/);
-for(const id of ['loadingSystems','loadStatus','startButton','loadingFailureDetails','copyLoadingReport','fieldGuideButton','settingsButton','menuMusicButton']){
+for(const id of ['loadingSystems','loadStatus','startButton','loadingFailureDetails','copyLoadingReport','fieldGuideButton','settingsButton','menuMusicButton','reportFailedLoad']){
   assert.equal((index.match(new RegExp(`id="${id}"`,'g'))||[]).length,1,`${id} must appear exactly once`);
 }
 assert.match(styles,/#intro\.mission-poster>\.chapter-image\{/);

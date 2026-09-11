@@ -1,4 +1,4 @@
-# Release validation — v0.54.22
+# Release validation — v0.54.23
 
 ## Device validation
 
