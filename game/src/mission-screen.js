@@ -134,11 +134,12 @@ export const loadingSnapshot=()=>Object.freeze({...loading.snapshot(),trace:star
 export const loadingStage=id=>{const ok=loading.complete(id);if(ok)bootHeartbeat();return ok;};
 export const loadingProgress=(id,detail)=>{const ok=loading.begin(id,detail);if(ok)bootHeartbeat();return ok;};
 export const loadingReady=()=>loading.ready();
-const REPORT_BUILD='0.54.26',REPORT_ORIGINS=['https://gunner.satoshis.watch','http://127.0.0.1:8000'];
+const REPORT_BUILD='0.54.27',REPORT_ORIGINS=['https://gunner.satoshis.watch','http://127.0.0.1:8000'];
 export function bootTimeoutEvidence(state,error){
  const progress=state?.progress,events=state?.trace?.events||[],last=events.at(-1);
  const elapsed=Number.isFinite(last?.at)?Math.round(last.at):null;
- return {lastPhase:'startup-deadline',lastCompletedPhase:progress?.stage??null,variant:state?.active??null,layer:null,jobIndex:null,totalJobs:null,batchIndex:null,jobBatchCount:null,submittedObjects:Number.isFinite(progress?.completed)?progress.completed:null,totalObjects:Number.isFinite(progress?.total)?progress.total:null,discoveredPrograms:null,finishedPrograms:null,pendingProgramIds:[],elapsedMs:elapsed,maxCompileMs:null,recentCompileMs:null,maxReadyPollMs:null,recentReadyPollMs:null,maxUniformsMs:null,recentUniformsMs:null,maxAttributesMs:null,recentAttributesMs:null,maxIntrospectMs:null,recentIntrospectMs:null,contextLost:null,parallelCompile:null,compilerNote:'startup-stall-watchdog',exceptionCode:String(error?.code||'STARTUP_TIMEOUT').slice(0,80),exceptionMessage:String(error?.message||'Flight startup timed out').slice(0,160)};
+ const watchdog=error?.code==='STARTUP_TIMEOUT';
+ return {lastPhase:watchdog?'startup-deadline':'preparation-deadline',lastCompletedPhase:progress?.stage??null,variant:state?.active??null,layer:null,jobIndex:null,totalJobs:null,batchIndex:null,jobBatchCount:null,submittedObjects:Number.isFinite(progress?.completed)?progress.completed:null,totalObjects:Number.isFinite(progress?.total)?progress.total:null,discoveredPrograms:null,finishedPrograms:null,pendingProgramIds:[],elapsedMs:elapsed,maxCompileMs:null,recentCompileMs:null,maxReadyPollMs:null,recentReadyPollMs:null,maxUniformsMs:null,recentUniformsMs:null,maxAttributesMs:null,recentAttributesMs:null,maxIntrospectMs:null,recentIntrospectMs:null,contextLost:null,parallelCompile:null,compilerNote:watchdog?'startup-stall-watchdog':'preparation-deadline',exceptionCode:String(error?.code||(watchdog?'STARTUP_TIMEOUT':'PREPARATION_TIMEOUT')).slice(0,80),exceptionMessage:String(error?.message||(watchdog?'Flight startup timed out':'Flight preparation timed out')).slice(0,160)};
 }
 const reportText=(value,limit)=>String(value??'').slice(0,limit);
 export function buildLoadingFailureReport(state,{origin=globalThis.location?.origin,userAgent=globalThis.navigator?.userAgent,visibilityState=globalThis.document?.visibilityState}={}){
@@ -190,7 +191,7 @@ $('reportFailedLoad')?.addEventListener('click',reportFailedLoad);
 export function loadingFailure(error,{reload=()=>globalThis.location.reload()}={}){
  if(loading.snapshot().status==='failed')return;
  const current=loadingSnapshot();
- if(error?.code==='STARTUP_TIMEOUT'&&!current.progress?.preTimeoutSnapshot){
+ if((error?.code==='STARTUP_TIMEOUT'||error?.code==='PREPARATION_TIMEOUT')&&!current.progress?.preTimeoutSnapshot){
   const evidence=error?.preTimeoutSnapshot&&typeof error.preTimeoutSnapshot==='object'?error.preTimeoutSnapshot:bootTimeoutEvidence(current,error);
   const active=current.active&&activity[current.active]?current.active:'assets';
   loading.begin(active,{stage:current.progress?.stage||'timed-out',completed:current.progress?.completed??0,total:current.progress?.total??0,...(typeof current.progress?.label==='string'?{label:current.progress.label}:{}),preTimeoutSnapshot:evidence});

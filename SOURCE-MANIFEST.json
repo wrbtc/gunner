@@ -1,5 +1,5 @@
 {
-  "version": "0.54.26",
+  "version": "0.54.27",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.26 runtime with a progress-sensitive startup stall watchdog, CSP-compatible short-desktop and Dock-safe briefing, visible loading-report controls, MessageChannel collision preparation, supplied Queen cinematic samples, explicit music consent, bounded graphics diagnostics and an in-flight FPS counter. Public privacy adaptations retained; sustained cross-platform performance acceptance remains pending."
+  "note": "Gunner v0.54.27 runtime with Intel-class shader light-count conservation, a progress-sensitive startup stall watchdog, timeout reports that always include one preTimeoutSnapshot, CSP-compatible short-desktop and Dock-safe briefing, visible loading-report controls, MessageChannel collision preparation, supplied Queen cinematic samples, explicit music consent, bounded graphics diagnostics and an in-flight FPS counter. Public privacy adaptations retained; sustained cross-platform performance acceptance remains pending."
 }
