@@ -406,6 +406,8 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 #guideModelDialog .guide-model-tools{flex-wrap:wrap}
 
 /* === Concept-24 poster menu (0.54.19-safe): full-bleed art + overlay UI === */
+/* Short-desktop deploy hierarchy (Safari+Dock): Deploy stack first; Coming Soon
+   collapsed below; flex-start on .poster-right; no overflow:hidden on that column. */
 /* Size to the visual viewport, not a tall 100vh/layout box that can sit under Safari chrome or the macOS Dock. */
 #intro.mission-poster{
   padding:0;overflow:auto;overscroll-behavior:none;background:#0b100b;
@@ -549,7 +551,7 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
   #intro.mission-poster .deployment-action{gap:6px;overflow:visible;min-height:0}
   #intro.mission-poster #startButton{min-height:54px}
   #intro.mission-poster .ammo-progress{gap:5px 6px}
-  #intro.mission-poster .ammo-progress i{height:20px}
+  #intro.mission-poster .ammo-progress i{width:14px;height:22px}
   #intro.mission-poster .mission-footer{margin-top:8px;padding-top:8px}
 }
 html[data-app-short] #intro.mission-poster .mission-frame{
@@ -571,7 +573,7 @@ html[data-app-short] #intro.mission-poster .poster-right{justify-content:flex-st
 html[data-app-short] #intro.mission-poster .deployment-action{gap:6px;overflow:visible;min-height:0}
 html[data-app-short] #intro.mission-poster #startButton{min-height:54px}
 html[data-app-short] #intro.mission-poster .ammo-progress{gap:5px 6px}
-html[data-app-short] #intro.mission-poster .ammo-progress i{height:20px}
+html[data-app-short] #intro.mission-poster .ammo-progress i{width:14px;height:22px}
 html[data-app-short] #intro.mission-poster .mission-footer{margin-top:8px;padding-top:8px}
 /* Design lock for 850px and tighter: start-pack Deploy, quiet Coming Soon, ≥8px Dock clearance. */
 @media(max-height:850px){
@@ -612,7 +614,7 @@ html[data-app-short] #intro.mission-poster .mission-footer{margin-top:8px;paddin
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
   }
   #intro.mission-poster #startButton{padding:16px 18px;min-height:54px}
-  #intro.mission-poster .ammo-progress i{height:20px}
+  #intro.mission-poster .ammo-progress i{width:14px;height:22px}
   #intro.mission-poster .report-load-button{min-height:44px;padding:10px 12px}
   #intro.mission-poster.load-failed .poster-chapter p,
   #intro.mission-poster.load-failed .mission-orders{display:none}
