@@ -1,5 +1,5 @@
 {
-  "version": "0.54.19",
+  "version": "0.54.22",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -60,6 +60,16 @@
       "path": "game/assets/audio/pilot-radio-v05410.mp3",
       "bytes": 775825,
       "sha256": "dc479951600c366e3145ce3bafe54d9f8593bf1d31f5182ed9ffe6b62bdb0ab2"
+    },
+    {
+      "path": "game/assets/audio/queen-arms-shriek.mp3",
+      "bytes": 50732,
+      "sha256": "2a0540b603f29f46977b8653da627b6ba8c79579f893df5681cc02de845ce440"
+    },
+    {
+      "path": "game/assets/audio/queen-reveal-growl.mp3",
+      "bytes": 79532,
+      "sha256": "38edf4d7cd3a0bd34cf1aac9f496347b650a382eefb0738e03e77bec8c3a3e0a"
     },
     {
       "path": "game/assets/cinder-maw-v02.glb",
@@ -188,18 +198,18 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 12789,
-      "sha256": "d1948bc95399fde9e88313f1d014958620c9589fa0e532fac6a413fe0c7f6991"
+      "bytes": 12989,
+      "sha256": "34110518980a20ba3fa2c88f8fff5def00d5b34c7bbf0ec9af5e127377c0e025"
     },
     {
       "path": "game/main.js",
-      "bytes": 157570,
-      "sha256": "78c3ef6e3b8d179e9fa37293dd6fe9efdb3ac176fc35cc17de4b2f263885ffbb"
+      "bytes": 157914,
+      "sha256": "dfac6b29dabe032f34622abfc5a3c651a9f8191806473fd4b52c2710c5dbaa2e"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 3396,
-      "sha256": "c389a10d6c63b787818d38bc2c6022d0a47b283d8b2358d65c6e57a6ca93ace4"
+      "sha256": "2c39619484fc5d0a64eea799602656e280149e880e2a8f22c2065cdf1145a1dc"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -378,8 +388,8 @@
     },
     {
       "path": "game/src/menu-music.js",
-      "bytes": 3206,
-      "sha256": "a2df7816864ec48c0e0d84fc7dfdf07877e76dba1983965c4a425ec828468d33"
+      "bytes": 3070,
+      "sha256": "0d7aca04ac004aeb029ee6165aa624457fde81c8c4fdcb6af49eefba7bfde8f1"
     },
     {
       "path": "game/src/mission-rating.js",
@@ -389,7 +399,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 21408,
-      "sha256": "6be6462a710b1b6b3fb6828331495805a3f86c85d8efd3126c4177ec767ddf39"
+      "sha256": "61b49c4f84d4216248bd1b35532f237d6419dde19b11c11b2601855e18c8bd56"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -443,13 +453,18 @@
     },
     {
       "path": "game/src/queen-encounter.js",
-      "bytes": 12572,
-      "sha256": "eaabe29fbbae0720413dd611977275afc3e955b25a22365a510829905616f1ec"
+      "bytes": 13129,
+      "sha256": "c25b99dd396347e39dc05b1b430490bb39f7b96d7be3bc859bbef5d722226512"
     },
     {
       "path": "game/src/queen-model.js",
       "bytes": 15954,
       "sha256": "7af313ade42b7ff505466db90fa323e5953a594d207656eed652101a4f30da47"
+    },
+    {
+      "path": "game/src/queen-sample-cues.js",
+      "bytes": 2276,
+      "sha256": "40ef20d3e2553ae79d96cd629ee9c2b8f51d6b03dfbd98e2c2c1551fb623234c"
     },
     {
       "path": "game/src/queen-surface.js",
@@ -577,5 +592,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.19 runtime with the concept-24 full-poster menu, bounded graphics diagnostics and an in-flight FPS counter. Public privacy adaptations retained; sustained cross-platform performance acceptance remains pending."
+  "note": "Gunner v0.54.22 runtime with Bruno and Gina’s Queen cinematic samples, explicit music consent, concept-24 menu, bounded graphics diagnostics and an in-flight FPS counter. Public privacy adaptations retained; sustained cross-platform performance acceptance remains pending."
 }

@@ -1,4 +1,4 @@
-# Release validation — v0.54.19
+# Release validation — v0.54.22
 
 ## Device validation
 
@@ -10,7 +10,7 @@ The corresponding preview candidate passed a bounded Apple M3 Pro Chromium
 A user reported smooth play on an Apple M3. The browser was not specified in
 that report. A later Safari report on an older macOS machine reached the loaded
 game, but the hardware was not confirmed to be Apple silicon. Apple M1
-acceptance is still pending. v0.54.19 preserves these gameplay fixes, adds
+acceptance is still pending. v0.54.19 preserves these gameplay fixes and adds
 bounded graphics-preparation diagnostics and exposes an in-flight FPS counter;
 it does not claim a replay-performance fix.
 The report below describes v0.54.7.
