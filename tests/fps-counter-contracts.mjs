@@ -7,7 +7,7 @@ const read=name=>fs.readFileSync(new URL(name,root),'utf8');
 const html=read('index.html'),css=read('styles.css'),main=read('main.js');
 
 assert.match(html,/id="fpsValue">—<\/strong>/);
-assert.match(html,/styles\.css\?v=054-19/);
+assert.match(html,/styles\.css\?v=054-20-c24/);
 assert.match(html,/mobile-entry\.js\?v=desktop-054-19/);
 assert.match(html,/data-game-entry="\.\/main\.js\?v=054-19"/);
 assert.match(css,/#fpsValue\[data-band="watch"\]/);

@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://gunner.satoshis.watch/">
   <link rel="canonical" href="https://gunner.satoshis.watch/">
   <link rel="icon" type="image/svg+xml" href="./assets/gunner-plane.svg?v=052">
-  <link rel="stylesheet" href="./styles.css?v=054-19">
+  <link rel="stylesheet" href="./styles.css?v=054-20-c24">
 </head>
 <body>
   <noscript><section class="device-noscript" aria-labelledby="no-script-heading">
@@ -32,29 +32,61 @@
   <div id="damageVeil" aria-hidden="true"></div>
   <div id="whiteout" aria-hidden="true"></div>
 
-  <main id="intro" class="modal mission-screen">
-    <header class="mission-masthead"><div><span class="mission-kicker">ONE PLANE. ALL OF HELL.</span><h1>GUNNER</h1></div><span class="mission-edition">FLIGHT OPERATIONS<br>CHAPTER SELECT</span></header>
-    <div class="chapter-layout">
-      <section class="chapter chapter-gunner" aria-labelledby="gunnerTitle">
-        <img class="chapter-image" data-src="./assets/gunner-chapter.jpg?v=054-17" alt="Satoshi, the bomber with three Queen victory stamps, flying through the volcanic canyon">
-        <div class="chapter-copy"><span class="chapter-number">CHAPTER 01 · AVAILABLE</span><h2 id="gunnerTitle">THE QUEEN</h2><p>Break the Queen. Burn the brood.<br>Bring us home.</p></div>
-      </section>
-      <section class="chapter chapter-soon" aria-labelledby="nextChapter"><span class="chapter-number">CHAPTER 02</span><div class="unknown-sector" aria-hidden="true">?</div><h2 id="nextChapter">UNCHARTED</h2><p>COMING SOON</p><span class="sector-note">The next flight is still beyond the horizon.</span></section>
-    </div>
-    <div class="deployment-bar"><div class="mission-orders"><span class="mission-kicker">YOUR ORDERS</span><p>Destroy the eggs. Defeat the Queen.</p><span>The pilot flies. You have the guns.</span></div>
-      <div class="deployment-action"><div id="loadingSystems" aria-label="Flight preparation" aria-busy="true"><div class="ammo-progress" aria-hidden="true"></div><span id="loadStatus" role="status" aria-live="polite">Preparing flight systems…</span></div><button id="startButton" type="button" disabled>DEPLOY GUNNER</button>
-        <section id="loadingFailureDetails" class="loading-failure" aria-label="Loading problem" hidden>
-          <p id="loadingFailureDetail"></p>
-          <button id="copyLoadingReport" class="quietButton" type="button">COPY LOADING REPORT</button>
-          <p id="loadingReportCopyStatus" role="status" aria-live="polite"></p>
-          <details id="loadingReportDisclosure"><summary>Show loading report</summary><textarea id="loadingReport" readonly rows="7" aria-label="Loading report" spellcheck="false"></textarea></details>
-        </section>
+  <main id="intro" class="modal mission-screen mission-poster">
+    <img class="chapter-image" data-src="./assets/gunner-chapter.jpg?v=054-20-c24" alt="Satoshi twin-boom with belly gunner bubble over the lava canyon">
+    <div class="mission-frame">
+      <header class="mission-masthead">
+        <div>
+          <span class="mission-kicker">ONE PLANE. ALL OF HELL.</span>
+          <h1>GUNNER</h1>
+        </div>
+      </header>
+      <div class="poster-body">
+        <div class="poster-left">
+          <section class="chapter-copy poster-chapter" aria-labelledby="gunnerTitle">
+            <span class="chapter-number">CHAPTER 01 · AVAILABLE</span>
+            <h2 id="gunnerTitle">THE QUEEN</h2>
+            <p>Break the Queen. Burn the brood.<br>Bring us home.</p>
+          </section>
+          <div class="mission-orders">
+            <span class="mission-kicker">YOUR ORDERS</span>
+            <p>Destroy the eggs. Defeat the Queen.</p>
+            <span>The pilot flies. You have the guns.</span>
+          </div>
+        </div>
+        <div class="poster-right">
+          <div class="poster-soon" aria-labelledby="nextChapter">
+            <span class="chapter-number">COMING SOON</span>
+            <h2 id="nextChapter">Uncharted</h2>
+            <p class="sector-note">The next flight is still beyond the horizon.</p>
+          </div>
+          <div class="deployment-action">
+            <div id="loadingSystems" aria-label="Flight preparation" aria-busy="true">
+              <div class="ammo-progress" aria-hidden="true"></div>
+              <span id="loadStatus" role="status" aria-live="polite">Preparing flight systems…</span>
+            </div>
+            <button id="startButton" type="button" disabled>DEPLOY GUNNER</button>
+            <section id="loadingFailureDetails" class="loading-failure" aria-label="Loading problem" hidden>
+              <p id="loadingFailureDetail"></p>
+              <button id="copyLoadingReport" class="quietButton" type="button">COPY LOADING REPORT</button>
+              <p id="loadingReportCopyStatus" role="status" aria-live="polite"></p>
+              <details id="loadingReportDisclosure"><summary>Show loading report</summary><textarea id="loadingReport" readonly rows="7" aria-label="Loading report" spellcheck="false"></textarea></details>
+            </section>
+          </div>
+        </div>
       </div>
+      <footer class="mission-footer">
+        <div class="mission-links">
+          <button id="fieldGuideButton" type="button" class="quietButton" aria-haspopup="dialog" aria-controls="fieldGuide" aria-expanded="false">ALIEN FIELD GUIDE <span>↗</span></button>
+          <button id="settingsButton" disabled type="button" class="quietButton">SOUND &amp; CONTROLS</button>
+          <button id="menuMusicButton" type="button" class="quietButton" aria-pressed="false">PLAY MUSIC</button>
+        </div>
+        <p>MOUSE · AIM &amp; FIRE &nbsp; / &nbsp; SPACE · HEAVY CANNON &nbsp; / &nbsp; ESC · PAUSE</p>
+      </footer>
     </div>
     <audio id="menuMusicTrack" src="./assets/audio/gunner-menu-theme-v05416.mp3" preload="none" loop></audio>
     <audio id="winMusicTrack" src="./assets/audio/gunner-win-v05416.mp3" preload="none" loop></audio>
     <audio id="loseMusicTrack" src="./assets/audio/gunner-lose-v05416.mp3" preload="none" loop></audio>
-    <footer class="mission-footer"><div class="mission-links"><button id="fieldGuideButton" type="button" class="quietButton" aria-haspopup="dialog" aria-controls="fieldGuide" aria-expanded="false">ALIEN FIELD GUIDE <span>↗</span></button><button id="settingsButton" disabled type="button" class="quietButton">SOUND &amp; CONTROLS</button><button id="menuMusicButton" type="button" class="quietButton" aria-pressed="false">PLAY MUSIC</button></div><p>MOUSE · AIM &amp; FIRE &nbsp; / &nbsp; SPACE · HEAVY CANNON &nbsp; / &nbsp; ESC · PAUSE</p></footer>
   </main>
   <dialog id="fieldGuide" aria-labelledby="guideTitle"><div class="guide-header"><div><span class="mission-kicker">KNOW WHAT YOU’RE SHOOTING</span><h2 id="guideTitle">ALIEN FIELD GUIDE</h2></div><button id="closeGuide" type="button" aria-label="Close alien field guide">CLOSE ×</button></div><p class="guide-intro">Gunner · Identification &amp; counterplay</p><div id="guideEntries" tabindex="0" aria-label="Alien entries"></div></dialog>
 

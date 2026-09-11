@@ -143,8 +143,8 @@
     },
     {
       "path": "game/assets/gunner-chapter.jpg",
-      "bytes": 301577,
-      "sha256": "48279a1ee93faa97cede7b72e0c0c418f8be9fdc48e6a6e380a78e61fbf57645"
+      "bytes": 243168,
+      "sha256": "eac79b6993bbe6a32f77cf0c61ae3e9bf5f9dd431607c0a5b333cc7768644b52"
     },
     {
       "path": "game/assets/gunner-plane.svg",
@@ -188,8 +188,8 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 12516,
-      "sha256": "5766b06ca0fb0c242d3a19b1944a35c0b3c4a43a49d586d59273447bffbef3cc"
+      "bytes": 12789,
+      "sha256": "d1948bc95399fde9e88313f1d014958620c9589fa0e532fac6a413fe0c7f6991"
     },
     {
       "path": "game/main.js",
@@ -553,8 +553,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 42462,
-      "sha256": "9f99d51401b0267a045af456025ed0da24e0473042e7a7ca0dcfea415a6169a4"
+      "bytes": 46263,
+      "sha256": "2fc8690a0b18a8c7606b3df8807e192473dbbd40284c1223998869ce1e71f45d"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",
@@ -577,5 +577,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.19 production source with bounded graphics diagnostics and an in-flight FPS counter. Public privacy adaptations retained; Apple M1 and sustained cross-platform performance acceptance remain pending."
+  "note": "Gunner v0.54.19 runtime with the concept-24 full-poster menu, bounded graphics diagnostics and an in-flight FPS counter. Public privacy adaptations retained; sustained cross-platform performance acceptance remains pending."
 }
