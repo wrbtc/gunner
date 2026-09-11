@@ -1,4 +1,4 @@
-# Release validation — v0.54.36
+# Release validation — v0.54.37
 
 ## Older Intel Safari / short desktop viewport
 
@@ -187,7 +187,7 @@ elapsed time. Visible-tab stalls still fail at the existing 30s budget.
 Graphics-prep uniforms deferral, present-hold, and Reduced auto are
 unchanged. Soft-GPU stays off.
 
-v0.54.36 is a menu-layout follow-up only: typical laptop heights keep
+v0.54.37 is a menu-layout follow-up only: typical laptop heights keep
 end-pack (ammo + DEPLOY above a fold-anchored footer), start-pack stays on
 the short Intel Safari + Dock class, idle Deploy is ammo → DEPLOY only,
 and tester chrome is fail-path gold Report/Copy plus a quiet footer QA

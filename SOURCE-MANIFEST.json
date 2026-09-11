@@ -1,5 +1,5 @@
 {
-  "version": "0.54.36",
+  "version": "0.54.37",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -199,17 +199,17 @@
     {
       "path": "game/index.html",
       "bytes": 13523,
-      "sha256": "a873dd5747b2382edda5b9ea27c6cb2f523c9d280765730007fa9ed1ab817463"
+      "sha256": "c8bd867b42e3313619bdf301c9ec8c331e62162f2ca0b3aaeb19f24a8fed6d54"
     },
     {
       "path": "game/main.js",
       "bytes": 159245,
-      "sha256": "32fc39e457c8c6683a2e8f8bf2ef1af1eca48c3a3dc9c04735eb1e04338d9330"
+      "sha256": "d07662657ae6e53f0766d5afed75e596830c666e9c6eeaa09cd8a9ce84f0bde0"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "c59c09140ae1fea278053a888585c133f69e28759582e0fe55c8c99fff284c1f"
+      "sha256": "0ce63cd6b00ec67d026cebcb6789895b38292fddc3e738d108a163e30cf8e30f"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -404,7 +404,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26799,
-      "sha256": "58c64989439be579a03698dbd7ff8cd5bd736d30ba5182d94affdb3c605be59b"
+      "sha256": "db80af5599c37c1be3bac97ca46aa97f169ff89a69b1ef416dea586c9c4d7c6c"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.36 is a menu-layout follow-up: typical laptop heights keep end-pack so ammo and DEPLOY sit just above a fold-anchored footer, while start-pack remains on html[data-app-short] (visual viewport \u2264864) and the 850/760 short locks so Intel Safari + Dock still clears Deploy by \u22658px. Idle Deploy is ammo \u2192 DEPLOY only; REPORT FAILED LOAD and the copy-report block stay hidden until #intro.load-failed, where they use the gold fail-path fill. Other tester chrome is a quiet footer QA disclosure after PLAY MUSIC. Hidden-tab deadline pause, present-hold, Reduced auto, Intel-class uniform deferral, conserved light-count variants, Coming Soon removed below 760px, explicit click-to-play music consent, supplied Queen cinematic samples, bounded diagnostics, and the in-flight FPS counter remain. Soft-GPU stays off. Public privacy adaptations retained; physical Intel Safari performance acceptance remains pending."
+  "note": "Gunner v0.54.37 is a menu-layout follow-up: typical laptop heights keep end-pack so ammo and DEPLOY sit just above a fold-anchored footer, while start-pack remains on html[data-app-short] (visual viewport \u2264864) and the 850/760 short locks so Intel Safari + Dock still clears Deploy by \u22658px. Idle Deploy is ammo \u2192 DEPLOY only; REPORT FAILED LOAD and the copy-report block stay hidden until #intro.load-failed, where they use the gold fail-path fill. Other tester chrome is a quiet footer QA disclosure after PLAY MUSIC. Hidden-tab deadline pause, present-hold, Reduced auto, Intel-class uniform deferral, conserved light-count variants, Coming Soon removed below 760px, explicit click-to-play music consent, supplied Queen cinematic samples, bounded diagnostics, and the in-flight FPS counter remain. Soft-GPU stays off. Public privacy adaptations retained; physical Intel Safari performance acceptance remains pending. Identity is 0.54.37 so it does not collide with the separate 0.54.36 Iris Reduced draw-cost draft."
 }
