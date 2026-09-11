@@ -41,8 +41,9 @@ loader stay in place.
 
 A later Intel Safari measurement at about **1207×864** (window plus Dock) showed
 `.ammo-progress` and `#startButton` still below the fold because those controls
-lived under Coming Soon in an end-aligned column, and `max-height: 850px` never
-fired. Lift the deploy cluster into a non-shrinking row above the footer.
+lived under Coming Soon in an end-aligned, `overflow: hidden` column, and
+`max-height: 850px` never fired. Preparing/ready now start-packs the deploy
+stack first and collapses Coming Soon on short heights.
 
 Concept-24 poster CSS (`#intro.mission-poster`, styles class around 054-20-c24)
 did not fit that window:
@@ -73,9 +74,11 @@ viewport only). The older short-window pad was **56px** at `max-height:850px`
 and **64px** at `650px`, applied inside an already-visible visual box, which
 could push Deploy below the Dock-safe fold.
 
-An alternate column lock (ammo → DEPLOY → Coming Soon, `flex-start`, no
-`overflow:hidden` on the column) is left for a follow-up re-diff. This pass
-keeps Coming Soon in the poster body and a reserved deploy row under it.
+The preparing/ready column now uses the same start-pack as the fail path:
+ammo → DEPLOY → Coming Soon in `.poster-right`, `justify-content: flex-start`,
+and no `overflow: hidden` on that column. Short viewports (`max-height: 920px`
+and `html[data-app-short]`) collapse Coming Soon so the first paint shows ammo
+ticks and DEPLOY above the Dock.
 
 Fail UI: `#intro.load-failed` packs RETRY / gold REPORT / gold COPY in the
 reserved deploy row so those controls stay initially in-viewport on ~650–864px
