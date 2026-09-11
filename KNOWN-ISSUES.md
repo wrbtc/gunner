@@ -1,4 +1,4 @@
-# Release validation — v0.54.30
+# Release validation — v0.54.32
 
 ## Older Intel Safari / short desktop viewport
 
@@ -20,17 +20,36 @@ on that Intel class): `loading.active` shaders, progress submit 1392/12616,
 absent. Trace: collision end ~56799ms, graphics begin ~56800ms, startup failed
 ~61327ms (~4.5s into graphics). Visibility at failure: visible.
 
-The primary remaining bug is the **shader submit stall**. At that submit rate
-the remaining light-count jobs still overrun cinematic's 30s budget after the
-watchdog. v0.54.30 conserves intermediate plasma light-count variants when
-remaining serial compile work exceeds 80% of remaining graphics time. Fast
-compilers (modern Safari/Chrome, `compileMs` under 16ms or
+The primary remaining bug after light-count conservation is **serial
+`getUniforms` / `getAttributes`**. v0.54.30 conserves intermediate plasma
+light-count variants when remaining serial compile work exceeds 80% of remaining
+graphics time. Fast compilers (modern Safari/Chrome, `compileMs` under 16ms or
 `KHR_parallel_shader_compile`) keep every planned job. Conserved runs still
 compile the in-flight job, the fullest remaining world and cockpit counts, and
 capture, then shrink `progress.total`. Timeout still emits exactly one cinematic
 `preTimeoutSnapshot`. A `PREPARATION_TIMEOUT` fail without a cinematic snapshot
 still attaches deadline evidence so copy-loading reports are never missing
 `preTimeoutSnapshot`.
+
+A later Intel-class Safari 17.6 copy-loading report on **gunner.satoshis.watch**
+(build 0.54.30) reached shaders after collision, with conservation already on
+(`compilerNote` `conserved-light-variants`). Compile was cheap
+(`recentCompileMs` ~48). The 30s graphics wall fired at `elapsedMs` ~30082
+during `lastPhase` uniforms / `lastCompletedPhase` link-ready-poll, variant
+`L0:c5:rtrue`, 136/142 programs finished, six pending. `parallelCompile` was
+true. `recentUniformsMs` ~196 / `maxUniformsMs` ~261. Remaining work was
+first-use uniform location queries, not a compile stall.
+
+v0.54.32 keeps that conservation path and stops burning the wall on
+introspection: each link slice starts at most one blocking
+`getUniforms`/`getAttributes` once the 4ms slice is spent, remaining first-use
+queries are skipped when they would exceed half the graphics budget, the last
+10% of the wall, the next estimated query, or time reserved for queued compile
+jobs, and link-ready programs still count as finished. Three.js warms locations
+on first draw. A single driver call that itself exceeds the whole timeout still
+fails. Programs that never become ready still time out. Skipped first-use
+queries set `compilerNote` `deferred-uniforms` unless conservation already
+recorded `conserved-light-variants`.
 
 The menu fix sizes the overlay from `visualViewport` / `100svh` / safe-area
 insets, allows overflow scroll, and keeps a reserved deploy row so the 24 ammo
@@ -94,17 +113,20 @@ Stage budgets after the stall watchdog:
 | Module + top-level await | `mobile-entry.js` `enterGame` | 60s since progress | import race |
 | Scene assembly | `createPreparationSequence` | 30s | MessageChannel + paint |
 | Egg collision | `boundedPreparation` → `prepareCollision` | 30s | 2ms slices |
-| Shader compile/link | `cinematic.prepare` | 30s | MessageChannel; 10ms stall poll |
+| Shader compile/link | `cinematic.prepare` | 30s | MessageChannel; 10ms stall poll; deferred uniforms |
 | Audio PCM | `prepareBuffers` | min(10s, assembly remaining) | worker; fallback on timeout |
 
 Older integrated Intel graphics with Safari can be a weak GL driver path:
-`KHR_parallel_shader_compile` may be missing, and compile/link can block the 30s
-graphics budget. Nested `setTimeout(0)` collision slices can spend most of the
-30s collision budget idle. Shader submit now degrades by dropping intermediate
-light-count jobs when projected remaining compile work cannot finish in time.
-A later Intel copy-report should show either a successful boot with
-`compilerNote` `conserved-light-variants`, or a graphics-layer timeout with
-`Graphics preparation timed out` and exactly one cinematic `preTimeoutSnapshot`.
+`KHR_parallel_shader_compile` may be present while `getUniforms` still blocks
+for hundreds of milliseconds per program. Nested `setTimeout(0)` collision
+slices can spend most of the 30s collision budget idle. Shader submit still
+drops intermediate light-count jobs when projected remaining compile work
+cannot finish in time. First-use uniform/attribute queries then yield per slice
+and skip when they would consume the remaining graphics wall. A later Intel
+copy-report should show a successful boot with `compilerNote`
+`conserved-light-variants` or `deferred-uniforms`, or a graphics-layer timeout
+with `Graphics preparation timed out` and exactly one cinematic
+`preTimeoutSnapshot` when programs never become ready.
 
 ## Device validation
 

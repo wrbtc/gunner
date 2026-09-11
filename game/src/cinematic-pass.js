@@ -153,8 +153,31 @@ export function createCinematicPass(renderer) {
         exceptionMessage:String(error?.message||error||'Flight preparation failed').slice(0,160)
       });
       const canceled=()=>generation!==contextGeneration||gl.isContextLost();
+      const timeoutError=()=>Object.assign(new Error('Graphics preparation timed out'),{code:'PREPARATION_TIMEOUT'});
       function assertTime(){
-        if(performance.now()-started>=timeoutMs)throw Object.assign(new Error('Graphics preparation timed out'),{code:'PREPARATION_TIMEOUT'});
+        if(performance.now()-started>=timeoutMs)throw timeoutError();
+      }
+      // Serial getUniforms/getAttributes can cost ~200ms each on weak integrated
+      // GL. Yield before another introspect once this slice is spent, and skip
+      // remaining first-use queries when they would consume the graphics wall.
+      // Linked programs still count as finished; Three warms locations on draw.
+      let skipIntrospect=false,introspectTotalMs=0,remainingJobs=[];
+      const batchesFor=job=>Math.ceil(Math.max(1,job.objects.length)/16);
+      const estimatedIntrospectMs=()=>Math.max(8,diag.recentUniformsMs+diag.recentAttributesMs);
+      const remainingMs=()=>deadline-performance.now();
+      const queuedCompileMs=()=>remainingJobs.reduce((sum,queued)=>sum+batchesFor(queued),0)*Math.max(1,diag.recentCompileMs);
+      const noteDeferredUniforms=()=>{if(diag.compilerNote!=='conserved-light-variants')diag.compilerNote='deferred-uniforms';};
+      function canAffordIntrospect(){
+        const remaining=remainingMs()-queuedCompileMs(),estimate=estimatedIntrospectMs();
+        return remaining>Math.max(timeoutMs*0.1,estimate)&&introspectTotalMs<timeoutMs*0.5;
+      }
+      function throwIfBlockingCallExceeded(ms){
+        if(performance.now()-started>=timeoutMs&&ms>=timeoutMs)throw timeoutError();
+      }
+      function considerSkipIntrospect(){
+        if(skipIntrospect)return true;
+        if(canAffordIntrospect())return false;
+        skipIntrospect=true;noteDeferredUniforms();return true;
       }
       // A timer cannot interrupt an individual blocking driver call. Small
       // batches limit our own synchronous work and expose progress between them.
@@ -248,8 +271,7 @@ export function createCinematicPass(renderer) {
         setPhase('submit',{jobIndex:0,batchIndex:0});
         report('submit',0,total);await yieldTask();
         if(canceled()){report('canceled',0,total);return false;}assertTime();resize();
-        const remainingJobs=jobs.slice();
-        const batchesFor=job=>Math.ceil(Math.max(1,job.objects.length)/16);
+        remainingJobs=jobs.slice();
         let jobIndex=0,conserved=false;
         while(remainingJobs.length){
           const job=remainingJobs.shift(),jobBatchCount=batchesFor(job);
@@ -293,14 +315,28 @@ export function createCinematicPass(renderer) {
               const ready=timed('link-ready-poll','ReadyPoll',()=>program.isReady());
               assertTime();diag.lastCompletedPhase='link-ready-poll';
               if(ready){
-                const introspectStarted=performance.now();
-                try{
-                  timed('uniforms','Uniforms',()=>program.getUniforms());assertTime();diag.lastCompletedPhase='uniforms';
-                  timed('attributes','Attributes',()=>program.getAttributes());assertTime();diag.lastCompletedPhase='attributes';
-                  const details=program?.diagnostics;
-                  if(details){const note=[details.runnable===false?'not-runnable':'',details.programLog,details.vertexShader?.log,details.fragmentShader?.log].filter(Boolean).join(' | ');if(note&&diag.compilerNote!=='conserved-light-variants')diag.compilerNote=String(note).slice(0,160);}
-                }finally{recordTiming('Introspect',performance.now()-introspectStarted);}
-                finished.add(program);
+                // Do not start another blocking query once this slice is spent.
+                if(visited>0&&performance.now()-begin>=4)break;
+                if(considerSkipIntrospect())finished.add(program);
+                else{
+                  const introspectStarted=performance.now();
+                  try{
+                    timed('uniforms','Uniforms',()=>program.getUniforms());
+                    throwIfBlockingCallExceeded(diag.recentUniformsMs);
+                    if(performance.now()-started>=timeoutMs||!canAffordIntrospect()){
+                      finished.add(program);skipIntrospect=true;noteDeferredUniforms();
+                    }else{
+                      diag.lastCompletedPhase='uniforms';
+                      timed('attributes','Attributes',()=>program.getAttributes());
+                      throwIfBlockingCallExceeded(diag.recentAttributesMs);
+                      diag.lastCompletedPhase='attributes';
+                      const details=program?.diagnostics;
+                      if(details){const note=[details.runnable===false?'not-runnable':'',details.programLog,details.vertexShader?.log,details.fragmentShader?.log].filter(Boolean).join(' | ');if(note&&diag.compilerNote!=='conserved-light-variants'&&diag.compilerNote!=='deferred-uniforms')diag.compilerNote=String(note).slice(0,160);}
+                      finished.add(program);
+                      if(performance.now()-started>=timeoutMs){skipIntrospect=true;noteDeferredUniforms();}
+                    }
+                  }finally{const spent=performance.now()-introspectStarted;recordTiming('Introspect',spent);introspectTotalMs+=spent;}
+                }
               }
               if(++visited>=8||performance.now()-begin>=4)break;
             }
@@ -308,6 +344,12 @@ export function createCinematicPass(renderer) {
             // Rotate unfinished programs so a slow first program does not
             // prevent polling the remaining compiler jobs.
             pending=[...pending.slice(visited),...pending.slice(0,visited)].filter(program=>!finished.has(program));
+            if(skipIntrospect&&pending.length){
+              for(const program of pending){
+                if(timed('link-ready-poll','ReadyPoll',()=>program.isReady()))finished.add(program);
+              }
+              pending=pending.filter(program=>!finished.has(program));
+            }
             stalledPolls=finished.size===previousFinished?stalledPolls+visited:0;
             // Once an entire compiler queue makes no progress, poll at 10ms
             // rather than spinning MessageChannel tasks against the driver.
@@ -316,7 +358,8 @@ export function createCinematicPass(renderer) {
           }
           jobIndex++;
         }
-        if(canceled()){report('canceled',finished.size,programs.size);return false;}assertTime();
+        if(canceled()){report('canceled',finished.size,programs.size);return false;}
+        if(finished.size<programs.size)assertTime();
         preparedPrograms=programs.size;preparedPointLightCounts=[...pointLightCounts].sort((a,b)=>a-b);
         setPhase('ready');diag.lastCompletedPhase='ready';report('ready',programs.size,programs.size);return true;
       }catch(error){

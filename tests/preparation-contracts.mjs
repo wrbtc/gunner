@@ -58,6 +58,19 @@ await check('bound-five-dedup-keeps-all-seven-world-counts-one-cockpit-and-captu
  assert.deepEqual(f.cinema.stats().preparedPointLightCounts,[11,12,13,14,15,16,17]);
  assert.equal(f.progress.find(p=>p.stage==='submit').total,7*36+2+1);f.restored();assert.ok(extra.every(root=>!root.visible));
 });
+await check('slow-uniforms-defer-remaining-first-use-and-keep-light-conservation',async()=>{
+ const f=fixture();for(let i=0;i<9;i++)f.world.add(new T.PointLight());
+ const extra=Array.from({length:5},()=>{const root=new T.Group();root.visible=false;root.add(new T.PointLight());f.world.add(root);return root;});
+ f.setCompileDelay(30);f.setDelay(50);
+ const options={...f.options,lightVariants:{roots:[...f.roots,...extra],maxVisible:5},timeoutMs:400};
+ assert.equal(await f.cinema.prepare(f.world,f.camera,options),true);
+ assert.deepEqual([...new Set(worldJobs(f).map(c=>c.count))],[11,17]);
+ assert.ok(f.programs.some(program=>program.uniforms>=1));
+ assert.ok(f.programs.some(program=>program.uniforms===0));
+ const last=f.progress.at(-1);assert.equal(last.stage,'ready');assert.equal(last.completed,last.total);
+ assert.ok(!f.progress.some(p=>p.stage==='timed-out'));
+ f.restored();assert.ok(extra.every(root=>!root.visible));
+});
 await check('slow-compile-conserves-intermediate-light-count-jobs',async()=>{
  const f=fixture();for(let i=0;i<9;i++)f.world.add(new T.PointLight());
  const extra=Array.from({length:5},()=>{const root=new T.Group();root.visible=false;root.add(new T.PointLight());f.world.add(root);return root;});
