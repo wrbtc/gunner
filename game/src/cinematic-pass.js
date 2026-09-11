@@ -3,16 +3,22 @@ import * as THREE from '../vendor/three.module.js?v=052';
 // One HDR/output transform for both the world and the gun bubble.
 // Bloom is evaluated at quarter resolution; the aiming image stays full resolution.
 export function createCinematicPass(renderer) {
-  const quality={heat:true,contact:true};
+  const quality={heat:true,contact:true,msaa:true,bloom:true};
   let reducedEffectsActive=false;
   const options={type:THREE.HalfFloatType,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,depthBuffer:false};
   const hdr=new THREE.WebGLRenderTarget(1,1,{...options,depthBuffer:true,samples:4});
   hdr.depthTexture=new THREE.DepthTexture(1,1,THREE.UnsignedIntType);
+  // Prepared 4x HDR stays allocated. Reduced renders into this 0-sample twin so
+  // sample-count swaps never hitch the live target.
+  const hdrLite=new THREE.WebGLRenderTarget(1,1,{...options,depthBuffer:true,samples:0});
+  hdrLite.depthTexture=new THREE.DepthTexture(1,1,THREE.UnsignedIntType);
+  const bloomBlack=new THREE.DataTexture(new Uint8Array([0,0,0,255]),1,1);
+  bloomBlack.colorSpace=THREE.LinearSRGBColorSpace;bloomBlack.needsUpdate=true;
   const contact=new THREE.WebGLRenderTarget(1,1,{...options,minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter});
   const contactPing=contact.clone();
   const shaded=new THREE.WebGLRenderTarget(1,1,options);
   const ping=new THREE.WebGLRenderTarget(1,1,options),pong=new THREE.WebGLRenderTarget(1,1,options);
-  for(const target of [hdr,ping,pong])target.texture.colorSpace=THREE.LinearSRGBColorSpace;
+  for(const target of [hdr,hdrLite,ping,pong])target.texture.colorSpace=THREE.LinearSRGBColorSpace;
   const quadScene=new THREE.Scene(),quadCamera=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
   const vertex='varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}';
   const material=(uniforms,fragment)=>new THREE.ShaderMaterial({uniforms,vertexShader:vertex,fragmentShader:fragment,depthTest:false,depthWrite:false,toneMapped:false});
@@ -85,16 +91,19 @@ export function createCinematicPass(renderer) {
   function captureStingFrame(){const previous=renderer.getRenderTarget(),oldMaterial=quad.material;frozenFrame.setSize(width,height);draw(freezeCopy,frozenFrame);renderer.setRenderTarget(previous);quad.material=oldMaterial;snapshotSerial++;return frozenFrame.texture;}
   const quad=new THREE.Mesh(new THREE.PlaneGeometry(2,2),extract);quadScene.add(quad);
   let width=1,height=1;
-  function resize(){const size=renderer.getDrawingBufferSize(new THREE.Vector2());if(size.x===width&&size.y===height)return;width=size.x;height=size.y;hdr.setSize(width,height);shaded.setSize(width,height);contact.setSize(Math.max(1,width>>1),Math.max(1,height>>1));contactPing.setSize(contact.width,contact.height);occlusion.uniforms.uResolution.value.set(width,height);contactComposite.uniforms.uContactSize.value.set(contact.width,contact.height);ping.setSize(Math.max(1,width>>2),Math.max(1,height>>2));pong.setSize(Math.max(1,width>>2),Math.max(1,height>>2));}
+  function resize(){const size=renderer.getDrawingBufferSize(new THREE.Vector2());if(size.x===width&&size.y===height)return;width=size.x;height=size.y;hdr.setSize(width,height);hdrLite.setSize(width,height);shaded.setSize(width,height);contact.setSize(Math.max(1,width>>1),Math.max(1,height>>1));contactPing.setSize(contact.width,contact.height);occlusion.uniforms.uResolution.value.set(width,height);contactComposite.uniforms.uContactSize.value.set(contact.width,contact.height);ping.setSize(Math.max(1,width>>2),Math.max(1,height>>2));pong.setSize(Math.max(1,width>>2),Math.max(1,height>>2));}
   function draw(mat,target){quad.material=mat;renderer.setRenderTarget(target);renderer.render(quadScene,quadCamera);}
-  function applyContact(camera,scale=1){
+  function applyContact(camera,scale=1,source=hdr){
+    occlusion.uniforms.tDepth.value=source.depthTexture;
     occlusion.uniforms.uInverseProjection.value.copy(camera.projectionMatrixInverse);
     occlusion.uniforms.uProjection.value=camera.projectionMatrix.elements[5];occlusion.uniforms.uScale.value=scale;
+    contactComposite.uniforms.tImage.value=source.texture;
+    contactComposite.uniforms.tDepth.value=source.depthTexture;
     draw(occlusion,contact);
     contactBlur.uniforms.tContact.value=contact.texture;contactBlur.uniforms.uDirection.value.set(1/contact.width,0);draw(contactBlur,contactPing);
     contactBlur.uniforms.tContact.value=contactPing.texture;contactBlur.uniforms.uDirection.value.set(0,1/contact.height);draw(contactBlur,contact);
     draw(contactComposite,shaded);
-    renderer.autoClear=false;draw(copy,hdr);renderer.autoClear=true;
+    renderer.autoClear=false;draw(copy,source);renderer.autoClear=true;
   }
   let preparedPrograms=0,preparedPointLightCounts=[],contextGeneration=0,preparation=null;
   let preparationStatus={stage:'idle',completed:0,total:0};
@@ -377,19 +386,23 @@ export function createCinematicPass(renderer) {
     entry.promise=Promise.resolve().then(run);return entry.promise;
   }
   function render(scene,camera,{time=0,reducedMotion=false,reducedEffects=false,worldOnly=false,exterior=false}={}){
-    // Reduced effects skips contact shading while retaining the prepared
-    // 4x MSAA target; switching sample counts can cause a first-use GPU hitch.
+    // Reduced keeps the prepared 4x HDR target and draws the world into a
+    // preallocated 0-sample twin. Contact and quarter-res bloom are skipped.
+    // Mutating hdr.samples on the live target can hitch Intel-class Safari.
     reducedEffectsActive=!!reducedEffects;
     const contactEnabled=quality.contact&&!reducedEffectsActive;
+    const msaaEnabled=quality.msaa&&!reducedEffectsActive;
+    const bloomEnabled=quality.bloom&&!reducedEffectsActive;
+    const worldTarget=msaaEnabled?hdr:hdrLite;
     // The world has an eight-metre flight clearance. Giving it its own near
     // plane preserves depth precision; the close gun keeps its original plane.
     const weaponNear=camera.near;camera.near=exterior?weaponNear:Math.max(.5,weaponNear);camera.updateProjectionMatrix();
-    resize();renderer.setRenderTarget(hdr);renderer.autoClear=true;camera.layers.set(0);
+    resize();renderer.setRenderTarget(worldTarget);renderer.autoClear=true;camera.layers.set(0);
     renderer.render(scene,camera);
     if(contactEnabled&&(!exterior||worldOnly)){
       // Copy colour only. Exterior aircraft still use the world's untouched
       // multisampled depth; the interior clears it at the original boundary.
-      applyContact(camera);
+      applyContact(camera,1,worldTarget);
     }
     camera.near=weaponNear;camera.updateProjectionMatrix();
     if(!worldOnly){
@@ -401,10 +414,17 @@ export function createCinematicPass(renderer) {
       if(!exterior)renderer.clearDepth();
       camera.layers.set(1);renderer.render(scene,camera);camera.layers.set(0);
       scene.background=bg;renderer.autoClear=true;
-      if(contactEnabled)applyContact(camera,exterior?1:.045);
+      if(contactEnabled)applyContact(camera,exterior?1:.045,worldTarget);
     }
-    draw(extract,ping);blur.uniforms.tImage.value=ping.texture;blur.uniforms.uDirection.value.set(1/ping.width,0);draw(blur,pong);
-    blur.uniforms.tImage.value=pong.texture;blur.uniforms.uDirection.value.set(0,1/ping.height);draw(blur,ping);
+    extract.uniforms.tImage.value=worldTarget.texture;
+    composite.uniforms.tImage.value=worldTarget.texture;
+    if(bloomEnabled){
+      draw(extract,ping);blur.uniforms.tImage.value=ping.texture;blur.uniforms.uDirection.value.set(1/ping.width,0);draw(blur,pong);
+      blur.uniforms.tImage.value=pong.texture;blur.uniforms.uDirection.value.set(0,1/ping.height);draw(blur,ping);
+      composite.uniforms.tBloom.value=ping.texture;
+    }else{
+      composite.uniforms.tBloom.value=bloomBlack;
+    }
     composite.uniforms.uTime.value=time;composite.uniforms.uHeat.value=reducedMotion||!quality.heat?0:.00065;
     // GPU history is lost with the context. Refresh the same texture only
     // after this world's HDR+bloom exists; preserve sting age and gameplay.
@@ -415,6 +435,6 @@ export function createCinematicPass(renderer) {
     contextGeneration++;preparedPrograms=0;preparedPointLightCounts=[];preparationStatus={stage:'canceled',completed:0,total:0};
     // Drop GPU ownership while Three's old context tables still own it. Keep
     // target/texture objects so material uniforms and sting identity survive.
-    for(const t of [hdr,ping,pong,contact,contactPing,shaded,frozenFrame])t.dispose();
-  },recoverContext(){stingRecoveryPending=true;},postMaterial:composite,captureStingFrame,stingSnapshot:()=>({target:frozenFrame,serial:snapshotSerial}),exposure:composite.uniforms.uExposure,stats:()=>({preparedPrograms,preparation:{...preparationStatus},preparedPointLightCounts:[...preparedPointLightCounts],reducedEffects:reducedEffectsActive,worldMsaaSamples:hdr.samples,worldNear:.5,contactOcclusionSamples:quality.contact&&!reducedEffectsActive?8:0,contactScale:.5}),dispose(){for(const t of [hdr,ping,pong,contact,contactPing,shaded,frozenFrame])t.dispose();for(const m of [extract,blur,composite,freezeCopy,occlusion,contactBlur,contactComposite,copy])m.dispose();quad.geometry.dispose();}};
+    for(const t of [hdr,hdrLite,ping,pong,contact,contactPing,shaded,frozenFrame])t.dispose();
+  },recoverContext(){stingRecoveryPending=true;},postMaterial:composite,captureStingFrame,stingSnapshot:()=>({target:frozenFrame,serial:snapshotSerial}),exposure:composite.uniforms.uExposure,stats:()=>({preparedPrograms,preparation:{...preparationStatus},preparedPointLightCounts:[...preparedPointLightCounts],reducedEffects:reducedEffectsActive,worldMsaaSamples:quality.msaa&&!reducedEffectsActive?hdr.samples:0,bloomPasses:quality.bloom&&!reducedEffectsActive?3:0,worldNear:.5,contactOcclusionSamples:quality.contact&&!reducedEffectsActive?8:0,contactScale:.5}),dispose(){for(const t of [hdr,hdrLite,ping,pong,contact,contactPing,shaded,frozenFrame])t.dispose();bloomBlack.dispose();for(const m of [extract,blur,composite,freezeCopy,occlusion,contactBlur,contactComposite,copy])m.dispose();quad.geometry.dispose();}};
 }

@@ -1,4 +1,4 @@
-# Release validation — v0.54.37
+# Release validation — v0.54.38
 
 ## Older Intel Safari / short desktop viewport
 
@@ -184,8 +184,8 @@ the tab was hidden, not a graphics/uniforms stall.
 v0.54.35 pauses the scene-construction and bounded-preparation deadlines
 while `document.visibilityState !== 'visible'` and counts only visible
 elapsed time. Visible-tab stalls still fail at the existing 30s budget.
-Graphics-prep uniforms deferral, present-hold, and Reduced auto are
-unchanged. Soft-GPU stays off.
+Graphics-prep uniforms deferral, present-hold, and Reduced auto remain.
+Soft-GPU stays off.
 
 v0.54.37 is a menu-layout follow-up only: typical laptop heights keep
 end-pack (ammo + DEPLOY above a fold-anchored footer), start-pack stays on
@@ -201,15 +201,39 @@ Safari 17.6), a live load can still leave sustained FPS in the fail band
 Simulation is already gated on pause; the render loop had still been running
 the full cinematic present (MSAA + contact unless Reduced Effects is on).
 
-This follow-up holds the last presented frame while `game.paused` or
-`document.hidden` is true: rAF continues for UI clocks, but the HDR/MSAA/contact
-pass is not redrawn. After Deploy, if the HUD FPS band stays `low` (~<30) for
-about four seconds of visible unpaused flight, Reduced Effects is turned on
-once. The existing Reduced checkbox remains the user override. No user-agent
-sniff is used as the gate. MSAA/contact cuts beyond the existing Reduced path
-are left for a later A/B.
+Present-hold while `game.paused` or `document.hidden` is true remains: rAF
+continues for UI clocks, but the HDR/MSAA/contact pass is not redrawn. After
+Deploy, if the HUD FPS band stays `low` (~<30) for about four seconds of
+visible unpaused flight, Reduced Effects is turned on once. The existing
+Reduced checkbox remains the user override. No user-agent sniff is used.
 
-Physical Intel Safari acceptance of this present-hold / reduced-auto path is
+## Reduced low-draw path (v0.54.38)
+
+Live 0.54.34 Iris Safari combat with Reduced already on still sat at about
+8–9 FPS (fail vs the ≥20 degraded bar), while present-hold while paused
+already passed (~52–60). Contact-only Reduced was not the remaining cost:
+the world still drew into the prepared 4x MSAA HDR target, quarter-res bloom
+still ran, and PCF-soft shadow maps still updated every frame (sun 2048 plus
+a 1024 intrusion spot).
+
+v0.54.38 keeps the prepared 4x HDR target allocated and, when Reduced is on
+(auto or manual), draws the world into a preallocated 0-sample twin, skips
+contact and bloom, and freezes shadow-map updates. `shadowMap.enabled` and
+PCFSoft stay on so prepared `USE_SHADOWMAP` programs are not rebuilt.
+Both full-resolution HDR targets remain allocated (4x + 0-sample), so a
+VRAM residual from the unused twin is expected. Canvas `antialias` and
+`powerPreference: high-performance` stay as they were. Soft-GPU stays off
+(`failIfMajorPerformanceCaveat: false`). Pixel ratio stays capped at 1; it
+is not resized at runtime. Shader first-use uniform/attribute work is not
+reopened. Menu Deploy-above-Dock packing from 0.54.36/0.54.37 is unchanged.
+
+QA retest on that Iris-class Safari: Deploy with Reduced ON (checkbox or
+wait for auto after a sustained low HUD band). Record unpaused combat HUD
+FPS. Target is ≥20 with Reduced on. Reduced OFF should not get worse in a
+harmful way (same 4x HDR, contact, bloom, and live shadows). Present-hold
+while paused/hidden should still hold the last frame. Do not enable Soft-GPU.
+
+Physical Intel Safari combat FPS acceptance of this deeper Reduced path is
 still pending.
 
 ## Testing and patch requests

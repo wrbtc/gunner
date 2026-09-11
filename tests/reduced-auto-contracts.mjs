@@ -15,9 +15,15 @@ assert.match(main,/saved\.reducedUserSet===true/);
 assert.doesNotMatch(main,/navigator\.userAgent/);
 assert.doesNotMatch(main,/userAgent\.includes/);
 
+assert.match(main,/function applyReducedDrawCost\(reduced\)/);
+assert.match(main,/renderer\.shadowMap\.autoUpdate=!reduced/);
+assert.match(main,/renderer\.shadowMap\.enabled = true/);
+assert.doesNotMatch(main,/shadowMap\.enabled\s*=\s*!/);
+assert.doesNotMatch(main,/shadowMap\.enabled\s*=\s*false/);
+const apply=main.match(/function applyReducedDrawCost\(reduced\)\{[\s\S]*?\n\}/)?.[0];
 const arm=main.match(/function armReducedAuto\(\)\{[\s\S]*?\n\}/)?.[0];
 const consider=main.match(/function considerReducedAuto\(now\)\{[\s\S]*?\n\}/)?.[0];
-assert.ok(arm&&consider,'reduced auto helpers are present');
+assert.ok(apply&&arm&&consider,'reduced auto helpers are present');
 
 function harness(){
   const reducedEffects={checked:false};
@@ -28,6 +34,7 @@ function harness(){
     game:{running:true,paused:false,ended:false,contextLost:false},
     document:{hidden:false},
     dom:{fps:{dataset:{band:'low'}}},
+    renderer:{shadowMap:{enabled:true,autoUpdate:true}},
     mayhemFX:{reduced:false,setReducedEffects(value){this.reduced=!!value;}},
     saves:0,
     events:[],
@@ -35,7 +42,7 @@ function harness(){
     savePreferences(){context.saves++;},
     logEvent(type){context.events.push(type);},
   };
-  vm.runInNewContext(`${arm};${consider};globalThis.armReducedAuto=armReducedAuto;globalThis.considerReducedAuto=considerReducedAuto`,context);
+  vm.runInNewContext(`${apply};${arm};${consider};globalThis.armReducedAuto=armReducedAuto;globalThis.considerReducedAuto=considerReducedAuto;globalThis.applyReducedDrawCost=applyReducedDrawCost`,context);
   return {context,reducedEffects};
 }
 
@@ -50,10 +57,15 @@ first.context.considerReducedAuto(5000);
 assert.equal(first.context.preferences.reduced,true);
 assert.equal(first.reducedEffects.checked,true);
 assert.equal(first.context.mayhemFX.reduced,true);
+assert.equal(first.context.renderer.shadowMap.autoUpdate,false);
+assert.equal(first.context.renderer.shadowMap.enabled,true);
 assert.equal(first.context.reducedAuto.applied,true);
 assert.equal(first.context.reducedAuto.armed,false);
 assert.equal(first.context.saves,1);
 assert.deepEqual(first.context.events,['reduced-auto']);
+first.context.applyReducedDrawCost(false);
+assert.equal(first.context.renderer.shadowMap.autoUpdate,true);
+assert.equal(first.context.renderer.shadowMap.enabled,true);
 
 const paused=harness();
 paused.context.armReducedAuto();

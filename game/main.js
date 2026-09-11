@@ -1,6 +1,6 @@
 import {menuMusic} from './src/menu-music.js?v=054-22';
 import {missionBenchmark,missionRating,createRankReveal} from './src/mission-rating.js?v=054-6';
-import {setGuideModelProvider,guideViewerStats,loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-37';
+import {setGuideModelProvider,guideViewerStats,loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-38';
 import {createPlayTracking} from './src/play-tracking.js?v=052';
 import {createPilotRadio} from './src/pilot-radio.js?v=054-16';
 import {createQueenEncounter} from './src/queen-encounter.js?v=054-22';
@@ -27,7 +27,7 @@ import {createEggNests} from './src/egg-nests.js?v=054-26';
 import {createBankDemons} from './src/bank-demons.js?v=054-5';
 import {createBlastWorld} from './src/blast-world.js?v=052';
 import {createHellWorld} from './src/hell-world.js?v=054';
-import {createCinematicPass} from './src/cinematic-pass.js?v=054-32';
+import {createCinematicPass} from './src/cinematic-pass.js?v=054-38';
 import {createCalderaEnvironment} from './src/caldera-light.js?v=052';
 import {createMayhemFX} from './src/mayhem-fx.js?v=054-5';
 import {SoundEngine as MayhemSoundEngine} from './src/mayhem-audio.js?v=054-6';
@@ -112,7 +112,7 @@ class Rng {
 
 const rng = new Rng(),fxRng=new Rng(0xa11ce),ejectionRng=new Rng(0xb12a55);
 startupMark('renderer','begin');
-const renderer = new THREE.WebGLRenderer({ canvas: dom.canvas, antialias: true, powerPreference: 'high-performance' });
+const renderer = new THREE.WebGLRenderer({ canvas: dom.canvas, antialias: true, powerPreference: 'high-performance', failIfMajorPerformanceCaveat: false });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1));
 renderer.setSize(innerWidth, innerHeight, false);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -138,6 +138,12 @@ function armReducedAuto(){
   if(preferences.reduced||reducedAuto.userSet||reducedAuto.applied){reducedAuto.armed=false;reducedAuto.lowSince=0;return;}
   reducedAuto.armed=true;reducedAuto.lowSince=0;
 }
+function applyReducedDrawCost(reduced){
+  // Keep shadowMap.enabled and PCFSoft so prepared USE_SHADOWMAP programs stay
+  // valid. Reduced only freezes map updates (sun 2048 + intrusion 1024).
+  renderer.shadowMap.autoUpdate=!reduced;
+  mayhemFX?.setReducedEffects(!!reduced);
+}
 function considerReducedAuto(now){
   if(!reducedAuto.armed||reducedAuto.applied||reducedAuto.userSet||preferences.reduced)return;
   if(!game.running||game.paused||game.ended||game.contextLost||document.hidden){reducedAuto.lowSince=0;return;}
@@ -146,7 +152,7 @@ function considerReducedAuto(now){
   if(now-reducedAuto.lowSince<REDUCED_AUTO_MS)return;
   reducedAuto.applied=true;reducedAuto.armed=false;preferences.reduced=true;
   const box=$('#reducedEffects');if(box)box.checked=true;
-  mayhemFX?.setReducedEffects(true);savePreferences();logEvent('reduced-auto');
+  applyReducedDrawCost(true);savePreferences();logEvent('reduced-auto');
 }
 const hooks = { update: null, onShot: null, onImpact: null, onEnemyHit: null, onCannon: null, onReset: null };
 let worldCollisionMeshes = [];
@@ -1482,7 +1488,7 @@ function qaCoreChecks(){
   return {kind:'diagnostic-core-checks',passed:checks.filter(c=>c.pass).length,total:checks.length,checks};
 }
 const qaApi={
-  version:'0.54.37',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
+  version:'0.54.38',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
   start:()=>start({skipOpening:true,legacyRoute:true}),beginOpening:()=>start(),skipOpening:()=>finishOpening(true),openingState:()=>({active:game.opening,title:game.title,time:game.openingTime,phase:openingPhase,flightProgress:currentFlightProgress(),camera:camera.position.toArray(),quaternion:camera.quaternion.toArray(),fov:camera.fov,fade:Number(dom.openingFade.style.opacity)||0,exterior:bomberExterior?.stats(),cameraPath:openingCamera?.stats()}),seekOpening:(seconds)=>{game.openingTime=THREE.MathUtils.clamp(seconds,0,OPENING_SECONDS);game.captureFreeze=true;updatePlane(0);updateOpeningPresentation();return true;},reset:qaReset,pause,resume,setTime:(seconds)=>{game.time=THREE.MathUtils.clamp(seconds,0,RUN_SECONDS);updatePlane(0);creatureTracking?.seek(game.time);},setView:(yaw,pitch)=>{game.yaw=yaw;game.pitch=THREE.MathUtils.clamp(pitch,-1.38,.95);updatePlane(0);},turnAround,toggleRear:turnAround,fireCannon,fireRound,damage:(amount=6)=>damageHull(amount,planePos),explode:()=>explode(planePos.clone().addScaledVector(planeTangent,70),14),preview:setPreview,
   events:()=>game.eventLog.slice(),runtime:gunnerRuntime,trace:qaTrace,replay:qaReplay,checkCore:qaCoreChecks,
   aimAt:(target)=>{const actor=typeof target==='string'?enemies.concat(siege).find(e=>e.id===target):null;qaAimAt(actor?actorCenter(actor):new THREE.Vector3().fromArray(target));},
@@ -1672,7 +1678,7 @@ $('#musicVolume').addEventListener('input',()=>{preferences.music=Number($('#mus
 sensitivityInput.addEventListener('input',()=>{preferences.sensitivity=Number(sensitivityInput.value)/100;savePreferences();});
 fovInput.addEventListener('input',()=>{playerFov=Number(fovInput.value);camera.fov=playerFov;camera.updateProjectionMatrix();savePreferences();});
 $('#invertAim').addEventListener('change',e=>{preferences.invert=e.target.checked;savePreferences();});
-$('#reducedEffects').addEventListener('change',e=>{reducedAuto.userSet=true;reducedAuto.armed=false;reducedAuto.lowSince=0;preferences.reduced=e.target.checked;mayhemFX.setReducedEffects(preferences.reduced);savePreferences();});
+$('#reducedEffects').addEventListener('change',e=>{reducedAuto.userSet=true;reducedAuto.armed=false;reducedAuto.lowSince=0;preferences.reduced=e.target.checked;applyReducedDrawCost(preferences.reduced);savePreferences();});
 function savePreferences(){try{localStorage.setItem('gunner-settings-v1',JSON.stringify({...preferences,fov:playerFov,reducedUserSet:reducedAuto.userSet}));}catch{}}
 try{const saved=JSON.parse(localStorage.getItem('gunner-settings-v1')||'{}');
  for(const [key,lo,hi]of [['volume',0,1],['music',0,1],['voice',0,1],['sensitivity',.3,1.7]])if(Number.isFinite(saved[key]))preferences[key]=THREE.MathUtils.clamp(saved[key],lo,hi);
@@ -1682,7 +1688,7 @@ try{const saved=JSON.parse(localStorage.getItem('gunner-settings-v1')||'{}');
 }catch{}
 $('#voiceVolume').value=preferences.voice*100;$('#pilotCaptions').checked=preferences.captions;pilot.setVolume(preferences.voice);pilot.setCaptions(preferences.captions);
 volumeInput.value=preferences.volume*100;$('#musicVolume').value=preferences.music*100;sensitivityInput.value=preferences.sensitivity*100;fovInput.value=playerFov;$('#invertAim').checked=preferences.invert;$('#reducedEffects').checked=preferences.reduced;
-audio.setVolume(preferences.volume);queenSampleCues.syncVolume();audio.setMusicVolume(preferences.music);camera.fov=playerFov;camera.updateProjectionMatrix();mayhemFX.setReducedEffects(preferences.reduced);
+audio.setVolume(preferences.volume);queenSampleCues.syncVolume();audio.setMusicVolume(preferences.music);camera.fov=playerFov;camera.updateProjectionMatrix();applyReducedDrawCost(preferences.reduced);
 settingsReady=true;$('#settingsButton').disabled=false;sceneAssemblyComplete=true;
 // Render the completed scene while preparing exact static collisions in yielded slices.
 // Start stays disabled until first-use work is finished; no index build lands on the first shot.
