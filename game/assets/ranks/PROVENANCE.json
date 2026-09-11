@@ -1,0 +1,18 @@
+{
+  "tool": "OpenAI built-in image generation",
+  "design": "Original same adult identity in four ranks; clean infant counterpart. Four-frame 2x2 facial sheets. No third-party game likeness copied.",
+  "frames": [
+    "open eyes",
+    "blink",
+    "raised brows",
+    "expression"
+  ],
+  "assets": {
+    "civilian.png": "505e6fab90354be564946d6ceaff5326a03edb2ce51145e97e1b6295e09982d8",
+    "hero.png": "dd0806b59fcb7c521100ad4ad8554a4bd33739be91392c822e879e18082634ef",
+    "top-gunner.png": "f5994b031627a2441c25699bef4ddad39a0565b4125756333585c76347b621c8",
+    "gunner.png": "80c177e0daebe65eaa3c6627b14d5fcd87806b46e55427bafe4cd52a001897f3",
+    "baby.png": "faf01da190605551cb871ebfccf7f0e5e798a9e8ef3e4a3509f601c065e6ffbd"
+  },
+  "exportNote": "Embedded generation metadata removed without changing decoded pixels; original image-generation attribution retained."
+}

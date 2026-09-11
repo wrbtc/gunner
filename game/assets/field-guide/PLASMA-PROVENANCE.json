@@ -1,0 +1,7 @@
+{
+  "source": "Original game Three.js Plasma scarab geometry, same model as gameplay",
+  "sourceModel": "src/plasma-bugs.js",
+  "sourceModelSHA256": "81675ef62dc3ec32043d122b9aeb860763454535e9260d3ff560666792ea271c",
+  "imageSHA256": "cdf599536bf654b86b53a71fa45762b61c9532b460bec8a8a962cdb83c7b4170",
+  "render": "Rendered from the original game model, 512x512 PNG."
+}
