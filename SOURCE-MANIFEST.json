@@ -1,5 +1,5 @@
 {
-  "version": "0.54.35",
+  "version": "0.54.36",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -198,18 +198,18 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 13307,
-      "sha256": "8e7abf4bcb3a93820f241fb79d188211b6d4cac116b28bf1ddf7065c48b18904"
+      "bytes": 13398,
+      "sha256": "d90e9e13ff94c394aa970e2fcbc69d15747f3f63579726a00264b8fe269840e6"
     },
     {
       "path": "game/main.js",
       "bytes": 159245,
-      "sha256": "43d47674dc20a13f4c9f6675c4fbcf70aa22eb6edadac4c4001b3f49ed18410e"
+      "sha256": "32fc39e457c8c6683a2e8f8bf2ef1af1eca48c3a3dc9c04735eb1e04338d9330"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "c0ef438f4c3fc94c64de1280b11ccbfd561d80186ceb4f1bff537cbf014ae54a"
+      "sha256": "c59c09140ae1fea278053a888585c133f69e28759582e0fe55c8c99fff284c1f"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -218,8 +218,8 @@
     },
     {
       "path": "game/src/app-viewport.js",
-      "bytes": 1504,
-      "sha256": "a575addac3b247be15152e5d344ff340b9088531770d1316e3945f307def31b8"
+      "bytes": 1678,
+      "sha256": "71452c87c35485d6026ccdc0b19200ea4119f161311e4832a19b601bad28396e"
     },
     {
       "path": "game/src/ash-volume.js",
@@ -404,7 +404,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26737,
-      "sha256": "4cc91d114e23744d8d0f2454c254a2153bc617286d7eb2b3936d1848e74ebb5a"
+      "sha256": "af47dd0df0906788b48a6f8fc4aaf39165817d40f944569588044a0d88354e51"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -573,8 +573,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 56566,
-      "sha256": "a35fb66bd8fbe2cb3625f1a7f9eec875e7ca214e03802910c461c7d4ec810c68"
+      "bytes": 57341,
+      "sha256": "89f859553b103b1255d66bc8e43f74d3953cb1defea30a47dbd8f354c3b3ba72"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.35 pauses scene-construction and bounded-preparation deadlines while the document is not visible, so a hidden-tab interval cannot spend the visible 30s budget. It keeps the last cinematic frame while paused or hidden and can auto-enable Reduced Effects after a sustained low HUD FPS band. It keeps Intel-class shader first-use uniform deferral, conserved light-count variants, tall menus end-packed, short menus start-packed, Coming Soon removed below 760px, and ammo, Deploy, failed-load reporting, and footer controls inside tested desktop viewports. Explicit click-to-play music consent, supplied Queen cinematic samples, bounded diagnostics, and the in-flight FPS counter remain. Soft-GPU stays off. Public privacy adaptations retained; physical Intel Safari performance acceptance remains pending."
+  "note": "Gunner v0.54.36 is a menu-layout follow-up: typical laptop heights keep end-pack so ammo and DEPLOY sit just above a fold-anchored footer, while start-pack remains on html[data-app-short] (visual viewport \u2264864) and the 850/760 short locks so Intel Safari + Dock still clears Deploy by \u22658px. Idle REPORT FAILED LOAD moves into a discreet footer QA disclosure; fail-path COPY stays in the reserved deploy row. Hidden-tab deadline pause, present-hold, Reduced auto, Intel-class uniform deferral, conserved light-count variants, Coming Soon removed below 760px, explicit click-to-play music consent, supplied Queen cinematic samples, bounded diagnostics, and the in-flight FPS counter remain. Soft-GPU stays off. Public privacy adaptations retained; physical Intel Safari performance acceptance remains pending."
 }

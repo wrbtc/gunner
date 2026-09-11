@@ -1,4 +1,4 @@
-# Release validation — v0.54.35
+# Release validation — v0.54.36
 
 ## Older Intel Safari / short desktop viewport
 
@@ -54,9 +54,10 @@ recorded `conserved-light-variants`.
 The menu fix sizes the overlay from `visualViewport` / `100svh` / safe-area
 insets, allows overflow scroll, and keeps a reserved deploy row so the 24 ammo
 ticks and DEPLOY GUNNER cannot pack below a Dock-safe view. Compaction applies
-at `max-height: 920px` and via `html[data-app-short]` (visual viewport), not only
-the older 850/760/720/650 poster rules. Art, FPS counter, and the ammo-progress
-loader stay in place.
+at `max-height: 920px` and via `html[data-app-short]` (visual viewport ≤864), not
+only the older 850/760/720/650 poster rules. Art, FPS counter, and the
+ammo-progress loader stay in place. Typical laptop heights keep end-pack so ammo
+and DEPLOY sit just above the footer.
 
 A later Intel Safari measurement at about **1207×864** (window plus Dock) showed
 `.ammo-progress` and `#startButton` still below the fold because those controls
@@ -83,24 +84,25 @@ bugs after v0.54.23 shipped `REPORT FAILED LOAD` as a footer `quietButton`:
 - `REPORT FAILED LOAD` was faint 11px text next to PLAY MUSIC, crushed into the
   Dock, so the tester could not start a copy-report QA pass.
 
-This branch keeps `REPORT FAILED LOAD` in the reserved deploy column. Idle
-Report is a 44px outline so DEPLOY GUNNER stays the primary gold CTA. On the
-fail path (`#intro.load-failed` and `.loading-failure`), REPORT and COPY use
-the same gold fill as Deploy and stay in that reserved row.
+Idle `REPORT FAILED LOAD` now lives in a collapsed footer `QA` disclosure so
+the first screen matches the concept-24 CTA band (ammo → DEPLOY → Coming Soon).
+On the fail path (`#intro.load-failed` and `.loading-failure`), COPY stays a
+gold 44px control in the reserved deploy row.
 
 `--app-inset-bottom` is now capped at **24px** (layout viewport minus visual
 viewport only). The older short-window pad was **56px** at `max-height:850px`
 and **64px** at `650px`, applied inside an already-visible visual box, which
 could push Deploy below the Dock-safe fold.
 
-The preparing/ready column uses the short-desktop design lock: ammo → DEPLOY
-first in `.poster-right`, `justify-content: flex-start`, no `overflow: hidden`
-on that column, and a Dock-safe bottom inset of at least 8px. Short viewports
-(`max-height: 920px` / `850px` and `html[data-app-short]`) collapse Uncharted
-and the sector note so at most a quiet COMING SOON line follows Deploy.
+The preparing/ready column uses ammo → DEPLOY first in `.poster-right`, no
+`overflow: hidden` on that column, and a Dock-safe bottom inset of at least 8px.
+Tall and typical laptop heights (`max-height: 920px` compaction without
+start-pack) end-pack with `.mission-footer { margin-top: auto }`. Short
+viewports (`html[data-app-short]`, `max-height: 850px` / `760px`) start-pack so
+Deploy stays above the Dock. Those short locks collapse Uncharted and the
+sector note so at most a quiet COMING SOON line follows Deploy.
 At `max-height: 760px` that line is dropped if the CTA would still fight the
-Dock. Tall viewports keep end-packing when Deploy already clears the Dock.
-Masthead shrinks before the brass DEPLOY control (54px).
+Dock. Masthead shrinks before the brass DEPLOY control (54px).
 
 Fail UI: `#intro.load-failed` packs RETRY / gold REPORT / gold COPY in the
 reserved deploy row so those controls stay initially in-viewport on ~650–864px
@@ -183,6 +185,11 @@ while `document.visibilityState !== 'visible'` and counts only visible
 elapsed time. Visible-tab stalls still fail at the existing 30s budget.
 Graphics-prep uniforms deferral, present-hold, and Reduced auto are
 unchanged. Soft-GPU stays off.
+
+v0.54.36 is a menu-layout follow-up only: typical laptop heights keep
+end-pack (ammo + DEPLOY above a fold-anchored footer), start-pack stays on
+the short Intel Safari + Dock class, and idle Report moves into a discreet
+footer QA disclosure. Soft-GPU stays off.
 
 ## Pause / hidden present hold and reduced auto
 

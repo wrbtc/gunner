@@ -5,13 +5,13 @@ Fly through a volcanic canyon, destroy nests and creatures, and survive the Quee
 
 **Play Gunner: https://gunner.satoshis.watch/**
 
-This is the **v0.54.35 runtime with the concept-24 menu**, matching current
+This is the **v0.54.36 runtime with the concept-24 menu**, matching current
 production. It fits the briefing to short desktop viewports, keeps its report
 controls clear of the macOS Dock, and adds the supplied Queen reveal growl and raised-arms shriek,
 timed to the cinematic, and keeps menu/outcome music silent until the player
-explicitly presses `PLAY MUSIC`. The briefing also includes `REPORT FAILED LOAD`,
-which opens a bounded copyable diagnostic without failing the loader or sending
-data automatically. It includes the full-poster chapter presentation, complete
+explicitly presses `PLAY MUSIC`. The briefing also includes a discreet footer `QA` disclosure with
+`REPORT FAILED LOAD`, which opens a bounded copyable diagnostic without failing
+the loader or sending data automatically. It includes the full-poster chapter presentation, complete
 walkie-radio voice set, current aircraft and field guide, opening and outcome
 presentation, the 24-stage loading path, bounded Safari graphics diagnostics,
 and an always-visible in-flight FPS counter.
@@ -120,6 +120,6 @@ for some original models, illustrations and dialogue audio.
 homepage and HTML canonical/Open Graph URLs point there. The public repository
 does not advertise internal testing sites.
 
-This export matches the production v0.54.35 runtime with the concept-24 menu,
+This export matches the production v0.54.36 runtime with the concept-24 menu,
 subject only to the publication adaptations listed above. Telemetry remains disabled. See
 [KNOWN-ISSUES.md](KNOWN-ISSUES.md) for the testing limits.
