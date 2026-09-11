@@ -1,4 +1,4 @@
-# Release validation — v0.54.27
+# Release validation — v0.54.29
 
 ## Older Intel Safari / short desktop viewport
 
@@ -22,7 +22,7 @@ absent. Trace: collision end ~56799ms, graphics begin ~56800ms, startup failed
 
 The primary remaining bug is the **shader submit stall**. At that submit rate
 the remaining light-count jobs still overrun cinematic's 30s budget after the
-watchdog. v0.54.27 conserves intermediate plasma light-count variants when
+watchdog. v0.54.28 conserves intermediate plasma light-count variants when
 remaining serial compile work exceeds 80% of remaining graphics time. Fast
 compilers (modern Safari/Chrome, `compileMs` under 16ms or
 `KHR_parallel_shader_compile`) keep every planned job. Conserved runs still
