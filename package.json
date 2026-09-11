@@ -1,0 +1,9 @@
+{
+  "name": "gunner",
+  "version": "0.54.26",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": { "test": "node tests/run.mjs" },
+  "engines": { "node": ">=22" }
+}
