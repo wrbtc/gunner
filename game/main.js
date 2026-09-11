@@ -123,6 +123,8 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.info.autoReset = false;
 const frameMetrics = { calls: 0, triangles: 0, points: 0, frameMs: 0, fps: 0 };
 const fpsSample = { started: 0, frames: 0 };
+const REDUCED_AUTO_MS=4000;
+const reducedAuto={armed:false,lowSince:0,applied:false,userSet:false};
 function updateFps(now) {
   const span=now-fpsSample.started;
   if(!fpsSample.started||span>2000){fpsSample.started=now;fpsSample.frames=0;return;}
@@ -131,6 +133,20 @@ function updateFps(now) {
   const fps=Math.max(0,Math.round(fpsSample.frames*1000/span));
   frameMetrics.fps=fps;dom.fps.textContent=String(fps);dom.fps.dataset.band=fps<30?'low':fps<50?'watch':'good';
   fpsSample.started=now;fpsSample.frames=0;
+}
+function armReducedAuto(){
+  if(preferences.reduced||reducedAuto.userSet||reducedAuto.applied){reducedAuto.armed=false;reducedAuto.lowSince=0;return;}
+  reducedAuto.armed=true;reducedAuto.lowSince=0;
+}
+function considerReducedAuto(now){
+  if(!reducedAuto.armed||reducedAuto.applied||reducedAuto.userSet||preferences.reduced)return;
+  if(!game.running||game.paused||game.ended||game.contextLost||document.hidden){reducedAuto.lowSince=0;return;}
+  if(dom.fps.dataset.band!=='low'){reducedAuto.lowSince=0;return;}
+  if(!reducedAuto.lowSince)reducedAuto.lowSince=now;
+  if(now-reducedAuto.lowSince<REDUCED_AUTO_MS)return;
+  reducedAuto.applied=true;reducedAuto.armed=false;preferences.reduced=true;
+  const box=$('#reducedEffects');if(box)box.checked=true;
+  mayhemFX?.setReducedEffects(true);savePreferences();logEvent('reduced-auto');
 }
 const hooks = { update: null, onShot: null, onImpact: null, onEnemyHit: null, onCannon: null, onReset: null };
 let worldCollisionMeshes = [];
@@ -1165,7 +1181,7 @@ function render(now){
   if(loadingSnapshot().status==='failed'||!sceneAssemblyComplete)return;
   windowDamage?.advanceTime();
   const wallTime=now/1000,elapsed=Math.max(0,wallTime-game.lastFrame),dt=Math.min(.05,elapsed);game.lastFrame=wallTime;
-  updateFps(now);
+  updateFps(now);considerReducedAuto(now);
   if(game.running&&!game.paused&&!game.ended&&!game.captureFreeze&&!game.contextLost&&!document.hidden)playTracking.tick(elapsed);
   if(game.title&&!document.hidden&&!game.contextLost)game.titleTime+=dt;
   if(game.opening&&game.running&&!game.paused&&!game.captureFreeze&&!game.contextLost){
@@ -1201,9 +1217,12 @@ function render(now){
   emitHook('update',{time,dt:game.running&&!game.paused&&!game.ended&&!game.captureFreeze?dt:0,planePos,camera,paused:game.paused||game.captureFreeze});updateUI(now);
   if(!game.contextLost&&!graphicsPreparation&&loadingSnapshot().status!=='failed'){
     // Give collision timer slices room to run without competing title GPU work.
-    // Keep rAF for UI clocks; skip GPU present while egg-collision preparation is active.
+    // Keep rAF for UI clocks; skip GPU present while egg-collision preparation
+    // is active, the flight is paused, or the tab is hidden. The canvas holds
+    // the last presented HDR/MSAA/contact frame.
     const loading=loadingSnapshot();
-    if(loading.status==='preparing'&&loading.active==='collision'){
+    const holdPresent=game.paused||document.hidden;
+    if((loading.status==='preparing'&&loading.active==='collision')||holdPresent){
       frameMetrics.frameMs=elapsed*1000;
     }else{
       renderer.info.reset();
@@ -1248,6 +1267,7 @@ function start({skipOpening=false,legacyRoute=false}={}){
   if(measure)startupMark('first-start-audio','begin');audio.start();queenSampleCues.prime();if(measure){startupMark('first-start-audio','end');firstStartMeasured=true;}void pilot?.prime();audio.setScene(skipOpening?'canyon':'approach');if(!QA_MODE)requestPointerCapture();
   if(skipOpening){dom.hud.classList.add('visible');updatePlane(0);logEvent('run-start');}
   else{game.opening=true;dom.opening.hidden=false;dom.hud.classList.remove('visible');updatePlane(0);updateOpeningPresentation();logEvent('opening-start');}
+  armReducedAuto();
 }
 function pause(){if((!game.running&&!endingFlight?.active)||game.paused)return;game.paused=true;game.accumulator=0;game.gunHeld=false;audio.pause();if(!queen?.cinematic)queenSampleCues.pause();menuMusic?.setActive(true);dom.pause.hidden=false;$('#pauseEyebrow').textContent='FLIGHT SUSPENDED';$('#pauseTitle').textContent='PAUSED';$('#pauseDescription').textContent='The plane and every attack are frozen.';dom.resume.textContent=endingFlight?.active?'CONTINUE THE LAST FLIGHT':game.opening?'CONTINUE THE APPROACH':'RETURN TO THE GUN';document.exitPointerLock?.();dom.resume.focus({preventScroll:true});logEvent('paused');}
 function resume(){if(!game.paused||game.contextLost)return;game.paused=false;game.accumulator=0;dom.pause.hidden=true;menuMusic?.setActive(false);audio.start();queenSampleCues.resume();if(!endingFlight?.started&&!QA_MODE)requestPointerCapture();game.lastFrame=performance.now()/1000;logEvent('resumed');}
@@ -1652,11 +1672,12 @@ $('#musicVolume').addEventListener('input',()=>{preferences.music=Number($('#mus
 sensitivityInput.addEventListener('input',()=>{preferences.sensitivity=Number(sensitivityInput.value)/100;savePreferences();});
 fovInput.addEventListener('input',()=>{playerFov=Number(fovInput.value);camera.fov=playerFov;camera.updateProjectionMatrix();savePreferences();});
 $('#invertAim').addEventListener('change',e=>{preferences.invert=e.target.checked;savePreferences();});
-$('#reducedEffects').addEventListener('change',e=>{preferences.reduced=e.target.checked;mayhemFX.setReducedEffects(preferences.reduced);savePreferences();});
-function savePreferences(){try{localStorage.setItem('gunner-settings-v1',JSON.stringify({...preferences,fov:playerFov}));}catch{}}
+$('#reducedEffects').addEventListener('change',e=>{reducedAuto.userSet=true;reducedAuto.armed=false;reducedAuto.lowSince=0;preferences.reduced=e.target.checked;mayhemFX.setReducedEffects(preferences.reduced);savePreferences();});
+function savePreferences(){try{localStorage.setItem('gunner-settings-v1',JSON.stringify({...preferences,fov:playerFov,reducedUserSet:reducedAuto.userSet}));}catch{}}
 try{const saved=JSON.parse(localStorage.getItem('gunner-settings-v1')||'{}');
  for(const [key,lo,hi]of [['volume',0,1],['music',0,1],['voice',0,1],['sensitivity',.3,1.7]])if(Number.isFinite(saved[key]))preferences[key]=THREE.MathUtils.clamp(saved[key],lo,hi);
  for(const key of ['invert','reduced','captions'])if(typeof saved[key]==='boolean')preferences[key]=saved[key];
+ if(saved.reducedUserSet===true)reducedAuto.userSet=true;
  if(Number.isFinite(saved.fov))playerFov=THREE.MathUtils.clamp(saved.fov,58,82);
 }catch{}
 $('#voiceVolume').value=preferences.voice*100;$('#pilotCaptions').checked=preferences.captions;pilot.setVolume(preferences.voice);pilot.setCaptions(preferences.captions);

@@ -39,3 +39,4 @@ context.fpsSample.started=3000;context.fpsSample.frames=19;context.updateFps(350
 assert.equal(context.dom.fps.dataset.band,'watch');
 
 console.log('PASS fps-counter-contracts (17 checks)');
+

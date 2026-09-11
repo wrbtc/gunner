@@ -169,6 +169,25 @@ An informal Windows run was also reported as slow, without controlled FPS or
 hardware measurements. Linux performance has not yet been characterized. Use
 the built-in FPS counter and record the environment details below when testing.
 
+## Pause / hidden present hold and reduced auto
+
+On an Intel MacBook Pro 13-inch 2016 class (Iris Graphics 550, Monterey,
+Safari 17.6), a live load can still leave sustained FPS in the fail band
+(~7–10), including about 8 FPS while the overlay reads FLIGHT SUSPENDED.
+Simulation is already gated on pause; the render loop had still been running
+the full cinematic present (MSAA + contact unless Reduced Effects is on).
+
+This follow-up holds the last presented frame while `game.paused` or
+`document.hidden` is true: rAF continues for UI clocks, but the HDR/MSAA/contact
+pass is not redrawn. After Deploy, if the HUD FPS band stays `low` (~<30) for
+about four seconds of visible unpaused flight, Reduced Effects is turned on
+once. The existing Reduced checkbox remains the user override. No user-agent
+sniff is used as the gate. MSAA/contact cuts beyond the existing Reduced path
+are left for a later A/B.
+
+Physical Intel Safari acceptance of this present-hold / reduced-auto path is
+still pending.
+
 ## Testing and patch requests
 
 For each browser run, record exact browser/engine version, OS, device or VM,
