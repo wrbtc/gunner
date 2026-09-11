@@ -1,5 +1,5 @@
 {
-  "version": "0.54.32",
+  "version": "0.54.33",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -199,17 +199,17 @@
     {
       "path": "game/index.html",
       "bytes": 13220,
-      "sha256": "7f1e3d84bc8fba67714069779ed8d87d660ce82b61d2b1dc8206055fe2149d38"
+      "sha256": "6f618a0c7909eaf7cae7589491f33e1d94fbae7116ec5a979c78db42d6e0434e"
     },
     {
       "path": "game/main.js",
       "bytes": 159245,
-      "sha256": "b5c078313d6089e553cbae2b02d3f52ccc69c63fe39e2ddbc9717a5a837e6134"
+      "sha256": "d1b78fb549c9d20f63465188e5bb34f949a2ec7d4f23b9619f0e6d711bd0824e"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "ad1b4fbbb2e5b1799a0ae3829523ff5e4a5d65d00278522609b7fd130dd4324f"
+      "sha256": "e5c73fa8b6eab916f2694348a4c6e0da30c84cb79337a5a13f1cd8f1842be089"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -404,7 +404,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 24527,
-      "sha256": "36eb8ed9dfbda3134beef62d0f3b019a58ebdabb7a6eb619e9bf3ad299d84d1a"
+      "sha256": "c03b1b4ac6735bda6abaebc51054841c95e37868ed7cf4a01aa7c92662f53414"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.32 runtime with Intel-class shader first-use uniform deferral, conserved light-count variants, tall menus end-packed, short menus start-packed, Coming Soon removed below 760px, and ammo, Deploy, failed-load reporting, and footer controls kept inside tested desktop viewports. Explicit click-to-play music consent, supplied Queen cinematic samples, bounded diagnostics, and the in-flight FPS counter remain. Public privacy adaptations retained; physical Intel Safari performance acceptance remains pending."
+  "note": "Gunner v0.54.33 runtime holds the last cinematic frame while paused or hidden and can auto-enable Reduced Effects after a sustained low HUD FPS band. It keeps Intel-class shader first-use uniform deferral, conserved light-count variants, tall menus end-packed, short menus start-packed, Coming Soon removed below 760px, and ammo, Deploy, failed-load reporting, and footer controls inside tested desktop viewports. Explicit click-to-play music consent, supplied Queen cinematic samples, bounded diagnostics, and the in-flight FPS counter remain. Public privacy adaptations retained; physical Intel Safari performance acceptance remains pending."
 }
