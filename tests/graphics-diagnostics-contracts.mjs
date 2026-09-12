@@ -121,7 +121,7 @@ await check('failure-report-preserves-only-bounded-typed-graphics-evidence',asyn
   const raw={lastPhase:'u'.repeat(80),lastCompletedPhase:'uniforms',variant:'v'.repeat(100),layer:0,jobIndex:4,totalJobs:7,batchIndex:1,jobBatchCount:3,submittedObjects:42,totalObjects:99,discoveredPrograms:40,finishedPrograms:10,pendingProgramIds:Array.from({length:30},(_,i)=>`${i}-`+'p'.repeat(80)),elapsedMs:30001,maxCompileMs:123,recentCompileMs:12,maxReadyPollMs:3,recentReadyPollMs:2,maxUniformsMs:29999,recentUniformsMs:29999,maxAttributesMs:0,recentAttributesMs:0,maxIntrospectMs:30000,recentIntrospectMs:30000,contextLost:false,parallelCompile:true,compilerNote:'n'.repeat(300),exceptionCode:'PREPARATION_TIMEOUT',exceptionMessage:'m'.repeat(300),secretField:'must-not-serialize'};
   const controller=module.createLoadingController();controller.begin('scene',{stage:'timed-out',completed:10,total:40,preTimeoutSnapshot:raw});controller.fail(Object.assign(Error('Graphics preparation timed out'),{code:'PREPARATION_TIMEOUT'}));
   const report=JSON.parse(module.buildLoadingFailureReport({...controller.snapshot(),trace:{events:[],dropped:0}}));
-  assert.equal(report.build,'0.54.45');const snapshot=report.loading.progress.preTimeoutSnapshot;
+  assert.equal(report.build,'0.54.47');const snapshot=report.loading.progress.preTimeoutSnapshot;
   assert.equal(snapshot.lastPhase.length,32);assert.equal(snapshot.variant.length,64);assert.equal(snapshot.pendingProgramIds.length,24);
   assert.ok(snapshot.pendingProgramIds.every(id=>id.length<=48));assert.equal(snapshot.contextLost,false);assert.equal(snapshot.parallelCompile,true);
   assert.equal(snapshot.compilerNote.length,160);assert.equal(snapshot.exceptionMessage.length,160);assert.equal(snapshot.secretField,undefined);

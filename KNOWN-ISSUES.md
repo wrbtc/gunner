@@ -1,4 +1,4 @@
-# Release validation — v0.54.45
+# Release validation — v0.54.47
 
 ## Older Intel Safari / short desktop viewport
 
@@ -354,7 +354,7 @@ Reduced OFF still restores 4x MSAA by reallocating `hdr` and can hitch once.
 Soft-GPU stays off. Shader first-use uniforms are not reopened. Present-hold
 while paused or hidden, hidden-tab construction deadlines, LOAD graphics prep,
 0.54.41 hive composition, and 0.54.42 fill caps are unchanged. Menu short
-end-pack is owned by 0.54.45 and is not touched here.
+end-pack is owned by 0.54.47 and is not touched here.
 
 QA retest on that Iris-class Safari: Deploy with Reduced ON (checkbox or
 wait for auto). Record unpaused combat HUD FPS. Target is ≥20 with Reduced
@@ -389,7 +389,7 @@ v0.54.46 keeps those shipped Reduced draws as-is and, when Reduced is on
 
 Quarter-res live HDR, P2 fill caps, parked unused 4x HDR, skipped bloom/contact,
 and Soft-GPU OFF remain. Shader first-use uniforms are not reopened. Menu CSS
-is not touched. Menu short end-pack is owned by 0.54.45 and is not stolen here.
+is not touched. Menu short end-pack is owned by 0.54.47 and is not stolen here.
 A every-2nd-rAF present skip stays reserved for a later Intel-tier pass if
 GATE-05446-FPS still sits under 15 after these gates.
 
@@ -403,7 +403,7 @@ Soft-GPU.
 Physical Intel Safari combat FPS acceptance of this Reduced scene/CPU path
 is still pending.
 
-## Short-viewport hive end-pack (v0.54.45)
+## Short-viewport hive end-pack (v0.54.47)
 
 Live 0.54.46 includes the hive restore from 0.54.41 and the Reduced scene/CPU
 budget, but `html[data-app-short]` (viewport ≤864 / Dock) still start-packed:
@@ -411,7 +411,7 @@ budget, but `html[data-app-short]` (viewport ≤864 / Dock) still start-packed:
 `.mission-footer { margin-top:8px }`. That left Deploy mid-screen, a quiet
 Coming Soon line in the bottom-right, and an empty canyon above the footer.
 
-v0.54.45 is menu CSS/HTML only. Coming Soon extras still collapse on
+v0.54.47 is menu CSS/HTML only. Coming Soon extras still collapse on
 `data-app-short`, and the Dock inset still keeps Deploy ≥8px above the Dock.
 Short no longer start-packs, swaps order, or overrides footer margin: every
 height end-packs with `flex-end` plus `.mission-footer { margin-top: auto }`

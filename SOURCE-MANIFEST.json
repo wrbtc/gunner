@@ -1,5 +1,5 @@
 {
-  "version": "0.54.45",
+  "version": "0.54.47",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -199,17 +199,17 @@
     {
       "path": "game/index.html",
       "bytes": 13311,
-      "sha256": "5670740177a572b56c5c7935aa14f501db91e7f5edb8943fd31740e0ca33dcf6"
+      "sha256": "1477123a1c57a8216bde256beb10ad0bc50acf1c6eb17ac7c474adca984a648e"
     },
     {
       "path": "game/main.js",
       "bytes": 161753,
-      "sha256": "8b7a624666d146eebf3d1845aabbdc59d5051044691eae1a5774f7f7cd90ed7f"
+      "sha256": "9f1d03148d5fad91e4f7d678acb7c5ea7e874cd051089b5112cdef658fb422ff"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "de711d69b87848ef662ceed78b3c84b343785ee210744aebbfb86e7edaf075ad"
+      "sha256": "4d24aa956cf74ffb341d1eb3aebf42107c9daec541a320286eebc928e685f5cf"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -404,7 +404,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26799,
-      "sha256": "728b5dab19865145d030d8ca438572a85dfbc5998e5661889eb33a2b25530b7e"
+      "sha256": "6cceee290f173ac519451cc930791cbab26f06f6187ca74f1da01d296d28d631"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.45 is a menu CSS/HTML follow-up on the 0.54.46 Reduced scene/CPU parent: Coming Soon extras still collapse on html[data-app-short] with Dock inset, but short no longer start-packs, swaps order, or overrides footer margin. Every height end-packs with flex-end plus .mission-footer { margin-top: auto } so ammo and DEPLOY hug the fold like hive. Soft-GPU stays off. v0.54.46 scene/CPU gates, v0.54.44 quarter-res, v0.54.42 fill caps, parked 4x HDR, uniforms, and LOAD are untouched. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
+  "note": "Gunner v0.54.47 is a menu CSS/HTML follow-up on the 0.54.46 Reduced scene/CPU parent: Coming Soon extras still collapse on html[data-app-short] with Dock inset, but short no longer start-packs, swaps order, or overrides footer margin. Every height end-packs with flex-end plus .mission-footer { margin-top: auto } so ammo and DEPLOY hug the fold like hive. Soft-GPU stays off. v0.54.46 scene/CPU gates, v0.54.44 quarter-res, v0.54.42 fill caps, parked 4x HDR, uniforms, and LOAD are untouched. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
 }
