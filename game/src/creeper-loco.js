@@ -41,18 +41,43 @@ function cloneSkinned(source){
   return root;
 }
 
-function prepareScene(scene){
+export function creeperLocoVisualBounds(scene){
   scene.updateMatrixWorld(true);
-  const box = new THREE.Box3().setFromObject(scene);
+  const box = new THREE.Box3();
+  const point = new THREE.Vector3();
+  let skinned = 0;
+  scene.traverse(node => {
+    if (!node.isMesh) return;
+    const position = node.geometry?.attributes?.position;
+    if (node.isSkinnedMesh && node.skeleton && position){
+      skinned++;
+      node.skeleton.update();
+      for (let i = 0; i < position.count; i++){
+        point.fromBufferAttribute(position, i);
+        node.applyBoneTransform(i, point);
+        node.localToWorld(point);
+        box.expandByPoint(point);
+      }
+      return;
+    }
+    if (!node.geometry.boundingBox) node.geometry.computeBoundingBox();
+    if (node.geometry.boundingBox){
+      box.union(node.geometry.boundingBox.clone().applyMatrix4(node.matrixWorld));
+    }
+  });
+  return {box, skinned};
+}
+
+function prepareScene(scene){
+  const {box, skinned} = creeperLocoVisualBounds(scene);
   const size = box.getSize(new THREE.Vector3());
   const height = Math.max(size.y, .001);
   const uniform = TARGET_HEIGHT / height;
-  let draws = 0, triangles = 0, skinned = 0;
+  let draws = 0, triangles = 0;
   scene.traverse(node => {
     if (!node.isMesh) return;
     draws++;
     triangles += (node.geometry.index?.count ?? node.geometry.attributes.position.count) / 3;
-    if (node.isSkinnedMesh) skinned++;
     const materials = Array.isArray(node.material) ? node.material : [node.material];
     for (const material of materials){
       if (!material) continue;

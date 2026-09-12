@@ -82,6 +82,11 @@
       "sha256": "216f3d871630f7063ece5dd48f912699a198c01d874c7d2e6aa64fdd011d41c0"
     },
     {
+      "path": "game/assets/creeper-lava-loco-003.glb",
+      "bytes": 28169916,
+      "sha256": "ec35957aa1b47cedc2f278219de2888cd99db8358ef0f3a72976c6d1a9e9efcb"
+    },
+    {
       "path": "game/assets/demon-002.glb",
       "bytes": 347876,
       "sha256": "f79a2bf49fd6487b82e55f6c37b364abd34eb3d0b10986a04398b3f07500c4f9"
@@ -323,8 +328,8 @@
     },
     {
       "path": "game/src/creeper-loco.js",
-      "bytes": 5315,
-      "sha256": "5f6104a94606d8eacebea2b00c008c7c0a3ac58987f01874b0120381721b0657"
+      "bytes": 6089,
+      "sha256": "a669c6da83b7f93d1e2054117f80f99cf33f83c55de7b095e5b6a7d4f08bd441"
     },
     {
       "path": "game/src/dance-circle.js",
