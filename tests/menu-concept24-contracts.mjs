@@ -102,7 +102,7 @@ assert.match(styles,/html\[data-app-short\] #intro\.mission-poster \.poster-soon
 assert.match(styles,/html\[data-app-short\] #intro\.mission-poster \.poster-right\{justify-content:flex-start/);
 assert.match(styles,/html\[data-app-short\] #intro\.mission-poster \.deployment-action/);
 assert.match(styles,/html\[data-app-short\] #intro\.mission-poster #startButton\{min-height:54px\}/);
-assert.match(styles,/html\[data-app-short\] #intro\.mission-poster \.poster-body\{flex:0 1 auto/);
+assert.match(styles,/html\[data-app-short\] #intro\.mission-poster \.mission-footer\{margin-top:auto/);
 assert.match(styles,/#intro\.mission-poster\{[\s\S]*overflow:auto/);
 assert.doesNotMatch(styles,/#intro\.mission-poster\{padding:0;overflow:hidden/);
 assert.match(styles,/\.ammo-progress\{display:grid;grid-template-columns:repeat\(12/);
