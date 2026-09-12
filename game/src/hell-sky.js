@@ -130,11 +130,19 @@ export function createHellSky(scene) {
   // only in its visible gaps; smoke and translucent tissue still blend later.
   sky.renderOrder = 1000;
   scene.add(sky);
+  function setReducedEffects(value) {
+    // Skip the 12-step volume march draw on the Intel integrated tier. Same
+    // prepared program stays resident; visibility does not change light counts.
+    sky.visible = !value;
+  }
   return {
-    update(time = 0, planePosition) {
+    update(time = 0, planePosition, reduced) {
       uniforms.uTime.value = Number.isFinite(time) ? time : 0;
       if (planePosition) sky.position.copy(planePosition);
+      if (reduced !== undefined) setReducedEffects(reduced);
     },
+    setReducedEffects,
+    stats: () => ({ reduced: !sky.visible, visible: sky.visible, volumeSteps: sky.visible ? 12 : 0 }),
     dispose() { sky.removeFromParent(); geometry.dispose(); material.dispose(); densityVolume.dispose(); },
   };
 }

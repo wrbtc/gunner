@@ -49,7 +49,7 @@ totalEmissiveRadiance*=mix(vec3(.24,.085,.022),vec3(1.18,.85,.48),flameCore);`);
    if(!best||t<best.age)best=b;
   }
   for(const [m,n]of [[fire,nf],[smoke,ns],[rings,nr]]){m.count=n;m.instanceMatrix.needsUpdate=true;m.geometry.attributes.burstOpacity.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;}
-  light.intensity=best?Math.exp(-best.age*3)*6500*(muted?.3:1):0;if(best)light.position.copy(best.position).add(V(0,10,0));
+  light.intensity=best&&!muted?Math.exp(-best.age*3)*6500:0;if(best)light.position.copy(best.position).add(V(0,10,0));
  }
  function reset(){for(const b of bursts){b.active=false;b.pressureHits.clear();b.pressureRadius=0;}cursor=0;update(0);}
  return{root,burst,update,reset,bursts,stats:()=>({active:bursts.filter(b=>b.active).length,capacity,fireInstances:fire.count,smokeInstances:smoke.count,ringInstances:rings.count})};

@@ -1,17 +1,17 @@
 import {menuMusic} from './src/menu-music.js?v=054-22';
 import {missionBenchmark,missionRating,createRankReveal} from './src/mission-rating.js?v=054-6';
-import {setGuideModelProvider,guideViewerStats,loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-41';
+import {setGuideModelProvider,guideViewerStats,loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-42';
 import {createPlayTracking} from './src/play-tracking.js?v=052';
 import {createPilotRadio} from './src/pilot-radio.js?v=054-16';
 import {createQueenEncounter} from './src/queen-encounter.js?v=054-22';
 import {installQueenSampleCues} from './src/queen-sample-cues.js?v=054-22';
-import {createPlasmaBursts} from './src/plasma-burst.js?v=054-5';
-import {createPlasmaBugs} from './src/plasma-bugs.js?v=054-5';
+import {createPlasmaBursts} from './src/plasma-burst.js?v=054-42';
+import {createPlasmaBugs} from './src/plasma-bugs.js?v=054-42';
 import {riverWidthAt,NESTING_POOLS} from './src/river-profile.js?v=052';
 import {createRimmers} from './src/rimmers.js?v=052';
 import {createTankerBugsAsync} from './src/tanker-bug.js?v=054-6';
 import {loadCinderMaw} from './src/cinder-maw.js?v=053-1';
-import {createTankerSpray} from './src/tanker-spray.js?v=052';
+import {createTankerSpray} from './src/tanker-spray.js?v=054-42';
 import {createEndingFlight} from './src/ending-flight.js?v=052';
 import {GUN,HP,POINTS,enemyKind,createHitFeedback} from './src/combat-balance.js?v=052';
 startupMark('main-evaluation','begin');
@@ -25,11 +25,11 @@ import {createStaticRaycast} from './src/static-raycast.js?v=052';
 import * as THREE from './vendor/three.module.js?v=052';
 import {createEggNests} from './src/egg-nests.js?v=054-26';
 import {createBankDemons} from './src/bank-demons.js?v=054-5';
-import {createBlastWorld} from './src/blast-world.js?v=052';
-import {createHellWorld} from './src/hell-world.js?v=054';
-import {createCinematicPass} from './src/cinematic-pass.js?v=054-40';
+import {createBlastWorld} from './src/blast-world.js?v=054-42';
+import {createHellWorld} from './src/hell-world.js?v=054-42';
+import {createCinematicPass} from './src/cinematic-pass.js?v=054-42';
 import {createCalderaEnvironment} from './src/caldera-light.js?v=052';
-import {createMayhemFX} from './src/mayhem-fx.js?v=054-5';
+import {createMayhemFX} from './src/mayhem-fx.js?v=054-42';
 import {SoundEngine as MayhemSoundEngine} from './src/mayhem-audio.js?v=054-6';
 import {loadAssetKit} from './src/asset-kit.js?v=052';
 import {upgradeGunBubble} from './src/gun-bubble.js?v=052';
@@ -138,11 +138,31 @@ function armReducedAuto(){
   if(preferences.reduced||reducedAuto.userSet||reducedAuto.applied){reducedAuto.armed=false;reducedAuto.lowSince=0;return;}
   reducedAuto.armed=true;reducedAuto.lowSince=0;
 }
+function reducedAtmosphereKeep(kind,count,reduced){
+  if(!reduced)return count;
+  // Steam points can be 110px; skip them on the Intel integrated tier.
+  if(kind==='steam')return 0;
+  return Math.ceil(count*.12);
+}
+function applyReducedFillCost(reduced){
+  const on=!!reduced;
+  hellWorld?.setReducedEffects?.(on);
+  blastWorld?.setReducedEffects?.(on);
+  tankerSpray?.setReducedEffects?.(on);
+  plasmaBugs?.setReducedEffects?.(on);
+  particles?.setReducedEffects?.(on);
+  if(atmosphereBatches)for(const b of atmosphereBatches){const keep=reducedAtmosphereKeep(b.kind,b.count,on);b.points.geometry.setDrawRange(0,keep);b.points.visible=keep>0;}
+  if(atmosphereMaterials)for(const m of atmosphereMaterials)m.uniforms.uReduced.value=on?1:0;
+  if(riverLights)for(const entry of riverLights)entry.light.intensity=on?0:entry.power;
+  if(rift?.userData?.fillLight)rift.userData.fillLight.intensity=on?0:rift.userData.fillLightPower;
+  if(scene?.background?.setHex)scene.background.setHex(on?0x121820:0x110a08);
+}
 function applyReducedDrawCost(reduced){
   // Keep shadowMap.enabled and PCFSoft so prepared USE_SHADOWMAP programs stay
   // valid. Reduced only freezes map updates (sun 2048 + intrusion 1024).
   renderer.shadowMap.autoUpdate=!reduced;
   mayhemFX?.setReducedEffects(!!reduced);
+  if(typeof applyReducedFillCost==='function')applyReducedFillCost(!!reduced);
 }
 function considerReducedAuto(now){
   if(!reducedAuto.armed||reducedAuto.applied||reducedAuto.userSet||preferences.reduced)return;
@@ -217,7 +237,7 @@ lavaBounce.layers.enable(1); scene.add(lavaBounce);
 // Three bounded, unshadowed samples approximate the extended molten river.
 // Their positions follow the actual river, so nearby banks receive warm light.
 const riverLights=[[-.022,0xff702d,2400],[.055,0xff8036,3300],[.125,0xff6324,3100]].map(([offset,color,intensity])=>{
-  const light=new THREE.PointLight(color,intensity,270,1.80);scene.add(light);return {offset,light};
+  const light=new THREE.PointLight(color,intensity,270,1.80);scene.add(light);return {offset,light,power:intensity};
 });
 const canyonKeyDirection=new THREE.Vector3(-.38,.43,-.82).normalize();
 const canyonFill=new THREE.DirectionalLight(0x9baebc,.85);
@@ -414,6 +434,7 @@ function createRift() {
     shard.scale.set(rng.range(.28,.72),rng.range(.7,2.2),.35);shard.rotation.z=rng.range(-1.1,1.1);shard.material.opacity = rng.range(.22, .62);shard.userData.baseOpacity=shard.material.opacity;shard.userData.phase=rng.range(0,Math.PI*2);group.userData.shards.push(shard);
   }
   const light = new THREE.PointLight(0xe8fdff, 220, 260, 1.45); light.position.z = 8; group.add(light);
+  group.userData.fillLight=light;group.userData.fillLightPower=220;
   scene.add(group); group.traverse(o => { if (o.material) o.material.fog = false; });
   return group;
 }
@@ -566,15 +587,16 @@ if (SIEGE_ENABLED) {
 // ----- Pooled effects and projectiles -----
 class ParticlePool {
   constructor(count) {
-    this.count=count; this.pos=new Float32Array(count*3); this.col=new Float32Array(count*3); this.life=new Float32Array(count); this.vel=Array.from({length:count},()=>new THREE.Vector3()); this.cursor=0;
+    this.count=count; this.reduced=false; this.pos=new Float32Array(count*3); this.col=new Float32Array(count*3); this.life=new Float32Array(count); this.vel=Array.from({length:count},()=>new THREE.Vector3()); this.cursor=0;
     const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(this.pos,3)); g.setAttribute('color',new THREE.BufferAttribute(this.col,3));
     const material=new THREE.ShaderMaterial({vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
       vertexShader:`varying vec3 vColor;void main(){vColor=color;vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=clamp(210./max(1.,-mv.z),1.4,13.);gl_Position=projectionMatrix*mv;}`,
       fragmentShader:`varying vec3 vColor;void main(){float d=length(gl_PointCoord-.5);if(d>.5)discard;float a=smoothstep(.5,.08,d);gl_FragColor=vec4(vColor,a);}`});
     this.points=new THREE.Points(g,material); scene.add(this.points);
   }
+  setReducedEffects(value){this.reduced=!!value;this.points.geometry.setDrawRange(0,this.reduced?160:this.count);}
   emit(position, color, velocity, life=1) { const i=this.cursor++%this.count,o=i*3;this.pos[o]=position.x;this.pos[o+1]=position.y;this.pos[o+2]=position.z;this.col[o]=color.r;this.col[o+1]=color.g;this.col[o+2]=color.b;this.vel[i].copy(velocity);this.life[i]=life; }
-  burst(position,count,color,speed=14,life=1){for(let n=0;n<count;n++){const v=new THREE.Vector3(fxRng.range(-1,1),fxRng.range(-.1,1.25),fxRng.range(-1,1)).normalize().multiplyScalar(fxRng.range(speed*.3,speed));this.emit(position,color,v,life*fxRng.range(.5,1.2));}}
+  burst(position,count,color,speed=14,life=1){const n=this.reduced?Math.max(1,Math.ceil(count*.25)):count;for(let i=0;i<n;i++){const v=new THREE.Vector3(fxRng.range(-1,1),fxRng.range(-.1,1.25),fxRng.range(-1,1)).normalize().multiplyScalar(fxRng.range(speed*.3,speed));this.emit(position,color,v,life*fxRng.range(.5,1.2));}}
   update(dt){for(let i=0;i<this.count;i++){if(this.life[i]<=0)continue;this.life[i]-=dt;const o=i*3;const v=this.vel[i];v.y-=12*dt;this.pos[o]+=v.x*dt;this.pos[o+1]+=v.y*dt;this.pos[o+2]+=v.z*dt;if(this.life[i]<=0)this.pos[o+1]=-9999;}this.points.geometry.attributes.position.needsUpdate=true;}
   clear(){this.life.fill(0);for(let i=1;i<this.pos.length;i+=3)this.pos[i]=-9999;this.points.geometry.attributes.position.needsUpdate=true;}
 }
@@ -590,7 +612,7 @@ function emitDebris(pos,count,kind='demon'){
 const smoke=[];
 for(let i=0;i<54;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:smokeTexture,color:0x372b27,transparent:true,opacity:0,depthWrite:false}));s.visible=false;scene.add(s);smoke.push({sprite:s,life:0,max:1,vel:new THREE.Vector3(),spin:0});}
 let smokeCursor=0;
-function emitSmoke(pos,size=8,life=3,color=0x463632){const s=smoke[smokeCursor++%smoke.length];s.life=s.max=life;s.sprite.visible=true;s.sprite.position.copy(pos);s.sprite.scale.setScalar(size);s.sprite.material.color.setHex(color);s.sprite.material.opacity=.56;s.vel.set(fxRng.range(-1.2,1.2),fxRng.range(2.2,5.4),fxRng.range(-1,1));}
+function emitSmoke(pos,size=8,life=3,color=0x463632){if(preferences.reduced)return;const s=smoke[smokeCursor++%smoke.length];s.life=s.max=life;s.sprite.visible=true;s.sprite.position.copy(pos);s.sprite.scale.setScalar(size);s.sprite.material.color.setHex(color);s.sprite.material.opacity=.56;s.vel.set(fxRng.range(-1.2,1.2),fxRng.range(2.2,5.4),fxRng.range(-1,1));}
 
 const impactLights=[];
 let impactLightCursor=0;
@@ -1216,7 +1238,7 @@ function render(now){
   // Simulation time drives presentation too, so pause/capture does not drift.
   const time=game.time,visualTime=presentationClock();
   const riftFlicker=(reducedMotion.matches||preferences.reduced)?0:Math.sin(time*7.7)*.018;rift.visible=time>=68&&!endingFlight?.started&&(!queen||queen.cleared);rift.userData.surfaces.tear.material.opacity=.97+riftFlicker;rift.userData.surfaces.inner.material.opacity=.68-riftFlicker;rift.userData.surfaces.outer.material.opacity=.05+Math.abs(riftFlicker)*.45;rift.userData.shards.forEach(shard=>{shard.material.opacity=shard.userData.baseOpacity*(.87+Math.sin(time*5+shard.userData.phase)*.1);});
-  lava.userData.lavaMaterial.uniforms.uTime.value=visualTime;heatMaterial.uniforms.uTime.value=visualTime;heatMaterial.uniforms.uStrength.value=(reducedMotion.matches||preferences.reduced)?0:.0018;atmosphereMaterials.forEach(m=>{m.uniforms.uTime.value=visualTime;m.uniforms.uReduced.value=preferences.reduced?1:0;});for(const b of atmosphereBatches)b.points.geometry.setDrawRange(0,preferences.reduced?Math.ceil(b.count*.4):b.count);
+  lava.userData.lavaMaterial.uniforms.uTime.value=visualTime;heatMaterial.uniforms.uTime.value=visualTime;heatMaterial.uniforms.uStrength.value=(reducedMotion.matches||preferences.reduced)?0:.0018;atmosphereMaterials.forEach(m=>{m.uniforms.uTime.value=visualTime;m.uniforms.uReduced.value=preferences.reduced?1:0;});for(const b of atmosphereBatches){const keep=reducedAtmosphereKeep(b.kind,b.count,preferences.reduced);b.points.geometry.setDrawRange(0,keep);b.points.visible=keep>0;}
   for(const plume of ventPlumes){const rise=(visualTime*plume.speed+plume.phase)%20;plume.sprite.position.copy(plume.origin);plume.sprite.position.y+=rise;plume.sprite.position.x+=Math.sin(visualTime*.4+plume.phase)*2;const swell=1+rise*.045;plume.sprite.scale.setScalar((9+plume.phase*.22)*swell);plume.sprite.material.opacity=.075+Math.sin(Math.PI*rise/20)*.14;}
   if(!exteriorView){camera.position.x=reducedOpening()?0:Math.sin(time*101)*game.shake*.4;camera.position.y=reducedOpening()?0:Math.sin(time*137+1)*game.shake*.3;}camera.updateWorldMatrix(true,false);rimmers?.render();
   for(const b of bullets){if(!b.active||!b.mesh.visible)continue;const head=b.end.clone().project(camera),tail=b.start.clone().project(camera),angle=Math.atan2(head.y-tail.y,head.x-tail.x);b.mesh.material.rotation=angle-Math.PI/2;}
@@ -1488,7 +1510,7 @@ function qaCoreChecks(){
   return {kind:'diagnostic-core-checks',passed:checks.filter(c=>c.pass).length,total:checks.length,checks};
 }
 const qaApi={
-  version:'0.54.41',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
+  version:'0.54.42',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
   start:()=>start({skipOpening:true,legacyRoute:true}),beginOpening:()=>start(),skipOpening:()=>finishOpening(true),openingState:()=>({active:game.opening,title:game.title,time:game.openingTime,phase:openingPhase,flightProgress:currentFlightProgress(),camera:camera.position.toArray(),quaternion:camera.quaternion.toArray(),fov:camera.fov,fade:Number(dom.openingFade.style.opacity)||0,exterior:bomberExterior?.stats(),cameraPath:openingCamera?.stats()}),seekOpening:(seconds)=>{game.openingTime=THREE.MathUtils.clamp(seconds,0,OPENING_SECONDS);game.captureFreeze=true;updatePlane(0);updateOpeningPresentation();return true;},reset:qaReset,pause,resume,setTime:(seconds)=>{game.time=THREE.MathUtils.clamp(seconds,0,RUN_SECONDS);updatePlane(0);creatureTracking?.seek(game.time);},setView:(yaw,pitch)=>{game.yaw=yaw;game.pitch=THREE.MathUtils.clamp(pitch,-1.38,.95);updatePlane(0);},turnAround,toggleRear:turnAround,fireCannon,fireRound,damage:(amount=6)=>damageHull(amount,planePos),explode:()=>explode(planePos.clone().addScaledVector(planeTangent,70),14),preview:setPreview,
   events:()=>game.eventLog.slice(),runtime:gunnerRuntime,trace:qaTrace,replay:qaReplay,checkCore:qaCoreChecks,
   aimAt:(target)=>{const actor=typeof target==='string'?enemies.concat(siege).find(e=>e.id===target):null;qaAimAt(actor?actorCenter(actor):new THREE.Vector3().fromArray(target));},

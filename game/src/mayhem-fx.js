@@ -179,7 +179,9 @@ export function createMayhemFX({ scene, route, centerAt = p => route.getPointAt(
     reducedEffects = !!value;
     fire.mesh.material.uniforms.uOpacity.value = reducedEffects ? .4 : 1;
     smoke.mesh.material.uniforms.uOpacity.value = reducedEffects ? .68 : 1;
-    for (const light of lights) light.intensity = (reducedEffects ? .18 : 1) * (light.userData.power || 0) * Math.pow(light.userData.life / (light.userData.max || 1), 2.8);
+    // Keep the two PointLights in the graph so prepared NUM_POINT_LIGHTS stays
+    // valid. Reduced zeros them instead of hiding them.
+    for (const light of lights) light.intensity = reducedEffects ? 0 : (light.userData.power || 0) * Math.pow(light.userData.life / (light.userData.max || 1), 2.8);
   }
 
   function spark(at, velocity, life = .8, size = .6, color = 0xffb84f, gravity = 13) {
@@ -261,7 +263,7 @@ export function createMayhemFX({ scene, route, centerAt = p => route.getPointAt(
   }
   function explosion(at, size = 16, kind = 'rock') {
     size = clamp(size, 3, 34); const profile = profileFor(kind);
-    const light = lights[lightCursor++ % lights.length]; light.position.copy(at).addScaledVector(UP, 3); light.userData.life = .32; light.userData.max = .32; light.userData.power = 98 * size; light.intensity = light.userData.power * (reducedEffects ? .18 : 1);
+    const light = lights[lightCursor++ % lights.length]; light.position.copy(at).addScaledVector(UP, 3); light.userData.life = .32; light.userData.max = .32; light.userData.power = 98 * size; light.intensity = reducedEffects ? 0 : light.userData.power;
     // Flash < .14 s; small irregular pressure lobes expand into the body.
     // Distinct cold smoke appears after ignition and clears in under five s.
     fire.emit(at, ZERO, size * 1.05, size * .92, .135, .93, 0xffe2a2, 2.1, rand(-3, 3), 3);
@@ -285,7 +287,8 @@ export function createMayhemFX({ scene, route, centerAt = p => route.getPointAt(
       const f = fragment(at, new THREE.Vector3(rand(-6, 6), rand(7, 15), rand(-6, 6)), size * rand(.055, .11), 18, 0x282d33, Math.max(2.1, at.y), false, true, .10);
       f.scale.y *= .45;
     }
-    for (let i = 0; i < 92; i++) { vel.set(rand(-1, 1), rand(-.1, 1.3), rand(-1, 1)).normalize().multiplyScalar(rand(size * .5, size * 2.2)); spark(at, vel, rand(.3, 1.35), rand(.22, .60), i % 3 ? 0xffa34e : 0xffe3a7, 12); }
+    const sparkBudget = reducedEffects ? 12 : 92;
+    for (let i = 0; i < sparkBudget; i++) { vel.set(rand(-1, 1), rand(-.1, 1.3), rand(-1, 1)).normalize().multiplyScalar(rand(size * .5, size * 2.2)); spark(at, vel, rand(.3, 1.35), rand(.22, .60), i % 3 ? 0xffa34e : 0xffe3a7, 12); }
     if (at.y < 6) lavaSplash(at, size * .65, true);
   }
   function destroySiege(origin) {
@@ -340,7 +343,7 @@ export function createMayhemFX({ scene, route, centerAt = p => route.getPointAt(
       temp.rotation.set(.06 * Math.sin(time * .2 + r.phase), r.rotation + Math.sin(time * .03 + r.phase) * .07, .04); temp.scale.set(r.radius, randHeight(i), r.radius * (1.15 + (i % 3) * .2)); temp.updateMatrix(); crustMesh.setMatrixAt(i, temp.matrix);
     }
     crustMesh.instanceMatrix.needsUpdate = true;
-    if (dt > 0 && !quiet) {
+    if (dt > 0 && !quiet && !reducedEffects) {
       plumeClock -= dt;
       for (const vent of vents) {
         if (vent.pos.distanceToSquared(planePosition) > 460 * 460) continue;
@@ -399,10 +402,10 @@ export function createMayhemFX({ scene, route, centerAt = p => route.getPointAt(
       sparkSize[i] = s.size * Math.min(1, f * 5) * (reducedEffects ? .58 : 1);
     }
     for (const name of ['iPosition', 'iColor', 'iSize', 'iVelocity', 'iAmbient']) sparkGeometry.attributes[name].needsUpdate = true;
-    for (const light of lights) { light.userData.life = Math.max(0, light.userData.life - dt); light.intensity = (reducedEffects ? .18 : 1) * (light.userData.power || 0) * Math.pow(light.userData.life / (light.userData.max || 1), 2.8); }
+    for (const light of lights) { light.userData.life = Math.max(0, light.userData.life - dt); light.intensity = reducedEffects ? 0 : (light.userData.power || 0) * Math.pow(light.userData.life / (light.userData.max || 1), 2.8); }
   }
   function randHeight(i) { return .5 + (i % 5) * .17; }
-  function stats() { return { lastImpact, sparks: sparks.filter(s => s.life > 0).length, fragments: fragments.filter(f => f.life > 0).length, persistentWreck: fragments.slice(transientFragments).filter(f => f.life > 0).length, smoke: smoke.states.filter(s => s.life > 0).length, fire: fire.states.filter(s => s.life > 0).length, lights: lights.filter(l => l.intensity > 0).length, lightEnergy: lights.reduce((sum, light) => sum + light.intensity, 0), fireOpacity: fire.mesh.material.uniforms.uOpacity.value, impactProfiles: Object.keys(profiles), stagedBlast:true, directionalSparks:true, maximumBlastSmokeSeconds:4.5, reducedEffects, crustRafts: crustCount, maxDrawCalls: 5, caps: { sparks: sparkCount, fragments: fragments.length, persistentWreck: persistentFragments, smoke: smoke.states.length, fire: fire.states.length, lights: lights.length } }; }
+  function stats() { return { lastImpact, sparks: sparks.filter(s => s.life > 0).length, fragments: fragments.filter(f => f.life > 0).length, persistentWreck: fragments.slice(transientFragments).filter(f => f.life > 0).length, smoke: smoke.states.filter(s => s.life > 0).length, fire: fire.states.filter(s => s.life > 0).length, lights: lights.filter(l => l.intensity > 0).length, lightEnergy: lights.reduce((sum, light) => sum + light.intensity, 0), fireOpacity: fire.mesh.material.uniforms.uOpacity.value, impactProfiles: Object.keys(profiles), stagedBlast:true, directionalSparks:true, maximumBlastSmokeSeconds:4.5, reducedEffects, reducedExplosionSparks: reducedEffects ? 12 : 92, crustRafts: crustCount, maxDrawCalls: 5, caps: { sparks: sparkCount, fragments: fragments.length, persistentWreck: persistentFragments, smoke: smoke.states.length, fire: fire.states.length, lights: lights.length } }; }
   function dispose() { if (disposed) return; disposed = true; group.removeFromParent(); smoke.dispose(); fire.dispose(); smokeTexture.dispose(); fireTexture.dispose(); fragmentGeometry.dispose(); fragmentMaterial.dispose(); sparkGeometry.dispose(); sparkMaterial.dispose(); crustGeo.dispose(); crustMat.dispose(); }
   reset(); update(0, 0, centerAt(0));
   return { group, update, impact, explosion, destroySiege, lavaSplash, reset, setReducedEffects, stats, dispose };

@@ -1,5 +1,5 @@
 {
-  "version": "0.54.41",
+  "version": "0.54.42",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -199,17 +199,17 @@
     {
       "path": "game/index.html",
       "bytes": 13311,
-      "sha256": "8b993501561a98223ee80d66d7e4f5e1c1cfccb1cdfbc95931765fa4293ab04a"
+      "sha256": "7216ab1143ea43966745ada2467ebc9491121d4d7c3755f64d786e91bb72318e"
     },
     {
       "path": "game/main.js",
-      "bytes": 159543,
-      "sha256": "9e30a3757d190cc9d2f31514a4f92b409e990497e693c7afb9b7aecb83f6d923"
+      "bytes": 160996,
+      "sha256": "64bbb68ddf185b4a297c4086e01a339f0a8cae74e5fc3c72eee06211d9ebc063"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "93a99645a04797fda0655b964e2431a746f440d021a2290716fb32a7d8f1c92f"
+      "sha256": "a75fa9d2d016e4f557c4013c2414130044bf08cc5b20086d159d44ebe790624b"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -258,8 +258,8 @@
     },
     {
       "path": "game/src/blast-world.js",
-      "bytes": 4440,
-      "sha256": "e4a9e39981e8d0ff4f26e2b97e3dbf66c6016ac57156b202f1da7f664c4c3493"
+      "bytes": 4682,
+      "sha256": "fa424d849a97a71d3b5f858aa44e19d817256ed7866c9b5748d7d7524b66c404"
     },
     {
       "path": "game/src/bomber-exterior.js",
@@ -353,13 +353,13 @@
     },
     {
       "path": "game/src/hell-sky.js",
-      "bytes": 8030,
-      "sha256": "77664d13d8208ae61179ab5cb5cd4987d1342fb56c7eec1dd113ba8381567ac5"
+      "bytes": 8452,
+      "sha256": "3ec26bf57378a4bd256f1ef32a4140d509e40880b28a3312809c02f68797a612"
     },
     {
       "path": "game/src/hell-world.js",
-      "bytes": 38886,
-      "sha256": "714113cc9e25984b7b0ae9e6375f8cfaf6e7fdba6c3ec137eb3d012fefe45d66"
+      "bytes": 39148,
+      "sha256": "b2e6e50c3be8bcf4c5eb7b2924cb0023401ba2dabfd49005f47c8610bb864aea"
     },
     {
       "path": "game/src/high-scores.js",
@@ -388,8 +388,8 @@
     },
     {
       "path": "game/src/mayhem-fx.js",
-      "bytes": 33100,
-      "sha256": "3736eeb28275ee7118c0cf3dfdeac1c80aec4151a5389bcf41a24dde4c16ab40"
+      "bytes": 33341,
+      "sha256": "9431bc0713eef3f721abf4aadb7c68a4c97c7ad32064bf0198470d0d3ab6e382"
     },
     {
       "path": "game/src/menu-music.js",
@@ -404,7 +404,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26799,
-      "sha256": "c92ad75bdb20157196db2c9be48e353457eab51f553b8be6fb895dc28584d415"
+      "sha256": "b587f59a7476a4a474954d5c2505d87322f82f4b9aab0b5f741e040578b1ccda"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -433,13 +433,13 @@
     },
     {
       "path": "game/src/plasma-bugs.js",
-      "bytes": 10747,
-      "sha256": "f67f7d210896a73409eeeed715dbb52fb463a6d6c3010447e0522ba302b48e19"
+      "bytes": 10950,
+      "sha256": "1f29475bbe980c670774c467de2e02777adde8e0eb7ba916b1f402fb24ec625f"
     },
     {
       "path": "game/src/plasma-burst.js",
-      "bytes": 7070,
-      "sha256": "4d8ffa73e81f037817fdf55754cea5a71b07ae7f322e6caa4b5189123ef3bd2e"
+      "bytes": 7065,
+      "sha256": "850f667c6dcb22dbaec8089ce9993d7c71a8debb626c5eb532ed2343763e2460"
     },
     {
       "path": "game/src/play-tracking.js",
@@ -553,8 +553,8 @@
     },
     {
       "path": "game/src/tanker-spray.js",
-      "bytes": 13502,
-      "sha256": "cf6aef8a5975c5a1226cc2ba91c186e5642d8167bf15e96b8ba4efb1c7d3ae67"
+      "bytes": 13672,
+      "sha256": "1b5853b245b621d70d7f0ad1b5a1977b5a91ab204de0cc0f96f3baaef71cf829"
     },
     {
       "path": "game/src/wall-climb.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.41 restores hive.satoshis.watch / concept-24 menu composition: Coming Soon \u2192 ammo \u2192 DEPLOY in natural DOM order, typical-laptop end-pack, Dock-short Coming Soon collapse with fold-anchored footer, no production footer QA, and fail-path gold Report/Copy in the reserved deploy row. Soft-GPU stays off. v0.54.40 Reduced half-res world target, unused-HDR park, present-hold, hidden-tab construction deadlines, and Intel-class shader first-use uniform deferral remain. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
+  "note": "Gunner v0.54.42 keeps the shipped Reduced half-res 0-sample world HDR, parked 4x twin, skipped bloom/contact, and frozen shadows, and when Reduced is on it caps Intel-integrated-tier fill: skip the volumetric ash-sky draw, keep 12% ember/ash points and skip steam, skip blast ash and mayhem ambient particles, cap combat ParticlePool draw/bursts, and zero excess PointLight intensities without hiding lights so prepared NUM_POINT_LIGHTS programs stay valid. Reduced OFF restores the full present. Soft-GPU stays off. Shader first-use uniforms are not reopened. Hive menu composition from v0.54.41 remains. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
 }

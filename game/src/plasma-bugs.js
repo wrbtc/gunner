@@ -65,6 +65,8 @@ export function createPlasmaBugs({scene,centerAt,widthAt,bankMeshes,aimTarget,pr
   poseRoot(a,a.route.min);a.spawn=body.position.clone();actors.push(a);
  }
  const lightVariants={roots:actors.map(a=>a.root),maxVisible:maximumSphereOverlapBound(actors.map(a=>a.spawn),510)};
+ let reducedEffects=false;
+ function setReducedEffects(value){reducedEffects=!!value;if(reducedEffects)for(const a of actors)a.glow.intensity=0;}
  function poseFeet(a,time,moving){
   const toeRotation=new T.Quaternion().setFromAxisAngle(V(1,0,0),-Math.PI/2),positions=toeGeo.attributes.position;
   const envelope=Array.from({length:positions.count},(_,i)=>V().fromBufferAttribute(positions,i).applyQuaternion(toeRotation).multiplyScalar(PLASMA_SCALE).applyQuaternion(a.root.quaternion));
@@ -90,8 +92,8 @@ export function createPlasmaBugs({scene,centerAt,widthAt,bankMeshes,aimTarget,pr
   // A slow endless five-metre climb, smoothly reversing at the strip ends.
   const phase=(time*.085+a.site.p*5)%(Math.PI*2),f=(1-Math.cos(phase))*.5;
   poseRoot(a,T.MathUtils.lerp(a.route.min,a.route.max,f));poseFeet(a,time,true);a.abdomen.getWorldPosition(a.lanternPosition);
-  a.glow.intensity=distance<130?4+Math.sin(time*2.3)*.5:0;a.abdomen.scale.y=3.25*(1+Math.sin(time*2.3)*.025);
+  a.glow.intensity=reducedEffects?0:distance<130?4+Math.sin(time*2.3)*.5:0;a.abdomen.scale.y=3.25*(1+Math.sin(time*2.3)*.025);
  }}
  function reset(){for(const a of actors){a.hp=HP.plasma;a.dead=a.credited=false;a.state='climbing';a.time=0;poseRoot(a,a.route.min);poseFeet(a,0,false);a.root.visible=false;a.glow.intensity=0;}}
- reset();return{root,actors,colliders,lightVariants,hit,trace,update,reset,stats:()=>actors.map(a=>({id:a.id,hp:a.hp,dead:a.dead,state:a.state,visible:a.root.visible,position:a.root.position.toArray(),lantern:a.lanternPosition.toArray(),route:a.route,points:PLASMA_POINTS,bodyScale:a.root.scale.x,blastScale:.9,attacks:0,contacts:a.legs.map(l=>({point:l.contact?.toArray(),planted:l.planted,reachError:l.reachError}))}))};
+ reset();return{root,actors,colliders,lightVariants,hit,trace,update,reset,setReducedEffects,stats:()=>actors.map(a=>({id:a.id,hp:a.hp,dead:a.dead,state:a.state,visible:a.root.visible,position:a.root.position.toArray(),lantern:a.lanternPosition.toArray(),route:a.route,points:PLASMA_POINTS,bodyScale:a.root.scale.x,blastScale:.9,attacks:0,glow:a.glow.intensity,contacts:a.legs.map(l=>({point:l.contact?.toArray(),planted:l.planted,reachError:l.reachError}))}))};
 }

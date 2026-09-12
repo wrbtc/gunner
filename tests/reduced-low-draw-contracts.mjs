@@ -1,6 +1,6 @@
 // Reduced low-draw path: 0-sample HDR twin at half canvas, unused 4x parked at
 // 1x1, bloom skip. Soft-GPU stays off. Shader first-use uniforms are not
-// reopened here.
+// reopened here. Particle/atmosphere/light caps live in reduced-fill-caps.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import * as T from '../game/vendor/three.module.js';

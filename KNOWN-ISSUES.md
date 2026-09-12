@@ -1,4 +1,4 @@
-# Release validation — v0.54.41
+# Release validation — v0.54.42
 
 ## Older Intel Safari / short desktop viewport
 
@@ -299,6 +299,43 @@ compaction only. Start-pack, Coming Soon extra collapse, and Deploy-first
 and DEPLOY stay ≥8px above the Dock. The production footer no longer ships QA;
 fail-path gold Report/Copy remain. Soft-GPU stays off. Iris half-res, uniforms,
 LOAD, and present-hold are unchanged.
+
+## Reduced particle / atmosphere / light caps (v0.54.42)
+
+Live 0.54.40 Iris Safari (Soft-GPU OFF, Reduced ON) still sat at about 3–9 FPS
+(mean ~5.7) in unpaused combat versus the ≥20 degraded bar. Half-res world,
+parked 4x HDR, skipped bloom/contact, and frozen shadows left dense particles,
+the 12-step heat-atmosphere sky, and extra dynamic PointLights on the live
+fill path.
+
+v0.54.42 keeps those shipped Reduced draws as-is and, when Reduced is on
+(auto or manual), applies runtime Intel-integrated-tier caps:
+
+- Skip the volumetric ash-sky draw (flat background stands in). Canyon
+  geometry is unchanged.
+- Cap canyon ember/ash point batches to 12% and skip steam plumes.
+- Skip blast-world wind ash and mayhem ambient vents/embers/collapses.
+- Cap combat ParticlePool draw (160) and burst counts (25%).
+- Zero excess unshadowed PointLight intensities (river extras, rift fill,
+  hot-spill, mayhem flashes, tanker nozzles, plasma glows, plasma bursts).
+  Lights stay in the graph so prepared `NUM_POINT_LIGHTS` programs are not
+  rebuilt.
+
+Reduced OFF restores full counts, the volume sky, and the extra lights.
+Soft-GPU stays off. Shader first-use uniforms are not reopened. Present-hold,
+hidden-tab construction deadlines, LOAD graphics prep, parked 4x HDR, and
+half-res world are unchanged. Menu hive composition is owned by 0.54.41 and
+is not touched here.
+
+QA retest on that Iris-class Safari: Deploy with Reduced ON (checkbox or
+wait for auto). Record unpaused combat HUD FPS. Target is ≥20 with Reduced
+on. Expect a flatter sky, thinner ash/embers, and fewer local light flashes
+on the Intel integrated tier. Reduced OFF should match the shipped 0.54.40
+present (4x HDR, contact, bloom, live shadows, full particles/sky/lights).
+Do not enable Soft-GPU.
+
+Physical Intel Safari combat FPS acceptance of these Reduced fill caps is
+still pending.
 
 ## Testing and patch requests
 

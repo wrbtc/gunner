@@ -1,7 +1,7 @@
 import {LAVA_NOISE_GLSL,sampleLavaSurface} from './lava-surface.js?v=054';
 import * as THREE from '../vendor/three.module.js?v=052';
 import {createBasaltDetail} from './basalt-detail.js?v=052';
-import {createHellSky} from './hell-sky.js?v=052';
+import {createHellSky} from './hell-sky.js?v=054-42';
 import {createSkyActivity} from './sky-activity.js?v=052';
 import {toCreasedNormals} from '../vendor/BufferGeometryUtils.js?v=052';
 import {loadCliffGeometry,createCliffBacking} from './cliff-outcrops.js?v=052';
@@ -451,11 +451,12 @@ export function createHellWorld({scene,route,centerAt,widthAt}) {
   function collapseQuarry(){} // Compatibility hook for the parked siege actor.
   function reset(){}
   const cullCenter=new THREE.Vector3();
-  function update(time,planePos,reduced=false){lavaUniforms.uTime.value=time;hellSky.update(time,planePos);skyActivity.update(time,planePos,reduced);
-    for(const {side,light} of hotSpill){let nearest=null,distance=Infinity;for(const h of hotIntrusions){const d=Math.abs(h.position.z-planePos.z);if(h.side===side&&d<distance){nearest=h;distance=d;}}if(nearest){light.position.copy(nearest.position);if(light.isSpotLight)light.target.position.copy(nearest.position).add(new THREE.Vector3(side*20,-5,0));light.intensity=(light.isSpotLight?3900:2400)*Math.pow(Math.max(0,1-distance/240),2);}}
+  function setReducedEffects(value){hellSky.setReducedEffects(!!value);if(value)for(const {light} of hotSpill)light.intensity=0;}
+  function update(time,planePos,reduced=false){lavaUniforms.uTime.value=time;hellSky.update(time,planePos,reduced);skyActivity.update(time,planePos,reduced);
+    for(const {side,light} of hotSpill){let nearest=null,distance=Infinity;for(const h of hotIntrusions){const d=Math.abs(h.position.z-planePos.z);if(h.side===side&&d<distance){nearest=h;distance=d;}}if(nearest){light.position.copy(nearest.position);if(light.isSpotLight)light.target.position.copy(nearest.position).add(new THREE.Vector3(side*20,-5,0));light.intensity=reduced?0:(light.isSpotLight?3900:2400)*Math.pow(Math.max(0,1-distance/240),2);}}
     for(const m of continuations.meshes){const bounds=m.geometry.boundingSphere;cullCenter.copy(bounds.center).applyMatrix4(m.matrixWorld);m.visible=cullCenter.distanceTo(planePos)<2400+bounds.radius*m.matrixWorld.getMaxScaleOnAxis();}
     for(const m of chunks){const bounds=m.isInstancedMesh?m.boundingSphere:m.geometry.boundingSphere;cullCenter.copy(bounds.center).applyMatrix4(m.matrixWorld);m.visible=!m.userData.dancePocketCleared&&Math.abs(cullCenter.z-planePos.z)<820+bounds.radius*m.matrixWorld.getMaxScaleOnAxis();}}
   // Approximate support query is for ballistic broad phase only; gun hits use triangles.
   function groundAt(x,z){const p=THREE.MathUtils.clamp((130-z)/3050,0,1),c=centerAt(p),a=Math.abs(x-c.x),w=widthAt(p);if(a<w-19)return 1.5;return a<w-12?THREE.MathUtils.lerp(2.3,12.8,(a-w+19)/7):a<w-4?15.0:a<w+5?18:strata(p,x<c.x?-1:1);}
-  return {lavaAt:point=>sampleLavaSurface(point.x,point.z,lavaUniforms.uTime.value),root,rockMaterial,collisionMeshes,lava,continuations,skyActivity,hotIntrusions,hotSpill,update,groundAt,ready,closeOptionalAssets,collapseQuarry,reset,stats:()=>({...geologyStats,hotCrustIntrusions:hotIntrusions.length,hotCrustStones:hotIntrusions.reduce((n,h)=>n+h.mesh.count,0),instancedBasaltColumns:geologyStats.attachedBasaltColumns,collisionMeshes:collisionMeshes.length,basaltDetailTexels:256*256,materialTextureReads:9,staticTriangles:root.children.reduce((n,m)=>n+(m.geometry?(m.geometry.index?.count||m.geometry.attributes.position.count)/3*(m.isInstancedMesh?m.count:1):0),0)})};
+  return {lavaAt:point=>sampleLavaSurface(point.x,point.z,lavaUniforms.uTime.value),root,rockMaterial,collisionMeshes,lava,continuations,skyActivity,hotIntrusions,hotSpill,update,setReducedEffects,groundAt,ready,closeOptionalAssets,collapseQuarry,reset,stats:()=>({...geologyStats,hotCrustIntrusions:hotIntrusions.length,hotCrustStones:hotIntrusions.reduce((n,h)=>n+h.mesh.count,0),instancedBasaltColumns:geologyStats.attachedBasaltColumns,collisionMeshes:collisionMeshes.length,basaltDetailTexels:256*256,materialTextureReads:9,staticTriangles:root.children.reduce((n,m)=>n+(m.geometry?(m.geometry.index?.count||m.geometry.attributes.position.count)/3*(m.isInstancedMesh?m.count:1):0),0),sky:hellSky.stats(),hotSpillEnergy:hotSpill.reduce((sum,entry)=>sum+entry.light.intensity,0)})};
 }
