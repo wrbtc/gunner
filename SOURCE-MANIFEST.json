@@ -1,5 +1,5 @@
 {
-  "version": "0.54.58",
+  "version": "0.54.59",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -13,8 +13,8 @@
     },
     {
       "path": "game/assets/CREEPER-LAVA-LOCO.md",
-      "bytes": 1382,
-      "sha256": "54ab6c1a65e5633569de6b51272c2023658f9b542098b59ff50833266be8260b"
+      "bytes": 1609,
+      "sha256": "61bb0ac1557a4a810400d18c2fd41ce1c6f446f9d925282a3129603adca44202"
     },
     {
       "path": "game/assets/audio/KOKORO-CODE-LICENSE.txt",
@@ -83,8 +83,8 @@
     },
     {
       "path": "game/assets/creeper-lava-loco-003.glb",
-      "bytes": 9750920,
-      "sha256": "744f1b66188f462923f2628f851671cc067965e7ada67bd25bb8294b6c29330d"
+      "bytes": 9840676,
+      "sha256": "e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5"
     },
     {
       "path": "game/assets/demon-002.glb",
@@ -214,17 +214,17 @@
     {
       "path": "game/index.html",
       "bytes": 13502,
-      "sha256": "a172acd7eb6a4a301e127a740e513a9e0cb519ca38f9e53ee519502e168f30a2"
+      "sha256": "dcfb632fc8ff54e0ecb980d25b18c389a6faf3ffebda9ba5f51f8f519a89bcc7"
     },
     {
       "path": "game/main.js",
       "bytes": 165034,
-      "sha256": "ecd4a3df0965822020c5362ddf5d0fee65f7a2abae7f314b159cec567dc7f5e3"
+      "sha256": "df75bd29bf4b0dc4eb96b0791bbac29a0e0c68068f0faaaecb94e8cdaafdaeec"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "8da21b09f611bae476d0e7373d8d201c65c5c10abd0bed8480731979dfe00666"
+      "sha256": "af3721ed455f7bfba9c9e86e368c6e715b647837325d4fadd52bb16343f23e40"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -264,7 +264,7 @@
     {
       "path": "game/src/bank-demons.js",
       "bytes": 27156,
-      "sha256": "513ab537e8cf12cb2d72db064077b3405014e15b80d70813a6e2894d98570f19"
+      "sha256": "90415c2c575d73b54d5ceb3c074ac16c054a4b011a63022d0b81f90e417aa08a"
     },
     {
       "path": "game/src/basalt-detail.js",
@@ -424,7 +424,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26882,
-      "sha256": "060903944cfa91cc67a5e414c08fdb3afb2cf5121b31d8ece548794aa7e376c7"
+      "sha256": "cbf62391328d6dd9674c6bec5a93ae6c427aaef0d6713d9b40dc485c01df91a5"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -617,5 +617,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.58 keeps the v0.54.56 Alien Field Guide lava creeper still and dossier, the v0.54.52 lava loco attach yaw and lean remesh, the v0.54.51 Master Mode debug flight, and the Reduced every-second-rAF presentation throttle, and adds 16px of vertical space between the hive menu life/bullet row and DEPLOY GUNNER (8px #loadingSystems margin plus 8px .deployment-action gap, including 920 / short / 760 compaction). Soft-GPU stays off. This is not 0.54.55 (old menu-gap tip), 0.54.56 (Field Guide lava creeper), or 0.54.57 (reserved creeper motion). Bullet art, button copy, and menu composition are unchanged. Menu music remains click-to-play, telemetry remains disabled, and public privacy adaptations are retained. Physical Intel Safari combat acceptance remains pending."
+  "note": "Gunner v0.54.59 keeps the v0.54.58 Deploy ammo breathing room, the v0.54.56 Alien Field Guide lava creeper still / dossier / 3D guide, the v0.54.52 +pi attach yaw, the v0.54.51 Master Mode debug flight, and the Reduced every-second-rAF presentation throttle. Bank creeper / climber lava loco visuals use game/assets/creeper-lava-loco-003.glb with live KW_knuckle_walk + CL_cliff_climb clips (48 LINEAR keys; LFS sha256 e8140b94... / 9840676 bytes) when that binary is present. Soft-GPU stays off. Menu CSS, Reduced, and art direction are unchanged in this ship. Do not identify this ship as 0.54.57 or 0.54.58. Menu music remains click-to-play, telemetry remains disabled, and public privacy adaptations are retained. Physical Intel Safari combat acceptance remains pending."
 }

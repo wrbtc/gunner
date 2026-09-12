@@ -13,7 +13,7 @@ const worldSource=readFileSync(new URL('../game/src/hell-world.js',import.meta.u
 const blastSource=readFileSync(new URL('../game/src/blast-world.js',import.meta.url),'utf8');
 const mayhemSource=readFileSync(new URL('../game/src/mayhem-fx.js',import.meta.url),'utf8');
 
-assert.match(main,/version:'0\.54\.58'/);
+assert.match(main,/version:'0\.54\.59'/);
 assert.match(main,/failIfMajorPerformanceCaveat: false/);
 assert.doesNotMatch(main,/failIfMajorPerformanceCaveat:\s*true/);
 assert.doesNotMatch(main,/powerPreference:\s*'low-power'/);

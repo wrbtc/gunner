@@ -1,4 +1,4 @@
-# Release validation — v0.54.58
+# Release validation — v0.54.59
 
 ## Older Intel Safari / short desktop viewport
 
@@ -537,6 +537,24 @@ Guide lava creeper), or 0.54.57 (reserved creeper motion).
 In-game eyeball: open the mission menu and confirm a clear band of space
 between the lower ammo row and the DEPLOY GUNNER top border on a typical
 laptop height and on a short Dock viewport.
+
+## Creeper lean live-clip remesh (v0.54.59)
+
+The lean GLB on 0.54.52 / 0.54.56 / 0.54.58 faced correctly after the attach
+`+Math.PI` yaw but glided: `KW_knuckle_walk` and `CL_cliff_climb` were
+REST-pose stub clips (2 keys, STEP). v0.54.59 is a GLB swap on the same LFS
+path (`game/assets/creeper-lava-loco-003.glb`) to the lean remesh with live
+clips (48 LINEAR keys). The existing attach yaw stays. Soft-GPU stays off.
+No menu CSS, no Reduced work, and no Field Guide / art redesign.
+
+The live-clip LFS object is
+`sha256:e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5`
+(9840676 bytes). Do not ship stub lean `744f1b66…` / 9750920. Do not identify
+this ship as 0.54.57 or 0.54.58.
+
+In-game eyeball: a near bank creeper or climber should knuckle-walk /
+cliff-climb on the armature, not glide in rest pose. Field Guide copy from
+0.54.56 and Deploy ammo gap from 0.54.58 remain.
 
 ## Testing and patch requests
 
