@@ -10,7 +10,7 @@ const worldSource=readFileSync(new URL('../game/src/hell-world.js',import.meta.u
 const blastSource=readFileSync(new URL('../game/src/blast-world.js',import.meta.url),'utf8');
 const cinemaSource=readFileSync(new URL('../game/src/cinematic-pass.js',import.meta.url),'utf8');
 
-assert.match(main,/version:'0\.54\.46'/);
+assert.match(main,/version:'0\.54\.45'/);
 assert.match(main,/failIfMajorPerformanceCaveat: false/);
 assert.doesNotMatch(main,/failIfMajorPerformanceCaveat:\s*true/);
 assert.doesNotMatch(main,/powerPreference:\s*'low-power'/);

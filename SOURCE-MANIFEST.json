@@ -1,5 +1,5 @@
 {
-  "version": "0.54.46",
+  "version": "0.54.45",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -199,17 +199,17 @@
     {
       "path": "game/index.html",
       "bytes": 13311,
-      "sha256": "d8802b8d3c313b1a6872a1ef7eb9ff3596353d46b42ad63ef24ca58b83918369"
+      "sha256": "5670740177a572b56c5c7935aa14f501db91e7f5edb8943fd31740e0ca33dcf6"
     },
     {
       "path": "game/main.js",
       "bytes": 161753,
-      "sha256": "f8284047304077ef31351fdf99e4d222030ed215eeb7d8fcebf41c4ee275de7e"
+      "sha256": "8b7a624666d146eebf3d1845aabbdc59d5051044691eae1a5774f7f7cd90ed7f"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "1ac038a14ee570e9c3b68e528463973ae922612f33ae964775f2cfbd8a123734"
+      "sha256": "de711d69b87848ef662ceed78b3c84b343785ee210744aebbfb86e7edaf075ad"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -404,7 +404,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26799,
-      "sha256": "38b99c0dd523483aff27b65f7ab7067bd80b3a71821a5f285b89bde09023b0ed"
+      "sha256": "728b5dab19865145d030d8ca438572a85dfbc5998e5661889eb33a2b25530b7e"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -573,8 +573,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 56368,
-      "sha256": "a4a192528f00821fa4425dedca5e4c4210270d13e6c2e967ce52de2b4482b8b5"
+      "bytes": 56340,
+      "sha256": "7e2181c5a3304188102588476dbbe84083df906e9a28402447c773430fccdf70"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.46 cuts Reduced scene/CPU cost after the 0.54.44 quarter-res fill plateau: skip shadow receive (runtime uniform; shadowMap.enabled and PCFSoft stay on), throttle geology visibility to 4 Hz and skip hot-spill search, and hide decorative/distant instanced talus, hot crust, scanned extras, cascades, continuations, and blast ruins with a 380 m nearby bank/cliff reach. Quarter-res live HDR, P2 fill caps, and parked unused 4x HDR stay. The composite still presents at canvas size, so HTML HUD/UI stays crisp. Soft-GPU stays off. Shader first-use uniforms are not reopened. Menu CSS is unchanged; menu short end-pack is owned by 0.54.45. A every-2nd-rAF present skip remains reserved if Intel-tier combat still sits under 15 FPS. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
+  "note": "Gunner v0.54.45 is a menu CSS/HTML follow-up on the 0.54.46 Reduced scene/CPU parent: Coming Soon extras still collapse on html[data-app-short] with Dock inset, but short no longer start-packs, swaps order, or overrides footer margin. Every height end-packs with flex-end plus .mission-footer { margin-top: auto } so ammo and DEPLOY hug the fold like hive. Soft-GPU stays off. v0.54.46 scene/CPU gates, v0.54.44 quarter-res, v0.54.42 fill caps, parked 4x HDR, uniforms, and LOAD are untouched. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
 }

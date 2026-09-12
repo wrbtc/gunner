@@ -406,9 +406,10 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 #guideModelDialog .guide-model-tools{flex-wrap:wrap}
 
 /* === Concept-24 poster menu (0.54.19-safe): full-bleed art + overlay UI === */
-/* Hive lock: Coming Soon → ammo → DEPLOY in natural DOM order on tall.
-   Drop tall order:0/1 so natural order wins. Start-pack + Deploy-first order
-   only on true Dock-short data-app-short (~vh 864), not max-height:850/760. */
+/* Hive lock: Coming Soon → ammo → DEPLOY in natural DOM order.
+   Always end-pack (flex-end + .mission-footer { margin-top: auto }).
+   Short data-app-short collapses Coming Soon extras and keeps Dock inset;
+   it does not start-pack, swap order, or override footer margin. */
 /* Size to the visual viewport, not a tall 100vh/layout box that can sit under Safari chrome or the macOS Dock. */
 #intro.mission-poster{
   padding:0;overflow:auto;overscroll-behavior:none;background:#0b100b;
@@ -482,7 +483,7 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 #intro.mission-poster .poster-soon .sector-note{
   max-width:none;margin:0;font:12px/1.45 system-ui,sans-serif;color:#aeb6a0;
 }
-/* Deploy stack after Coming Soon on tall. Dock-short reorders Deploy first. */
+/* Deploy stack after Coming Soon. Natural DOM order on every height. */
 #intro.mission-poster .deployment-action{width:100%;max-width:340px;margin:0 0 0 auto;flex:0 0 auto;display:flex;flex-direction:column;gap:8px;min-width:0;overflow:visible}
 #intro.mission-poster #loadingSystems{flex-direction:column;align-items:stretch;gap:8px;margin-bottom:0;min-height:0}
 #intro.mission-poster #loadStatus{text-shadow:0 1px 8px rgba(0,0,0,.8)}
@@ -540,8 +541,7 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
   #intro.mission-poster .deployment-action{max-width:none;margin-left:0}
 }
 /* Laptop compaction only. Keep end-pack + footer auto so ammo/DEPLOY sit on the
-   fold. Coming Soon extras stay visible on typical heights (hive lock).
-   Start-pack stays only on html[data-app-short]. */
+   fold. Coming Soon extras stay visible on typical heights (hive lock). */
 @media(max-height:920px){
   #intro.mission-poster .mission-frame{
     padding-top:max(10px,env(safe-area-inset-top,0px));
@@ -567,21 +567,21 @@ html[data-app-short] #intro.mission-poster .mission-frame{
 }
 html[data-app-short] #intro.mission-poster .mission-masthead{padding-bottom:6px;margin-bottom:8px}
 html[data-app-short] #intro.mission-poster .mission-masthead h1{font-size:clamp(44px,6vw,76px);margin:4px 0 0}
-html[data-app-short] #intro.mission-poster .poster-body{align-items:start;overflow:visible;gap:clamp(10px,1.8vh,20px)}
+html[data-app-short] #intro.mission-poster .poster-body{align-items:end;overflow:visible;gap:clamp(10px,1.8vh,20px)}
 html[data-app-short] #intro.mission-poster .poster-left{gap:10px}
 html[data-app-short] #intro.mission-poster .poster-chapter h2{font-size:clamp(32px,4.2vw,56px);margin:4px 0 6px}
 html[data-app-short] #intro.mission-poster .poster-soon h2,
 html[data-app-short] #intro.mission-poster .poster-soon .sector-note{display:none}
-html[data-app-short] #intro.mission-poster .poster-soon{order:1;margin-top:2px}
+html[data-app-short] #intro.mission-poster .poster-soon{margin-top:2px}
 html[data-app-short] #intro.mission-poster .poster-soon .chapter-number{font-size:9px;letter-spacing:.18em;opacity:.7}
 html[data-app-short] #intro.mission-poster .mission-orders{padding-top:8px}
 html[data-app-short] #intro.mission-poster .mission-orders p{font-size:15px;margin:4px 0}
-html[data-app-short] #intro.mission-poster .poster-right{justify-content:flex-start;overflow:visible;min-height:0;gap:8px}
-html[data-app-short] #intro.mission-poster .deployment-action{order:0;gap:6px;overflow:visible;min-height:0}
+html[data-app-short] #intro.mission-poster .poster-right{justify-content:flex-end;overflow:visible;min-height:0;gap:8px}
+html[data-app-short] #intro.mission-poster .deployment-action{gap:6px;overflow:visible;min-height:0}
 html[data-app-short] #intro.mission-poster #startButton{min-height:54px}
 html[data-app-short] #intro.mission-poster .ammo-progress{gap:5px 6px}
 html[data-app-short] #intro.mission-poster .ammo-progress i{width:14px;height:22px}
-html[data-app-short] #intro.mission-poster .mission-footer{margin-top:8px;padding-top:8px}
+html[data-app-short] #intro.mission-poster .mission-footer{margin-top:auto;padding-top:8px}
 /* 850 compaction only. Do not start-pack here — that mid-floats typical windows. */
 @media(max-height:850px){
   #intro.mission-poster .mission-frame{

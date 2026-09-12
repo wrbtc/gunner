@@ -1,4 +1,4 @@
-# Release validation — v0.54.46
+# Release validation — v0.54.45
 
 ## Older Intel Safari / short desktop viewport
 
@@ -354,7 +354,7 @@ Reduced OFF still restores 4x MSAA by reallocating `hdr` and can hitch once.
 Soft-GPU stays off. Shader first-use uniforms are not reopened. Present-hold
 while paused or hidden, hidden-tab construction deadlines, LOAD graphics prep,
 0.54.41 hive composition, and 0.54.42 fill caps are unchanged. Menu short
-end-pack is owned by 0.54.43 and is not touched here.
+end-pack is owned by 0.54.45 and is not touched here.
 
 QA retest on that Iris-class Safari: Deploy with Reduced ON (checkbox or
 wait for auto). Record unpaused combat HUD FPS. Target is ≥20 with Reduced
@@ -402,6 +402,22 @@ Soft-GPU.
 
 Physical Intel Safari combat FPS acceptance of this Reduced scene/CPU path
 is still pending.
+
+## Short-viewport hive end-pack (v0.54.45)
+
+Live 0.54.46 includes the hive restore from 0.54.41 and the Reduced scene/CPU
+budget, but `html[data-app-short]` (viewport ≤864 / Dock) still start-packed:
+`.poster-right { justify-content:flex-start }`, Deploy-first `order:0/1`, and
+`.mission-footer { margin-top:8px }`. That left Deploy mid-screen, a quiet
+Coming Soon line in the bottom-right, and an empty canyon above the footer.
+
+v0.54.45 is menu CSS/HTML only. Coming Soon extras still collapse on
+`data-app-short`, and the Dock inset still keeps Deploy ≥8px above the Dock.
+Short no longer start-packs, swaps order, or overrides footer margin: every
+height end-packs with `flex-end` plus `.mission-footer { margin-top: auto }`
+so ammo and DEPLOY hug the fold like hive. Soft-GPU stays off. 0.54.46
+Reduced scene/CPU, 0.54.44 quarter-res, 0.54.42 particle/atmosphere/light
+caps, uniforms, LOAD, and Iris HDR are untouched.
 
 ## Testing and patch requests
 
