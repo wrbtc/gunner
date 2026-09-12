@@ -1,4 +1,4 @@
-# Release validation — v0.54.51
+# Release validation — v0.54.52
 
 ## Older Intel Safari / short desktop viewport
 
@@ -490,6 +490,23 @@ QA should verify all current incoming attack families (ordinary fireball,
 creeper stone, tanker fireball, Rimmer spike, Queen bomb/sting and plasma
 pressure) while confirming enemies complete their normal attack/cooldown cycle.
 Disable Master Mode and verify ordinary hull damage and effects return.
+
+## Creeper lean remesh and loco yaw (v0.54.52)
+
+Live 0.54.51 lava creepers walked and climbed backwards. Bank walk roots still
+use `atan2(-dir.x,-dir.z)` (−Z front). The GLB faces +Z. v0.54.52 adds one
+`+Math.PI` yaw in the creeper loco attach path so the child inherits it for
+both walk and climb. Climb is not flipped separately. Scale and plantY stay.
+
+Bank creepers remain on `game/assets/creeper-lava-loco-003.glb`. The intended
+binary is the lean remesh (~22k faces / ~9.3MB, was ~53.5k / ~28MB). If this
+tip still has the prior LFS object or only a pointer, replace that same path
+from pack `gunner-creeper-lean-05452-COMPLETE.tgz` and refresh the source
+manifest hashes. Soft-GPU stays off. Menu CSS and art direction are unchanged.
+
+In-game eyeball: a near bank creeper or climber should knuckle-walk / cliff-climb
+facing the travel direction, not reverse. Master Mode, Reduced present throttle,
+and menu/Dock packing are unchanged from 0.54.51.
 
 ## Testing and patch requests
 

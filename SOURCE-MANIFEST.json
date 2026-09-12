@@ -1,5 +1,5 @@
 {
-  "version": "0.54.51",
+  "version": "0.54.52",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -13,8 +13,8 @@
     },
     {
       "path": "game/assets/CREEPER-LAVA-LOCO.md",
-      "bytes": 1027,
-      "sha256": "932d46e8ebe59f679606fb293a3c2d6786aba0438a9551d982ae06f342beedb9"
+      "bytes": 1382,
+      "sha256": "54ab6c1a65e5633569de6b51272c2023658f9b542098b59ff50833266be8260b"
     },
     {
       "path": "game/assets/audio/KOKORO-CODE-LICENSE.txt",
@@ -209,17 +209,17 @@
     {
       "path": "game/index.html",
       "bytes": 13502,
-      "sha256": "e462058c4a216af681724b925245d1ad9fedc0f96d34ef66f095cbfb56eab697"
+      "sha256": "960810cfaae8bbccb22ae9a4bfa91ef516a65746152c7a1b3d872a76e0db7bf7"
     },
     {
       "path": "game/main.js",
       "bytes": 164994,
-      "sha256": "8fe6834c85c6ea535d6948e8830ba1b9dffb6fbced205ddcb086c130f154bc62"
+      "sha256": "72ccd28627c0fd133cab28296f20369e2560dc8166e603222e5bd3cd82ea9cbb"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "153d3743d44ff0865dbe3a2789a7a8e5c8e3a35be02b95792a76146aa0736f33"
+      "sha256": "99bf1c885f3c88e93782e2fe39179ce10046c35c8bace935c0dfabd73af09d5a"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -259,7 +259,7 @@
     {
       "path": "game/src/bank-demons.js",
       "bytes": 27156,
-      "sha256": "3fbe3add21bbbda7d64bf13b006bb14b3ace589f2acf38d4aa121ac0f8d5a954"
+      "sha256": "d5d823ea886f3d76c76d25f01351a9a8caec70a63f44a879f0d36e1517f79a57"
     },
     {
       "path": "game/src/basalt-detail.js",
@@ -328,8 +328,8 @@
     },
     {
       "path": "game/src/creeper-loco.js",
-      "bytes": 6089,
-      "sha256": "a669c6da83b7f93d1e2054117f80f99cf33f83c55de7b095e5b6a7d4f08bd441"
+      "bytes": 6216,
+      "sha256": "57ac0a7df65fe5e3c31b60e6df41d204240dcd6190d595f65eb644609e72d32a"
     },
     {
       "path": "game/src/dance-circle.js",
@@ -419,7 +419,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26799,
-      "sha256": "95f5ce6905f1eafe0a974f5fe675ff36e751ff79c481b48a013ebdec10900806"
+      "sha256": "4435113e3367af75e32e104dc208cb4141d67a601ea9ce741c02a5afb6fbf636"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -612,5 +612,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.51 combines the bank creeper / climber lava loco visuals from v0.54.49, the Reduced every-second-rAF presentation throttle from v0.54.50, and a persistent Flight Settings MASTER MODE for unobstructed debugging. Master Mode preserves normal enemies, attacks, projectile resolution, animation and player weapons while suppressing hull damage, damage records, glass mud/fire, Rimmer/Queen sting presentation and audio filtering, tanker hull-impact smoke/audio, damage flash, view shake, hit particles, damage audio and low-hull cues; enabling it clears active player-hit obstructions. Flights that use Master Mode are debug-only and cannot be submitted to the shared leaderboard. Menu music remains click-to-play, telemetry remains disabled, and public privacy adaptations are retained. Physical Intel Safari combat acceptance remains pending."
+  "note": "Gunner v0.54.52 keeps the v0.54.51 Master Mode debug flight and Reduced every-second-rAF presentation throttle, and orients bank creeper / climber lava loco visuals with a single +pi yaw on attach so the +Z GLB faces the bank walk/climb -Z front. Bank creepers stay on game/assets/creeper-lava-loco-003.glb (lean remesh ~22k faces / ~9.3MB when that binary is present). Soft-GPU stays off. Menu CSS and art direction are unchanged. Menu music remains click-to-play, telemetry remains disabled, and public privacy adaptations are retained. Physical Intel Safari combat acceptance remains pending."
 }

@@ -129,6 +129,8 @@ export function loadCreeperLoco(){
           const visual = cloneSkinned(scene);
           visual.name = 'Creeper_lava_loco';
           visual.scale.setScalar(layout.uniform);
+          // Bank walk/climb roots face −Z (atan2(-dir.x,-dir.z)); the GLB faces +Z.
+          visual.rotation.y += Math.PI;
           visual.position.set(0, layout.plantY, 0);
           const mixer = new THREE.AnimationMixer(visual);
           const actions = {
