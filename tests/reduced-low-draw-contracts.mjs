@@ -1,4 +1,4 @@
-// Reduced low-draw path: 0-sample HDR twin, bloom skip, frozen shadows.
+// Reduced low-draw path: 0-sample HDR twin, unused 4x parked at 1x1, bloom skip.
 // Soft-GPU stays off. Shader first-use uniforms are not reopened here.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -24,9 +24,11 @@ const renderFn=cinemaSource.slice(cinemaSource.indexOf('function render(scene,ca
 assert.match(cinemaSource,/program\.getUniforms\(\)/);
 assert.doesNotMatch(renderFn,/getUniforms|getAttributes/);
 assert.match(cinemaSource,/hdrLite=new THREE\.WebGLRenderTarget\(1,1,\{\.\.\.options,depthBuffer:true,samples:0\}\)/);
+assert.match(cinemaSource,/function parkWorldTarget\(target\)\{if\(target\.width!==1\|\|target\.height!==1\)target\.setSize\(1,1\);\}/);
 assert.match(cinemaSource,/const msaaEnabled=quality\.msaa&&!reducedEffectsActive/);
 assert.match(cinemaSource,/const bloomEnabled=quality\.bloom&&!reducedEffectsActive/);
 assert.match(cinemaSource,/composite\.uniforms\.tBloom\.value=bloomBlack/);
+assert.match(cinemaSource,/Restoring Reduced OFF reallocates 4x MSAA and can hitch once/);
 
 let target=null,draws=[];
 const renderer={getRenderTarget:()=>target,setRenderTarget:t=>{target=t;},getDrawingBufferSize:v=>v.set(1280,800),render:(scene,camera)=>draws.push({scene,camera,target}),clearDepth(){}};
@@ -37,17 +39,29 @@ assert.equal(cinema.quality.msaa,true);assert.equal(cinema.quality.bloom,true);a
 draws=[];cinema.render(scene,camera,{});
 const fullTarget=draws[0].target;
 assert.equal(fullTarget.samples,4);
+assert.equal(fullTarget.width,1280);
+assert.equal(fullTarget.height,800);
 assert.equal(cinema.stats().worldMsaaSamples,4);
 assert.equal(cinema.stats().bloomPasses,3);
+assert.equal(cinema.stats().liveWorldHdrWidth,1280);
+assert.equal(cinema.stats().unusedWorldHdrWidth,1);
+assert.equal(cinema.stats().unusedWorldHdrHeight,1);
 
 draws=[];cinema.render(scene,camera,{reducedEffects:true});
 const liteTarget=draws[0].target;
 assert.notEqual(liteTarget,fullTarget);
 assert.equal(liteTarget.samples,0);
+assert.equal(liteTarget.width,1280);
+assert.equal(liteTarget.height,800);
 assert.equal(fullTarget.samples,4);
+assert.equal(fullTarget.width,1);
+assert.equal(fullTarget.height,1);
 assert.equal(cinema.stats().worldMsaaSamples,0);
 assert.equal(cinema.stats().bloomPasses,0);
 assert.equal(cinema.stats().contactOcclusionSamples,0);
+assert.equal(cinema.stats().liveWorldHdrWidth,1280);
+assert.equal(cinema.stats().unusedWorldHdrWidth,1);
+assert.equal(cinema.stats().unusedWorldHdrHeight,1);
 assert.equal(draws.length,3);
 assert.equal(draws.filter(x=>x.scene===scene).length,2);
 
@@ -56,6 +70,7 @@ draws=[];cinema.render(scene,camera,{});
 assert.equal(cinema.stats().worldMsaaSamples,0);
 assert.equal(cinema.stats().bloomPasses,0);
 assert.equal(draws[0].target.samples,0);
+assert.equal(cinema.stats().unusedWorldHdrWidth,1);
 cinema.quality.msaa=true;cinema.quality.bloom=true;
 
-console.log('PASS reduced-low-draw-contracts (0-sample twin, bloom skip, Soft-GPU off, shadows freeze without enabled toggle)');
+console.log('PASS reduced-low-draw-contracts (one live HDR, unused 4x parked, bloom skip, Soft-GPU off)');

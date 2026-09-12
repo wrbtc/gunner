@@ -1,4 +1,4 @@
-# Release validation — v0.54.38
+# Release validation — v0.54.39
 
 ## Older Intel Safari / short desktop viewport
 
@@ -235,6 +235,29 @@ while paused/hidden should still hold the last frame. Do not enable Soft-GPU.
 
 Physical Intel Safari combat FPS acceptance of this deeper Reduced path is
 still pending.
+
+## Unused 4x HDR park (v0.54.39)
+
+Live 0.54.38 Iris Safari (Soft-GPU OFF, Reduced ON) still sat at about 3–8 FPS
+in unpaused combat versus the ≥20 degraded bar. The 0-sample twin was the live
+draw target, but the prepared 4x HDR color+depth buffer stayed allocated at
+full resolution beside it.
+
+v0.54.39 keeps both target objects so sample counts are never mutated on the
+live HDR, and parks the unused world HDR at 1×1. Reduced combat has one live
+full-resolution color+depth target (`hdrLite`). Turning Reduced OFF restores
+4x MSAA by reallocating `hdr` and can hitch once. Soft-GPU stays off.
+Shader first-use uniforms are not reopened. Present-hold while paused or
+hidden, hidden-tab construction deadlines, LOAD graphics prep, and 0.54.37
+menu Deploy-above-Dock packing are unchanged. World resolution is unchanged.
+
+QA retest on that Iris-class Safari: Deploy with Reduced ON (checkbox or
+wait for auto). Record unpaused combat HUD FPS. Target is ≥20 with Reduced
+on. Toggling Reduced OFF may hitch once while 4x HDR reallocates. Do not
+enable Soft-GPU.
+
+Physical Intel Safari combat FPS acceptance of this single-live-HDR Reduced
+path is still pending.
 
 ## Testing and patch requests
 

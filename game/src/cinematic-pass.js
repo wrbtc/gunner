@@ -8,8 +8,10 @@ export function createCinematicPass(renderer) {
   const options={type:THREE.HalfFloatType,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,depthBuffer:false};
   const hdr=new THREE.WebGLRenderTarget(1,1,{...options,depthBuffer:true,samples:4});
   hdr.depthTexture=new THREE.DepthTexture(1,1,THREE.UnsignedIntType);
-  // Prepared 4x HDR stays allocated. Reduced renders into this 0-sample twin so
-  // sample-count swaps never hitch the live target.
+  // Reduced draws into this 0-sample twin so sample-count swaps never hitch the
+  // live target. Only one world HDR is full-resolution at a time; the unused
+  // twin is parked at 1x1. Restoring 4x MSAA on Reduced OFF reallocates and can
+  // hitch once.
   const hdrLite=new THREE.WebGLRenderTarget(1,1,{...options,depthBuffer:true,samples:0});
   hdrLite.depthTexture=new THREE.DepthTexture(1,1,THREE.UnsignedIntType);
   const bloomBlack=new THREE.DataTexture(new Uint8Array([0,0,0,255]),1,1);
@@ -91,7 +93,22 @@ export function createCinematicPass(renderer) {
   function captureStingFrame(){const previous=renderer.getRenderTarget(),oldMaterial=quad.material;frozenFrame.setSize(width,height);draw(freezeCopy,frozenFrame);renderer.setRenderTarget(previous);quad.material=oldMaterial;snapshotSerial++;return frozenFrame.texture;}
   const quad=new THREE.Mesh(new THREE.PlaneGeometry(2,2),extract);quadScene.add(quad);
   let width=1,height=1;
-  function resize(){const size=renderer.getDrawingBufferSize(new THREE.Vector2());if(size.x===width&&size.y===height)return;width=size.x;height=size.y;hdr.setSize(width,height);hdrLite.setSize(width,height);shaded.setSize(width,height);contact.setSize(Math.max(1,width>>1),Math.max(1,height>>1));contactPing.setSize(contact.width,contact.height);occlusion.uniforms.uResolution.value.set(width,height);contactComposite.uniforms.uContactSize.value.set(contact.width,contact.height);ping.setSize(Math.max(1,width>>2),Math.max(1,height>>2));pong.setSize(Math.max(1,width>>2),Math.max(1,height>>2));}
+  function liveWorldTarget(){return quality.msaa&&!reducedEffectsActive?hdr:hdrLite;}
+  function parkWorldTarget(target){if(target.width!==1||target.height!==1)target.setSize(1,1);}
+  function syncWorldTargets(){
+    const live=liveWorldTarget(),unused=live===hdr?hdrLite:hdr;
+    if(live.width!==width||live.height!==height)live.setSize(width,height);
+    parkWorldTarget(unused);
+  }
+  function resize(){
+    const size=renderer.getDrawingBufferSize(new THREE.Vector2());
+    if(size.x!==width||size.y!==height){
+      width=size.x;height=size.y;shaded.setSize(width,height);contact.setSize(Math.max(1,width>>1),Math.max(1,height>>1));contactPing.setSize(contact.width,contact.height);occlusion.uniforms.uResolution.value.set(width,height);contactComposite.uniforms.uContactSize.value.set(contact.width,contact.height);ping.setSize(Math.max(1,width>>2),Math.max(1,height>>2));pong.setSize(Math.max(1,width>>2),Math.max(1,height>>2));
+    }
+    // Reconcile parked vs live even when the canvas size is unchanged so a
+    // Reduced toggle never leaves two full-res color+depth buffers hot.
+    syncWorldTargets();
+  }
   function draw(mat,target){quad.material=mat;renderer.setRenderTarget(target);renderer.render(quadScene,quadCamera);}
   function applyContact(camera,scale=1,source=hdr){
     occlusion.uniforms.tDepth.value=source.depthTexture;
@@ -386,9 +403,10 @@ export function createCinematicPass(renderer) {
     entry.promise=Promise.resolve().then(run);return entry.promise;
   }
   function render(scene,camera,{time=0,reducedMotion=false,reducedEffects=false,worldOnly=false,exterior=false}={}){
-    // Reduced keeps the prepared 4x HDR target and draws the world into a
-    // preallocated 0-sample twin. Contact and quarter-res bloom are skipped.
+    // Reduced draws into the 0-sample twin and parks unused 4x HDR at 1x1
+    // (one live color+depth target). Contact and quarter-res bloom are skipped.
     // Mutating hdr.samples on the live target can hitch Intel-class Safari.
+    // Restoring Reduced OFF reallocates 4x MSAA and can hitch once.
     reducedEffectsActive=!!reducedEffects;
     const contactEnabled=quality.contact&&!reducedEffectsActive;
     const msaaEnabled=quality.msaa&&!reducedEffectsActive;
@@ -436,5 +454,5 @@ export function createCinematicPass(renderer) {
     // Drop GPU ownership while Three's old context tables still own it. Keep
     // target/texture objects so material uniforms and sting identity survive.
     for(const t of [hdr,hdrLite,ping,pong,contact,contactPing,shaded,frozenFrame])t.dispose();
-  },recoverContext(){stingRecoveryPending=true;},postMaterial:composite,captureStingFrame,stingSnapshot:()=>({target:frozenFrame,serial:snapshotSerial}),exposure:composite.uniforms.uExposure,stats:()=>({preparedPrograms,preparation:{...preparationStatus},preparedPointLightCounts:[...preparedPointLightCounts],reducedEffects:reducedEffectsActive,worldMsaaSamples:quality.msaa&&!reducedEffectsActive?hdr.samples:0,bloomPasses:quality.bloom&&!reducedEffectsActive?3:0,worldNear:.5,contactOcclusionSamples:quality.contact&&!reducedEffectsActive?8:0,contactScale:.5}),dispose(){for(const t of [hdr,hdrLite,ping,pong,contact,contactPing,shaded,frozenFrame])t.dispose();bloomBlack.dispose();for(const m of [extract,blur,composite,freezeCopy,occlusion,contactBlur,contactComposite,copy])m.dispose();quad.geometry.dispose();}};
+  },recoverContext(){stingRecoveryPending=true;},postMaterial:composite,captureStingFrame,stingSnapshot:()=>({target:frozenFrame,serial:snapshotSerial}),exposure:composite.uniforms.uExposure,stats:()=>{const live=liveWorldTarget(),unused=live===hdr?hdrLite:hdr;return {preparedPrograms,preparation:{...preparationStatus},preparedPointLightCounts:[...preparedPointLightCounts],reducedEffects:reducedEffectsActive,worldMsaaSamples:quality.msaa&&!reducedEffectsActive?hdr.samples:0,bloomPasses:quality.bloom&&!reducedEffectsActive?3:0,liveWorldHdrWidth:live.width,liveWorldHdrHeight:live.height,unusedWorldHdrWidth:unused.width,unusedWorldHdrHeight:unused.height,worldNear:.5,contactOcclusionSamples:quality.contact&&!reducedEffectsActive?8:0,contactScale:.5};},dispose(){for(const t of [hdr,hdrLite,ping,pong,contact,contactPing,shaded,frozenFrame])t.dispose();bloomBlack.dispose();for(const m of [extract,blur,composite,freezeCopy,occlusion,contactBlur,contactComposite,copy])m.dispose();quad.geometry.dispose();}};
 }
