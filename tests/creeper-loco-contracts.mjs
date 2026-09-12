@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {existsSync} from 'node:fs';
 import * as THREE from '../game/vendor/three.module.js?v=052';
-import {creeperLocoVisualBounds} from '../game/src/creeper-loco.js?v=054-52';
+import {creeperLocoVisualBounds} from '../game/src/creeper-loco.js?v=054-56';
 
 const root = new URL('../', import.meta.url);
 const read = name => readFileSync(new URL(name, root), 'utf8');
@@ -52,11 +52,11 @@ assert.match(bank, /Math\.atan2\(-dir\.x,-dir\.z\)/);
 assert.doesNotMatch(bank, /locoVisual\.root\.rotation/);
 
 assert.match(main, /loadCreeperLoco/);
-assert.match(main, /creeper-loco\.js\?v=054-52/);
-assert.match(main, /bank-demons\.js\?v=054-52/);
+assert.match(main, /creeper-loco\.js\?v=054-56/);
+assert.match(main, /bank-demons\.js\?v=054-56/);
 assert.match(main, /optionalCreeperLoco/);
 assert.match(main, /locoKit:creeperLocoBootstrap\?\.value/);
-assert.match(main, /version:'0\.54\.52'/);
+assert.match(main, /version:'0\.54\.56'/);
 assert.doesNotMatch(main, /version:'0\.54\.51'/);
 
 assert.match(note, /creeper-lava-loco-003\.glb/);
@@ -69,7 +69,7 @@ assert.doesNotMatch(note, /0\.54\.50/);
 assert.match(attributes, /game\/assets\/creeper-lava-loco-003\.glb filter=lfs diff=lfs merge=lfs -text/);
 
 const packageJson = JSON.parse(read('package.json'));
-assert.equal(packageJson.version, '0.54.52');
+assert.equal(packageJson.version, '0.54.56');
 
 const binary = new URL('game/assets/creeper-lava-loco-003.glb', root);
 let binaryPresent = false;

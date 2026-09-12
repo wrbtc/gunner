@@ -1,5 +1,5 @@
 {
-  "version": "0.54.52",
+  "version": "0.54.56",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -92,14 +92,19 @@
       "sha256": "f79a2bf49fd6487b82e55f6c37b364abd34eb3d0b10986a04398b3f07500c4f9"
     },
     {
+      "path": "game/assets/field-guide/CREEPER-PROVENANCE.json",
+      "bytes": 504,
+      "sha256": "460c96210cd05366902defed044b2f6eaffe4318255c04104c5f503cfc33fa02"
+    },
+    {
       "path": "game/assets/field-guide/PLASMA-PROVENANCE.json",
       "bytes": 370,
       "sha256": "2e7d2a466b68825ffb2f1bbeeb92130a277417b77e5a13a26f7a2f07e9b68710"
     },
     {
       "path": "game/assets/field-guide/creepers.png",
-      "bytes": 72523,
-      "sha256": "5b48a3b9424f846370764fe846f90285c32f7d18a18237d39e3e106a0ab86673"
+      "bytes": 174452,
+      "sha256": "0d926582b9650a00f513a84af6159608f1b52ac81c484c79462e11fdc49c2dd7"
     },
     {
       "path": "game/assets/field-guide/dancers.png",
@@ -209,17 +214,17 @@
     {
       "path": "game/index.html",
       "bytes": 13502,
-      "sha256": "960810cfaae8bbccb22ae9a4bfa91ef516a65746152c7a1b3d872a76e0db7bf7"
+      "sha256": "7d4f750c7f777e45632a110688a08ef07c4ea16e2f60d6d119c79ee1b2cfeee0"
     },
     {
       "path": "game/main.js",
-      "bytes": 164994,
-      "sha256": "72ccd28627c0fd133cab28296f20369e2560dc8166e603222e5bd3cd82ea9cbb"
+      "bytes": 165034,
+      "sha256": "bd640691d3e9715beee8ce4ddcb239cd6fcf9a53783a6c1fcc056136dfd52647"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "99bf1c885f3c88e93782e2fe39179ce10046c35c8bace935c0dfabd73af09d5a"
+      "sha256": "e90b99b232dba06db390353137829772c42a7665575cbc6e933481b53b699e19"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -259,7 +264,7 @@
     {
       "path": "game/src/bank-demons.js",
       "bytes": 27156,
-      "sha256": "d5d823ea886f3d76c76d25f01351a9a8caec70a63f44a879f0d36e1517f79a57"
+      "sha256": "3194502d8b844c7145126e21f76898d8ed89eb1df77bb0cea649a769ca511e56"
     },
     {
       "path": "game/src/basalt-detail.js",
@@ -353,8 +358,8 @@
     },
     {
       "path": "game/src/guide-models.js",
-      "bytes": 2940,
-      "sha256": "3a549e57a40f0503970189b0999fdac443b313fbe43ed9b573aacd3420721bca"
+      "bytes": 3526,
+      "sha256": "e712a5aa62f6faa7945db0f046f8c0cc91cbab2a7d337de47ae083df8cb758b0"
     },
     {
       "path": "game/src/gun-bubble.js",
@@ -418,8 +423,8 @@
     },
     {
       "path": "game/src/mission-screen.js",
-      "bytes": 26799,
-      "sha256": "4435113e3367af75e32e104dc208cb4141d67a601ea9ce741c02a5afb6fbf636"
+      "bytes": 26882,
+      "sha256": "96eeb8bb802d4e1307fa3f1eb72c45f5a3211fae4032cd0f3e7176159494c5d5"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -612,5 +617,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.52 keeps the v0.54.51 Master Mode debug flight and Reduced every-second-rAF presentation throttle, and orients bank creeper / climber lava loco visuals with a single +pi yaw on attach so the +Z GLB faces the bank walk/climb -Z front. Bank creepers stay on game/assets/creeper-lava-loco-003.glb (lean remesh ~22k faces / ~9.3MB when that binary is present). Soft-GPU stays off. Menu CSS and art direction are unchanged. Menu music remains click-to-play, telemetry remains disabled, and public privacy adaptations are retained. Physical Intel Safari combat acceptance remains pending."
+  "note": "Gunner v0.54.56 keeps the v0.54.52 lava loco attach yaw and lean remesh, the v0.54.51 Master Mode debug flight, and the Reduced every-second-rAF presentation throttle. The Alien Field Guide creeper entry now uses the shipped lava remesh still, dossier copy (cracked basalt / molten veins, pale bone face mask, glowing eyes, knuckle-walk / cliff-climb), and the lava loco 3D guide model when the GLB is present. Ember dancers stay on the procedural orange-spirit path. Combat loco, GLB bytes, and attach yaw are unchanged. Soft-GPU stays off. Menu Deploy spacing is not touched. Menu music remains click-to-play, telemetry remains disabled, and public privacy adaptations are retained. Physical Intel Safari combat acceptance remains pending. Do not treat this identity as 0.54.53 (Reduced), 0.54.54 (creeper motion GLB), or 0.54.55 (menu Deploy gap)."
 }

@@ -1,0 +1,7 @@
+{
+  "source": "Shipped lean lava loco remesh, same mesh as bank creeper / climber combat when the GLB is present",
+  "sourceModel": "game/assets/creeper-lava-loco-003.glb",
+  "sourceModelSHA256": "744f1b66188f462923f2628f851671cc067965e7ada67bd25bb8294b6c29330d",
+  "imageSHA256": "0d926582b9650a00f513a84af6159608f1b52ac81c484c79462e11fdc49c2dd7",
+  "render": "Rendered from the lean remesh rest pose, 512x384 PNG. Cracked basalt, molten veins, pale bone face mask, glowing eyes, gorilla silhouette."
+}

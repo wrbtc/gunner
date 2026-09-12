@@ -5,7 +5,8 @@ Fly through a volcanic canyon, destroy nests and creatures, and survive the Quee
 
 **Play Gunner: https://gunner.satoshis.watch/**
 
-This is the **v0.54.52 runtime with the concept-24 / hive menu**. Bank creepers and climbers use the lava loco skinned mesh when
+This is the **v0.54.56 runtime with the concept-24 / hive menu**. The Alien Field Guide creeper card uses the shipped lava remesh
+(cracked basalt / molten veins, pale bone face mask, glowing eyes, knuckle-walk / cliff-climb). Bank creepers and climbers still use the lava loco skinned mesh when
 `creeper-lava-loco-003.glb` is present (knuckle-walk / cliff-climb), with a single attach yaw so the +Z GLB matches −Z travel. It fits the briefing to short desktop viewports, keeps its report
 controls clear of the macOS Dock, and adds the supplied Queen reveal growl and raised-arms shriek,
 timed to the cinematic, and keeps menu/outcome music silent until the player
@@ -133,6 +134,6 @@ for some original models, illustrations and dialogue audio.
 homepage and HTML canonical/Open Graph URLs point there. The public repository
 does not advertise internal testing sites.
 
-This export is the v0.54.52 successor to the production concept-24 runtime,
+This export is the v0.54.56 successor to the production concept-24 runtime,
 subject only to the publication adaptations listed above. Telemetry remains disabled. See
 [KNOWN-ISSUES.md](KNOWN-ISSUES.md) for the testing limits.

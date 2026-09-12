@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 const main=readFileSync(new URL('../game/main.js',import.meta.url),'utf8');
 const render=main.slice(main.indexOf('function render(now){'),main.indexOf('\nfunction reset(){'));
 
-assert.match(main,/version:'0\.54\.52'/);
+assert.match(main,/version:'0\.54\.56'/);
 assert.match(main,/function applyReducedPresentHud\(reduced\)/);
 assert.match(main,/counterScope=on\?'reduced-presents':'all-frame-passes'/);
 assert.match(main,/Intel Reduced present/);

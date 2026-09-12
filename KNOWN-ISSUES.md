@@ -1,4 +1,4 @@
-# Release validation — v0.54.52
+# Release validation — v0.54.56
 
 ## Older Intel Safari / short desktop viewport
 
@@ -507,6 +507,19 @@ manifest hashes. Soft-GPU stays off. Menu CSS and art direction are unchanged.
 In-game eyeball: a near bank creeper or climber should knuckle-walk / cliff-climb
 facing the travel direction, not reverse. Master Mode, Reduced present throttle,
 and menu/Dock packing are unchanged from 0.54.51.
+
+## Alien Field Guide lava creeper (v0.54.56)
+
+The menu Alien Field Guide still showed the old procedural ashborn still and
+"dark humanoids" copy after the lava loco hero shipped. v0.54.56 swaps the
+creeper portrait, dossier blurb, and 3D guide model to the lean lava remesh
+(cracked basalt / molten veins, pale bone face mask, glowing eyes, gorilla
+knuckle-walk / cliff-climb silhouette). Ember dancers stay on the procedural
+orange-spirit path. Combat loco, GLB bytes, and attach yaw are unchanged from
+0.54.52. Soft-GPU stays off. Menu Deploy spacing is not touched.
+
+Do not treat this identity as 0.54.53 (Reduced), 0.54.54 (creeper motion GLB),
+or 0.54.55 (menu Deploy gap).
 
 ## Testing and patch requests
 

@@ -187,7 +187,7 @@ export const loadingSnapshot=()=>Object.freeze({...loading.snapshot(),trace:star
 export const loadingStage=id=>{const ok=loading.complete(id);if(ok)bootHeartbeat();return ok;};
 export const loadingProgress=(id,detail)=>{const ok=loading.begin(id,detail);if(ok)bootHeartbeat();return ok;};
 export const loadingReady=()=>loading.ready();
-export const REPORT_BUILD='0.54.52';
+export const REPORT_BUILD='0.54.56';
 const REPORT_ORIGINS=['https://gunner.satoshis.watch','http://127.0.0.1:8000'];
 const missionBuild=$('missionBuild');
 if(missionBuild)missionBuild.textContent='v'+REPORT_BUILD;
@@ -272,7 +272,7 @@ async function openGuideViewer(button=null){
 }
 export const FIELD_GUIDE=Object.freeze([
  ['eggs','Brood eggs','THE OBJECTIVE','Membranous eggs cluster in nests and in the ruins.','Shoot the eggs directly. Each rupture adds to your score; clear clusters with the heavy cannon.'],
- ['creepers','Creepers','MUD THROWERS','Dark humanoids climb the walls and patrol the banks. Their mud coats the glass.','Hit them during the throwing windup to interrupt. Keep the guns on one while tracking the next threat.'],
+ ['creepers','Creepers','MUD THROWERS','Cracked-basalt gorillas with molten veins, a pale bone face mask and glowing eyes. They knuckle-walk the banks and climb the cliffs. Their mud coats the glass.','Hit them during the throwing windup to interrupt. Keep the guns on one while tracking the next threat.'],
  ['dancers','Dancing Creepers','THE RITUAL','Orange spirits dance around the altar. Disturbing their gathering wakes the group.','They become hostile when disturbed. Shoot through their windup to interrupt their throws.'],
  ['rimmers','Rimmers','LASER / FLASHBANG','A red targeting laser precedes the incoming spike. A hit leaves a blinding afterimage.','Trace the laser back to the creature and interrupt its charge, or shoot down the incoming spike.'],
  ['tanks','Tank · Cinder Maw','FIRE BREATHER','A low volcanic beast with layered rock armour and a furnace mouth.','Sustain fire into the charging creature to interrupt it. Shoot incoming fireballs; use the cannon for heavy damage.'],
@@ -286,7 +286,7 @@ if(dialog&&trigger){
  for(const [id,name,tag,description,counter]of FIELD_GUIDE){
   const card=document.createElement('article');card.className='guide-entry';card.dataset.creature=id;
   const mark=document.createElement('button');mark.type='button';mark.className='guide-portrait guide-model-trigger '+id;mark.setAttribute('aria-label','Enlarge '+name);mark.setAttribute('aria-haspopup','dialog');mark.setAttribute('aria-expanded','false');
-  const portrait=document.createElement('img');portrait.dataset.src='./assets/field-guide/'+id+(id==='tanks'?'.jpg':'.png')+'?v=054';portrait.alt=id==='queen'?"The Queen's silhouette; her appearance remains unknown":name+' — model identification';portrait.width=512;portrait.height=384;portrait.decoding='async';mark.append(portrait);const enlarge=document.createElement('span');enlarge.className='guide-enlarge';enlarge.textContent=id==='dragons'||id==='queen'?'ENLARGE ↗':'VIEW 3D ↗';mark.append(enlarge);
+  const portrait=document.createElement('img');portrait.dataset.src='./assets/field-guide/'+id+(id==='tanks'?'.jpg':'.png')+'?v=054-56';portrait.alt=id==='queen'?"The Queen's silhouette; her appearance remains unknown":name+' — model identification';portrait.width=512;portrait.height=384;portrait.decoding='async';mark.append(portrait);const enlarge=document.createElement('span');enlarge.className='guide-enlarge';enlarge.textContent=id==='dragons'||id==='queen'?'ENLARGE ↗':'VIEW 3D ↗';mark.append(enlarge);
   const copy=document.createElement('div');
   for(const [tagName,text,cls]of [['span',tag,'guide-tag'],['h3',name,''],['h4','COUNTERPLAY',''],['p',counter,'guide-counter']]){const node=document.createElement(tagName);node.textContent=text;if(cls)node.className=cls;copy.append(node);}
   const details=document.createElement('details');details.className='guide-details';
