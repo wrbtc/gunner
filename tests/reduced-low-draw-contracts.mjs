@@ -1,5 +1,6 @@
-// Reduced low-draw path: 0-sample HDR twin, unused 4x parked at 1x1, bloom skip.
-// Soft-GPU stays off. Shader first-use uniforms are not reopened here.
+// Reduced low-draw path: 0-sample HDR twin at half canvas, unused 4x parked at
+// 1x1, bloom skip. Soft-GPU stays off. Shader first-use uniforms are not
+// reopened here.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import * as T from '../game/vendor/three.module.js';
@@ -25,9 +26,11 @@ assert.match(cinemaSource,/program\.getUniforms\(\)/);
 assert.doesNotMatch(renderFn,/getUniforms|getAttributes/);
 assert.match(cinemaSource,/hdrLite=new THREE\.WebGLRenderTarget\(1,1,\{\.\.\.options,depthBuffer:true,samples:0\}\)/);
 assert.match(cinemaSource,/function parkWorldTarget\(target\)\{if\(target\.width!==1\|\|target\.height!==1\)target\.setSize\(1,1\);\}/);
+assert.match(cinemaSource,/function liveWorldSize\(\)\{return reducedEffectsActive\?\{x:Math\.max\(1,width>>1\),y:Math\.max\(1,height>>1\)\}:\{x:width,y:height\};\}/);
 assert.match(cinemaSource,/const msaaEnabled=quality\.msaa&&!reducedEffectsActive/);
 assert.match(cinemaSource,/const bloomEnabled=quality\.bloom&&!reducedEffectsActive/);
 assert.match(cinemaSource,/composite\.uniforms\.tBloom\.value=bloomBlack/);
+assert.match(cinemaSource,/The composite still presents at canvas size so HTML HUD\/UI stays crisp/);
 assert.match(cinemaSource,/Restoring Reduced OFF reallocates 4x MSAA and can hitch once/);
 
 let target=null,draws=[];
@@ -44,6 +47,7 @@ assert.equal(fullTarget.height,800);
 assert.equal(cinema.stats().worldMsaaSamples,4);
 assert.equal(cinema.stats().bloomPasses,3);
 assert.equal(cinema.stats().liveWorldHdrWidth,1280);
+assert.equal(cinema.stats().liveWorldScale,1);
 assert.equal(cinema.stats().unusedWorldHdrWidth,1);
 assert.equal(cinema.stats().unusedWorldHdrHeight,1);
 
@@ -51,15 +55,18 @@ draws=[];cinema.render(scene,camera,{reducedEffects:true});
 const liteTarget=draws[0].target;
 assert.notEqual(liteTarget,fullTarget);
 assert.equal(liteTarget.samples,0);
-assert.equal(liteTarget.width,1280);
-assert.equal(liteTarget.height,800);
+assert.equal(liteTarget.width,640);
+assert.equal(liteTarget.height,400);
+assert.ok(liteTarget.width/1280<=.75);
 assert.equal(fullTarget.samples,4);
 assert.equal(fullTarget.width,1);
 assert.equal(fullTarget.height,1);
 assert.equal(cinema.stats().worldMsaaSamples,0);
 assert.equal(cinema.stats().bloomPasses,0);
 assert.equal(cinema.stats().contactOcclusionSamples,0);
-assert.equal(cinema.stats().liveWorldHdrWidth,1280);
+assert.equal(cinema.stats().liveWorldHdrWidth,640);
+assert.equal(cinema.stats().liveWorldHdrHeight,400);
+assert.equal(cinema.stats().liveWorldScale,.5);
 assert.equal(cinema.stats().unusedWorldHdrWidth,1);
 assert.equal(cinema.stats().unusedWorldHdrHeight,1);
 assert.equal(draws.length,3);
@@ -73,4 +80,4 @@ assert.equal(draws[0].target.samples,0);
 assert.equal(cinema.stats().unusedWorldHdrWidth,1);
 cinema.quality.msaa=true;cinema.quality.bloom=true;
 
-console.log('PASS reduced-low-draw-contracts (one live HDR, unused 4x parked, bloom skip, Soft-GPU off)');
+console.log('PASS reduced-low-draw-contracts (half-res live HDR, unused 4x parked, bloom skip, Soft-GPU off)');

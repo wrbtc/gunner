@@ -1,5 +1,5 @@
 {
-  "version": "0.54.39",
+  "version": "0.54.40",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -199,17 +199,17 @@
     {
       "path": "game/index.html",
       "bytes": 13527,
-      "sha256": "58cb9d9bb4d00401804c1f593e191313eaeca149a383e21a1578b1534a910c9d"
+      "sha256": "0cb7f91d0bffbd3c294b4f99126a4cc58be7fb53b41820f14221d532c2dde72a"
     },
     {
       "path": "game/main.js",
       "bytes": 159543,
-      "sha256": "9a083932c9ccec1b278c4f0ceb9dd78948b484a18def42d30848d5d3c375ce0a"
+      "sha256": "d2baa60ff29d124c53782ed69e9ad9f167348572a8a5a97cfcb6b67f8454f633"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "868526465058829be2198872b6c0ec8d3419a460b54398b3c2472bbec9ec51d8"
+      "sha256": "b80b0131b29bdccd7c7d0e41080d1afe2c737a1666ce5ab1127bc95ca09fdca1"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -283,8 +283,8 @@
     },
     {
       "path": "game/src/cinematic-pass.js",
-      "bytes": 32906,
-      "sha256": "c1aaff43d015eb560c6c9c46067130803c094453fd9aba6599dbe2cb298378c4"
+      "bytes": 33373,
+      "sha256": "a9ae55ad8ae17d59ab0acc3f2126a2599c0bd79bbd0da31e773df9a8c84702ec"
     },
     {
       "path": "game/src/cliff-outcrops.js",
@@ -404,7 +404,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26799,
-      "sha256": "62751e1f6cf35769fe1bfa48434f307ceeb9c4b98a05fd84b7960e8f34a3b06e"
+      "sha256": "17bb847e5a67ed4992e6c65127adea2291bb59dcf5b0ba2115149bed2c8ad3c5"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.39 parks the unused 4x HDR target at 1x1 while Reduced is on, so combat keeps one live full-resolution color+depth buffer (hdrLite). Turning Reduced OFF reallocates 4x MSAA and can hitch once. Contact and bloom stay skipped, shadow-map updates stay frozen, and sample counts are never mutated on the live target. Present-hold while paused or hidden, hidden-tab construction deadlines, Intel-class shader first-use uniform deferral, typical-laptop end-pack, short start-pack, idle Deploy ammo-then-DEPLOY, and quiet footer QA remain. Soft-GPU stays off. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
+  "note": "Gunner v0.54.40 sizes the live Reduced world HDR (hdrLite) to half canvas (width>>1, height>>1, scale 0.5) so Iris fill-rate drops while the unused 4x HDR twin stays parked at 1x1. The composite still presents at canvas size, so HTML HUD/UI stays crisp. Turning Reduced OFF reallocates 4x MSAA and can hitch once. Contact and bloom stay skipped, shadow-map updates stay frozen, and sample counts are never mutated on the live target. Present-hold while paused or hidden, hidden-tab construction deadlines, Intel-class shader first-use uniform deferral, typical-laptop end-pack, short start-pack, idle Deploy ammo-then-DEPLOY, and quiet footer QA remain. Soft-GPU stays off. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
 }
