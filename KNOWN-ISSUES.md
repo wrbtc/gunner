@@ -1,4 +1,4 @@
-# Release validation — v0.54.56
+# Release validation — v0.54.58
 
 ## Older Intel Safari / short desktop viewport
 
@@ -519,7 +519,24 @@ orange-spirit path. Combat loco, GLB bytes, and attach yaw are unchanged from
 0.54.52. Soft-GPU stays off. Menu Deploy spacing is not touched.
 
 Do not treat this identity as 0.54.53 (Reduced), 0.54.54 (creeper motion GLB),
-or 0.54.55 (menu Deploy gap).
+or 0.54.55 (held menu Deploy gap).
+
+## Deploy ammo breathing room (v0.54.58)
+
+On the hive menu the two life/bullet rows sat flush on the tan DEPLOY GUNNER
+top edge. Poster CSS had zeroed `#loadingSystems` margin (`margin-bottom:0`)
+and laptop/short compaction tightened `.deployment-action` to `gap:6px`.
+
+v0.54.58 restores an 8px `#loadingSystems` margin on the poster (including
+the 760 compaction override) and keeps the Deploy stack gap at 8px on tall,
+920, and `html[data-app-short]` viewports. Combined space from the last ammo
+row to DEPLOY is 16px. Bullet art, button copy, and menu composition are
+unchanged. Soft-GPU stays off. This is not 0.54.55 (old tip), 0.54.56 (Field
+Guide lava creeper), or 0.54.57 (reserved creeper motion).
+
+In-game eyeball: open the mission menu and confirm a clear band of space
+between the lower ammo row and the DEPLOY GUNNER top border on a typical
+laptop height and on a short Dock viewport.
 
 ## Testing and patch requests
 

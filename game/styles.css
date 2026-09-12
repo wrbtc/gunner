@@ -483,9 +483,11 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 #intro.mission-poster .poster-soon .sector-note{
   max-width:none;margin:0;font:12px/1.45 system-ui,sans-serif;color:#aeb6a0;
 }
-/* Deploy stack after Coming Soon. Natural DOM order on every height. */
+/* Deploy stack after Coming Soon. Natural DOM order on every height.
+   8px stack gap plus 8px ammo margin = 16px between the last life/bullet
+   row and DEPLOY. Compact/short must not zero that margin. */
 #intro.mission-poster .deployment-action{width:100%;max-width:340px;margin:0 0 0 auto;flex:0 0 auto;display:flex;flex-direction:column;gap:8px;min-width:0;overflow:visible}
-#intro.mission-poster #loadingSystems{flex-direction:column;align-items:stretch;gap:8px;margin-bottom:0;min-height:0}
+#intro.mission-poster #loadingSystems{flex-direction:column;align-items:stretch;gap:8px;margin-bottom:8px;min-height:0}
 #intro.mission-poster #loadStatus{text-shadow:0 1px 8px rgba(0,0,0,.8)}
 #intro.mission-poster #startButton{
   width:100%;background:#c4aa68;border:1px solid #e7d29b;color:#0b100b;
@@ -555,7 +557,7 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
   #intro.mission-poster .mission-orders{padding-top:8px}
   #intro.mission-poster .mission-orders p{font-size:15px;margin:4px 0}
   #intro.mission-poster .poster-right{overflow:visible;min-height:0;gap:8px}
-  #intro.mission-poster .deployment-action{gap:6px;overflow:visible;min-height:0}
+  #intro.mission-poster .deployment-action{gap:8px;overflow:visible;min-height:0}
   #intro.mission-poster #startButton{min-height:54px}
   #intro.mission-poster .ammo-progress{gap:5px 6px}
   #intro.mission-poster .ammo-progress i{width:14px;height:22px}
@@ -577,7 +579,7 @@ html[data-app-short] #intro.mission-poster .poster-soon .chapter-number{font-siz
 html[data-app-short] #intro.mission-poster .mission-orders{padding-top:8px}
 html[data-app-short] #intro.mission-poster .mission-orders p{font-size:15px;margin:4px 0}
 html[data-app-short] #intro.mission-poster .poster-right{justify-content:flex-end;overflow:visible;min-height:0;gap:8px}
-html[data-app-short] #intro.mission-poster .deployment-action{gap:6px;overflow:visible;min-height:0}
+html[data-app-short] #intro.mission-poster .deployment-action{gap:8px;overflow:visible;min-height:0}
 html[data-app-short] #intro.mission-poster #startButton{min-height:54px}
 html[data-app-short] #intro.mission-poster .ammo-progress{gap:5px 6px}
 html[data-app-short] #intro.mission-poster .ammo-progress i{width:14px;height:22px}
@@ -606,7 +608,7 @@ html[data-app-short] #intro.mission-poster .mission-footer{margin-top:auto;paddi
   #intro.mission-poster .mission-orders p{font-size:15px;margin:4px 0}
   #intro.mission-poster .poster-right{overflow:visible;gap:8px}
   #intro.mission-poster .mission-footer{padding-top:8px}
-  #intro.mission-poster #loadingSystems{margin-bottom:0}
+  #intro.mission-poster #loadingSystems{margin-bottom:8px}
   #intro.mission-poster #startButton{min-height:54px}
   #intro.mission-poster .poster-soon{display:none}
 }

@@ -1,7 +1,7 @@
 import * as THREE from '../vendor/three.module.js?v=052';
 import {sculptTrunk,sculptSkull} from './ashborn-sculpt.js?v=052';
 import {createWallSurface,planWallRoute,poseWallRoot,wallGrips} from './wall-climb.js?v=052';
-import {creeperLocoReducedCap} from './creeper-loco.js?v=054-56';
+import {creeperLocoReducedCap} from './creeper-loco.js?v=054-58';
 import {mergeGeometries} from '../vendor/BufferGeometryUtils.js?v=052';
 const UP=new THREE.Vector3(0,1,0),V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z);
 const clamp=THREE.MathUtils.clamp,lerp=THREE.MathUtils.lerp;

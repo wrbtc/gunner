@@ -1,5 +1,5 @@
 {
-  "version": "0.54.56",
+  "version": "0.54.58",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -214,17 +214,17 @@
     {
       "path": "game/index.html",
       "bytes": 13502,
-      "sha256": "7d4f750c7f777e45632a110688a08ef07c4ea16e2f60d6d119c79ee1b2cfeee0"
+      "sha256": "a172acd7eb6a4a301e127a740e513a9e0cb519ca38f9e53ee519502e168f30a2"
     },
     {
       "path": "game/main.js",
       "bytes": 165034,
-      "sha256": "bd640691d3e9715beee8ce4ddcb239cd6fcf9a53783a6c1fcc056136dfd52647"
+      "sha256": "ecd4a3df0965822020c5362ddf5d0fee65f7a2abae7f314b159cec567dc7f5e3"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "e90b99b232dba06db390353137829772c42a7665575cbc6e933481b53b699e19"
+      "sha256": "8da21b09f611bae476d0e7373d8d201c65c5c10abd0bed8480731979dfe00666"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -264,7 +264,7 @@
     {
       "path": "game/src/bank-demons.js",
       "bytes": 27156,
-      "sha256": "3194502d8b844c7145126e21f76898d8ed89eb1df77bb0cea649a769ca511e56"
+      "sha256": "513ab537e8cf12cb2d72db064077b3405014e15b80d70813a6e2894d98570f19"
     },
     {
       "path": "game/src/basalt-detail.js",
@@ -424,7 +424,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26882,
-      "sha256": "96eeb8bb802d4e1307fa3f1eb72c45f5a3211fae4032cd0f3e7176159494c5d5"
+      "sha256": "060903944cfa91cc67a5e414c08fdb3afb2cf5121b31d8ece548794aa7e376c7"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -593,8 +593,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 56342,
-      "sha256": "d781b25d7e3c2e11d06ebd7126ee13c05f6735ea17dd3dd68e8b4cb390a8330f"
+      "bytes": 56480,
+      "sha256": "6e825d9e7d042b81aeabca28644bbe6a5031b7c8e3f539113604ca31f2c182a8"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",
@@ -617,5 +617,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.56 keeps the v0.54.52 lava loco attach yaw and lean remesh, the v0.54.51 Master Mode debug flight, and the Reduced every-second-rAF presentation throttle. The Alien Field Guide creeper entry now uses the shipped lava remesh still, dossier copy (cracked basalt / molten veins, pale bone face mask, glowing eyes, knuckle-walk / cliff-climb), and the lava loco 3D guide model when the GLB is present. Ember dancers stay on the procedural orange-spirit path. Combat loco, GLB bytes, and attach yaw are unchanged. Soft-GPU stays off. Menu Deploy spacing is not touched. Menu music remains click-to-play, telemetry remains disabled, and public privacy adaptations are retained. Physical Intel Safari combat acceptance remains pending. Do not treat this identity as 0.54.53 (Reduced), 0.54.54 (creeper motion GLB), or 0.54.55 (menu Deploy gap)."
+  "note": "Gunner v0.54.58 keeps the v0.54.56 Alien Field Guide lava creeper still and dossier, the v0.54.52 lava loco attach yaw and lean remesh, the v0.54.51 Master Mode debug flight, and the Reduced every-second-rAF presentation throttle, and adds 16px of vertical space between the hive menu life/bullet row and DEPLOY GUNNER (8px #loadingSystems margin plus 8px .deployment-action gap, including 920 / short / 760 compaction). Soft-GPU stays off. This is not 0.54.55 (old menu-gap tip), 0.54.56 (Field Guide lava creeper), or 0.54.57 (reserved creeper motion). Bullet art, button copy, and menu composition are unchanged. Menu music remains click-to-play, telemetry remains disabled, and public privacy adaptations are retained. Physical Intel Safari combat acceptance remains pending."
 }
