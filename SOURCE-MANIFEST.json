@@ -1,5 +1,5 @@
 {
-  "version": "0.54.49",
+  "version": "0.54.51",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -208,18 +208,18 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 13311,
-      "sha256": "8c38d9a8ee4c1fd3780514f387ebd0490ca002a527ca8df31e140ced0d789d36"
+      "bytes": 13502,
+      "sha256": "e462058c4a216af681724b925245d1ad9fedc0f96d34ef66f095cbfb56eab697"
     },
     {
       "path": "game/main.js",
-      "bytes": 162250,
-      "sha256": "a85f4134c1f3b1933fdc38c2ca93db4dfdb2e26b0ab48a1c2b8413c75e59dd10"
+      "bytes": 164994,
+      "sha256": "8fe6834c85c6ea535d6948e8830ba1b9dffb6fbced205ddcb086c130f154bc62"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "2856a6918ffd84eb1d2ad6831894ae5e46e8d50d77a2ce20258a360d30c3b0b6"
+      "sha256": "153d3743d44ff0865dbe3a2789a7a8e5c8e3a35be02b95792a76146aa0736f33"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -419,7 +419,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26799,
-      "sha256": "0b010a0ab406cc8eb5f87b949e0ce945053fc2cd67877f57cef9c295642c0374"
+      "sha256": "95f5ce6905f1eafe0a974f5fe675ff36e751ff79c481b48a013ebdec10900806"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -508,8 +508,8 @@
     },
     {
       "path": "game/src/rimmers.js",
-      "bytes": 13727,
-      "sha256": "43a14acc24098facecd88e92c1679fb9a53ec13ecc643d4cbe2b66973339df67"
+      "bytes": 13826,
+      "sha256": "aa9f2e317ec561d83d77f71525639f49cf03ce09e0e177fb1e0060d21001c79f"
     },
     {
       "path": "game/src/river-profile.js",
@@ -568,8 +568,8 @@
     },
     {
       "path": "game/src/tanker-spray.js",
-      "bytes": 13672,
-      "sha256": "1b5853b245b621d70d7f0ad1b5a1977b5a91ab204de0cc0f96f3baaef71cf829"
+      "bytes": 13728,
+      "sha256": "7ba4cc835d08187b04d2cf892aa60af6a95971f5dc56a5e137a6ce87d6fb3503"
     },
     {
       "path": "game/src/wall-climb.js",
@@ -612,5 +612,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.49 ships bank creeper / climber lava loco visuals (creeper-lava-loco-003.glb when present; KW_knuckle_walk / CL_cliff_climb). Combat routing is unchanged. Ember dancers stay procedural. Reduced caps visible loco skins at 6. Menu Dock inset (0.54.48), hive end-pack (0.54.47), scene/CPU gates (0.54.46), quarter-res (0.54.44), fill caps, parked 4x HDR, uniforms, and LOAD are untouched. Do not identify this tip as 0.54.50. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
+  "note": "Gunner v0.54.51 combines the bank creeper / climber lava loco visuals from v0.54.49, the Reduced every-second-rAF presentation throttle from v0.54.50, and a persistent Flight Settings MASTER MODE for unobstructed debugging. Master Mode preserves normal enemies, attacks, projectile resolution, animation and player weapons while suppressing hull damage, damage records, glass mud/fire, Rimmer/Queen sting presentation and audio filtering, tanker hull-impact smoke/audio, damage flash, view shake, hit particles, damage audio and low-hull cues; enabling it clears active player-hit obstructions. Flights that use Master Mode are debug-only and cannot be submitted to the shared leaderboard. Menu music remains click-to-play, telemetry remains disabled, and public privacy adaptations are retained. Physical Intel Safari combat acceptance remains pending."
 }

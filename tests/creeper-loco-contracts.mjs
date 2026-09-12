@@ -49,8 +49,7 @@ assert.match(main, /loadCreeperLoco/);
 assert.match(main, /creeper-loco\.js\?v=054-49/);
 assert.match(main, /optionalCreeperLoco/);
 assert.match(main, /locoKit:creeperLocoBootstrap\?\.value/);
-assert.match(main, /version:'0\.54\.49'/);
-assert.doesNotMatch(main, /version:'0\.54\.50'/);
+assert.match(main, /version:'0\.54\.51'/);
 
 assert.match(note, /creeper-lava-loco-003\.glb/);
 assert.match(note, /KW_knuckle_walk/);
@@ -60,8 +59,7 @@ assert.doesNotMatch(note, /0\.54\.50/);
 assert.match(attributes, /game\/assets\/creeper-lava-loco-003\.glb filter=lfs diff=lfs merge=lfs -text/);
 
 const packageJson = JSON.parse(read('package.json'));
-assert.equal(packageJson.version, '0.54.49');
-assert.notEqual(packageJson.version, '0.54.50');
+assert.equal(packageJson.version, '0.54.51');
 
 const binary = new URL('game/assets/creeper-lava-loco-003.glb', root);
 if (existsSync(binary)){

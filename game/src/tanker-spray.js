@@ -75,7 +75,7 @@ function billboardPool(count, texture, additive) {
 
 // Bounded three-fireball discharge. Flame parcels are swept through the exact
 // terrain and moving hull before presentation; cosmetic smoke cannot do damage.
-export function createTankerSpray({scene,actors,traceTerrain,hitHull,damageHull,planePos,planeVel,audio,logEvent,onGlassHit}){
+export function createTankerSpray({scene,actors,traceTerrain,hitHull,damageHull,planePos,planeVel,audio,logEvent,onGlassHit,effectsAllowed=()=>true}){
  const group=new THREE.Group();group.name='tanker-three-fireball-volley';scene.add(group);
  const fire=billboardPool(240,cloudTexture(true),true),smoke=billboardPool(112,cloudTexture(),false);group.add(fire.mesh,smoke.mesh);
  fire.mesh.material.uniforms.uEmission.value=6.0;
@@ -130,7 +130,7 @@ export function createTankerSpray({scene,actors,traceTerrain,hitHull,damageHull,
     if(hullFirst||terrain){
      if(hullFirst&&!p.burst.damaged){p.burst.damaged=true;onGlassHit?.(p.pos,p.vel,p.owner);damageHull(12,p.pos);logEvent('tanker-spray-hull',{source:p.owner.id,burst:p.burst.id,damage:12});}
      // Cosmetic impact rate is bounded separately from physical contacts.
-     {emitPuff(p.pos,V(0,2.5,0),5,1.0);smoke.emit(p.pos,V(0,3.5,0),5,6,2.6,.67,0x251a17,.8,0,2);audio.tanker('impact',p.pos);p.burst.impacts++;if(terrain&&!hullFirst){const mark=scorches[scorchIndex++%scorches.length];mark.life=5;mark.mesh.visible=true;mark.mesh.position.copy(terrain.point).addScaledVector(terrain.normal,.05);mark.mesh.quaternion.setFromUnitVectors(V(0,0,1),terrain.normal);mark.mesh.scale.setScalar(5.5);}}
+     if(!hullFirst||effectsAllowed()){emitPuff(p.pos,V(0,2.5,0),5,1.0);smoke.emit(p.pos,V(0,3.5,0),5,6,2.6,.67,0x251a17,.8,0,2);audio.tanker('impact',p.pos);p.burst.impacts++;if(terrain&&!hullFirst){const mark=scorches[scorchIndex++%scorches.length];mark.life=5;mark.mesh.visible=true;mark.mesh.position.copy(terrain.point).addScaledVector(terrain.normal,.05);mark.mesh.quaternion.setFromUnitVectors(V(0,0,1),terrain.normal);mark.mesh.scale.setScalar(5.5);}}
     }p.active=false;continue;
    }
    const age=3.0-p.life,swirl=Math.sin(age*27+p.index*1.9),w=3.0+age*.25;

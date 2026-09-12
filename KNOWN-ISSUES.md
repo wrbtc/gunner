@@ -1,4 +1,4 @@
-# Release validation — v0.54.49
+# Release validation — v0.54.51
 
 ## Older Intel Safari / short desktop viewport
 
@@ -393,8 +393,8 @@ v0.54.46 keeps those shipped Reduced draws as-is and, when Reduced is on
 Quarter-res live HDR, P2 fill caps, parked unused 4x HDR, skipped bloom/contact,
 and Soft-GPU OFF remain. Shader first-use uniforms are not reopened. Menu CSS
 is not touched. Menu short end-pack is owned by 0.54.47 and is not stolen here.
-A every-2nd-rAF present skip stays reserved for a later Intel-tier pass if
-GATE-05446-FPS still sits under 15 after these gates.
+The every-2nd-rAF present skip is included in v0.54.51 from the v0.54.50
+Intel-tier lane.
 
 QA retest on that Iris-class Safari: Deploy with Reduced ON (checkbox or
 wait for auto). Record unpaused combat HUD FPS. Target is ≥20 with Reduced
@@ -458,6 +458,38 @@ In-game eyeball: a near bank creeper or climber should read as the lava
 basalt gorilla (dark crotch/pelvis, no orange glow hole), not the old
 procedural ashborn parts. Menu / Dock / Reduced scene-CPU / quarter-res
 / fill caps are unchanged from 0.54.48.
+
+## Reduced every-2nd-rAF present throttle (v0.54.50, included in v0.54.51)
+
+When Reduced is on, the cinematic/world pass presents on every second rAF.
+Simulation, input, HTML HUD and world CPU updates continue on every tick; the
+canvas holds the prior frame on the skipped present. The FPS readout counts real
+presents and is titled `Intel Reduced present`. Reduced OFF retains the normal
+every-rAF presentation path. Soft-GPU remains off and the shipped quarter-res,
+fill-cap and scene/CPU reductions stay in place.
+
+Physical Intel Safari combat acceptance remains pending. Test with Reduced ON
+and record unpaused combat FPS; the degraded target is at least 20 presented
+frames per second.
+
+## Master Mode debug flight (v0.54.51)
+
+`MASTER MODE` is an explicit Flight Settings checkbox. It preserves normal
+enemy spawning, movement, warnings, attacks, projectile collision resolution,
+animation and player weapons. Incoming hits cannot mutate hull state or add a
+damage-review record, and cannot trigger mud/fire glass deposits, Rimmer or
+Queen flashbang held-frame/bloom/blur/desaturation/audio filtering, damage
+flash, view shake, impact particles, low-hull cue or damage audio. Enabling the
+mode clears any active glass or sting effect immediately and keeps camera shake
+at zero while enabled. The preference is stored with the other Flight Settings.
+A flight that starts with or ever enables Master Mode is marked as debug-only;
+its score is not offered to the shared leaderboard even if the mode is later
+turned off.
+
+QA should verify all current incoming attack families (ordinary fireball,
+creeper stone, tanker fireball, Rimmer spike, Queen bomb/sting and plasma
+pressure) while confirming enemies complete their normal attack/cooldown cycle.
+Disable Master Mode and verify ordinary hull damage and effects return.
 
 ## Testing and patch requests
 

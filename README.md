@@ -5,8 +5,7 @@ Fly through a volcanic canyon, destroy nests and creatures, and survive the Quee
 
 **Play Gunner: https://gunner.satoshis.watch/**
 
-This is the **v0.54.49 runtime with the concept-24 / hive menu**, matching current
-production. Bank creepers and climbers use the lava loco skinned mesh when
+This is the **v0.54.51 runtime with the concept-24 / hive menu**. Bank creepers and climbers use the lava loco skinned mesh when
 `creeper-lava-loco-003.glb` is present (knuckle-walk / cliff-climb). It fits the briefing to short desktop viewports, keeps its report
 controls clear of the macOS Dock, and adds the supplied Queen reveal growl and raised-arms shriek,
 timed to the cinematic, and keeps menu/outcome music silent until the player
@@ -22,6 +21,13 @@ data automatically. It includes the full-poster chapter presentation, complete
 walkie-radio voice set, current aircraft and field guide, opening and outcome
 presentation, the 24-stage loading path, bounded Safari graphics diagnostics,
 and an always-visible in-flight FPS counter.
+Flight Settings includes a deliberate `MASTER MODE` debug checkbox. It leaves
+enemy movement, attacks, animation, collisions and player weapons running, while
+preventing incoming hits from damaging the hull or applying glass splashes,
+flashbang/held-frame effects, view shake, damage tint, hit particles or damage
+audio. Enabling it also clears any player-hit obstruction already in progress.
+Any flight that uses Master Mode is marked as a debug flight and is never offered
+to the shared leaderboard.
 The outer boot deadline is a stall watchdog: progress heartbeats keep a long
 load alive past 60 seconds of total page time while still failing a genuinely
 stalled startup.
@@ -127,6 +133,6 @@ for some original models, illustrations and dialogue audio.
 homepage and HTML canonical/Open Graph URLs point there. The public repository
 does not advertise internal testing sites.
 
-This export matches the production v0.54.49 runtime with the concept-24 menu,
+This export is the v0.54.51 successor to the production concept-24 runtime,
 subject only to the publication adaptations listed above. Telemetry remains disabled. See
 [KNOWN-ISSUES.md](KNOWN-ISSUES.md) for the testing limits.

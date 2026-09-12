@@ -10,7 +10,7 @@ const worldSource=readFileSync(new URL('../game/src/hell-world.js',import.meta.u
 const blastSource=readFileSync(new URL('../game/src/blast-world.js',import.meta.url),'utf8');
 const cinemaSource=readFileSync(new URL('../game/src/cinematic-pass.js',import.meta.url),'utf8');
 
-assert.match(main,/version:'0\.54\.49'/);
+assert.match(main,/version:'0\.54\.51'/);
 assert.match(main,/failIfMajorPerformanceCaveat: false/);
 assert.doesNotMatch(main,/failIfMajorPerformanceCaveat:\s*true/);
 assert.doesNotMatch(main,/powerPreference:\s*'low-power'/);
@@ -26,7 +26,7 @@ const receiveFn=main.match(/function applyReducedShadowReceive\(reduced\)\{[\s\S
 assert.doesNotMatch(receiveFn,/castShadow\s*=/);
 assert.match(main,/if\(ventPlumes\)for\(const plume of ventPlumes\)if\(plume\.sprite\)plume\.sprite\.visible=!on/);
 assert.match(main,/if\(!preferences\.reduced\)for\(const plume of ventPlumes\)/);
-assert.doesNotMatch(main,/present every 2nd|skipPresent|frameSkip|everySecond/);
+assert.match(main,/const skipReducedPresent=!holdPresent&&!collisionHold&&!!preferences\.reduced/);
 
 assert.match(worldSource,/export function reducedGeologyDecor\(name\)/);
 assert.match(worldSource,/export function reducedChunkReach\(reduced\)\{return reduced\?380:820;\}/);
