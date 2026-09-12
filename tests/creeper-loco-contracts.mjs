@@ -8,6 +8,7 @@ const loco = read('game/src/creeper-loco.js');
 const bank = read('game/src/bank-demons.js');
 const main = read('game/main.js');
 const note = read('game/assets/CREEPER-LAVA-LOCO.md');
+const attributes = read('.gitattributes');
 
 assert.match(loco, /CREEPER_LOCO_ASSET = 'creeper-lava-loco-003'/);
 assert.match(loco, /walk:'KW_knuckle_walk'/);
@@ -35,7 +36,9 @@ assert.doesNotMatch(main, /version:'0\.54\.50'/);
 assert.match(note, /creeper-lava-loco-003\.glb/);
 assert.match(note, /KW_knuckle_walk/);
 assert.match(note, /CL_cliff_climb/);
+assert.match(note, /Git LFS/);
 assert.doesNotMatch(note, /0\.54\.50/);
+assert.match(attributes, /game\/assets\/creeper-lava-loco-003\.glb filter=lfs diff=lfs merge=lfs -text/);
 
 const packageJson = JSON.parse(read('package.json'));
 assert.equal(packageJson.version, '0.54.49');
@@ -47,4 +50,4 @@ if (existsSync(binary)){
   assert.ok(bytes > 1_000_000, 'shipped loco GLB should be the full binary');
 }
 
-console.log(JSON.stringify({passed:true,checks:16,binaryPresent:existsSync(binary)},null,2));
+console.log(JSON.stringify({passed:true,checks:18,binaryPresent:existsSync(binary)},null,2));

@@ -15,6 +15,10 @@ Until the binary is present, `loadCreeperLoco()` rejects and bank combat keeps t
 procedural InstancedMesh parts so the flight still boots. Drop the GLB at the
 path above; the loader attaches shared-material skinned clones automatically.
 
+`.gitattributes` routes `creeper-lava-loco-003.glb` through Git LFS. Do not
+commit a placeholder or empty file. The next commit on this branch should be
+the real ~27MB binary only.
+
 Do not depend on an external inbox for the git tip. The PR is merge-ready for
-code and version identity; add the binary on this same path in a follow-up
-commit when the bytes are available.
+code and version identity; add the binary on this same path when the bytes
+are available.
