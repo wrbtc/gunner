@@ -1,5 +1,5 @@
 {
-  "version": "0.54.47",
+  "version": "0.54.48",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -199,17 +199,17 @@
     {
       "path": "game/index.html",
       "bytes": 13311,
-      "sha256": "1477123a1c57a8216bde256beb10ad0bc50acf1c6eb17ac7c474adca984a648e"
+      "sha256": "400b16b47dd42f943083bdd812eca8da6e2687813f8feccf4249d32b4d5dde8a"
     },
     {
       "path": "game/main.js",
       "bytes": 161753,
-      "sha256": "9f1d03148d5fad91e4f7d678acb7c5ea7e874cd051089b5112cdef658fb422ff"
+      "sha256": "26ae673b8bc2157ad749bebacc4c7e10dd72c15baed5d2775a3c5db98a1ad409"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "4d24aa956cf74ffb341d1eb3aebf42107c9daec541a320286eebc928e685f5cf"
+      "sha256": "e75f41a5609ec82ca598211ff38c7900683efe3f5c39d35c70290a5c21883b8b"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -218,8 +218,8 @@
     },
     {
       "path": "game/src/app-viewport.js",
-      "bytes": 1575,
-      "sha256": "63d6bc5188765211293304759b577d7480d7d694be8596f39800afb840b438ee"
+      "bytes": 2021,
+      "sha256": "870270d4e7574f0a5f6f52ebb38c01d232bdf5d13f28ac6a241bcce373869423"
     },
     {
       "path": "game/src/ash-volume.js",
@@ -404,7 +404,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26799,
-      "sha256": "6cceee290f173ac519451cc930791cbab26f06f6187ca74f1da01d296d28d631"
+      "sha256": "7fdf2778cb092eb14f7bda745ae5ab31e8022e8d61c499fdee4946cbe1e0e53e"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -573,8 +573,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 56340,
-      "sha256": "7e2181c5a3304188102588476dbbe84083df906e9a28402447c773430fccdf70"
+      "bytes": 56342,
+      "sha256": "d781b25d7e3c2e11d06ebd7126ee13c05f6735ea17dd3dd68e8b4cb390a8330f"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.47 is a menu CSS/HTML follow-up on the 0.54.46 Reduced scene/CPU parent: Coming Soon extras still collapse on html[data-app-short] with Dock inset, but short no longer start-packs, swaps order, or overrides footer margin. Every height end-packs with flex-end plus .mission-footer { margin-top: auto } so ammo and DEPLOY hug the fold like hive. Soft-GPU stays off. v0.54.46 scene/CPU gates, v0.54.44 quarter-res, v0.54.42 fill caps, parked 4x HDR, uniforms, and LOAD are untouched. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
+  "note": "Gunner v0.54.48 restores Dock inset on short Intel Safari: --app-inset-bottom comes from screenY+outerHeight vs availTop+availHeight (plus 8px clearance, cap 96px), not layout-visual slack alone. Short CSS floors padding-bottom at max(20px, 8px + inset, safe-area). End-pack (flex-end + mission-footer margin-top:auto) and Coming Soon collapse stay. Soft-GPU stays off. v0.54.47 hive end-pack, v0.54.46 scene/CPU gates, v0.54.44 quarter-res, v0.54.42 fill caps, parked 4x HDR, uniforms, and LOAD are untouched. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
 }

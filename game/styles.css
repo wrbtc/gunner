@@ -563,7 +563,7 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 }
 html[data-app-short] #intro.mission-poster .mission-frame{
   padding-top:max(10px,env(safe-area-inset-top,0px));
-  padding-bottom:max(8px,12px,env(safe-area-inset-bottom,0px),var(--app-inset-bottom,0px));
+  padding-bottom:max(20px,8px + var(--app-inset-bottom,0px),env(safe-area-inset-bottom,0px));
 }
 html[data-app-short] #intro.mission-poster .mission-masthead{padding-bottom:6px;margin-bottom:8px}
 html[data-app-short] #intro.mission-poster .mission-masthead h1{font-size:clamp(44px,6vw,76px);margin:4px 0 0}

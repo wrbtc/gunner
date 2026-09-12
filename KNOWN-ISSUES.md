@@ -1,4 +1,4 @@
-# Release validation — v0.54.47
+# Release validation — v0.54.48
 
 ## Older Intel Safari / short desktop viewport
 
@@ -90,10 +90,13 @@ COPY use the gold 44px fail-path fill in the reserved deploy row. Other
 tester chrome is a quiet footer `QA` disclosure after PLAY MUSIC — not a
 second brass CTA and not a poster badge.
 
-`--app-inset-bottom` is now capped at **24px** (layout viewport minus visual
-viewport only). The older short-window pad was **56px** at `max-height:850px`
-and **64px** at `650px`, applied inside an already-visible visual box, which
-could push Deploy below the Dock-safe fold.
+`--app-inset-bottom` is the larger of leftover layout-vs-visual slack (capped
+at **24px**) and macOS Dock overlap: `screenY+outerHeight` minus
+`availTop+availHeight`, plus **8px** clearance, capped at **96px**. Intel
+maximized Safari can keep layout≈visual while the window still paints into
+the Dock, so slack alone stays 0. The older short-window pad was **56px** at
+`max-height:850px` and **64px** at `650px`, applied inside an already-visible
+visual box, which could push Deploy below the Dock-safe fold.
 
 The preparing/ready column uses ammo → DEPLOY first in `.poster-right`, no
 `overflow: hidden` on that column, and a Dock-safe bottom inset of at least 8px.
@@ -417,7 +420,26 @@ Short no longer start-packs, swaps order, or overrides footer margin: every
 height end-packs with `flex-end` plus `.mission-footer { margin-top: auto }`
 so ammo and DEPLOY hug the fold like hive. Soft-GPU stays off. 0.54.46
 Reduced scene/CPU, 0.54.44 quarter-res, 0.54.42 particle/atmosphere/light
-caps, uniforms, LOAD, and Iris HDR are untouched.
+caps, uniforms, LOAD, and Iris HDR are untouched. Dock-overlap inset on the
+short path is owned by 0.54.48.
+
+## Dock inset on short Intel Safari (v0.54.48)
+
+Live 0.54.47 end-pack order passed on Intel Safari Soft-GPU OFF, maximized
+short (`html[data-app-short]`, visual height about 802): Coming Soon → ammo →
+DEPLOY, no canyon. Clearance failed: Deploy screen-bottom sat about **1px**
+above `availTop+availHeight` (need ≥8px). `--app-inset-bottom` measured **0**
+because layout≈visual, so the 24px slack path never fired.
+`env(safe-area-inset-bottom)` was also 0. The CSS 12px floor was not enough
+when visualViewport still painted into the Dock.
+
+v0.54.48 is menu viewport/CSS only. `app-viewport.js` sets
+`--app-inset-bottom` from Dock overlap (`screenY+outerHeight` vs
+`availTop+availHeight`) on every height, adds 8px clearance, and caps at 96px.
+Short CSS uses `padding-bottom: max(20px, 8px + var(--app-inset-bottom), env(safe-area-inset-bottom))`.
+End-pack stays (`flex-end` + `.mission-footer { margin-top: auto }`). No
+flex-start or order swap. Soft-GPU, Iris, uniforms, and Reduced scene/CPU
+are untouched.
 
 ## Testing and patch requests
 

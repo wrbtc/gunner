@@ -68,7 +68,7 @@ if (typeof document !== 'undefined') {
     heading: document.getElementById('device-heading'),
     load: async (source,hooks={}) => {
       await import('./src/menu-music.js?v=054-22');
-      const briefing=await import('./src/mission-screen.js?v=054-47');
+      const briefing=await import('./src/mission-screen.js?v=054-48');
       failLoading=briefing.loadingFailure;
       briefing.bindBootHeartbeat(hooks.heartbeat);
       return import(source);
