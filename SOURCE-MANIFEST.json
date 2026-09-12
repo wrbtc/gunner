@@ -1,5 +1,5 @@
 {
-  "version": "0.54.48",
+  "version": "0.54.49",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -10,6 +10,11 @@
       "path": "game/assets/CINDER-MAW-PROVENANCE.json",
       "bytes": 2518,
       "sha256": "6a19a3fd17fd8d9d6226f11a23b07df052e1ec79576bfa198153abfada4d2591"
+    },
+    {
+      "path": "game/assets/CREEPER-LAVA-LOCO.md",
+      "bytes": 867,
+      "sha256": "93fb42c1d3ad63f777772622587df8a86cab997f0b0b1186c765f4828dd9bd0a"
     },
     {
       "path": "game/assets/audio/KOKORO-CODE-LICENSE.txt",
@@ -199,17 +204,17 @@
     {
       "path": "game/index.html",
       "bytes": 13311,
-      "sha256": "400b16b47dd42f943083bdd812eca8da6e2687813f8feccf4249d32b4d5dde8a"
+      "sha256": "8c38d9a8ee4c1fd3780514f387ebd0490ca002a527ca8df31e140ced0d789d36"
     },
     {
       "path": "game/main.js",
-      "bytes": 161753,
-      "sha256": "26ae673b8bc2157ad749bebacc4c7e10dd72c15baed5d2775a3c5db98a1ad409"
+      "bytes": 162250,
+      "sha256": "a85f4134c1f3b1933fdc38c2ca93db4dfdb2e26b0ab48a1c2b8413c75e59dd10"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "e75f41a5609ec82ca598211ff38c7900683efe3f5c39d35c70290a5c21883b8b"
+      "sha256": "2856a6918ffd84eb1d2ad6831894ae5e46e8d50d77a2ce20258a360d30c3b0b6"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -248,8 +253,8 @@
     },
     {
       "path": "game/src/bank-demons.js",
-      "bytes": 25947,
-      "sha256": "72447470d5aa6c404b1fae61fb48075d06bbcaf924a918dc1b944056bbb378df"
+      "bytes": 27156,
+      "sha256": "3fbe3add21bbbda7d64bf13b006bb14b3ace589f2acf38d4aa121ac0f8d5a954"
     },
     {
       "path": "game/src/basalt-detail.js",
@@ -315,6 +320,11 @@
       "path": "game/src/creature-tracking.js",
       "bytes": 17977,
       "sha256": "86dd9fda85481c27b84ecadb949e3b77b73967981776b24f4f1641e9d9e88a9d"
+    },
+    {
+      "path": "game/src/creeper-loco.js",
+      "bytes": 5315,
+      "sha256": "5f6104a94606d8eacebea2b00c008c7c0a3ac58987f01874b0120381721b0657"
     },
     {
       "path": "game/src/dance-circle.js",
@@ -404,7 +414,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26799,
-      "sha256": "7fdf2778cb092eb14f7bda745ae5ab31e8022e8d61c499fdee4946cbe1e0e53e"
+      "sha256": "0b010a0ab406cc8eb5f87b949e0ce945053fc2cd67877f57cef9c295642c0374"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -597,5 +607,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.48 restores Dock inset on short Intel Safari: --app-inset-bottom comes from screenY+outerHeight vs availTop+availHeight (plus 8px clearance, cap 96px), not layout-visual slack alone. Short CSS floors padding-bottom at max(20px, 8px + inset, safe-area). End-pack (flex-end + mission-footer margin-top:auto) and Coming Soon collapse stay. Soft-GPU stays off. v0.54.47 hive end-pack, v0.54.46 scene/CPU gates, v0.54.44 quarter-res, v0.54.42 fill caps, parked 4x HDR, uniforms, and LOAD are untouched. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
+  "note": "Gunner v0.54.49 ships bank creeper / climber lava loco visuals (creeper-lava-loco-003.glb when present; KW_knuckle_walk / CL_cliff_climb). Combat routing is unchanged. Ember dancers stay procedural. Reduced caps visible loco skins at 6. Menu Dock inset (0.54.48), hive end-pack (0.54.47), scene/CPU gates (0.54.46), quarter-res (0.54.44), fill caps, parked 4x HDR, uniforms, and LOAD are untouched. Do not identify this tip as 0.54.50. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
 }

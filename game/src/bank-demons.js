@@ -1,6 +1,7 @@
 import * as THREE from '../vendor/three.module.js?v=052';
 import {sculptTrunk,sculptSkull} from './ashborn-sculpt.js?v=052';
 import {createWallSurface,planWallRoute,poseWallRoot,wallGrips} from './wall-climb.js?v=052';
+import {creeperLocoReducedCap} from './creeper-loco.js?v=054-49';
 import {mergeGeometries} from '../vendor/BufferGeometryUtils.js?v=052';
 const UP=new THREE.Vector3(0,1,0),V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z);
 const clamp=THREE.MathUtils.clamp,lerp=THREE.MathUtils.lerp;
@@ -49,7 +50,7 @@ export function createBankGuideModel(ember=false){
  for(const side of [-1,1]){const shoulder=chest.clone().add(V(side*.8,.55,0)),elbow=V(side*1.45,ember?5.2:3.15,-.15),hand=V(side*1.7,ember?6.4:1.9,-.55),knee=V(side*.75,1.4,-.25),foot=V(side*.75,.16,.15);segment('upper',shoulder,elbow);segment('lower',elbow,hand);part('hand',hand,V(side<0?-1:1,1,1));segment('thigh',hip.clone().add(V(side*.4,0,0)),knee);segment('shin',knee,foot);part('foot',foot);}
  root.name=ember?'Dancing Creeper — field guide':'Creeper — field guide';return root;
 }
-export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=null}){
+export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=null,locoKit=null}){
  const group=new THREE.Group();group.name='Forty bank Creepers and eight Ember dancers';scene.add(group);
  const geos=anatomy(),mat=skinMaterial(),parts={};
  const eyeMat=new THREE.MeshBasicMaterial({color:new THREE.Color(4.5,.012,.004),toneMapped:false});
@@ -70,6 +71,7 @@ export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=nu
    const angle=i/8*Math.PI*2,home=danceSite.center.clone().add(V(Math.cos(angle)*danceSite.ringRadius,0,Math.sin(angle)*danceSite.ringRadius)),root=new THREE.Group();scene.add(root);root.name=`Ember dancer ${i}`;
    actors.push({id:`ember-${i}`,role:'ashborn',archetype:'ember-creeper',isEmber:true,emberBlend:1,noticed:false,noticeAt:null,temperament:'dancer',attackStyle:'expressive',moveRate:1,windupSeconds:1.65,attention:0,root,p:danceSite.p,side:danceSite.side,climb:false,home,stand:home.clone(),baseY:home.y,initialPhase:i*2.399963,phase:i*2.399963,hp:585,radius:3.4,dead:false,credited:false,commitment:false,state:'dance',timer:0,hitFlash:0,scale:1.08+(i%3)*.025,throwOrigin:V(),throat:new THREE.Object3D(),motionClock:0,climbTime:0,gaitPhase:0,lastPoseTime:0,speed:0,releaseTime:null,angle});
  }
+ if(locoKit)for(const a of actors)if(!a.isEmber)a.locoVisual=locoKit.attach(a.root);
  let ritualAwake=false,awakenedAt=null,danceCount=8,danceSeen=false;
  function assignStoneBudgets(){
    // Fixed per-flyover allowances; independent of combat randomness and frame rate.
@@ -181,8 +183,31 @@ export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=nu
   for(const s of [-1,1]){const n=s<0?0:1;limb(index,a,s,chest.clone().add(V(s*.93,.76,0).applyQuaternion(twist)),hands[n]);limb(index,a,s,hip.clone().add(V(s*.42,-.2,0)),feet[n],true);}
   put('rock',index,a,hands[1].clone().add(V(0,-.40,-.08)),f>0?V(.72,.72,.72):V(0,0,0));
  }
- function update(time,plane,reviewPosition=plane){viewer.copy(plane);updateRitual(time);if(danceSite&&danceSite.center.distanceTo(plane)<470)danceSeen=true;visible=0;for(const a of actors){a.root.visible=!a.dead;if(a.dead)continue;const near=a.stand.distanceToSquared(reviewPosition)<470*470;pose(a,time,near?visible++:-1);}for(const p of Object.values(parts)){p.count=visible;p.instanceMatrix.needsUpdate=true;if(p.instanceColor)p.instanceColor.needsUpdate=true;p.geometry.attributes.emberAmount.needsUpdate=true;p.geometry.attributes.hitAmount.needsUpdate=true;}}
- function reset(){ritualAwake=false;awakenedAt=null;danceSeen=false;for(const a of actors){a.agitatedAt=null;a.agitatedUntil=0;a.wallGrips=null;a.shotsFired=0;a.climbTime=0;a.motionClock=0;a.gaitPhase=0;a.lastPoseTime=0;a.attention=0;a.speed=0;a.releaseTime=null;a.jumpHeight=0;a.taunting=false;a.angry=false;if(a.isEmber){a.state='dance';a.dancePose=null;a.emberBlend=1;a.noticed=false;a.noticeAt=null;a.archetype='ember-creeper';a.burstRemaining=0;a.burstNextAt=null;a.burstInterval=null;a.temperament='dancer';a.attackStyle='expressive';a.windupSeconds=1.65;a.moveRate=1;}}setDanceBudget(danceCount); }
+ let lastUpdateTime=0,locoVisible=0;
+ function update(time,plane,reviewPosition=plane){
+  viewer.copy(plane);updateRitual(time);if(danceSite&&danceSite.center.distanceTo(plane)<470)danceSeen=true;
+  const dt=Math.max(0,time-lastUpdateTime);lastUpdateTime=time;visible=0;locoVisible=0;
+  const locoNear=[];
+  for(const a of actors){
+   a.root.visible=!a.dead;
+   if(a.dead){if(a.locoVisual)a.locoVisual.stop();continue;}
+   const near=a.stand.distanceToSquared(reviewPosition)<470*470;
+   if(near&&a.locoVisual&&!a.isEmber)locoNear.push(a);
+   else{if(a.locoVisual)a.locoVisual.root.visible=false;pose(a,time,near?visible++:-1);}
+  }
+  locoNear.sort((a,b)=>a.stand.distanceToSquared(reviewPosition)-b.stand.distanceToSquared(reviewPosition));
+  const cap=locoNear.some(a=>a.reducedHit)?creeperLocoReducedCap():locoNear.length;
+  for(let i=0;i<locoNear.length;i++){
+   const a=locoNear[i];
+   if(i<cap){
+    pose(a,time,-1);a.locoVisual.root.visible=true;
+    const rate=a.climb?Math.min(1.35,.55+a.moveRate*.22):Math.min(1.45,.4+Math.min(a.speed||0,5)*.18);
+    a.locoVisual.play(a.climb?'climb':'walk',dt,rate);locoVisible++;
+   }else{a.locoVisual.root.visible=false;pose(a,time,visible++);}
+  }
+  for(const p of Object.values(parts)){p.count=visible;p.instanceMatrix.needsUpdate=true;if(p.instanceColor)p.instanceColor.needsUpdate=true;p.geometry.attributes.emberAmount.needsUpdate=true;p.geometry.attributes.hitAmount.needsUpdate=true;}
+ }
+ function reset(){ritualAwake=false;awakenedAt=null;danceSeen=false;lastUpdateTime=0;locoVisible=0;for(const a of actors){a.agitatedAt=null;a.agitatedUntil=0;a.wallGrips=null;a.shotsFired=0;a.climbTime=0;a.motionClock=0;a.gaitPhase=0;a.lastPoseTime=0;a.attention=0;a.speed=0;a.releaseTime=null;a.jumpHeight=0;a.taunting=false;a.angry=false;if(a.locoVisual)a.locoVisual.stop();if(a.isEmber){a.state='dance';a.dancePose=null;a.emberBlend=1;a.noticed=false;a.noticeAt=null;a.archetype='ember-creeper';a.burstRemaining=0;a.burstNextAt=null;a.burstInterval=null;a.temperament='dancer';a.attackStyle='expressive';a.windupSeconds=1.65;a.moveRate=1;}}setDanceBudget(danceCount); }
  function setWallSurfaces(meshes){for(const a of actors.filter(a=>a.climb)){a.gripGeometry=[geos.hand,geos.hand,geos.foot,geos.foot].map(g=>{const p=g.attributes.position,unique=new Map();for(let i=0;i<p.count;i++){const v=V().fromBufferAttribute(p,i);unique.set(v.toArray().map(n=>n.toFixed(3)).join(','),v);}return [...unique.values()];});a.gripCache=new Map();a.wallSurface=createWallSurface(a,meshes);a.wallRoute=planWallRoute(a,a.wallSurface);a.wallGrips=null;}update(0,V());}
- assignStoneBudgets();update(0,V());return{agitate,setWallSurfaces,actors,group,update,pose,reset,setDanceBudget,awaken,disturbSegment,ritualAlerted:()=>ritualAwake,stats:()=>({count:actors.length,emberDancers:actors.filter(a=>a.isEmber&&!a.disabled).length,danceCount,danceSeen,ritualAwake,awakenedAt,stoneBudgets:actors.filter(a=>!a.disabled&&a.stoneBudget>0).reduce((counts,a)=>(counts[a.stoneBudget]=(counts[a.stoneBudget]||0)+1,counts),{}),orange:actors.filter(a=>a.isEmber&&!a.dead&&a.emberBlend>.99).length,cooling:actors.filter(a=>a.isEmber&&!a.dead&&a.emberBlend>0&&a.emberBlend<1).length,black:actors.filter(a=>a.isEmber&&!a.dead&&a.emberBlend===0).length,roamers:actors.filter(a=>a.temperament==='roamer').length,rapid:actors.filter(a=>a.temperament==='hunter'&&a.attackStyle==='rapid').length,expressive:actors.filter(a=>a.temperament==='hunter'&&a.attackStyle==='expressive').length,hunters:actors.filter(a=>a.temperament==='hunter').length,climbers:actors.filter(a=>a.climb).length,bankLurkers:actors.filter(a=>!a.climb).length,visible,draws:Object.keys(parts).length,trianglesPerActor:Object.values(names).reduce((sum,n)=>sum+geos[n].attributes.position.count/3,0)})};
+ assignStoneBudgets();update(0,V());return{agitate,setWallSurfaces,actors,group,update,pose,reset,setDanceBudget,awaken,disturbSegment,ritualAlerted:()=>ritualAwake,stats:()=>({count:actors.length,emberDancers:actors.filter(a=>a.isEmber&&!a.disabled).length,danceCount,danceSeen,ritualAwake,awakenedAt,stoneBudgets:actors.filter(a=>!a.disabled&&a.stoneBudget>0).reduce((counts,a)=>(counts[a.stoneBudget]=(counts[a.stoneBudget]||0)+1,counts),{}),orange:actors.filter(a=>a.isEmber&&!a.dead&&a.emberBlend>.99).length,cooling:actors.filter(a=>a.isEmber&&!a.dead&&a.emberBlend>0&&a.emberBlend<1).length,black:actors.filter(a=>a.isEmber&&!a.dead&&a.emberBlend===0).length,roamers:actors.filter(a=>a.temperament==='roamer').length,rapid:actors.filter(a=>a.temperament==='hunter'&&a.attackStyle==='rapid').length,expressive:actors.filter(a=>a.temperament==='hunter'&&a.attackStyle==='expressive').length,hunters:actors.filter(a=>a.temperament==='hunter').length,climbers:actors.filter(a=>a.climb).length,bankLurkers:actors.filter(a=>!a.climb).length,visible,locoVisible,locoAttached:actors.filter(a=>a.locoVisual).length,locoAsset:locoKit&&locoKit.stats||null,draws:Object.keys(parts).length,trianglesPerActor:Object.values(names).reduce((sum,n)=>sum+geos[n].attributes.position.count/3,0)})};
 }

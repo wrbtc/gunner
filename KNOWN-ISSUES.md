@@ -1,4 +1,4 @@
-# Release validation — v0.54.48
+# Release validation — v0.54.49
 
 ## Older Intel Safari / short desktop viewport
 
@@ -440,6 +440,24 @@ Short CSS uses `padding-bottom: max(20px, 8px + var(--app-inset-bottom), env(saf
 End-pack stays (`flex-end` + `.mission-footer { margin-top: auto }`). No
 flex-start or order swap. Soft-GPU, Iris, uniforms, and Reduced scene/CPU
 are untouched.
+
+## Bank creeper lava loco (v0.54.49)
+
+v0.54.49 swaps bank creeper / climber *visuals* to the lava loco GLB
+(`game/assets/creeper-lava-loco-003.glb`) when that binary is present.
+Walk uses `KW_knuckle_walk`; climb uses `CL_cliff_climb`. Combat (HP,
+windup, mud throw, targeting, wall-climb routing) is unchanged. Ember
+dancers stay on the procedural InstancedMesh path. Materials are shared
+across clones. Reduced caps visible loco skins at 6 so Iris fill does
+not grow with one unique program per actor. If the GLB is missing, load
+rejects and the previous InstancedMesh ashborn parts remain so the
+flight still boots. Weight sheeting on some poses is a known follow-up.
+Do not treat 0.54.50 (held Iris half-rAF) as this identity.
+
+In-game eyeball: a near bank creeper or climber should read as the lava
+basalt gorilla (dark crotch/pelvis, no orange glow hole), not the old
+procedural ashborn parts. Menu / Dock / Reduced scene-CPU / quarter-res
+/ fill caps are unchanged from 0.54.48.
 
 ## Testing and patch requests
 
