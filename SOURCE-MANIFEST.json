@@ -203,8 +203,8 @@
     },
     {
       "path": "game/main.js",
-      "bytes": 163267,
-      "sha256": "4a52a8722cd5ebc1516cff8509bb867f368c0f0754ce1f2bf9dea140664fe764"
+      "bytes": 163266,
+      "sha256": "88394d3ccec9dfa2871ae3102521b4c1aae042fb18cd34fe8e5f72755f9b7f5e"
     },
     {
       "path": "game/mobile-entry.js",

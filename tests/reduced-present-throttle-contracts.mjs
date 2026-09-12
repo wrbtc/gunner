@@ -12,6 +12,8 @@ const cinema=readFileSync(new URL('../game/src/cinematic-pass.js',import.meta.ur
 const world=readFileSync(new URL('../game/src/hell-world.js',import.meta.url),'utf8');
 
 assert.match(main,/version:'0\.54\.50'/);
+assert.match(main,/render:\{[^}]*impactLights:mayhemFX\.stats\(\)\.caps\.lights\},events:game\.eventLog\.slice\(-40\)\}/);
+assert.doesNotMatch(main,/collisionMeshes:worldCollisionMeshes\.length\},impactLights:/);
 assert.doesNotMatch(main,/version:'0\.54\.49'/);
 assert.doesNotMatch(main,/0\.54\.49/);
 assert.doesNotMatch(html,/054-49/);
