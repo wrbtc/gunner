@@ -1,4 +1,4 @@
-# Release validation — v0.54.44
+# Release validation — v0.54.46
 
 ## Older Intel Safari / short desktop viewport
 
@@ -363,6 +363,44 @@ stays crisp. Toggling Reduced OFF may hitch once while 4x HDR reallocates.
 Do not enable Soft-GPU.
 
 Physical Intel Safari combat FPS acceptance of this quarter-res Reduced path
+is still pending.
+
+## Reduced scene / CPU budget (v0.54.46)
+
+Live 0.54.44 Iris Safari (Soft-GPU OFF, Reduced ON) still sat at about 7–14 FPS
+(mean ~10.6) in unpaused combat versus the ≥20 degraded bar (GATE-05444-FPS).
+Quarter-res, P2 particle/atmosphere/light caps, parked HDR, and frozen shadow
+map updates left a fill plateau: further world-target shrinks no longer moved
+the HUD. Remaining cost was PCF receive sampling, per-frame geology/hotSpill
+CPU, and decorative / distant draw calls.
+
+v0.54.46 keeps those shipped Reduced draws as-is and, when Reduced is on
+(auto or manual), applies runtime Intel-integrated-tier scene/CPU gates:
+
+- Skip shadow *receive* (`receiveShadow=false` on prepared meshes). This is a
+  runtime uniform, so prepared `USE_SHADOWMAP` programs are not rebuilt.
+  `shadowMap.enabled` and PCFSoft stay on; `castShadow` stays on so the shadow
+  list and `NUM_*_SHADOWS` stay stable. Map updates stay frozen.
+- Throttle geology visibility to 4 Hz and skip hot-spill nearest-light search
+  when Reduced. Lava time and nearby bank/cliff cull still run.
+- Hide decorative / distant geology draws: instanced talus, hot-crust
+  intrusions, scanned cliff extras, molten cascades, canyon continuations, and
+  blast-world ruins. Nearby bank/cliff reach tightens from 820 m to 380 m.
+
+Quarter-res live HDR, P2 fill caps, parked unused 4x HDR, skipped bloom/contact,
+and Soft-GPU OFF remain. Shader first-use uniforms are not reopened. Menu CSS
+is not touched. Menu short end-pack is owned by 0.54.45 and is not stolen here.
+A every-2nd-rAF present skip stays reserved for a later Intel-tier pass if
+GATE-05446-FPS still sits under 15 after these gates.
+
+QA retest on that Iris-class Safari: Deploy with Reduced ON (checkbox or
+wait for auto). Record unpaused combat HUD FPS. Target is ≥20 with Reduced
+on. Expect a shorter visible canyon, no distant continuations/talus/cascades,
+and unshadowed nearby rock. Reduced OFF should match the shipped 0.54.44
+present (4x HDR, contact, bloom, live shadows, full geology). Do not enable
+Soft-GPU.
+
+Physical Intel Safari combat FPS acceptance of this Reduced scene/CPU path
 is still pending.
 
 ## Testing and patch requests

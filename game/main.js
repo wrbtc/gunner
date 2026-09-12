@@ -1,6 +1,6 @@
 import {menuMusic} from './src/menu-music.js?v=054-22';
 import {missionBenchmark,missionRating,createRankReveal} from './src/mission-rating.js?v=054-6';
-import {setGuideModelProvider,guideViewerStats,loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-44';
+import {setGuideModelProvider,guideViewerStats,loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-46';
 import {createPlayTracking} from './src/play-tracking.js?v=052';
 import {createPilotRadio} from './src/pilot-radio.js?v=054-16';
 import {createQueenEncounter} from './src/queen-encounter.js?v=054-22';
@@ -25,8 +25,8 @@ import {createStaticRaycast} from './src/static-raycast.js?v=052';
 import * as THREE from './vendor/three.module.js?v=052';
 import {createEggNests} from './src/egg-nests.js?v=054-26';
 import {createBankDemons} from './src/bank-demons.js?v=054-5';
-import {createBlastWorld} from './src/blast-world.js?v=054-42';
-import {createHellWorld} from './src/hell-world.js?v=054-42';
+import {createBlastWorld} from './src/blast-world.js?v=054-46';
+import {createHellWorld} from './src/hell-world.js?v=054-46';
 import {createCinematicPass} from './src/cinematic-pass.js?v=054-44';
 import {createCalderaEnvironment} from './src/caldera-light.js?v=052';
 import {createMayhemFX} from './src/mayhem-fx.js?v=054-42';
@@ -156,11 +156,26 @@ function applyReducedFillCost(reduced){
   if(riverLights)for(const entry of riverLights)entry.light.intensity=on?0:entry.power;
   if(rift?.userData?.fillLight)rift.userData.fillLight.intensity=on?0:rift.userData.fillLightPower;
   if(scene?.background?.setHex)scene.background.setHex(on?0x121820:0x110a08);
+  if(ventPlumes)for(const plume of ventPlumes)if(plume.sprite)plume.sprite.visible=!on;
+}
+const shadowReceivers=[];
+function applyReducedShadowReceive(reduced){
+  // receiveShadow is a runtime uniform. Skipping PCF sampling does not rebuild
+  // prepared USE_SHADOWMAP programs. castShadow and shadowMap.enabled stay on
+  // so NUM_*_SHADOWS and the shadow list stay stable.
+  if(!scene?.traverse)return;
+  if(reduced){
+    if(!shadowReceivers.length)scene.traverse(o=>{if((o.isMesh||o.isInstancedMesh)&&o.receiveShadow){shadowReceivers.push(o);o.receiveShadow=false;}});
+  }else if(shadowReceivers.length){
+    for(const o of shadowReceivers)o.receiveShadow=true;
+    shadowReceivers.length=0;
+  }
 }
 function applyReducedDrawCost(reduced){
   // Keep shadowMap.enabled and PCFSoft so prepared USE_SHADOWMAP programs stay
-  // valid. Reduced only freezes map updates (sun 2048 + intrusion 1024).
+  // valid. Reduced freezes map updates and skips receive sampling.
   renderer.shadowMap.autoUpdate=!reduced;
+  applyReducedShadowReceive(!!reduced);
   mayhemFX?.setReducedEffects(!!reduced);
   if(typeof applyReducedFillCost==='function')applyReducedFillCost(!!reduced);
 }
@@ -1239,7 +1254,7 @@ function render(now){
   const time=game.time,visualTime=presentationClock();
   const riftFlicker=(reducedMotion.matches||preferences.reduced)?0:Math.sin(time*7.7)*.018;rift.visible=time>=68&&!endingFlight?.started&&(!queen||queen.cleared);rift.userData.surfaces.tear.material.opacity=.97+riftFlicker;rift.userData.surfaces.inner.material.opacity=.68-riftFlicker;rift.userData.surfaces.outer.material.opacity=.05+Math.abs(riftFlicker)*.45;rift.userData.shards.forEach(shard=>{shard.material.opacity=shard.userData.baseOpacity*(.87+Math.sin(time*5+shard.userData.phase)*.1);});
   lava.userData.lavaMaterial.uniforms.uTime.value=visualTime;heatMaterial.uniforms.uTime.value=visualTime;heatMaterial.uniforms.uStrength.value=(reducedMotion.matches||preferences.reduced)?0:.0018;atmosphereMaterials.forEach(m=>{m.uniforms.uTime.value=visualTime;m.uniforms.uReduced.value=preferences.reduced?1:0;});for(const b of atmosphereBatches){const keep=reducedAtmosphereKeep(b.kind,b.count,preferences.reduced);b.points.geometry.setDrawRange(0,keep);b.points.visible=keep>0;}
-  for(const plume of ventPlumes){const rise=(visualTime*plume.speed+plume.phase)%20;plume.sprite.position.copy(plume.origin);plume.sprite.position.y+=rise;plume.sprite.position.x+=Math.sin(visualTime*.4+plume.phase)*2;const swell=1+rise*.045;plume.sprite.scale.setScalar((9+plume.phase*.22)*swell);plume.sprite.material.opacity=.075+Math.sin(Math.PI*rise/20)*.14;}
+  if(!preferences.reduced)for(const plume of ventPlumes){const rise=(visualTime*plume.speed+plume.phase)%20;plume.sprite.position.copy(plume.origin);plume.sprite.position.y+=rise;plume.sprite.position.x+=Math.sin(visualTime*.4+plume.phase)*2;const swell=1+rise*.045;plume.sprite.scale.setScalar((9+plume.phase*.22)*swell);plume.sprite.material.opacity=.075+Math.sin(Math.PI*rise/20)*.14;}
   if(!exteriorView){camera.position.x=reducedOpening()?0:Math.sin(time*101)*game.shake*.4;camera.position.y=reducedOpening()?0:Math.sin(time*137+1)*game.shake*.3;}camera.updateWorldMatrix(true,false);rimmers?.render();
   for(const b of bullets){if(!b.active||!b.mesh.visible)continue;const head=b.end.clone().project(camera),tail=b.start.clone().project(camera),angle=Math.atan2(head.y-tail.y,head.x-tail.x);b.mesh.material.rotation=angle-Math.PI/2;}
   emitHook('update',{time,dt:game.running&&!game.paused&&!game.ended&&!game.captureFreeze?dt:0,planePos,camera,paused:game.paused||game.captureFreeze});updateUI(now);
@@ -1510,7 +1525,7 @@ function qaCoreChecks(){
   return {kind:'diagnostic-core-checks',passed:checks.filter(c=>c.pass).length,total:checks.length,checks};
 }
 const qaApi={
-  version:'0.54.44',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
+  version:'0.54.46',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
   start:()=>start({skipOpening:true,legacyRoute:true}),beginOpening:()=>start(),skipOpening:()=>finishOpening(true),openingState:()=>({active:game.opening,title:game.title,time:game.openingTime,phase:openingPhase,flightProgress:currentFlightProgress(),camera:camera.position.toArray(),quaternion:camera.quaternion.toArray(),fov:camera.fov,fade:Number(dom.openingFade.style.opacity)||0,exterior:bomberExterior?.stats(),cameraPath:openingCamera?.stats()}),seekOpening:(seconds)=>{game.openingTime=THREE.MathUtils.clamp(seconds,0,OPENING_SECONDS);game.captureFreeze=true;updatePlane(0);updateOpeningPresentation();return true;},reset:qaReset,pause,resume,setTime:(seconds)=>{game.time=THREE.MathUtils.clamp(seconds,0,RUN_SECONDS);updatePlane(0);creatureTracking?.seek(game.time);},setView:(yaw,pitch)=>{game.yaw=yaw;game.pitch=THREE.MathUtils.clamp(pitch,-1.38,.95);updatePlane(0);},turnAround,toggleRear:turnAround,fireCannon,fireRound,damage:(amount=6)=>damageHull(amount,planePos),explode:()=>explode(planePos.clone().addScaledVector(planeTangent,70),14),preview:setPreview,
   events:()=>game.eventLog.slice(),runtime:gunnerRuntime,trace:qaTrace,replay:qaReplay,checkCore:qaCoreChecks,
   aimAt:(target)=>{const actor=typeof target==='string'?enemies.concat(siege).find(e=>e.id===target):null;qaAimAt(actor?actorCenter(actor):new THREE.Vector3().fromArray(target));},

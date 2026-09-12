@@ -13,7 +13,7 @@ const worldSource=readFileSync(new URL('../game/src/hell-world.js',import.meta.u
 const blastSource=readFileSync(new URL('../game/src/blast-world.js',import.meta.url),'utf8');
 const mayhemSource=readFileSync(new URL('../game/src/mayhem-fx.js',import.meta.url),'utf8');
 
-assert.match(main,/version:'0\.54\.44'/);
+assert.match(main,/version:'0\.54\.46'/);
 assert.match(main,/failIfMajorPerformanceCaveat: false/);
 assert.doesNotMatch(main,/failIfMajorPerformanceCaveat:\s*true/);
 assert.doesNotMatch(main,/powerPreference:\s*'low-power'/);
@@ -29,9 +29,11 @@ assert.match(main,/this\.points\.geometry\.setDrawRange\(0,this\.reduced\?160:th
 assert.match(main,/const n=this\.reduced\?Math\.max\(1,Math\.ceil\(count\*\.25\)\):count/);
 assert.match(main,/if\(preferences\.reduced\)return;const s=smoke\[smokeCursor/);
 assert.match(skySource,/sky\.visible = !value/);
-assert.match(worldSource,/light\.intensity=reduced\?0:\(light\.isSpotLight\?3900:2400\)/);
-assert.match(blastSource,/ash\.visible=!value;geo\.setDrawRange\(0,value\?0:count\)/);
-assert.match(blastSource,/if\(reduced\)return;/);
+assert.match(worldSource,/if\(!\(reduced\|\|reducedEffects\)\)\{for\(const \{side,light\} of hotSpill\)/);
+assert.match(worldSource,/light\.intensity=\(light\.isSpotLight\?3900:2400\)/);
+assert.match(blastSource,/function applyAshCap\(off\)\{ash\.material\.uniforms\.uReduced\.value=off\?1:0;ash\.visible=!off;geo\.setDrawRange\(0,off\?0:count\);\}/);
+assert.match(blastSource,/slabs\.visible=!reducedEffects;rebar\.visible=!reducedEffects/);
+assert.match(blastSource,/if\(reduced\|\|reducedEffects\)return;/);
 assert.match(mayhemSource,/if \(dt > 0 && !quiet && !reducedEffects\)/);
 assert.match(mayhemSource,/const sparkBudget = reducedEffects \? 12 : 92/);
 assert.match(mayhemSource,/light\.intensity = reducedEffects \? 0 :/);

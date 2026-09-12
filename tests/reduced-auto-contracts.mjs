@@ -17,17 +17,20 @@ assert.doesNotMatch(main,/userAgent\.includes/);
 
 assert.match(main,/function applyReducedDrawCost\(reduced\)/);
 assert.match(main,/function applyReducedFillCost\(reduced\)/);
+assert.match(main,/function applyReducedShadowReceive\(reduced\)/);
 assert.match(main,/function reducedAtmosphereKeep\(kind,count,reduced\)/);
 assert.match(main,/renderer\.shadowMap\.autoUpdate=!reduced/);
+assert.match(main,/applyReducedShadowReceive\(\!\!reduced\)/);
 assert.match(main,/renderer\.shadowMap\.enabled = true/);
 assert.doesNotMatch(main,/shadowMap\.enabled\s*=\s*!/);
 assert.doesNotMatch(main,/shadowMap\.enabled\s*=\s*false/);
 const apply=main.match(/function applyReducedDrawCost\(reduced\)\{[\s\S]*?\n\}/)?.[0];
 const fill=main.match(/function applyReducedFillCost\(reduced\)\{[\s\S]*?\n\}/)?.[0];
+const receive=main.match(/function applyReducedShadowReceive\(reduced\)\{[\s\S]*?\n\}/)?.[0];
 const keep=main.match(/function reducedAtmosphereKeep\(kind,count,reduced\)\{[\s\S]*?\n\}/)?.[0];
 const arm=main.match(/function armReducedAuto\(\)\{[\s\S]*?\n\}/)?.[0];
 const consider=main.match(/function considerReducedAuto\(now\)\{[\s\S]*?\n\}/)?.[0];
-assert.ok(apply&&fill&&keep&&arm&&consider,'reduced auto helpers are present');
+assert.ok(apply&&fill&&receive&&keep&&arm&&consider,'reduced auto helpers are present');
 
 function harness(){
   const reducedEffects={checked:false};
@@ -53,14 +56,24 @@ function harness(){
     atmosphereMaterials:[{uniforms:{uReduced:{value:0}}}],
     riverLights:[{power:2400,light:{intensity:2400}},{power:3300,light:{intensity:3300}}],
     rift:{userData:{fillLight:{intensity:220},fillLightPower:220}},
-    scene:{background:{hex:0x110a08,setHex(value){this.hex=value;}}},
+    ventPlumes:[{sprite:{visible:true}}],
+    shadowReceivers:[],
+    scene:{
+      background:{hex:0x110a08,setHex(value){this.hex=value;}},
+      objects:[
+        {isMesh:true,receiveShadow:true},
+        {isMesh:true,receiveShadow:false},
+        {isInstancedMesh:true,receiveShadow:true},
+      ],
+      traverse(fn){for(const o of this.objects)fn(o);},
+    },
     saves:0,
     events:[],
     $:(sel)=>sel==='#reducedEffects'?reducedEffects:null,
     savePreferences(){context.saves++;},
     logEvent(type){context.events.push(type);},
   };
-  vm.runInNewContext(`${keep};${fill};${apply};${arm};${consider};globalThis.armReducedAuto=armReducedAuto;globalThis.considerReducedAuto=considerReducedAuto;globalThis.applyReducedDrawCost=applyReducedDrawCost;globalThis.applyReducedFillCost=applyReducedFillCost;globalThis.reducedAtmosphereKeep=reducedAtmosphereKeep`,context);
+  vm.runInNewContext(`${keep};${fill};${receive};${apply};${arm};${consider};globalThis.armReducedAuto=armReducedAuto;globalThis.considerReducedAuto=considerReducedAuto;globalThis.applyReducedDrawCost=applyReducedDrawCost;globalThis.applyReducedFillCost=applyReducedFillCost;globalThis.applyReducedShadowReceive=applyReducedShadowReceive;globalThis.reducedAtmosphereKeep=reducedAtmosphereKeep`,context);
   return {context,reducedEffects};
 }
 
@@ -94,9 +107,19 @@ assert.equal(first.context.atmosphereMaterials[0].uniforms.uReduced.value,1);
 assert.equal(first.context.riverLights[0].light.intensity,0);
 assert.equal(first.context.rift.userData.fillLight.intensity,0);
 assert.equal(first.context.scene.background.hex,0x121820);
+assert.equal(first.context.ventPlumes[0].sprite.visible,false);
+assert.equal(first.context.scene.objects[0].receiveShadow,false);
+assert.equal(first.context.scene.objects[1].receiveShadow,false);
+assert.equal(first.context.scene.objects[2].receiveShadow,false);
+assert.equal(first.context.shadowReceivers.length,2);
 first.context.applyReducedDrawCost(false);
 assert.equal(first.context.renderer.shadowMap.autoUpdate,true);
 assert.equal(first.context.renderer.shadowMap.enabled,true);
+assert.equal(first.context.scene.objects[0].receiveShadow,true);
+assert.equal(first.context.scene.objects[1].receiveShadow,false);
+assert.equal(first.context.scene.objects[2].receiveShadow,true);
+assert.equal(first.context.shadowReceivers.length,0);
+assert.equal(first.context.ventPlumes[0].sprite.visible,true);
 assert.equal(first.context.hellWorld.reduced,false);
 assert.equal(first.context.atmosphereBatches[0].points.geometry.range,3400);
 assert.equal(first.context.atmosphereBatches[2].points.visible,true);
