@@ -5,13 +5,15 @@ Fly through a volcanic canyon, destroy nests and creatures, and survive the Quee
 
 **Play Gunner: https://gunner.satoshis.watch/**
 
-This is the **v0.54.40 runtime with the concept-24 menu**, matching current
+This is the **v0.54.41 runtime with the concept-24 / hive menu**, matching current
 production. It fits the briefing to short desktop viewports, keeps its report
 controls clear of the macOS Dock, and adds the supplied Queen reveal growl and raised-arms shriek,
 timed to the cinematic, and keeps menu/outcome music silent until the player
-explicitly presses `PLAY MUSIC`. Idle Deploy is ammo → DEPLOY only. `REPORT FAILED LOAD` and the copy-report
-block stay hidden until `#intro.load-failed`. Other tester chrome collapses
-into a quiet footer `QA` disclosure after `PLAY MUSIC`. The fail-path gold
+explicitly presses `PLAY MUSIC`. The right stack is Coming Soon → ammo → DEPLOY.
+Typical laptops end-pack so ammo and DEPLOY sit just above the footer. Start-pack
+is only on true Dock-short `html[data-app-short]`. Idle Deploy is ammo → DEPLOY only. `REPORT FAILED LOAD` and the copy-report
+block stay hidden until `#intro.load-failed`. The production footer has no QA
+disclosure. The fail-path gold
 REPORT/COPY controls stay in the reserved deploy row. Diagnostics never send
 data automatically. It includes the full-poster chapter presentation, complete
 walkie-radio voice set, current aircraft and field guide, opening and outcome
@@ -122,6 +124,6 @@ for some original models, illustrations and dialogue audio.
 homepage and HTML canonical/Open Graph URLs point there. The public repository
 does not advertise internal testing sites.
 
-This export matches the production v0.54.40 runtime with the concept-24 menu,
+This export matches the production v0.54.41 runtime with the concept-24 menu,
 subject only to the publication adaptations listed above. Telemetry remains disabled. See
 [KNOWN-ISSUES.md](KNOWN-ISSUES.md) for the testing limits.

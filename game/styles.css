@@ -406,9 +406,9 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 #guideModelDialog .guide-model-tools{flex-wrap:wrap}
 
 /* === Concept-24 poster menu (0.54.19-safe): full-bleed art + overlay UI === */
-/* Tall/default: end-pack ammo+DEPLOY just above the footer. Short visual
-   viewports (data-app-short / max-height 850/760) start-pack so Deploy clears
-   the Dock. Coming Soon stays after Deploy; no overflow:hidden on that column. */
+/* Hive lock: Coming Soon → ammo → DEPLOY in natural DOM order (no order swap).
+   Tall/typical laptops end-pack (flex-end + footer margin-top:auto). Start-pack
+   only on true Dock-short data-app-short (~vh 864), not max-height:850. */
 /* Size to the visual viewport, not a tall 100vh/layout box that can sit under Safari chrome or the macOS Dock. */
 #intro.mission-poster{
   padding:0;overflow:auto;overscroll-behavior:none;background:#0b100b;
@@ -474,7 +474,7 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
   justify-content:flex-end;min-height:0;min-width:0;overflow:visible;
 }
 #intro.mission-poster .poster-soon{
-  text-align:right;color:#c5cbb8;flex:0 0 auto;order:1;overflow:hidden;min-width:0;
+  text-align:right;color:#c5cbb8;flex:0 0 auto;overflow:hidden;min-width:0;
 }
 #intro.mission-poster .poster-soon h2{
   font:22px/1.15 Impact,sans-serif;letter-spacing:.1em;margin:6px 0;color:#e6e2d2;
@@ -482,8 +482,8 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 #intro.mission-poster .poster-soon .sector-note{
   max-width:none;margin:0;font:12px/1.45 system-ui,sans-serif;color:#aeb6a0;
 }
-/* Deploy stack first (ammo → DEPLOY → Coming Soon). Tall/default end-packs; short start-packs so Deploy is not Dock-clipped. */
-#intro.mission-poster .deployment-action{width:100%;max-width:340px;margin:0 0 0 auto;flex:0 0 auto;order:0;display:flex;flex-direction:column;gap:8px;min-width:0;overflow:visible}
+/* Deploy stack after Coming Soon. Tall/typical end-pack; Dock-short start-packs. */
+#intro.mission-poster .deployment-action{width:100%;max-width:340px;margin:0 0 0 auto;flex:0 0 auto;display:flex;flex-direction:column;gap:8px;min-width:0;overflow:visible}
 #intro.mission-poster #loadingSystems{flex-direction:column;align-items:stretch;gap:8px;margin-bottom:0;min-height:0}
 #intro.mission-poster #loadStatus{text-shadow:0 1px 8px rgba(0,0,0,.8)}
 #intro.mission-poster #startButton{
@@ -533,22 +533,6 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 #intro.mission-poster .mission-links{flex-wrap:wrap;row-gap:8px;align-items:center}
 #intro.mission-poster .mission-footer p{color:#c5ccb6;text-shadow:0 1px 8px rgba(0,0,0,.7)}
 #intro.mission-poster .mission-links .quietButton{color:#e8e6d8;text-shadow:0 1px 8px rgba(0,0,0,.7)}
-#intro.mission-poster .qa-diagnostics{position:relative}
-#intro.mission-poster .qa-diagnostics>summary.quietButton{
-  display:inline;margin:0;padding:8px 0;min-width:0;min-height:0;width:auto;
-  background:none;border:0;box-shadow:none;color:#9aa190;opacity:.7;
-  font:700 11px/1.5 system-ui,sans-serif;letter-spacing:.1em;
-  text-shadow:0 1px 8px rgba(0,0,0,.7);cursor:pointer;list-style:none;
-}
-#intro.mission-poster .qa-diagnostics>summary.quietButton::-webkit-details-marker{display:none}
-#intro.mission-poster .qa-diagnostics>summary.quietButton:hover,
-#intro.mission-poster .qa-diagnostics>summary.quietButton:focus-visible{color:#e9cd8a;opacity:1;background:none}
-#intro.mission-poster .qa-diagnostics[open]>summary.quietButton{color:#d4bf82;opacity:1}
-#intro.mission-poster .qa-diagnostics:not([open]) #qaStuckLoad{display:none}
-#intro.mission-poster .qa-diagnostics[open] #qaStuckLoad{
-  display:block;margin:4px 0 0;padding:6px 0;min-height:0;width:auto;
-  background:none;border:0;box-shadow:none;color:#c5ccb6;
-}
 @media(max-width:850px){
   #intro.mission-poster .poster-body{grid-template-columns:1fr;align-items:stretch}
   #intro.mission-poster .poster-right{align-items:stretch}
@@ -556,7 +540,8 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
   #intro.mission-poster .deployment-action{max-width:none;margin-left:0}
 }
 /* Laptop compaction only. Keep end-pack + footer auto so ammo/DEPLOY sit on the
-   fold. Start-pack stays on data-app-short and the 850/760 locks below. */
+   fold. Coming Soon extras stay visible on typical heights (hive lock).
+   Start-pack stays only on html[data-app-short]. */
 @media(max-height:920px){
   #intro.mission-poster .mission-frame{
     padding-top:max(10px,env(safe-area-inset-top,0px));
@@ -567,10 +552,6 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
   #intro.mission-poster .poster-body{overflow:visible;gap:clamp(10px,1.8vh,20px)}
   #intro.mission-poster .poster-left{gap:10px}
   #intro.mission-poster .poster-chapter h2{font-size:clamp(32px,4.2vw,56px);margin:4px 0 6px}
-  #intro.mission-poster .poster-soon h2,
-  #intro.mission-poster .poster-soon .sector-note{display:none}
-  #intro.mission-poster .poster-soon{margin-top:2px}
-  #intro.mission-poster .poster-soon .chapter-number{font-size:9px;letter-spacing:.18em;opacity:.7}
   #intro.mission-poster .mission-orders{padding-top:8px}
   #intro.mission-poster .mission-orders p{font-size:15px;margin:4px 0}
   #intro.mission-poster .poster-right{overflow:visible;min-height:0;gap:8px}
@@ -586,7 +567,7 @@ html[data-app-short] #intro.mission-poster .mission-frame{
 }
 html[data-app-short] #intro.mission-poster .mission-masthead{padding-bottom:6px;margin-bottom:8px}
 html[data-app-short] #intro.mission-poster .mission-masthead h1{font-size:clamp(44px,6vw,76px);margin:4px 0 0}
-html[data-app-short] #intro.mission-poster .poster-body{align-items:start;overflow:visible;gap:clamp(10px,1.8vh,20px)}
+html[data-app-short] #intro.mission-poster .poster-body{flex:0 1 auto;align-items:start;overflow:visible;gap:clamp(10px,1.8vh,20px)}
 html[data-app-short] #intro.mission-poster .poster-left{gap:10px}
 html[data-app-short] #intro.mission-poster .poster-chapter h2{font-size:clamp(32px,4.2vw,56px);margin:4px 0 6px}
 html[data-app-short] #intro.mission-poster .poster-soon h2,
@@ -601,7 +582,7 @@ html[data-app-short] #intro.mission-poster #startButton{min-height:54px}
 html[data-app-short] #intro.mission-poster .ammo-progress{gap:5px 6px}
 html[data-app-short] #intro.mission-poster .ammo-progress i{width:14px;height:22px}
 html[data-app-short] #intro.mission-poster .mission-footer{margin-top:8px;padding-top:8px}
-/* Design lock for 850px and tighter: start-pack Deploy, quiet Coming Soon, ≥8px Dock clearance. */
+/* 850 compaction only. Do not start-pack here — that mid-floats typical windows. */
 @media(max-height:850px){
   #intro.mission-poster .mission-frame{
     padding-top:max(10px,env(safe-area-inset-top,0px));
@@ -609,11 +590,9 @@ html[data-app-short] #intro.mission-poster .mission-footer{margin-top:8px;paddin
   }
   #intro.mission-poster .mission-masthead{padding-bottom:6px;margin-bottom:8px}
   #intro.mission-poster .mission-masthead h1{font-size:clamp(42px,5.8vw,68px);margin:4px 0 0}
-  #intro.mission-poster .poster-body{align-items:start;overflow:visible}
-  #intro.mission-poster .poster-right{justify-content:flex-start;overflow:visible;min-height:0}
+  #intro.mission-poster .poster-body{overflow:visible}
+  #intro.mission-poster .poster-right{overflow:visible;min-height:0}
   #intro.mission-poster .deployment-action{overflow:visible;min-height:0}
-  #intro.mission-poster .poster-soon h2,
-  #intro.mission-poster .poster-soon .sector-note{display:none}
   #intro.mission-poster #startButton{min-height:54px}
 }
 /* Poster-specific 760px compaction. Shrink masthead before the Deploy CTA. */
@@ -625,8 +604,8 @@ html[data-app-short] #intro.mission-poster .mission-footer{margin-top:8px;paddin
   #intro.mission-poster .poster-chapter h2{font-size:clamp(28px,3.8vw,48px);margin:2px 0 4px}
   #intro.mission-poster .mission-orders{padding-top:8px}
   #intro.mission-poster .mission-orders p{font-size:15px;margin:4px 0}
-  #intro.mission-poster .poster-right{justify-content:flex-start;overflow:visible;gap:8px}
-  #intro.mission-poster .mission-footer{margin-top:8px;padding-top:8px}
+  #intro.mission-poster .poster-right{overflow:visible;gap:8px}
+  #intro.mission-poster .mission-footer{padding-top:8px}
   #intro.mission-poster #loadingSystems{margin-bottom:0}
   #intro.mission-poster #startButton{min-height:54px}
   #intro.mission-poster .poster-soon{display:none}

@@ -1,4 +1,4 @@
-# Release validation — v0.54.40
+# Release validation — v0.54.41
 
 ## Older Intel Safari / short desktop viewport
 
@@ -283,6 +283,23 @@ enable Soft-GPU.
 
 Physical Intel Safari combat FPS acceptance of this half-res Reduced path is
 still pending.
+
+## Hive menu composition restore (v0.54.41)
+
+Live 0.54.39 drifted from hive.satoshis.watch / concept-24: Deploy sat mid-float
+on typical laptop heights, Coming Soon rendered under Deploy via `order:0/1`,
+`max-height:850` start-packed ordinary windows into an empty canyon above the
+footer, and the footer QA disclosure broke the quiet-button baseline.
+
+v0.54.41 restores the hive right-stack order (Coming Soon → ammo → DEPLOY) with
+no flex `order` swap. Typical laptops keep end-pack (`flex-end` plus
+`.mission-footer { margin-top: auto }`). Only `html[data-app-short]` (visual
+viewport ≤864) collapses Coming Soon extras and start-packs the right column
+while the footer stays fold-anchored, so ammo and DEPLOY remain ≥8px above the
+Dock without a mid-screen canyon. Broad `max-height:850` no longer start-packs
+ordinary windows. The production footer no longer ships QA; fail-path gold
+Report/Copy remain. Soft-GPU stays off. Iris half-res HDR, uniforms, LOAD, and
+present-hold from 0.54.40 are unchanged.
 
 ## Testing and patch requests
 

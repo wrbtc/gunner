@@ -1,5 +1,5 @@
 {
-  "version": "0.54.40",
+  "version": "0.54.41",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -198,18 +198,18 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 13527,
-      "sha256": "0cb7f91d0bffbd3c294b4f99126a4cc58be7fb53b41820f14221d532c2dde72a"
+      "bytes": 13311,
+      "sha256": "8b993501561a98223ee80d66d7e4f5e1c1cfccb1cdfbc95931765fa4293ab04a"
     },
     {
       "path": "game/main.js",
       "bytes": 159543,
-      "sha256": "d2baa60ff29d124c53782ed69e9ad9f167348572a8a5a97cfcb6b67f8454f633"
+      "sha256": "19cf94033aa27a9f6722390f95ea9036e348bb65367c0d6a702d3f9ee2291d4f"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "b80b0131b29bdccd7c7d0e41080d1afe2c737a1666ce5ab1127bc95ca09fdca1"
+      "sha256": "93a99645a04797fda0655b964e2431a746f440d021a2290716fb32a7d8f1c92f"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -218,8 +218,8 @@
     },
     {
       "path": "game/src/app-viewport.js",
-      "bytes": 1678,
-      "sha256": "71452c87c35485d6026ccdc0b19200ea4119f161311e4832a19b601bad28396e"
+      "bytes": 1575,
+      "sha256": "63d6bc5188765211293304759b577d7480d7d694be8596f39800afb840b438ee"
     },
     {
       "path": "game/src/ash-volume.js",
@@ -283,8 +283,8 @@
     },
     {
       "path": "game/src/cinematic-pass.js",
-      "bytes": 33373,
-      "sha256": "a9ae55ad8ae17d59ab0acc3f2126a2599c0bd79bbd0da31e773df9a8c84702ec"
+      "bytes": 32906,
+      "sha256": "c1aaff43d015eb560c6c9c46067130803c094453fd9aba6599dbe2cb298378c4"
     },
     {
       "path": "game/src/cliff-outcrops.js",
@@ -404,7 +404,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26799,
-      "sha256": "17bb847e5a67ed4992e6c65127adea2291bb59dcf5b0ba2115149bed2c8ad3c5"
+      "sha256": "c92ad75bdb20157196db2c9be48e353457eab51f553b8be6fb895dc28584d415"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -573,8 +573,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 57863,
-      "sha256": "8b2a81fc5e76b0512a54636eb65338558e9055a74fde9bb245055d1cd61f3624"
+      "bytes": 56378,
+      "sha256": "111cdbceaf5781c3250f04cee6a3d812d07abc3bf83bc6d3dda4bdebc9c1137a"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.40 sizes the live Reduced world HDR (hdrLite) to half canvas (width>>1, height>>1, scale 0.5) so Iris fill-rate drops while the unused 4x HDR twin stays parked at 1x1. The composite still presents at canvas size, so HTML HUD/UI stays crisp. Turning Reduced OFF reallocates 4x MSAA and can hitch once. Contact and bloom stay skipped, shadow-map updates stay frozen, and sample counts are never mutated on the live target. Present-hold while paused or hidden, hidden-tab construction deadlines, Intel-class shader first-use uniform deferral, typical-laptop end-pack, short start-pack, idle Deploy ammo-then-DEPLOY, and quiet footer QA remain. Soft-GPU stays off. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
+  "note": "Gunner v0.54.41 restores hive.satoshis.watch / concept-24 menu composition: Coming Soon \u2192 ammo \u2192 DEPLOY in natural DOM order, typical-laptop end-pack, start-pack only on html[data-app-short] (~vh 864), no production footer QA, and fail-path gold Report/Copy in the reserved deploy row. Soft-GPU stays off. Unused-HDR park, present-hold, hidden-tab construction deadlines, and Intel-class shader first-use uniform deferral remain. 0.54.40 is reserved. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
 }

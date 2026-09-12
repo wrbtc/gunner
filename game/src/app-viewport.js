@@ -16,10 +16,8 @@
     root.style.setProperty('--app-height',Math.round(height)+'px');
     root.style.setProperty('--app-offset-top',Math.round(offsetTop)+'px');
     root.style.setProperty('--app-inset-bottom',Math.round(insetBottom)+'px');
-    // CSS max-height can see a taller layout box than the Dock-safe view.
-    // Typical laptops (~880–920) stay end-packed. Start-pack only the Intel
-    // Safari + Dock class so Deploy remains on-screen without treating every
-    // laptop height as short.
+    // CSS max-height:850 mid-floats ordinary laptop windows. Start-pack only
+    // the true Dock-short visual box (≤864) so Deploy stays ≥8px above Dock.
     if(height<=864)root.setAttribute('data-app-short','');
     else root.removeAttribute('data-app-short');
   }
