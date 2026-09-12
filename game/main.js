@@ -1,6 +1,6 @@
 import {menuMusic} from './src/menu-music.js?v=054-22';
 import {missionBenchmark,missionRating,createRankReveal} from './src/mission-rating.js?v=054-6';
-import {setGuideModelProvider,guideViewerStats,loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-48';
+import {setGuideModelProvider,guideViewerStats,loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-50';
 import {createPlayTracking} from './src/play-tracking.js?v=052';
 import {createPilotRadio} from './src/pilot-radio.js?v=054-16';
 import {createQueenEncounter} from './src/queen-encounter.js?v=054-22';
@@ -121,7 +121,7 @@ renderer.toneMappingExposure = 1.04;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.info.autoReset = false;
-const frameMetrics = { calls: 0, triangles: 0, points: 0, frameMs: 0, fps: 0 };
+const frameMetrics = { calls: 0, triangles: 0, points: 0, frameMs: 0, fps: 0, presented: false, reducedPresentParity: 0, counterScope: 'all-frame-passes' };
 const fpsSample = { started: 0, frames: 0 };
 const REDUCED_AUTO_MS=4000;
 const reducedAuto={armed:false,lowSince:0,applied:false,userSet:false};
@@ -171,6 +171,21 @@ function applyReducedShadowReceive(reduced){
     shadowReceivers.length=0;
   }
 }
+function applyReducedPresentHud(reduced){
+  // Visible FPS stays the short HUD label. When Reduced is on it counts real
+  // cinematic presents (every 2nd rAF), and the readout is titled accordingly.
+  const on=!!reduced;
+  fpsSample.started=0;fpsSample.frames=0;
+  frameMetrics.reducedPresentParity=0;
+  frameMetrics.presented=false;
+  frameMetrics.counterScope=on?'reduced-presents':'all-frame-passes';
+  const readout=dom.fps?.parentElement;
+  if(readout){
+    readout.setAttribute('aria-label',on?'Intel Reduced present':'Current frames per second');
+    if(on)readout.setAttribute('title','Intel Reduced present');
+    else readout.removeAttribute('title');
+  }
+}
 function applyReducedDrawCost(reduced){
   // Keep shadowMap.enabled and PCFSoft so prepared USE_SHADOWMAP programs stay
   // valid. Reduced freezes map updates and skips receive sampling.
@@ -178,6 +193,7 @@ function applyReducedDrawCost(reduced){
   applyReducedShadowReceive(!!reduced);
   mayhemFX?.setReducedEffects(!!reduced);
   if(typeof applyReducedFillCost==='function')applyReducedFillCost(!!reduced);
+  if(typeof applyReducedPresentHud==='function')applyReducedPresentHud(!!reduced);
 }
 function considerReducedAuto(now){
   if(!reducedAuto.armed||reducedAuto.applied||reducedAuto.userSet||preferences.reduced)return;
@@ -1224,7 +1240,8 @@ function render(now){
   if(loadingSnapshot().status==='failed'||!sceneAssemblyComplete)return;
   windowDamage?.advanceTime();
   const wallTime=now/1000,elapsed=Math.max(0,wallTime-game.lastFrame),dt=Math.min(.05,elapsed);game.lastFrame=wallTime;
-  updateFps(now);considerReducedAuto(now);
+  frameMetrics.presented=false;
+  if(!preferences.reduced)updateFps(now);considerReducedAuto(now);
   if(game.running&&!game.paused&&!game.ended&&!game.captureFreeze&&!game.contextLost&&!document.hidden)playTracking.tick(elapsed);
   if(game.title&&!document.hidden&&!game.contextLost)game.titleTime+=dt;
   if(game.opening&&game.running&&!game.paused&&!game.captureFreeze&&!game.contextLost){
@@ -1265,14 +1282,22 @@ function render(now){
     // the last presented HDR/MSAA/contact frame.
     const loading=loadingSnapshot();
     const holdPresent=game.paused||document.hidden;
-    if((loading.status==='preparing'&&loading.active==='collision')||holdPresent){
+    const collisionHold=loading.status==='preparing'&&loading.active==='collision';
+    if(!preferences.reduced)frameMetrics.reducedPresentParity=0;
+    // Iris P5: Reduced ON presents cinematic/world every 2nd rAF. Sim, input,
+    // and HTML HUD already ran this tick. Skip GPU present only.
+    const skipReducedPresent=!holdPresent&&!collisionHold&&!!preferences.reduced&&(((frameMetrics.reducedPresentParity=(frameMetrics.reducedPresentParity|0)+1)&1)===0);
+    frameMetrics.presented=false;
+    if(collisionHold||holdPresent||skipReducedPresent){
       frameMetrics.frameMs=elapsed*1000;
     }else{
       renderer.info.reset();
       cinematic.render(scene,camera,{time:visualTime,reducedMotion:reducedOpening(),reducedEffects:preferences.reduced,worldOnly:WORLD_ONLY,exterior:exteriorView});
       frameMetrics.calls=renderer.info.render.calls;frameMetrics.triangles=renderer.info.render.triangles;frameMetrics.points=renderer.info.render.points;frameMetrics.frameMs=elapsed*1000;
+      frameMetrics.presented=true;
     }
   }
+  if(preferences.reduced&&frameMetrics.presented&&typeof updateFps==='function')updateFps(now);
   requestAnimationFrame(render);
 }
 
@@ -1525,7 +1550,7 @@ function qaCoreChecks(){
   return {kind:'diagnostic-core-checks',passed:checks.filter(c=>c.pass).length,total:checks.length,checks};
 }
 const qaApi={
-  version:'0.54.48',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
+  version:'0.54.50',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:frameMetrics.counterScope||'all-frame-passes',collisionMeshes:worldCollisionMeshes.length},impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
   start:()=>start({skipOpening:true,legacyRoute:true}),beginOpening:()=>start(),skipOpening:()=>finishOpening(true),openingState:()=>({active:game.opening,title:game.title,time:game.openingTime,phase:openingPhase,flightProgress:currentFlightProgress(),camera:camera.position.toArray(),quaternion:camera.quaternion.toArray(),fov:camera.fov,fade:Number(dom.openingFade.style.opacity)||0,exterior:bomberExterior?.stats(),cameraPath:openingCamera?.stats()}),seekOpening:(seconds)=>{game.openingTime=THREE.MathUtils.clamp(seconds,0,OPENING_SECONDS);game.captureFreeze=true;updatePlane(0);updateOpeningPresentation();return true;},reset:qaReset,pause,resume,setTime:(seconds)=>{game.time=THREE.MathUtils.clamp(seconds,0,RUN_SECONDS);updatePlane(0);creatureTracking?.seek(game.time);},setView:(yaw,pitch)=>{game.yaw=yaw;game.pitch=THREE.MathUtils.clamp(pitch,-1.38,.95);updatePlane(0);},turnAround,toggleRear:turnAround,fireCannon,fireRound,damage:(amount=6)=>damageHull(amount,planePos),explode:()=>explode(planePos.clone().addScaledVector(planeTangent,70),14),preview:setPreview,
   events:()=>game.eventLog.slice(),runtime:gunnerRuntime,trace:qaTrace,replay:qaReplay,checkCore:qaCoreChecks,
   aimAt:(target)=>{const actor=typeof target==='string'?enemies.concat(siege).find(e=>e.id===target):null;qaAimAt(actor?actorCenter(actor):new THREE.Vector3().fromArray(target));},

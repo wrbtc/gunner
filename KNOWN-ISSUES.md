@@ -1,4 +1,4 @@
-# Release validation — v0.54.48
+# Release validation — v0.54.50
 
 ## Older Intel Safari / short desktop viewport
 
@@ -393,8 +393,8 @@ v0.54.46 keeps those shipped Reduced draws as-is and, when Reduced is on
 Quarter-res live HDR, P2 fill caps, parked unused 4x HDR, skipped bloom/contact,
 and Soft-GPU OFF remain. Shader first-use uniforms are not reopened. Menu CSS
 is not touched. Menu short end-pack is owned by 0.54.47 and is not stolen here.
-A every-2nd-rAF present skip stays reserved for a later Intel-tier pass if
-GATE-05446-FPS still sits under 15 after these gates.
+A every-2nd-rAF present skip is owned by v0.54.50 (Iris P5) and is not
+applied here.
 
 QA retest on that Iris-class Safari: Deploy with Reduced ON (checkbox or
 wait for auto). Record unpaused combat HUD FPS. Target is ≥20 with Reduced
@@ -440,6 +440,37 @@ Short CSS uses `padding-bottom: max(20px, 8px + var(--app-inset-bottom), env(saf
 End-pack stays (`flex-end` + `.mission-footer { margin-top: auto }`). No
 flex-start or order swap. Soft-GPU, Iris, uniforms, and Reduced scene/CPU
 are untouched.
+
+## Reduced every-2nd-rAF present throttle (v0.54.50)
+
+Live 0.54.46 Iris Safari (Soft-GPU OFF, Reduced ON) still sat at about 7–14 FPS
+(mean ~9.55) in unpaused combat versus the ≥20 degraded bar. Half-res (40),
+P2 fill caps (42), quarter-res (44), and scene/CPU gates (46) left a present
+plateau: further world-target or draw-list cuts no longer moved the HUD.
+
+v0.54.50 keeps those shipped Reduced draws as-is and, when Reduced is on
+(auto or manual), presents the cinematic/world pass on every 2nd rAF. Alternate
+rAF ticks still run sim, input, HTML HUD, and world CPU updates; only
+`cinematic.render` is skipped. The canvas holds the last presented
+HDR/MSAA/contact frame, matching pause/hidden present-hold.
+
+HUD FPS counts real presents while Reduced is on (not rAF ticks). The FPS
+readout aria-label/title becomes "Intel Reduced present". Reduced OFF still
+counts every rAF and presents every visible unpaused tick, including the
+existing pause/hidden hold.
+
+Quarter-res live HDR, P2 fill caps, parked unused 4x HDR, skipped bloom/contact,
+scene/CPU gates, and Soft-GPU OFF remain. Shader first-use uniforms are not
+reopened. Menu CSS is not touched. Creeper lava-loco (0.54.49) is a separate
+lane and is not claimed here.
+
+QA retest on that Iris-class Safari: Deploy with Reduced ON (checkbox or
+wait for auto). Record unpaused combat HUD FPS (present rate). Target is ≥20
+with Reduced on. Expect a held world image on skipped rAF ticks. Reduced OFF
+should match the shipped 0.54.48 present cadence. Do not enable Soft-GPU.
+
+Physical Intel Safari combat FPS acceptance of this Reduced present throttle
+is still pending.
 
 ## Testing and patch requests
 

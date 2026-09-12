@@ -7,7 +7,7 @@ const main=readFileSync(new URL('../game/main.js',import.meta.url),'utf8');
 assert.match(main,/const REDUCED_AUTO_MS=4000/);
 assert.match(main,/function armReducedAuto\(\)/);
 assert.match(main,/function considerReducedAuto\(now\)/);
-assert.match(main,/updateFps\(now\);considerReducedAuto\(now\);/);
+assert.match(main,/if\(!preferences\.reduced\)updateFps\(now\);considerReducedAuto\(now\);/);
 assert.match(main,/armReducedAuto\(\);/);
 assert.match(main,/reducedAuto\.userSet=true/);
 assert.match(main,/reducedUserSet:reducedAuto\.userSet/);
@@ -17,6 +17,7 @@ assert.doesNotMatch(main,/userAgent\.includes/);
 
 assert.match(main,/function applyReducedDrawCost\(reduced\)/);
 assert.match(main,/function applyReducedFillCost\(reduced\)/);
+assert.match(main,/function applyReducedPresentHud\(reduced\)/);
 assert.match(main,/function applyReducedShadowReceive\(reduced\)/);
 assert.match(main,/function reducedAtmosphereKeep\(kind,count,reduced\)/);
 assert.match(main,/renderer\.shadowMap\.autoUpdate=!reduced/);

@@ -1,5 +1,5 @@
 {
-  "version": "0.54.48",
+  "version": "0.54.50",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -199,17 +199,17 @@
     {
       "path": "game/index.html",
       "bytes": 13311,
-      "sha256": "400b16b47dd42f943083bdd812eca8da6e2687813f8feccf4249d32b4d5dde8a"
+      "sha256": "3ad6ba4d724c05ee9e23050675854a059c2a8ceb8ea4cff7468e724d1bd6b35a"
     },
     {
       "path": "game/main.js",
-      "bytes": 161753,
-      "sha256": "26ae673b8bc2157ad749bebacc4c7e10dd72c15baed5d2775a3c5db98a1ad409"
+      "bytes": 163267,
+      "sha256": "4a52a8722cd5ebc1516cff8509bb867f368c0f0754ce1f2bf9dea140664fe764"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "e75f41a5609ec82ca598211ff38c7900683efe3f5c39d35c70290a5c21883b8b"
+      "sha256": "395a2de0c45e33f437b381175326005cce8d674b8879bd79253f5f11f372ffb8"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -404,7 +404,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26799,
-      "sha256": "7fdf2778cb092eb14f7bda745ae5ab31e8022e8d61c499fdee4946cbe1e0e53e"
+      "sha256": "221d0f0cda77b22f19f2b20f5b28b99f88e758dfd264fe1929b8c73c1f6376d4"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.48 restores Dock inset on short Intel Safari: --app-inset-bottom comes from screenY+outerHeight vs availTop+availHeight (plus 8px clearance, cap 96px), not layout-visual slack alone. Short CSS floors padding-bottom at max(20px, 8px + inset, safe-area). End-pack (flex-end + mission-footer margin-top:auto) and Coming Soon collapse stay. Soft-GPU stays off. v0.54.47 hive end-pack, v0.54.46 scene/CPU gates, v0.54.44 quarter-res, v0.54.42 fill caps, parked 4x HDR, uniforms, and LOAD are untouched. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
+  "note": "Gunner v0.54.50 is Iris P5: when Reduced is on, cinematic/world presents every 2nd rAF while sim/input/HTML HUD stay at full rate. HUD FPS counts real presents and the readout is titled Intel Reduced present. Soft-GPU stays off. Quarter-res, P2 fill caps, scene/CPU gates, parked 4x HDR, uniforms, menu CSS, and LOAD are untouched. 0.54.49 creeper lava-loco is a separate lane. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
 }
