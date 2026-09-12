@@ -106,7 +106,7 @@ assert.match(styles,/#intro\.mission-poster\{[\s\S]*overflow:auto/);
 assert.doesNotMatch(styles,/#intro\.mission-poster\{padding:0;overflow:hidden/);
 assert.match(styles,/\.ammo-progress\{display:grid;grid-template-columns:repeat\(12/);
 const briefing=read('src/mission-screen.js').toString('utf8');
-assert.match(briefing,/export const REPORT_BUILD='0\.54\.38'/);
+assert.match(briefing,/export const REPORT_BUILD='0\.54\.39'/);
 assert.match(briefing,/missionBuild\.textContent='v'\+REPORT_BUILD/);
 const loadingItems=briefing.match(/LOADING_ITEMS=Object\.freeze\(\[([^\]]+)\]/)?.[1].split(',').filter(Boolean)||[];
 assert.equal(loadingItems.length,24,'24-stage ammo loader must remain');
