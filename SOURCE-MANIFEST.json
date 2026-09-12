@@ -1,5 +1,5 @@
 {
-  "version": "0.54.42",
+  "version": "0.54.43",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -199,17 +199,17 @@
     {
       "path": "game/index.html",
       "bytes": 13311,
-      "sha256": "7216ab1143ea43966745ada2467ebc9491121d4d7c3755f64d786e91bb72318e"
+      "sha256": "cf46ae3a6b08be33dd337fa7a142066b0f4b860e5e769669df9452e33f21d1f5"
     },
     {
       "path": "game/main.js",
       "bytes": 160996,
-      "sha256": "64bbb68ddf185b4a297c4086e01a339f0a8cae74e5fc3c72eee06211d9ebc063"
+      "sha256": "ad8bd62bf70007d2b39df35aa6a77be75fe9061f7e68e812c9268fad278cc923"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "a75fa9d2d016e4f557c4013c2414130044bf08cc5b20086d159d44ebe790624b"
+      "sha256": "3e0b72290a9aa7e8fd624078df08f0a293f3a8e1799eb2f0afeebe0490998370"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -404,7 +404,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26799,
-      "sha256": "b587f59a7476a4a474954d5c2505d87322f82f4b9aab0b5f741e040578b1ccda"
+      "sha256": "5478e9a16798299d89a4fc1d90a499c49ee1c41e083b38ff4ea11bd6fe0df205"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -573,8 +573,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 56368,
-      "sha256": "a4a192528f00821fa4425dedca5e4c4210270d13e6c2e967ce52de2b4482b8b5"
+      "bytes": 56340,
+      "sha256": "7e2181c5a3304188102588476dbbe84083df906e9a28402447c773430fccdf70"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.42 keeps the shipped Reduced half-res 0-sample world HDR, parked 4x twin, skipped bloom/contact, and frozen shadows, and when Reduced is on it caps Intel-integrated-tier fill: skip the volumetric ash-sky draw, keep 12% ember/ash points and skip steam, skip blast ash and mayhem ambient particles, cap combat ParticlePool draw/bursts, and zero excess PointLight intensities without hiding lights so prepared NUM_POINT_LIGHTS programs stay valid. Reduced OFF restores the full present. Soft-GPU stays off. Shader first-use uniforms are not reopened. Hive menu composition from v0.54.41 remains. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
+  "note": "Gunner v0.54.43 is a menu CSS/HTML follow-up: Coming Soon extras still collapse on html[data-app-short] with Dock inset, but short no longer start-packs, swaps order, or overrides footer margin. Every height end-packs with flex-end plus .mission-footer { margin-top: auto } so ammo and DEPLOY hug the fold like hive. Soft-GPU stays off. v0.54.42 Reduced particle/atmosphere/light caps, parked 4x HDR, half-res world, uniforms, and LOAD are untouched. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
 }

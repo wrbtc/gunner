@@ -1,4 +1,4 @@
-# Release validation — v0.54.42
+# Release validation — v0.54.43
 
 ## Older Intel Safari / short desktop viewport
 
@@ -336,6 +336,21 @@ Do not enable Soft-GPU.
 
 Physical Intel Safari combat FPS acceptance of these Reduced fill caps is
 still pending.
+
+## Short-viewport hive end-pack (v0.54.43)
+
+Live 0.54.42 includes the hive restore from 0.54.41, but `html[data-app-short]`
+(viewport ≤864 / Dock) still start-packed: `.poster-right { justify-content:flex-start }`,
+Deploy-first `order:0/1`, and `.mission-footer { margin-top:8px }`. That left ammo
+mid-float, a quiet Coming Soon line under Deploy, and an empty canyon above the
+footer.
+
+v0.54.43 is menu CSS/HTML only. Coming Soon extras still collapse on
+`data-app-short`, and the Dock inset still keeps Deploy ≥8px above the Dock.
+Short no longer start-packs, swaps order, or overrides footer margin: every
+height end-packs with `flex-end` plus `.mission-footer { margin-top: auto }`
+so ammo and DEPLOY hug the fold like hive. Soft-GPU stays off. 0.54.42 Reduced
+particle/atmosphere/light caps, uniforms, LOAD, and Iris HDR are untouched.
 
 ## Testing and patch requests
 
