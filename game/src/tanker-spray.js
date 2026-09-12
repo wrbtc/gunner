@@ -83,8 +83,7 @@ export function createTankerSpray({scene,actors,traceTerrain,hitHull,damageHull,
  const scorches=Array.from({length:12},()=>{const mesh=new THREE.Mesh(new THREE.PlaneGeometry(1,1),scorchMat.clone());mesh.visible=false;group.add(mesh);return{mesh,life:0};});let scorchIndex=0;
  const packets=Array.from({length:12},()=>({active:false,pos:V(),prev:V(),vel:V(),life:0,owner:null,burst:null,index:0}));
  const coreGeo=new THREE.IcosahedronGeometry(1.6,2),coreMat=new THREE.MeshBasicMaterial({color:new THREE.Color(5,1.3,.12),toneMapped:false});for(const p of packets){p.core=new THREE.Mesh(coreGeo,coreMat);p.core.visible=false;group.add(p.core);}
- const bursts=new Map(),lights=Array.from({length:2},()=>{const l=new THREE.PointLight(0xff841c,0,75,2);group.add(l);return l;});let serial=0,clock=0,visualSerial=0,reducedEffects=false;
- function setReducedEffects(value){reducedEffects=!!value;if(reducedEffects)for(const l of lights)l.intensity=0;}
+ const bursts=new Map(),lights=Array.from({length:2},()=>{const l=new THREE.PointLight(0xff841c,0,75,2);group.add(l);return l;});let serial=0,clock=0,visualSerial=0;
  function emitPuff(pos,vel,width,life,heat=1){const seed=++visualSerial,variation=.82+.28*(.5+.5*Math.sin(seed*2.399));fire.emit(pos,vel,width*variation,width*(1.3+.55*Math.sin(seed*1.731)),life,.68,heat>.5?(seed%3?0xff8b20:0xffbd55):0xbd3b0a,1.3,seed*2.399,2);}
  function start(e,time){
   if(e.dead||bursts.has(e))return false;
@@ -147,11 +146,11 @@ export function createTankerSpray({scene,actors,traceTerrain,hitHull,damageHull,
   for(const light of lights)light.intensity=0;
   let lightIndex=0;
   actors.forEach(e=>{const f=e.state==='windup'?clamp(1-e.timer/e.windupSeconds,0,1):0,b=bursts.get(e),active=b?.active;const pos=e.mouthAnchor.getWorldPosition(V());
-   if(!reducedEffects&&!e.dead&&(active||f>0)&&lightIndex<lights.length){const light=lights[lightIndex++];light.position.copy(pos);light.intensity=active?240:f*f*65;}
+   if(!e.dead&&(active||f>0)&&lightIndex<lights.length){const light=lights[lightIndex++];light.position.copy(pos);light.intensity=active?240:f*f*65;}
    const phase=e.dead?'idle':active?'spray':e.state==='windup'?'charge':'idle';audio.tankerState(e.id,phase,pos,active?time-b.started:f*e.windupSeconds);
   });clock=time;
  }
  function reset(){for(const e of actors){cancel(e);e.commitment=false;}bursts.clear();for(const p of packets){p.active=false;p.core.visible=false;}for(const l of lights)l.intensity=0;fire.clear();smoke.clear();for(const mark of scorches){mark.life=0;mark.mesh.visible=false;}serial=0;clock=0;visualSerial=0;}
  function stats(){return{activeDischarges:bursts.size,packets:packets.filter(p=>p.active).length,attack:'three-fireballs',shotsPerVolley:3,speed:150,shotInterval:.6,damageCap:12,packetCap:packets.length,fireCap:240,smokeCap:112,time:clock,bursts:[...bursts.values()].map(b=>({id:b.id,owner:b.owner.id,emitted:b.emitted,active:b.active,damaged:b.damaged}))};}
- reset();return{start,cancel,intercept,update,reset,setReducedEffects,stats,activeCount:()=>bursts.size,packets};
+ reset();return{start,cancel,intercept,update,reset,stats,activeCount:()=>bursts.size,packets};
 }

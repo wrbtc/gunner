@@ -1,4 +1,4 @@
-# Release validation — v0.54.59
+# Release validation — v0.54.60
 
 ## Older Intel Safari / short desktop viewport
 
@@ -518,8 +518,9 @@ knuckle-walk / cliff-climb silhouette). Ember dancers stay on the procedural
 orange-spirit path. Combat loco, GLB bytes, and attach yaw are unchanged from
 0.54.52. Soft-GPU stays off. Menu Deploy spacing is not touched.
 
-Do not treat this identity as 0.54.53 (Reduced), 0.54.54 (creeper motion GLB),
-or 0.54.55 (held menu Deploy gap).
+Do not treat that Field Guide identity as 0.54.54 (creeper motion GLB) or
+0.54.55 (held menu Deploy gap). This tip keeps that Field Guide copy and art
+while identifying as v0.54.60.
 
 ## Deploy ammo breathing room (v0.54.58)
 
@@ -555,6 +556,25 @@ this ship as 0.54.57 or 0.54.58.
 In-game eyeball: a near bank creeper or climber should knuckle-walk /
 cliff-climb on the armature, not glide in rest pose. Field Guide copy from
 0.54.56 and Deploy ammo gap from 0.54.58 remain.
+
+## Reduced Effects removed (v0.54.60)
+
+v0.54.60 removes Reduced Effects entirely. There is no checkbox, no
+`preferences.reduced`, no `reduced-auto` FPS-band flip, and no leftover store
+flag: older `reduced` / `reducedUserSet` keys are ignored and rewritten out of
+`gunner-settings-v1` on the next settings load. The cinematic/world path is the
+former non-Reduced path only: full-resolution live HDR, contact and bloom follow
+quality flags, every rAF presents, and particle / atmosphere / light / geology
+caps that existed only for Reduced are gone. HUD FPS stays `all-frame-passes`;
+there is no `Intel Reduced present` title. Soft-GPU stays off and is not a
+substitute. `prefers-reduced-motion` still quiets flash, heat and camera motion.
+This tip keeps the v0.54.52 attach yaw, the v0.54.59 live-clip loco LFS
+(`e8140b94…` / 9840676; reject stub `744f1b66…` / 9750920), Field Guide copy/art,
+and the v0.54.58 Deploy ammo gap. Do not treat 0.54.52, 0.54.53, 0.54.57,
+0.54.58 or 0.54.59 as this identity.
+
+Physical Intel Safari combat acceptance remains pending. Record unpaused combat
+HUD FPS on the full path. Do not enable Soft-GPU.
 
 ## Testing and patch requests
 

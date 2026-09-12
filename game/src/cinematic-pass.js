@@ -2,18 +2,15 @@ import * as THREE from '../vendor/three.module.js?v=052';
 
 // One HDR/output transform for both the world and the gun bubble.
 // Bloom is evaluated at quarter resolution; the aiming image stays full
-// resolution unless Reduced Effects is on, when the live world target is
-// quarter canvas. The composite still presents at canvas size for a crisp HUD.
+// canvas resolution. The composite still presents at canvas size for a crisp HUD.
 export function createCinematicPass(renderer) {
   const quality={heat:true,contact:true,msaa:true,bloom:true};
-  let reducedEffectsActive=false;
   const options={type:THREE.HalfFloatType,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,depthBuffer:false};
   const hdr=new THREE.WebGLRenderTarget(1,1,{...options,depthBuffer:true,samples:4});
   hdr.depthTexture=new THREE.DepthTexture(1,1,THREE.UnsignedIntType);
-  // Reduced draws into this 0-sample twin so sample-count swaps never hitch the
-  // live target. Reduced sizes that twin to quarter canvas (≤0.5) to cut fill-rate.
-  // Only one world HDR is live at a time; the unused twin is parked at 1x1.
-  // Restoring 4x MSAA on Reduced OFF reallocates and can hitch once.
+  // 0-sample twin for quality.msaa=false. Sample-count swaps never hitch the
+  // live target. Only one world HDR is live at a time; the unused twin is
+  // parked at 1x1.
   const hdrLite=new THREE.WebGLRenderTarget(1,1,{...options,depthBuffer:true,samples:0});
   hdrLite.depthTexture=new THREE.DepthTexture(1,1,THREE.UnsignedIntType);
   const bloomBlack=new THREE.DataTexture(new Uint8Array([0,0,0,255]),1,1);
@@ -95,8 +92,8 @@ export function createCinematicPass(renderer) {
   function captureStingFrame(){const previous=renderer.getRenderTarget(),oldMaterial=quad.material;frozenFrame.setSize(width,height);draw(freezeCopy,frozenFrame);renderer.setRenderTarget(previous);quad.material=oldMaterial;snapshotSerial++;return frozenFrame.texture;}
   const quad=new THREE.Mesh(new THREE.PlaneGeometry(2,2),extract);quadScene.add(quad);
   let width=1,height=1;
-  function liveWorldTarget(){return quality.msaa&&!reducedEffectsActive?hdr:hdrLite;}
-  function liveWorldSize(){return reducedEffectsActive?{x:Math.max(1,width>>2),y:Math.max(1,height>>2)}:{x:width,y:height};}
+  function liveWorldTarget(){return quality.msaa?hdr:hdrLite;}
+  function liveWorldSize(){return {x:width,y:height};}
   function parkWorldTarget(target){if(target.width!==1||target.height!==1)target.setSize(1,1);}
   function syncWorldTargets(){
     const live=liveWorldTarget(),unused=live===hdr?hdrLite:hdr,size=liveWorldSize();
@@ -108,8 +105,6 @@ export function createCinematicPass(renderer) {
     if(size.x!==width||size.y!==height){
       width=size.x;height=size.y;shaded.setSize(width,height);contact.setSize(Math.max(1,width>>1),Math.max(1,height>>1));contactPing.setSize(contact.width,contact.height);occlusion.uniforms.uResolution.value.set(width,height);contactComposite.uniforms.uContactSize.value.set(contact.width,contact.height);ping.setSize(Math.max(1,width>>2),Math.max(1,height>>2));pong.setSize(Math.max(1,width>>2),Math.max(1,height>>2));
     }
-    // Reconcile parked vs live even when the canvas size is unchanged so a
-    // Reduced toggle never leaves two full-res color+depth buffers hot.
     syncWorldTargets();
   }
   function draw(mat,target){quad.material=mat;renderer.setRenderTarget(target);renderer.render(quadScene,quadCamera);}
@@ -405,16 +400,12 @@ export function createCinematicPass(renderer) {
     // in-flight entry, and concurrent callers share exactly this promise.
     entry.promise=Promise.resolve().then(run);return entry.promise;
   }
-  function render(scene,camera,{time=0,reducedMotion=false,reducedEffects=false,worldOnly=false,exterior=false}={}){
-    // Reduced draws into the 0-sample twin at quarter canvas size (≤0.5) and
-    // parks unused 4x HDR at 1x1. Contact and quarter-res bloom stay skipped.
+  function render(scene,camera,{time=0,reducedMotion=false,worldOnly=false,exterior=false}={}){
+    // Full-resolution world HDR. Contact, MSAA and bloom follow quality flags.
     // The composite still presents at canvas size so HTML HUD/UI stays crisp.
-    // Mutating hdr.samples on the live target can hitch Intel-class Safari.
-    // Restoring Reduced OFF reallocates 4x MSAA and can hitch once.
-    reducedEffectsActive=!!reducedEffects;
-    const contactEnabled=quality.contact&&!reducedEffectsActive;
-    const msaaEnabled=quality.msaa&&!reducedEffectsActive;
-    const bloomEnabled=quality.bloom&&!reducedEffectsActive;
+    const contactEnabled=quality.contact;
+    const msaaEnabled=quality.msaa;
+    const bloomEnabled=quality.bloom;
     const worldTarget=msaaEnabled?hdr:hdrLite;
     // The world has an eight-metre flight clearance. Giving it its own near
     // plane preserves depth precision; the close gun keeps its original plane.
@@ -458,5 +449,5 @@ export function createCinematicPass(renderer) {
     // Drop GPU ownership while Three's old context tables still own it. Keep
     // target/texture objects so material uniforms and sting identity survive.
     for(const t of [hdr,hdrLite,ping,pong,contact,contactPing,shaded,frozenFrame])t.dispose();
-  },recoverContext(){stingRecoveryPending=true;},postMaterial:composite,captureStingFrame,stingSnapshot:()=>({target:frozenFrame,serial:snapshotSerial}),exposure:composite.uniforms.uExposure,stats:()=>{const live=liveWorldTarget(),unused=live===hdr?hdrLite:hdr;return {preparedPrograms,preparation:{...preparationStatus},preparedPointLightCounts:[...preparedPointLightCounts],reducedEffects:reducedEffectsActive,worldMsaaSamples:quality.msaa&&!reducedEffectsActive?hdr.samples:0,bloomPasses:quality.bloom&&!reducedEffectsActive?3:0,liveWorldHdrWidth:live.width,liveWorldHdrHeight:live.height,liveWorldScale:live.width/Math.max(1,width),unusedWorldHdrWidth:unused.width,unusedWorldHdrHeight:unused.height,worldNear:.5,contactOcclusionSamples:quality.contact&&!reducedEffectsActive?8:0,contactScale:.5};},dispose(){for(const t of [hdr,hdrLite,ping,pong,contact,contactPing,shaded,frozenFrame])t.dispose();bloomBlack.dispose();for(const m of [extract,blur,composite,freezeCopy,occlusion,contactBlur,contactComposite,copy])m.dispose();quad.geometry.dispose();}};
+  },recoverContext(){stingRecoveryPending=true;},postMaterial:composite,captureStingFrame,stingSnapshot:()=>({target:frozenFrame,serial:snapshotSerial}),exposure:composite.uniforms.uExposure,stats:()=>{const live=liveWorldTarget(),unused=live===hdr?hdrLite:hdr;return {preparedPrograms,preparation:{...preparationStatus},preparedPointLightCounts:[...preparedPointLightCounts],worldMsaaSamples:quality.msaa?hdr.samples:0,bloomPasses:quality.bloom?3:0,liveWorldHdrWidth:live.width,liveWorldHdrHeight:live.height,liveWorldScale:live.width/Math.max(1,width),unusedWorldHdrWidth:unused.width,unusedWorldHdrHeight:unused.height,worldNear:.5,contactOcclusionSamples:quality.contact?8:0,contactScale:.5};},dispose(){for(const t of [hdr,hdrLite,ping,pong,contact,contactPing,shaded,frozenFrame])t.dispose();bloomBlack.dispose();for(const m of [extract,blur,composite,freezeCopy,occlusion,contactBlur,contactComposite,copy])m.dispose();quad.geometry.dispose();}};
 }

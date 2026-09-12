@@ -25,7 +25,7 @@ assert.match(tanker,/effectsAllowed=\(\)=>true/);
 assert.match(tanker,/if\(!hullFirst\|\|effectsAllowed\(\)\)\{emitPuff/);
 assert.match(main,/createTankerSpray\(\{[^\n]+effectsAllowed:playerHitEffectsAllowed/);
 assert.match(main,/if\(preferences\.master\)\{game\.flash=0;game\.shake=0;\}/);
-assert.match(main,/for\(const key of \['invert','reduced','master','captions'\]\)/);
+assert.match(main,/for\(const key of \['invert','master','captions'\]\)/);
 assert.match(main,/masterMode:\(enabled=true\)=>setMasterMode\(enabled,\{persist:false\}\)/);
 assert.match(main,/masterMode:preferences\.master/);
 assert.match(main,/game\.masterUsed=preferences\.master/);

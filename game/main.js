@@ -1,17 +1,17 @@
 import {menuMusic} from './src/menu-music.js?v=054-22';
 import {missionBenchmark,missionRating,createRankReveal} from './src/mission-rating.js?v=054-6';
-import {setGuideModelProvider,guideViewerStats,loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-59';
+import {setGuideModelProvider,guideViewerStats,loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-60';
 import {createPlayTracking} from './src/play-tracking.js?v=052';
 import {createPilotRadio} from './src/pilot-radio.js?v=054-16';
 import {createQueenEncounter} from './src/queen-encounter.js?v=054-22';
 import {installQueenSampleCues} from './src/queen-sample-cues.js?v=054-22';
 import {createPlasmaBursts} from './src/plasma-burst.js?v=054-42';
-import {createPlasmaBugs} from './src/plasma-bugs.js?v=054-42';
+import {createPlasmaBugs} from './src/plasma-bugs.js?v=054-60';
 import {riverWidthAt,NESTING_POOLS} from './src/river-profile.js?v=052';
-import {createRimmers} from './src/rimmers.js?v=054-59';
+import {createRimmers} from './src/rimmers.js?v=054-60';
 import {createTankerBugsAsync} from './src/tanker-bug.js?v=054-6';
 import {loadCinderMaw} from './src/cinder-maw.js?v=053-1';
-import {createTankerSpray} from './src/tanker-spray.js?v=054-59';
+import {createTankerSpray} from './src/tanker-spray.js?v=054-60';
 import {createEndingFlight} from './src/ending-flight.js?v=052';
 import {GUN,HP,POINTS,enemyKind,createHitFeedback} from './src/combat-balance.js?v=052';
 startupMark('main-evaluation','begin');
@@ -24,13 +24,13 @@ import {createRomanRuinsAsync} from './src/roman-ruins.js?v=054-6';
 import {createStaticRaycast} from './src/static-raycast.js?v=052';
 import * as THREE from './vendor/three.module.js?v=052';
 import {createEggNests} from './src/egg-nests.js?v=054-26';
-import {createBankDemons} from './src/bank-demons.js?v=054-59';
-import {loadCreeperLoco} from './src/creeper-loco.js?v=054-59';
-import {createBlastWorld} from './src/blast-world.js?v=054-46';
-import {createHellWorld} from './src/hell-world.js?v=054-46';
-import {createCinematicPass} from './src/cinematic-pass.js?v=054-44';
+import {createBankDemons} from './src/bank-demons.js?v=054-60';
+import {loadCreeperLoco} from './src/creeper-loco.js?v=054-60';
+import {createBlastWorld} from './src/blast-world.js?v=054-60';
+import {createHellWorld} from './src/hell-world.js?v=054-60';
+import {createCinematicPass} from './src/cinematic-pass.js?v=054-60';
 import {createCalderaEnvironment} from './src/caldera-light.js?v=052';
-import {createMayhemFX} from './src/mayhem-fx.js?v=054-42';
+import {createMayhemFX} from './src/mayhem-fx.js?v=054-60';
 import {SoundEngine as MayhemSoundEngine} from './src/mayhem-audio.js?v=054-6';
 import {loadAssetKit} from './src/asset-kit.js?v=052';
 import {upgradeGunBubble} from './src/gun-bubble.js?v=052';
@@ -48,7 +48,7 @@ let bomberExterior=null, openingCamera=null, endingFlight=null;
 let staticRaycast=null;
 let playerFov=66;
 const OPENING_SECONDS=14, APPROACH_START=.025, APPROACH_END=.065;
-const preferences={sensitivity:1,invert:false,reduced:false,master:false,volume:.65,music:.65,voice:.85,captions:true};
+const preferences={sensitivity:1,invert:false,master:false,volume:.65,music:.65,voice:.85,captions:true};
 let settingsOnly=false,settingsReady=false,sceneAssemblyComplete=false,firstStartMeasured=false;
 let startupAssembly=null;
 let lastQueenPhase='dormant';
@@ -122,10 +122,8 @@ renderer.toneMappingExposure = 1.04;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.info.autoReset = false;
-const frameMetrics = { calls: 0, triangles: 0, points: 0, frameMs: 0, fps: 0, presented: false, reducedPresentParity: 0, counterScope: 'all-frame-passes' };
+const frameMetrics = { calls: 0, triangles: 0, points: 0, frameMs: 0, fps: 0, presented: false, counterScope: 'all-frame-passes' };
 const fpsSample = { started: 0, frames: 0 };
-const REDUCED_AUTO_MS=4000;
-const reducedAuto={armed:false,lowSince:0,applied:false,userSet:false};
 function updateFps(now) {
   const span=now-fpsSample.started;
   if(!fpsSample.started||span>2000){fpsSample.started=now;fpsSample.frames=0;return;}
@@ -134,77 +132,6 @@ function updateFps(now) {
   const fps=Math.max(0,Math.round(fpsSample.frames*1000/span));
   frameMetrics.fps=fps;dom.fps.textContent=String(fps);dom.fps.dataset.band=fps<30?'low':fps<50?'watch':'good';
   fpsSample.started=now;fpsSample.frames=0;
-}
-function armReducedAuto(){
-  if(preferences.reduced||reducedAuto.userSet||reducedAuto.applied){reducedAuto.armed=false;reducedAuto.lowSince=0;return;}
-  reducedAuto.armed=true;reducedAuto.lowSince=0;
-}
-function reducedAtmosphereKeep(kind,count,reduced){
-  if(!reduced)return count;
-  // Steam points can be 110px; skip them on the Intel integrated tier.
-  if(kind==='steam')return 0;
-  return Math.ceil(count*.12);
-}
-function applyReducedFillCost(reduced){
-  const on=!!reduced;
-  hellWorld?.setReducedEffects?.(on);
-  blastWorld?.setReducedEffects?.(on);
-  tankerSpray?.setReducedEffects?.(on);
-  plasmaBugs?.setReducedEffects?.(on);
-  particles?.setReducedEffects?.(on);
-  if(atmosphereBatches)for(const b of atmosphereBatches){const keep=reducedAtmosphereKeep(b.kind,b.count,on);b.points.geometry.setDrawRange(0,keep);b.points.visible=keep>0;}
-  if(atmosphereMaterials)for(const m of atmosphereMaterials)m.uniforms.uReduced.value=on?1:0;
-  if(riverLights)for(const entry of riverLights)entry.light.intensity=on?0:entry.power;
-  if(rift?.userData?.fillLight)rift.userData.fillLight.intensity=on?0:rift.userData.fillLightPower;
-  if(scene?.background?.setHex)scene.background.setHex(on?0x121820:0x110a08);
-  if(ventPlumes)for(const plume of ventPlumes)if(plume.sprite)plume.sprite.visible=!on;
-}
-const shadowReceivers=[];
-function applyReducedShadowReceive(reduced){
-  // receiveShadow is a runtime uniform. Skipping PCF sampling does not rebuild
-  // prepared USE_SHADOWMAP programs. castShadow and shadowMap.enabled stay on
-  // so NUM_*_SHADOWS and the shadow list stay stable.
-  if(!scene?.traverse)return;
-  if(reduced){
-    if(!shadowReceivers.length)scene.traverse(o=>{if((o.isMesh||o.isInstancedMesh)&&o.receiveShadow){shadowReceivers.push(o);o.receiveShadow=false;}});
-  }else if(shadowReceivers.length){
-    for(const o of shadowReceivers)o.receiveShadow=true;
-    shadowReceivers.length=0;
-  }
-}
-function applyReducedPresentHud(reduced){
-  // Visible FPS stays the short HUD label. When Reduced is on it counts real
-  // cinematic presents (every 2nd rAF), and the readout is titled accordingly.
-  const on=!!reduced;
-  fpsSample.started=0;fpsSample.frames=0;
-  frameMetrics.reducedPresentParity=0;
-  frameMetrics.presented=false;
-  frameMetrics.counterScope=on?'reduced-presents':'all-frame-passes';
-  const readout=dom.fps?.parentElement;
-  if(readout){
-    readout.setAttribute('aria-label',on?'Intel Reduced present':'Current frames per second');
-    if(on)readout.setAttribute('title','Intel Reduced present');
-    else readout.removeAttribute('title');
-  }
-}
-function applyReducedDrawCost(reduced){
-  // Keep shadowMap.enabled and PCFSoft so prepared USE_SHADOWMAP programs stay
-  // valid. Reduced freezes map updates and skips receive sampling.
-  renderer.shadowMap.autoUpdate=!reduced;
-  applyReducedShadowReceive(!!reduced);
-  mayhemFX?.setReducedEffects(!!reduced);
-  if(typeof applyReducedFillCost==='function')applyReducedFillCost(!!reduced);
-  if(typeof applyReducedPresentHud==='function')applyReducedPresentHud(!!reduced);
-}
-function considerReducedAuto(now){
-  if(!reducedAuto.armed||reducedAuto.applied||reducedAuto.userSet||preferences.reduced)return;
-  if(!game.running||game.paused||game.ended||game.contextLost||document.hidden){reducedAuto.lowSince=0;return;}
-  if(dom.fps.dataset.band!=='low'){reducedAuto.lowSince=0;return;}
-  if(!reducedAuto.lowSince)reducedAuto.lowSince=now;
-  if(now-reducedAuto.lowSince<REDUCED_AUTO_MS)return;
-  reducedAuto.applied=true;reducedAuto.armed=false;preferences.reduced=true;
-  const box=$('#reducedEffects');if(box)box.checked=true;
-  applyReducedDrawCost(true);savePreferences();logEvent('reduced-auto');
 }
 const hooks = { update: null, onShot: null, onImpact: null, onEnemyHit: null, onCannon: null, onReset: null };
 let worldCollisionMeshes = [];
@@ -619,16 +546,15 @@ if (SIEGE_ENABLED) {
 // ----- Pooled effects and projectiles -----
 class ParticlePool {
   constructor(count) {
-    this.count=count; this.reduced=false; this.pos=new Float32Array(count*3); this.col=new Float32Array(count*3); this.life=new Float32Array(count); this.vel=Array.from({length:count},()=>new THREE.Vector3()); this.cursor=0;
+    this.count=count; this.pos=new Float32Array(count*3); this.col=new Float32Array(count*3); this.life=new Float32Array(count); this.vel=Array.from({length:count},()=>new THREE.Vector3()); this.cursor=0;
     const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(this.pos,3)); g.setAttribute('color',new THREE.BufferAttribute(this.col,3));
     const material=new THREE.ShaderMaterial({vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
       vertexShader:`varying vec3 vColor;void main(){vColor=color;vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=clamp(210./max(1.,-mv.z),1.4,13.);gl_Position=projectionMatrix*mv;}`,
       fragmentShader:`varying vec3 vColor;void main(){float d=length(gl_PointCoord-.5);if(d>.5)discard;float a=smoothstep(.5,.08,d);gl_FragColor=vec4(vColor,a);}`});
     this.points=new THREE.Points(g,material); scene.add(this.points);
   }
-  setReducedEffects(value){this.reduced=!!value;this.points.geometry.setDrawRange(0,this.reduced?160:this.count);}
   emit(position, color, velocity, life=1) { const i=this.cursor++%this.count,o=i*3;this.pos[o]=position.x;this.pos[o+1]=position.y;this.pos[o+2]=position.z;this.col[o]=color.r;this.col[o+1]=color.g;this.col[o+2]=color.b;this.vel[i].copy(velocity);this.life[i]=life; }
-  burst(position,count,color,speed=14,life=1){const n=this.reduced?Math.max(1,Math.ceil(count*.25)):count;for(let i=0;i<n;i++){const v=new THREE.Vector3(fxRng.range(-1,1),fxRng.range(-.1,1.25),fxRng.range(-1,1)).normalize().multiplyScalar(fxRng.range(speed*.3,speed));this.emit(position,color,v,life*fxRng.range(.5,1.2));}}
+  burst(position,count,color,speed=14,life=1){for(let i=0;i<count;i++){const v=new THREE.Vector3(fxRng.range(-1,1),fxRng.range(-.1,1.25),fxRng.range(-1,1)).normalize().multiplyScalar(fxRng.range(speed*.3,speed));this.emit(position,color,v,life*fxRng.range(.5,1.2));}}
   update(dt){for(let i=0;i<this.count;i++){if(this.life[i]<=0)continue;this.life[i]-=dt;const o=i*3;const v=this.vel[i];v.y-=12*dt;this.pos[o]+=v.x*dt;this.pos[o+1]+=v.y*dt;this.pos[o+2]+=v.z*dt;if(this.life[i]<=0)this.pos[o+1]=-9999;}this.points.geometry.attributes.position.needsUpdate=true;}
   clear(){this.life.fill(0);for(let i=1;i<this.pos.length;i+=3)this.pos[i]=-9999;this.points.geometry.attributes.position.needsUpdate=true;}
 }
@@ -644,7 +570,7 @@ function emitDebris(pos,count,kind='demon'){
 const smoke=[];
 for(let i=0;i<54;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:smokeTexture,color:0x372b27,transparent:true,opacity:0,depthWrite:false}));s.visible=false;scene.add(s);smoke.push({sprite:s,life:0,max:1,vel:new THREE.Vector3(),spin:0});}
 let smokeCursor=0;
-function emitSmoke(pos,size=8,life=3,color=0x463632){if(preferences.reduced)return;const s=smoke[smokeCursor++%smoke.length];s.life=s.max=life;s.sprite.visible=true;s.sprite.position.copy(pos);s.sprite.scale.setScalar(size);s.sprite.material.color.setHex(color);s.sprite.material.opacity=.56;s.vel.set(fxRng.range(-1.2,1.2),fxRng.range(2.2,5.4),fxRng.range(-1,1));}
+function emitSmoke(pos,size=8,life=3,color=0x463632){const s=smoke[smokeCursor++%smoke.length];s.life=s.max=life;s.sprite.visible=true;s.sprite.position.copy(pos);s.sprite.scale.setScalar(size);s.sprite.material.color.setHex(color);s.sprite.material.opacity=.56;s.vel.set(fxRng.range(-1.2,1.2),fxRng.range(2.2,5.4),fxRng.range(-1,1));}
 
 const impactLights=[];
 let impactLightCursor=0;
@@ -708,7 +634,7 @@ const gunHeat=createGatlingHeat();
 const rotorAudioStates=craft.guns.map(g=>({speed:0,side:g.side,held:false}));
 function updateGunMechanisms(dt){
   const firing=game.gunHeld&&!gunHeat.overheated&&!queen?.locked;
-  for(let i=0;i<craft.guns.length;i++){const g=craft.guns[i];g.rotary.update(dt,firing,game.time,gunHeat.heat,preferences.reduced);const state=rotorAudioStates[i];state.speed=g.rotorState.speed;state.held=firing;}
+  for(let i=0;i<craft.guns.length;i++){const g=craft.guns[i];g.rotary.update(dt,firing,game.time,gunHeat.heat,false);const state=rotorAudioStates[i];state.speed=g.rotorState.speed;state.held=firing;}
   audio.setRotors(rotorAudioStates);
 }
 
@@ -729,7 +655,7 @@ function setMasterMode(enabled,{persist=true}={}){
   if(persist)savePreferences();
   return preferences.master;
 }
-function reducedOpening(){return reducedMotion.matches||preferences.reduced;}
+function reducedOpening(){return reducedMotion.matches;}
 // Lighter effects keep the authored opening; only the OS motion preference
 // selects its stationary, fading alternative.
 function reducedOpeningMotion(){return reducedMotion.matches;}
@@ -884,7 +810,7 @@ function fireRound(){
     if(fxRng.next()>.6)emitSmoke(hit.point,2.3,.65,0x65594c);
   }
   const b=bullets[bulletCursor++%bullets.length];b.active=true;b.start.copy(muzzle);b.end.copy(hit.point);b.distance=muzzle.distanceTo(hit.point);b.travel=0;b.pos.copy(muzzle);b.prev.copy(muzzle);b.vel.copy(direction).multiplyScalar(1600);b.life=Math.min(.36,b.distance/1600+.045);b.mesh.visible=false;
-  const gun=craft.guns[side];gun.rotary.onShot();gun.flash.material.opacity=preferences.reduced?.3:1;gun.flash.scale.setScalar(fxRng.range(.34,.52));gun.assembly.position.z=(gun.baseZ||0)+(preferences.reduced?.035:.075);spawnCasing(side);game.shake=Math.min(.065,game.shake+.009);audio.gun(side);
+  const gun=craft.guns[side];gun.rotary.onShot();gun.flash.material.opacity=1;gun.flash.scale.setScalar(fxRng.range(.34,.52));gun.assembly.position.z=(gun.baseZ||0)+.075;spawnCasing(side);game.shake=Math.min(.065,game.shake+.009);audio.gun(side);
   runReview.shots++;if(['enemy','dragon','siege','hostile','tanker-fireball','fodder','queen-arm','plasma','egg'].includes(hit.kind))runReview.hits++;
   const impactMaterial=hit.kind==='airframe'||hit.kind==='siege'?'metal':hit.kind==='egg'?'egg':hit.kind.startsWith('queen')?'queen':['enemy','fodder','rimmer','plasma'].includes(hit.kind)?'flesh':hit.surface==='lava'?'lava':'rock';
   const record={impactMaterial,side,kind:hit.kind,targetId:hit.actor?.id||null,muzzle:muzzle.toArray(),end:hit.point.toArray(),distance:+b.distance.toFixed(3),damageImmediate:true};
@@ -1020,7 +946,7 @@ function fireCannon(){
   const b=cannonRounds[cannonCursor%CANNON.pool];if(b.active)return null;cannonCursor++;
   b.active=true;b.group.visible=true;b.pos.copy(initial.position);b.prev.copy(b.pos);b.vel.copy(initial.velocity);b.life=CANNON.lifetime;b.age=b.trailClock=0;b.group.position.copy(b.pos);b.impactNormal=UP.clone();b.direct=null;
   b.record={id:cannonCursor,side:initial.side,mount:initial.mount,release:b.pos.toArray(),direction:initial.direction.toArray(),predicted:predictedCannonImpact(initial)?.toArray()||null,impact:null,affected:[],direct:null};game.lastCannon=b.record;if(b.record.predicted&&bankDemons?.disturbSegment(b.pos,new THREE.Vector3().fromArray(b.record.predicted),game.time))logEvent('ritual-provoked',{by:'player-cannon'});
-  game.cannonCooldown=CANNON.cooldown;craft.cannon.onShot(preferences.reduced);game.shake=preferences.reduced?.025:.14;audio.cannon();
+  game.cannonCooldown=CANNON.cooldown;craft.cannon.onShot(false);game.shake=.14;audio.cannon();
   logEvent('cannon-fired',{id:b.record.id,position:b.pos.toArray(),direction:initial.direction.toArray(),side:initial.side,mount:initial.mount});emitHook('onCannon',{phase:'fire',position:b.pos.clone(),direction:initial.direction.clone()});return b.record;
 }
 function blastCanReach(origin,target){
@@ -1054,7 +980,7 @@ function updateCannons(dt){
     const hit=cannonSegmentHit(b.prev,b.pos);if(hit){b.pos.copy(hit.point);b.impactNormal=hit.normal||UP.clone();b.direct=hit;}
     b.group.position.copy(b.pos);if(hit)cannonExplosion(b);else if(b.life<=0){b.active=false;b.group.visible=false;b.record.expired=true;logEvent('cannon-expired',{id:b.record.id});}
   }
-  cannonVisuals.update(dt,preferences.reduced||reducedOpening());
+  cannonVisuals.update(dt,reducedOpening());
 }
 function advanceCannon(pos,vel,dt){pos.addScaledVector(vel,dt);}
 function predictedCannonImpact(initial=cannonInitialState()){
@@ -1071,7 +997,7 @@ function updateDirector(dt){
   const tankPriority=enemies.some(e=>tankApproaching(e)&&!e.shotsFired&&e.state!=='suppressed');
   const queue=enemies.slice(),offset=Math.floor(game.time)%queue.length;queue.push(...queue.splice(0,offset));queue.sort((a,b)=>Number(tankApproaching(b)&&!b.shotsFired)-Number(tankApproaching(a)&&!a.shotsFired)||(a.shotsFired||0)-(b.shotsFired||0)||a.root.position.distanceToSquared(planePos)-b.root.position.distanceToSquared(planePos));
   for(const e of queue){if(e.dead||e.rimmer)continue;const distance=e.root.position.distanceTo(planePos);e.timer-=dt;e.phase+=dt;
-    e.reducedHit=preferences.reduced;if(e.role==='ashborn'&&e.hitFlash>0)e.hitFlash=Math.max(0,e.hitFlash-dt);
+    e.reducedHit=false;if(e.role==='ashborn'&&e.hitFlash>0)e.hitFlash=Math.max(0,e.hitFlash-dt);
     if(e.isEmber&&!e.noticed)continue;
     if(!galleryAllowsAttack(e)){e.commitment=false;e.state='idle';e.timer=0;clearEnemyTell(e);continue;}
     if(e.role==='ashborn'&&(e.shotsFired||0)>=e.stoneBudget){e.commitment=false;e.state=e.isEmber&&e.noticed?'angry':'idle';e.timer=0;clearEnemyTell(e);continue;}
@@ -1146,8 +1072,8 @@ function fixedUpdate(dt){
   const exitSide=planePos.clone().sub(rift.position).dot(rift.userData.normal);if((!queen||queen.cleared)&&game.exitSide<0&&exitSide>=0&&game.hull>0){game.exitSide=exitSide;endRun(true);return;}game.exitSide=exitSide;
   if(gunHeat.update(dt,game.gunHeld&&!queen?.locked)){audio.cue('gun-cooled');logEvent('gatling-cooled');}
   game.shotClock-=dt;if(game.gunHeld&&!gunHeat.overheated){while(game.shotClock<=0){fireRound();game.shotClock+=1/GUN.roundsPerSecond;}}else game.shotClock=Math.max(game.shotClock,0);
-  hitFeedback.update(dt,preferences.reduced);updateGunMechanisms(dt);updateBullets(dt);updateHostiles(dt);if(game.ended)return;updateCannons(dt);rimmers?.update(game.time,dt);updateDirector(dt);tankerBugs?.update(game.time,planePos);tankerSpray?.update(dt,game.time);updateEffects(dt);
-  for(const e of eggNests?.eggs||[])e.reducedHit=preferences.reduced;eggNests?.update(dt,game.time,planePos);plasmaBugs?.update(dt,game.time);plasmaBursts?.update(dt);
+  hitFeedback.update(dt,false);updateGunMechanisms(dt);updateBullets(dt);updateHostiles(dt);if(game.ended)return;updateCannons(dt);rimmers?.update(game.time,dt);updateDirector(dt);tankerBugs?.update(game.time,planePos);tankerSpray?.update(dt,game.time);updateEffects(dt);
+  for(const e of eggNests?.eggs||[])e.reducedHit=false;eggNests?.update(dt,game.time,planePos);plasmaBugs?.update(dt,game.time);plasmaBursts?.update(dt);
   mayhemFX.update(dt,game.time,planePos,!!queen?.quiet);
   if(assetKit)assetKit.update(dt,game.time,camera);
   audio.sceneAmbienceGain=queen?.quiet?.34:1;audio.setListener(getAimOrigin(),getAimDirection());audio.update(dt,game.time,planePos);
@@ -1254,7 +1180,7 @@ function render(now){
   windowDamage?.advanceTime();
   const wallTime=now/1000,elapsed=Math.max(0,wallTime-game.lastFrame),dt=Math.min(.05,elapsed);game.lastFrame=wallTime;
   frameMetrics.presented=false;
-  if(!preferences.reduced)updateFps(now);considerReducedAuto(now);
+  updateFps(now);
   if(game.running&&!game.paused&&!game.ended&&!game.captureFreeze&&!game.contextLost&&!document.hidden)playTracking.tick(elapsed);
   if(game.title&&!document.hidden&&!game.contextLost)game.titleTime+=dt;
   if(game.opening&&game.running&&!game.paused&&!game.captureFreeze&&!game.contextLost){
@@ -1282,9 +1208,9 @@ function render(now){
   if(hordeField)hordeField.update(game.time,planePos);
   // Simulation time drives presentation too, so pause/capture does not drift.
   const time=game.time,visualTime=presentationClock();
-  const riftFlicker=(reducedMotion.matches||preferences.reduced)?0:Math.sin(time*7.7)*.018;rift.visible=time>=68&&!endingFlight?.started&&(!queen||queen.cleared);rift.userData.surfaces.tear.material.opacity=.97+riftFlicker;rift.userData.surfaces.inner.material.opacity=.68-riftFlicker;rift.userData.surfaces.outer.material.opacity=.05+Math.abs(riftFlicker)*.45;rift.userData.shards.forEach(shard=>{shard.material.opacity=shard.userData.baseOpacity*(.87+Math.sin(time*5+shard.userData.phase)*.1);});
-  lava.userData.lavaMaterial.uniforms.uTime.value=visualTime;heatMaterial.uniforms.uTime.value=visualTime;heatMaterial.uniforms.uStrength.value=(reducedMotion.matches||preferences.reduced)?0:.0018;atmosphereMaterials.forEach(m=>{m.uniforms.uTime.value=visualTime;m.uniforms.uReduced.value=preferences.reduced?1:0;});for(const b of atmosphereBatches){const keep=reducedAtmosphereKeep(b.kind,b.count,preferences.reduced);b.points.geometry.setDrawRange(0,keep);b.points.visible=keep>0;}
-  if(!preferences.reduced)for(const plume of ventPlumes){const rise=(visualTime*plume.speed+plume.phase)%20;plume.sprite.position.copy(plume.origin);plume.sprite.position.y+=rise;plume.sprite.position.x+=Math.sin(visualTime*.4+plume.phase)*2;const swell=1+rise*.045;plume.sprite.scale.setScalar((9+plume.phase*.22)*swell);plume.sprite.material.opacity=.075+Math.sin(Math.PI*rise/20)*.14;}
+  const riftFlicker=reducedMotion.matches?0:Math.sin(time*7.7)*.018;rift.visible=time>=68&&!endingFlight?.started&&(!queen||queen.cleared);rift.userData.surfaces.tear.material.opacity=.97+riftFlicker;rift.userData.surfaces.inner.material.opacity=.68-riftFlicker;rift.userData.surfaces.outer.material.opacity=.05+Math.abs(riftFlicker)*.45;rift.userData.shards.forEach(shard=>{shard.material.opacity=shard.userData.baseOpacity*(.87+Math.sin(time*5+shard.userData.phase)*.1);});
+  lava.userData.lavaMaterial.uniforms.uTime.value=visualTime;heatMaterial.uniforms.uTime.value=visualTime;heatMaterial.uniforms.uStrength.value=reducedMotion.matches?0:.0018;atmosphereMaterials.forEach(m=>{m.uniforms.uTime.value=visualTime;m.uniforms.uReduced.value=0;});for(const b of atmosphereBatches){b.points.geometry.setDrawRange(0,b.count);b.points.visible=b.count>0;}
+  for(const plume of ventPlumes){const rise=(visualTime*plume.speed+plume.phase)%20;plume.sprite.position.copy(plume.origin);plume.sprite.position.y+=rise;plume.sprite.position.x+=Math.sin(visualTime*.4+plume.phase)*2;const swell=1+rise*.045;plume.sprite.scale.setScalar((9+plume.phase*.22)*swell);plume.sprite.material.opacity=.075+Math.sin(Math.PI*rise/20)*.14;}
   if(!exteriorView){camera.position.x=reducedOpening()?0:Math.sin(time*101)*game.shake*.4;camera.position.y=reducedOpening()?0:Math.sin(time*137+1)*game.shake*.3;}camera.updateWorldMatrix(true,false);rimmers?.render();
   for(const b of bullets){if(!b.active||!b.mesh.visible)continue;const head=b.end.clone().project(camera),tail=b.start.clone().project(camera),angle=Math.atan2(head.y-tail.y,head.x-tail.x);b.mesh.material.rotation=angle-Math.PI/2;}
   emitHook('update',{time,dt:game.running&&!game.paused&&!game.ended&&!game.captureFreeze?dt:0,planePos,camera,paused:game.paused||game.captureFreeze});updateUI(now);
@@ -1296,21 +1222,16 @@ function render(now){
     const loading=loadingSnapshot();
     const holdPresent=game.paused||document.hidden;
     const collisionHold=loading.status==='preparing'&&loading.active==='collision';
-    if(!preferences.reduced)frameMetrics.reducedPresentParity=0;
-    // Reduced presents the world every 2nd rAF. Simulation, input and the HTML
-    // HUD still update at full cadence; only the GPU presentation is skipped.
-    const skipReducedPresent=!holdPresent&&!collisionHold&&!!preferences.reduced&&(((frameMetrics.reducedPresentParity=(frameMetrics.reducedPresentParity|0)+1)&1)===0);
     frameMetrics.presented=false;
-    if(collisionHold||holdPresent||skipReducedPresent){
+    if(collisionHold||holdPresent){
       frameMetrics.frameMs=elapsed*1000;
     }else{
       renderer.info.reset();
-      cinematic.render(scene,camera,{time:visualTime,reducedMotion:reducedOpening(),reducedEffects:preferences.reduced,worldOnly:WORLD_ONLY,exterior:exteriorView});
+      cinematic.render(scene,camera,{time:visualTime,reducedMotion:reducedOpening(),worldOnly:WORLD_ONLY,exterior:exteriorView});
       frameMetrics.calls=renderer.info.render.calls;frameMetrics.triangles=renderer.info.render.triangles;frameMetrics.points=renderer.info.render.points;frameMetrics.frameMs=elapsed*1000;
       frameMetrics.presented=true;
     }
   }
-  if(preferences.reduced&&frameMetrics.presented&&typeof updateFps==='function')updateFps(now);
   requestAnimationFrame(render);
 }
 
@@ -1348,7 +1269,6 @@ function start({skipOpening=false,legacyRoute=false}={}){
   if(measure)startupMark('first-start-audio','begin');audio.start();queenSampleCues.prime();if(measure){startupMark('first-start-audio','end');firstStartMeasured=true;}void pilot?.prime();audio.setScene(skipOpening?'canyon':'approach');if(!QA_MODE)requestPointerCapture();
   if(skipOpening){dom.hud.classList.add('visible');updatePlane(0);logEvent('run-start');}
   else{game.opening=true;dom.opening.hidden=false;dom.hud.classList.remove('visible');updatePlane(0);updateOpeningPresentation();logEvent('opening-start');}
-  armReducedAuto();
 }
 function pause(){if((!game.running&&!endingFlight?.active)||game.paused)return;game.paused=true;game.accumulator=0;game.gunHeld=false;audio.pause();if(!queen?.cinematic)queenSampleCues.pause();menuMusic?.setActive(true);dom.pause.hidden=false;$('#pauseEyebrow').textContent='FLIGHT SUSPENDED';$('#pauseTitle').textContent='PAUSED';$('#pauseDescription').textContent='The plane and every attack are frozen.';dom.resume.textContent=endingFlight?.active?'CONTINUE THE LAST FLIGHT':game.opening?'CONTINUE THE APPROACH':'RETURN TO THE GUN';document.exitPointerLock?.();dom.resume.focus({preventScroll:true});logEvent('paused');}
 function resume(){if(!game.paused||game.contextLost)return;game.paused=false;game.accumulator=0;dom.pause.hidden=true;menuMusic?.setActive(false);audio.start();queenSampleCues.resume();if(!endingFlight?.started&&!QA_MODE)requestPointerCapture();game.lastFrame=performance.now()/1000;logEvent('resumed');}
@@ -1565,7 +1485,7 @@ function qaCoreChecks(){
   return {kind:'diagnostic-core-checks',passed:checks.filter(c=>c.pass).length,total:checks.length,checks};
 }
 const qaApi={
-  version:'0.54.59',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,masterMode:preferences.master,masterUsed:game.masterUsed,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:frameMetrics.counterScope||'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
+  version:'0.54.60',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,masterMode:preferences.master,masterUsed:game.masterUsed,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:frameMetrics.counterScope||'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
   start:()=>start({skipOpening:true,legacyRoute:true}),beginOpening:()=>start(),skipOpening:()=>finishOpening(true),openingState:()=>({active:game.opening,title:game.title,time:game.openingTime,phase:openingPhase,flightProgress:currentFlightProgress(),camera:camera.position.toArray(),quaternion:camera.quaternion.toArray(),fov:camera.fov,fade:Number(dom.openingFade.style.opacity)||0,exterior:bomberExterior?.stats(),cameraPath:openingCamera?.stats()}),seekOpening:(seconds)=>{game.openingTime=THREE.MathUtils.clamp(seconds,0,OPENING_SECONDS);game.captureFreeze=true;updatePlane(0);updateOpeningPresentation();return true;},reset:qaReset,pause,resume,setTime:(seconds)=>{game.time=THREE.MathUtils.clamp(seconds,0,RUN_SECONDS);updatePlane(0);creatureTracking?.seek(game.time);},setView:(yaw,pitch)=>{game.yaw=yaw;game.pitch=THREE.MathUtils.clamp(pitch,-1.38,.95);updatePlane(0);},turnAround,toggleRear:turnAround,fireCannon,fireRound,damage:(amount=6)=>damageHull(amount,planePos),masterMode:(enabled=true)=>setMasterMode(enabled,{persist:false}),explode:()=>explode(planePos.clone().addScaledVector(planeTangent,70),14),preview:setPreview,
   events:()=>game.eventLog.slice(),runtime:gunnerRuntime,trace:qaTrace,replay:qaReplay,checkCore:qaCoreChecks,
   aimAt:(target)=>{const actor=typeof target==='string'?enemies.concat(siege).find(e=>e.id===target):null;qaAimAt(actor?actorCenter(actor):new THREE.Vector3().fromArray(target));},
@@ -1700,7 +1620,7 @@ tankerSpray=createTankerSpray({scene,actors:enemies.filter(e=>e.tanker),traceTer
  }});
 });
 await assembly.step('rimmers',()=>{
-rimmers=createRimmers({scene,camera,game,centerAt,widthAt,bankMeshes:hellWorld.collisionMeshes,audio,aimTarget:getAimOrigin,progress:currentFlightProgress,launch:launchHostile,logEvent,canAttack:galleryAllowsAttack,activeCommitments,traceTerrain,postMaterial:cinematic.postMaterial,captureFrame:cinematic.captureStingFrame,reduced:()=>preferences.reduced||reducedMotion.matches,effectsAllowed:playerHitEffectsAllowed});enemies.push(...rimmers.actors);
+rimmers=createRimmers({scene,camera,game,centerAt,widthAt,bankMeshes:hellWorld.collisionMeshes,audio,aimTarget:getAimOrigin,progress:currentFlightProgress,launch:launchHostile,logEvent,canAttack:galleryAllowsAttack,activeCommitments,traceTerrain,postMaterial:cinematic.postMaterial,captureFrame:cinematic.captureStingFrame,reduced:()=>reducedMotion.matches,effectsAllowed:playerHitEffectsAllowed});enemies.push(...rimmers.actors);
 });
 function plasmaPressure(b,radius,maxRadius){
  if(game.paused)return;
@@ -1766,18 +1686,18 @@ $('#musicVolume').addEventListener('input',()=>{preferences.music=Number($('#mus
 sensitivityInput.addEventListener('input',()=>{preferences.sensitivity=Number(sensitivityInput.value)/100;savePreferences();});
 fovInput.addEventListener('input',()=>{playerFov=Number(fovInput.value);camera.fov=playerFov;camera.updateProjectionMatrix();savePreferences();});
 $('#invertAim').addEventListener('change',e=>{preferences.invert=e.target.checked;savePreferences();});
-$('#reducedEffects').addEventListener('change',e=>{reducedAuto.userSet=true;reducedAuto.armed=false;reducedAuto.lowSince=0;preferences.reduced=e.target.checked;applyReducedDrawCost(preferences.reduced);savePreferences();});
 $('#masterMode').addEventListener('change',e=>setMasterMode(e.target.checked));
-function savePreferences(){try{localStorage.setItem('gunner-settings-v1',JSON.stringify({...preferences,fov:playerFov,reducedUserSet:reducedAuto.userSet}));}catch{}}
+function savePreferences(){try{const payload={...preferences,fov:playerFov};delete payload.reduced;localStorage.setItem('gunner-settings-v1',JSON.stringify(payload));}catch{}}
 try{const saved=JSON.parse(localStorage.getItem('gunner-settings-v1')||'{}');
  for(const [key,lo,hi]of [['volume',0,1],['music',0,1],['voice',0,1],['sensitivity',.3,1.7]])if(Number.isFinite(saved[key]))preferences[key]=THREE.MathUtils.clamp(saved[key],lo,hi);
- for(const key of ['invert','reduced','master','captions'])if(typeof saved[key]==='boolean')preferences[key]=saved[key];
- if(saved.reducedUserSet===true)reducedAuto.userSet=true;
+ for(const key of ['invert','master','captions'])if(typeof saved[key]==='boolean')preferences[key]=saved[key];
  if(Number.isFinite(saved.fov))playerFov=THREE.MathUtils.clamp(saved.fov,58,82);
+ // Drop leftover Reduced Effects flags from older stores so they cannot persist.
+ if('reduced' in saved||'reducedUserSet' in saved)savePreferences();
 }catch{}
 $('#voiceVolume').value=preferences.voice*100;$('#pilotCaptions').checked=preferences.captions;pilot.setVolume(preferences.voice);pilot.setCaptions(preferences.captions);
-volumeInput.value=preferences.volume*100;$('#musicVolume').value=preferences.music*100;sensitivityInput.value=preferences.sensitivity*100;fovInput.value=playerFov;$('#invertAim').checked=preferences.invert;$('#reducedEffects').checked=preferences.reduced;$('#masterMode').checked=preferences.master;
-audio.setVolume(preferences.volume);queenSampleCues.syncVolume();audio.setMusicVolume(preferences.music);camera.fov=playerFov;camera.updateProjectionMatrix();applyReducedDrawCost(preferences.reduced);
+volumeInput.value=preferences.volume*100;$('#musicVolume').value=preferences.music*100;sensitivityInput.value=preferences.sensitivity*100;fovInput.value=playerFov;$('#invertAim').checked=preferences.invert;$('#masterMode').checked=preferences.master;
+audio.setVolume(preferences.volume);queenSampleCues.syncVolume();audio.setMusicVolume(preferences.music);camera.fov=playerFov;camera.updateProjectionMatrix();
 settingsReady=true;$('#settingsButton').disabled=false;sceneAssemblyComplete=true;
 // Render the completed scene while preparing exact static collisions in yielded slices.
 // Start stays disabled until first-use work is finished; no index build lands on the first shot.

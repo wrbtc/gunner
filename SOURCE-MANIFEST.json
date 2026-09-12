@@ -1,5 +1,5 @@
 {
-  "version": "0.54.59",
+  "version": "0.54.60",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -213,18 +213,18 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 13502,
-      "sha256": "dcfb632fc8ff54e0ecb980d25b18c389a6faf3ffebda9ba5f51f8f519a89bcc7"
+      "bytes": 13320,
+      "sha256": "ef8026179afe13908633ca4704c68cadbc1d0c4974ba4f7574d62d27cf5ee2d2"
     },
     {
       "path": "game/main.js",
-      "bytes": 165034,
-      "sha256": "df75bd29bf4b0dc4eb96b0791bbac29a0e0c68068f0faaaecb94e8cdaafdaeec"
+      "bytes": 159797,
+      "sha256": "dcdbd76b2ad708d9dcd37db912e1f581f548090c8f78958d778d05055ca94ec2"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "af3721ed455f7bfba9c9e86e368c6e715b647837325d4fadd52bb16343f23e40"
+      "sha256": "eeb03e1e4476f790d58501428cf8bb91ceaf8bb59a5f779f40bc9ff89acd9689"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -263,8 +263,8 @@
     },
     {
       "path": "game/src/bank-demons.js",
-      "bytes": 27156,
-      "sha256": "90415c2c575d73b54d5ceb3c074ac16c054a4b011a63022d0b81f90e417aa08a"
+      "bytes": 26889,
+      "sha256": "50e06d49950b5c44061c2d05e946164615870361246669a88c3e9076f32fe52e"
     },
     {
       "path": "game/src/basalt-detail.js",
@@ -273,8 +273,8 @@
     },
     {
       "path": "game/src/blast-world.js",
-      "bytes": 4972,
-      "sha256": "240bfb72308c6792befe5260000ff2e6fc674296ecdc5688d4e234fad28df697"
+      "bytes": 4688,
+      "sha256": "5373e3c3254ab5644f549de36e4544e24d826710e7a9850e2a0db26696daf466"
     },
     {
       "path": "game/src/bomber-exterior.js",
@@ -298,8 +298,8 @@
     },
     {
       "path": "game/src/cinematic-pass.js",
-      "bytes": 33380,
-      "sha256": "1d3b2eb08a59559e1bf79680f8d8295645e91268e93675172e59dece12fba147"
+      "bytes": 32428,
+      "sha256": "4306e8dd3b7818e57411c2cce5a52f1daf77af650e12619bc0ff523b04c46079"
     },
     {
       "path": "game/src/cliff-outcrops.js",
@@ -333,8 +333,8 @@
     },
     {
       "path": "game/src/creeper-loco.js",
-      "bytes": 6216,
-      "sha256": "57ac0a7df65fe5e3c31b60e6df41d204240dcd6190d595f65eb644609e72d32a"
+      "bytes": 6119,
+      "sha256": "4ad80814cb01e29736e6b10ff73f9f200b9c89c75a5714551eeb43ed65e70a8f"
     },
     {
       "path": "game/src/dance-circle.js",
@@ -378,8 +378,8 @@
     },
     {
       "path": "game/src/hell-world.js",
-      "bytes": 40862,
-      "sha256": "043d957bed264563e5000d3bb96fae940bcb96f26c16c26d72f37b516364cac6"
+      "bytes": 39367,
+      "sha256": "c1ce149c0cc524cc94177e7db15fac381cab2bd9d357c3f7c44bd2fee00a1ef1"
     },
     {
       "path": "game/src/high-scores.js",
@@ -408,8 +408,8 @@
     },
     {
       "path": "game/src/mayhem-fx.js",
-      "bytes": 33341,
-      "sha256": "9431bc0713eef3f721abf4aadb7c68a4c97c7ad32064bf0198470d0d3ab6e382"
+      "bytes": 32596,
+      "sha256": "2fb67f2e5f8428408064f1f04b05c3aa9b2fbba9464373e7d39e4e05b4a1c3ad"
     },
     {
       "path": "game/src/menu-music.js",
@@ -424,7 +424,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26882,
-      "sha256": "cbf62391328d6dd9674c6bec5a93ae6c427aaef0d6713d9b40dc485c01df91a5"
+      "sha256": "fd3d2be65d5328d48adacf05de4d5f92b48685ab5bbad845a1834f80a2538f55"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -453,8 +453,8 @@
     },
     {
       "path": "game/src/plasma-bugs.js",
-      "bytes": 10950,
-      "sha256": "1f29475bbe980c670774c467de2e02777adde8e0eb7ba916b1f402fb24ec625f"
+      "bytes": 10769,
+      "sha256": "91217892bc8b9065d1edbf73209119221a48206032461f5e43b8fc0c6045c711"
     },
     {
       "path": "game/src/plasma-burst.js",
@@ -573,8 +573,8 @@
     },
     {
       "path": "game/src/tanker-spray.js",
-      "bytes": 13728,
-      "sha256": "7ba4cc835d08187b04d2cf892aa60af6a95971f5dc56a5e137a6ce87d6fb3503"
+      "bytes": 13558,
+      "sha256": "fd1226fce89786b4d0be76d869446d8f90bc5d280fe220e9165e8dbd826473fe"
     },
     {
       "path": "game/src/wall-climb.js",
@@ -617,5 +617,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.59 keeps the v0.54.58 Deploy ammo breathing room, the v0.54.56 Alien Field Guide lava creeper still / dossier / 3D guide, the v0.54.52 +pi attach yaw, the v0.54.51 Master Mode debug flight, and the Reduced every-second-rAF presentation throttle. Bank creeper / climber lava loco visuals use game/assets/creeper-lava-loco-003.glb with live KW_knuckle_walk + CL_cliff_climb clips (48 LINEAR keys; LFS sha256 e8140b94... / 9840676 bytes) when that binary is present. Soft-GPU stays off. Menu CSS, Reduced, and art direction are unchanged in this ship. Do not identify this ship as 0.54.57 or 0.54.58. Menu music remains click-to-play, telemetry remains disabled, and public privacy adaptations are retained. Physical Intel Safari combat acceptance remains pending."
+  "note": "Gunner v0.54.60 removes Reduced Effects entirely: no checkbox, no reduced-auto, no preferences.reduced store flag (older reduced / reducedUserSet keys are ignored and rewritten out), no quarter-res live world HDR, no Reduced-only contact/bloom skip, no every-second-rAF Reduced present, and no Reduced-only particle/atmosphere/light/geology/loco caps. The former non-Reduced cinematic/world path is the only path. This tip keeps the v0.54.52 attach yaw, the v0.54.59 live-clip loco LFS (game/assets/creeper-lava-loco-003.glb, 9840676 bytes, sha256 e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5), the Alien Field Guide lava creeper copy/art, the v0.54.58 Deploy ammo gap, and Master Mode. Soft-GPU stays off. prefers-reduced-motion still quiets flash and camera motion. Do not ship the stub lean LFS object. Do not treat 0.54.52, 0.54.53, 0.54.57, 0.54.58 or 0.54.59 as this identity. Physical Intel Safari combat acceptance remains pending."
 }

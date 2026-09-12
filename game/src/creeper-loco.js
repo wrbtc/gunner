@@ -6,7 +6,6 @@ export const CREEPER_LOCO_ASSET = 'creeper-lava-loco-003';
 export const CREEPER_LOCO_CLIPS = Object.freeze({walk:'KW_knuckle_walk',climb:'CL_cliff_climb'});
 const TARGET_HEIGHT = 6.15;
 const CROSSFADE = .28;
-const REDUCED_VISIBLE = 6;
 let pending;
 
 function clipNamed(animations, name){
@@ -99,10 +98,6 @@ function prepareScene(scene){
       uniform,
     },
   };
-}
-
-export function creeperLocoReducedCap(){
-  return REDUCED_VISIBLE;
 }
 
 export function loadCreeperLoco(){

@@ -1,7 +1,6 @@
 import * as THREE from '../vendor/three.module.js?v=052';
 import {sculptTrunk,sculptSkull} from './ashborn-sculpt.js?v=052';
 import {createWallSurface,planWallRoute,poseWallRoot,wallGrips} from './wall-climb.js?v=052';
-import {creeperLocoReducedCap} from './creeper-loco.js?v=054-59';
 import {mergeGeometries} from '../vendor/BufferGeometryUtils.js?v=052';
 const UP=new THREE.Vector3(0,1,0),V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z);
 const clamp=THREE.MathUtils.clamp,lerp=THREE.MathUtils.lerp;
@@ -196,14 +195,10 @@ export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=nu
    else{if(a.locoVisual)a.locoVisual.root.visible=false;pose(a,time,near?visible++:-1);}
   }
   locoNear.sort((a,b)=>a.stand.distanceToSquared(reviewPosition)-b.stand.distanceToSquared(reviewPosition));
-  const cap=locoNear.some(a=>a.reducedHit)?creeperLocoReducedCap():locoNear.length;
-  for(let i=0;i<locoNear.length;i++){
-   const a=locoNear[i];
-   if(i<cap){
-    pose(a,time,-1);a.locoVisual.root.visible=true;
-    const rate=a.climb?Math.min(1.35,.55+a.moveRate*.22):Math.min(1.45,.4+Math.min(a.speed||0,5)*.18);
-    a.locoVisual.play(a.climb?'climb':'walk',dt,rate);locoVisible++;
-   }else{a.locoVisual.root.visible=false;pose(a,time,visible++);}
+  for(const a of locoNear){
+   pose(a,time,-1);a.locoVisual.root.visible=true;
+   const rate=a.climb?Math.min(1.35,.55+a.moveRate*.22):Math.min(1.45,.4+Math.min(a.speed||0,5)*.18);
+   a.locoVisual.play(a.climb?'climb':'walk',dt,rate);locoVisible++;
   }
   for(const p of Object.values(parts)){p.count=visible;p.instanceMatrix.needsUpdate=true;if(p.instanceColor)p.instanceColor.needsUpdate=true;p.geometry.attributes.emberAmount.needsUpdate=true;p.geometry.attributes.hitAmount.needsUpdate=true;}
  }
