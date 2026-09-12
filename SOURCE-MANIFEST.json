@@ -1,5 +1,5 @@
 {
-  "version": "0.54.42",
+  "version": "0.54.44",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -199,17 +199,17 @@
     {
       "path": "game/index.html",
       "bytes": 13311,
-      "sha256": "7216ab1143ea43966745ada2467ebc9491121d4d7c3755f64d786e91bb72318e"
+      "sha256": "db9d6f43668b6e3dfb8ae4d8d1bf9ed51b36cafe2f1964dbe224be5cede7d0f5"
     },
     {
       "path": "game/main.js",
       "bytes": 160996,
-      "sha256": "64bbb68ddf185b4a297c4086e01a339f0a8cae74e5fc3c72eee06211d9ebc063"
+      "sha256": "1fff069fc896a74e48adccd26d7aaf5a7b257886a29ee8207460848f0f97da13"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "a75fa9d2d016e4f557c4013c2414130044bf08cc5b20086d159d44ebe790624b"
+      "sha256": "b0fee0ad918e9069893c0783c56e9545169ea549ba103e28603c84aa692d4eae"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -283,8 +283,8 @@
     },
     {
       "path": "game/src/cinematic-pass.js",
-      "bytes": 33373,
-      "sha256": "a9ae55ad8ae17d59ab0acc3f2126a2599c0bd79bbd0da31e773df9a8c84702ec"
+      "bytes": 33380,
+      "sha256": "1d3b2eb08a59559e1bf79680f8d8295645e91268e93675172e59dece12fba147"
     },
     {
       "path": "game/src/cliff-outcrops.js",
@@ -404,7 +404,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26799,
-      "sha256": "b587f59a7476a4a474954d5c2505d87322f82f4b9aab0b5f741e040578b1ccda"
+      "sha256": "c8f1550987b0f3e8e75a31ad1b08816c0eed1d9a1ab7afbe46d9b93f2784c09e"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -597,5 +597,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.42 keeps the shipped Reduced half-res 0-sample world HDR, parked 4x twin, skipped bloom/contact, and frozen shadows, and when Reduced is on it caps Intel-integrated-tier fill: skip the volumetric ash-sky draw, keep 12% ember/ash points and skip steam, skip blast ash and mayhem ambient particles, cap combat ParticlePool draw/bursts, and zero excess PointLight intensities without hiding lights so prepared NUM_POINT_LIGHTS programs stay valid. Reduced OFF restores the full present. Soft-GPU stays off. Shader first-use uniforms are not reopened. Hive menu composition from v0.54.41 remains. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
+  "note": "Gunner v0.54.44 sizes the live Reduced world HDR (hdrLite) to quarter canvas (width>>2, height>>2, scale 0.25 <= 0.5) so Intel-integrated-tier fill-rate drops further after 0.54.42's particle/atmosphere/light caps. The unused 4x HDR twin stays parked at 1x1. The composite still presents at canvas size, so HTML HUD/UI stays crisp. Turning Reduced OFF reallocates 4x MSAA and can hitch once. Contact and bloom stay skipped, shadow-map updates stay frozen, P2 fill caps stay as-is, and sample counts are never mutated on the live target. Present-hold while paused or hidden, hidden-tab construction deadlines, Intel-class shader first-use uniform deferral, hive menu composition, and quiet footer QA remain. Menu short end-pack is owned by 0.54.43. Soft-GPU stays off. Public privacy adaptations retained; physical Intel Safari combat FPS acceptance remains pending."
 }

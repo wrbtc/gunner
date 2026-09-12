@@ -3,7 +3,7 @@ import * as THREE from '../vendor/three.module.js?v=052';
 // One HDR/output transform for both the world and the gun bubble.
 // Bloom is evaluated at quarter resolution; the aiming image stays full
 // resolution unless Reduced Effects is on, when the live world target is
-// half canvas. The composite still presents at canvas size for a crisp HUD.
+// quarter canvas. The composite still presents at canvas size for a crisp HUD.
 export function createCinematicPass(renderer) {
   const quality={heat:true,contact:true,msaa:true,bloom:true};
   let reducedEffectsActive=false;
@@ -11,7 +11,7 @@ export function createCinematicPass(renderer) {
   const hdr=new THREE.WebGLRenderTarget(1,1,{...options,depthBuffer:true,samples:4});
   hdr.depthTexture=new THREE.DepthTexture(1,1,THREE.UnsignedIntType);
   // Reduced draws into this 0-sample twin so sample-count swaps never hitch the
-  // live target. Reduced sizes that twin to half canvas (≤0.75) to cut fill-rate.
+  // live target. Reduced sizes that twin to quarter canvas (≤0.5) to cut fill-rate.
   // Only one world HDR is live at a time; the unused twin is parked at 1x1.
   // Restoring 4x MSAA on Reduced OFF reallocates and can hitch once.
   const hdrLite=new THREE.WebGLRenderTarget(1,1,{...options,depthBuffer:true,samples:0});
@@ -96,7 +96,7 @@ export function createCinematicPass(renderer) {
   const quad=new THREE.Mesh(new THREE.PlaneGeometry(2,2),extract);quadScene.add(quad);
   let width=1,height=1;
   function liveWorldTarget(){return quality.msaa&&!reducedEffectsActive?hdr:hdrLite;}
-  function liveWorldSize(){return reducedEffectsActive?{x:Math.max(1,width>>1),y:Math.max(1,height>>1)}:{x:width,y:height};}
+  function liveWorldSize(){return reducedEffectsActive?{x:Math.max(1,width>>2),y:Math.max(1,height>>2)}:{x:width,y:height};}
   function parkWorldTarget(target){if(target.width!==1||target.height!==1)target.setSize(1,1);}
   function syncWorldTargets(){
     const live=liveWorldTarget(),unused=live===hdr?hdrLite:hdr,size=liveWorldSize();
@@ -406,7 +406,7 @@ export function createCinematicPass(renderer) {
     entry.promise=Promise.resolve().then(run);return entry.promise;
   }
   function render(scene,camera,{time=0,reducedMotion=false,reducedEffects=false,worldOnly=false,exterior=false}={}){
-    // Reduced draws into the 0-sample twin at half canvas size (≤0.75) and
+    // Reduced draws into the 0-sample twin at quarter canvas size (≤0.5) and
     // parks unused 4x HDR at 1x1. Contact and quarter-res bloom stay skipped.
     // The composite still presents at canvas size so HTML HUD/UI stays crisp.
     // Mutating hdr.samples on the live target can hitch Intel-class Safari.

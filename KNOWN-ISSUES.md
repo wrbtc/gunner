@@ -1,4 +1,4 @@
-# Release validation — v0.54.42
+# Release validation — v0.54.44
 
 ## Older Intel Safari / short desktop viewport
 
@@ -336,6 +336,34 @@ Do not enable Soft-GPU.
 
 Physical Intel Safari combat FPS acceptance of these Reduced fill caps is
 still pending.
+
+## Reduced quarter-res world target (v0.54.44)
+
+Live 0.54.42 Iris Safari (Soft-GPU OFF, Reduced ON) still sat at about 7–12 FPS
+(mean ~9.6) in unpaused combat versus the ≥20 degraded bar (GATE-05442-FPS: 0
+samples ≥20). P2 particle/atmosphere/light caps lifted the 0.54.40 3–9 band
+but left Iris paying half-canvas fill for the canyon and cockpit.
+
+v0.54.44 sizes the live Reduced world target to quarter canvas (`width>>2`,
+`height>>2`, scale 0.25 ≤ 0.5). Half-res (scale 0.5) already shipped in
+0.54.40. The unused 4x HDR twin stays parked at 1×1. The composite still
+presents at canvas size, so the HTML HUD/UI stays crisp. Contact and bloom
+stay skipped, shadow-map updates stay frozen, P2 particle/light caps stay
+as-is, and sample counts are never mutated on the live target. Turning
+Reduced OFF still restores 4x MSAA by reallocating `hdr` and can hitch once.
+Soft-GPU stays off. Shader first-use uniforms are not reopened. Present-hold
+while paused or hidden, hidden-tab construction deadlines, LOAD graphics prep,
+0.54.41 hive composition, and 0.54.42 fill caps are unchanged. Menu short
+end-pack is owned by 0.54.43 and is not touched here.
+
+QA retest on that Iris-class Safari: Deploy with Reduced ON (checkbox or
+wait for auto). Record unpaused combat HUD FPS. Target is ≥20 with Reduced
+on. Expect a softer world image on the Intel integrated Reduced tier; HUD
+stays crisp. Toggling Reduced OFF may hitch once while 4x HDR reallocates.
+Do not enable Soft-GPU.
+
+Physical Intel Safari combat FPS acceptance of this quarter-res Reduced path
+is still pending.
 
 ## Testing and patch requests
 
