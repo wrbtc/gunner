@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
 
@@ -49,6 +50,26 @@ assert.match(guide,/id==='dragons'/);
 assert.match(solids,/dragon-fg-a/);
 assert.match(solids,/38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27/);
 assert.match(solids,/64020728/);
+// Git stores Dragon A as an LFS pointer. CI checks out with lfs:true and
+// smudges the 64MB object; local trees may keep the pointer. Pin both.
+const dragonOid='38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27';
+const dragonBytes=64020728;
+const trackedSize=Number(execFileSync('git',['cat-file','-s','HEAD:game/assets/dragon-fg-a.glb'],{encoding:'utf8'}).trim());
+assert.ok(trackedSize<400,'Dragon A must ship as an LFS pointer, not the 64MB object');
+const trackedDragon=execFileSync('git',['cat-file','blob','HEAD:game/assets/dragon-fg-a.glb'],{encoding:'utf8'});
+assert.match(trackedDragon,/git-lfs\.github\.com/);
+assert.match(trackedDragon,new RegExp(`oid sha256:${dragonOid}`));
+assert.match(trackedDragon,new RegExp(`size ${dragonBytes}`));
+const dragonWorking=bytes('game/assets/dragon-fg-a.glb');
+const dragonHead=dragonWorking.subarray(0,80).toString('utf8');
+if(dragonHead.includes('git-lfs.github.com')){
+ assert.match(dragonWorking.toString('utf8'),new RegExp(`oid sha256:${dragonOid}`));
+ assert.match(dragonWorking.toString('utf8'),new RegExp(`size ${dragonBytes}`));
+ assert.ok(dragonWorking.length<400,'working-tree Dragon A pointer must stay tiny');
+}else{
+ assert.equal(dragonWorking.length,dragonBytes);
+ assert.equal(createHash('sha256').update(dragonWorking).digest('hex'),dragonOid);
+}
 assert.doesNotMatch(solids,/sky-activity|skyActivity|createSkyActivity/);
 assert.match(note,/must not\nretarget live sky dragons/);
 assert.match(note,/sky-activity\.js/);
@@ -59,4 +80,4 @@ assert.doesNotMatch(main,/powerPreference:\s*'low-power'/);
 assert.match(main,/failIfMajorPerformanceCaveat: false/);
 assert.match(main,/powerPreference: 'high-performance'/);
 
-console.log(JSON.stringify({passed:true,identity:'0.54.61',skyActivity:'untouched',softGpu:'off'},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.62',skyActivity:'untouched',softGpu:'off'},null,2));

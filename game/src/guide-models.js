@@ -1,8 +1,8 @@
 import * as THREE from '../vendor/three.module.js?v=052';
 import {createBankGuideModel} from './bank-demons.js?v=052';
 import {createRimmerModel} from './rimmer-model.js?v=052';
-import {cloneSkinnedGuide} from './skinned-solids.js?v=054-61';
-import {loadGuideEggPart} from './field-guide-egg-parts.js';
+import {cloneSkinnedGuide} from './skinned-solids.js?v=054-62';
+import {loadGuideEggPart,loadGuideIntactEgg} from './field-guide-egg-parts.js';
 // Copy display state without touching actor transforms, uniforms or lifetimes.
 export function cloneGuideMaterial(source){
  const material=source.clone();
@@ -47,7 +47,7 @@ function creeperGuideRoot(creeperLoco,solid){
 export async function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco,skinnedSolids}){
  let root;
  if(id==='egg-maggot'||id==='egg-shell')root=solidGuideRoot(await loadGuideEggPart(id));
- else if(id==='eggs')root=eggNests.guideModel();
+ else if(id==='eggs')root=solidGuideRoot(skinnedSolids?.eggs||await loadGuideIntactEgg());
  else if(id==='creepers')root=creeperGuideRoot(creeperLoco,skinnedSolids?.creepers);
  else if(id==='dancers')root=solidGuideRoot(skinnedSolids?.dancers)||createBankGuideModel(true);
  else if(id==='rimmers')root=solidGuideRoot(skinnedSolids?.rimmers)||cloneGuideTree(createRimmerModel().root);
@@ -67,7 +67,7 @@ export async function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creepe
  root.visible=true;root.position.set(0,0,0);root.updateMatrixWorld(true);
  root.traverse(n=>{n.layers.set(0);n.frustumCulled=false;n.castShadow=false;n.receiveShadow=false;});
  const bounds=new THREE.Box3().setFromObject(root),center=bounds.getCenter(new THREE.Vector3()),extent=bounds.getSize(new THREE.Vector3()),scale=2.4/Math.max(extent.x,extent.y,extent.z);
- const frame=new THREE.Group(),pivot=new THREE.Group();frame.add(pivot);pivot.add(root);pivot.scale.setScalar(scale);root.position.sub(center);frame.name='Guide '+id;frame.rotation.y=['creepers','rimmers','plasma','tanks','dancers','egg-maggot','egg-shell'].includes(id)?.35:id==='eggs'?.25:Math.PI+.4;
+ const frame=new THREE.Group(),pivot=new THREE.Group();frame.add(pivot);pivot.add(root);pivot.scale.setScalar(scale);root.position.sub(center);frame.name='Guide '+id;frame.rotation.y=['creepers','rimmers','plasma','tanks','dancers','eggs','egg-maggot','egg-shell'].includes(id)?.35:Math.PI+.4;
  const mixers=[];
  root.traverse(n=>{if(n.userData.guideMixer&&!mixers.includes(n.userData.guideMixer))mixers.push(n.userData.guideMixer);});
  let clips=[];root.traverse(n=>{if(n.userData.guideClips)clips=n.userData.guideClips;});

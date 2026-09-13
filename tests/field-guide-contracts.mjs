@@ -18,9 +18,9 @@ const plasmaProvenance=JSON.parse(read('game/assets/field-guide/PLASMA-PROVENANC
 const dragonProvenance=JSON.parse(read('game/assets/field-guide/DRAGON-PROVENANCE.json'));
 const dragonPortrait=readFileSync(new URL('game/assets/field-guide/dragons.png',root));
 
-assert.equal(packageJson.version,'0.54.61');
-assert.match(briefing,/export const REPORT_BUILD='0\.54\.61'/);
-assert.match(main,/version:'0\.54\.61'/);
+assert.equal(packageJson.version,'0.54.62');
+assert.match(briefing,/export const REPORT_BUILD='0\.54\.62'/);
+assert.match(main,/version:'0\.54\.62'/);
 assert.doesNotMatch(briefing,/0\.54\.52/);
 assert.doesNotMatch(briefing,/0\.54\.53/);
 assert.doesNotMatch(briefing,/0\.54\.57/);
@@ -32,6 +32,7 @@ assert.doesNotMatch(main,/version:'0\.54\.57'/);
 assert.doesNotMatch(main,/version:'0\.54\.58'/);
 assert.doesNotMatch(main,/version:'0\.54\.59'/);
 assert.doesNotMatch(main,/version:'0\.54\.60'/);
+assert.doesNotMatch(main,/version:'0\.54\.61'/);
 
 const creeper=briefing.match(/\['creepers','([^']+)','([^']+)','([^']+)','([^']+)'\]/);
 assert.ok(creeper,'creeper field-guide row must exist');
@@ -51,7 +52,7 @@ assert.ok(dancers,'dancer field-guide row must remain');
 assert.equal(dancers[1],'Dancing Creepers');
 assert.match(dancers[3],/Orange spirits/);
 
-assert.match(briefing,/\?v=054-61/);
+assert.match(briefing,/\?v=054-62/);
 assert.match(briefing,/id==='queen'\?'ENLARGE ↗':'VIEW 3D ↗'/);
 assert.doesNotMatch(briefing,/id==='dragons'\|\|id==='queen'/);
 assert.doesNotMatch(guide,/sky-activity|skyActivity|createSkyActivity/);
@@ -73,7 +74,13 @@ assert.match(guide,/root\.rotation\.y=0/);
 assert.match(guide,/else if\(id==='dancers'\)root=solidGuideRoot\(skinnedSolids\?\.dancers\)\|\|createBankGuideModel\(true\)/);
 assert.match(guide,/solidGuideRoot\(skinnedSolids\?\.tanks\)/);
 assert.match(guide,/cinderModel\.clone\(\)/);
-assert.match(guide,/if\(id==='eggs'\)root=eggNests\.guideModel\(\)/);
+assert.match(guide,/else if\(id==='eggs'\)root=solidGuideRoot\(skinnedSolids\?\.eggs\|\|await loadGuideIntactEgg\(\)\)/);
+assert.doesNotMatch(guide,/eggNests\.guideModel\(\)/);
+assert.match(read('game/src/field-guide-egg-parts.js'),/export function assembleIntactEgg/);
+assert.match(read('game/src/field-guide-egg-parts.js'),/export function loadGuideIntactEgg/);
+assert.match(read('game/src/field-guide-egg-parts.js'),/344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96/);
+assert.match(read('game/src/field-guide-egg-parts.js'),/368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2/);
+assert.match(read('game/src/field-guide-egg-parts.js'),/adaptEggShellMaterial/);
 assert.match(read('game/src/egg-nests.js'),/useBakedShell\?source\.shell\.material\.clone\(\)/);
 assert.match(read('game/src/egg-solids.js'),/368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2/);
 assert.match(read('game/src/egg-solids.js'),/3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127/);
@@ -188,7 +195,16 @@ assert.equal(dancersProvenance.sourceModelSHA256,'3b3dc30a3ae7dafe87b82932f37c1c
 assert.equal(dancersProvenance.sourceModelBytes,2502928);
 assert.equal(dancersProvenance.imageSHA256,'1e1dc9cc63bba3589abad71103c19064b3caeeaf93d7140cd0075810721638cb');
 assert.match(dancersProvenance.render,/ritual_idle/);
+const eggProvenance=JSON.parse(read('game/assets/field-guide/EGG-PROVENANCE.json'));
+const eggPortrait=readFileSync(new URL('game/assets/field-guide/eggs.png',root));
+assert.equal(eggPortrait.readUInt32BE(16),512);
+assert.equal(eggPortrait.readUInt32BE(20),384);
+assert.equal(createHash('sha256').update(eggPortrait).digest('hex'),'d375c4f2443cb29f2c206dc0ef57673179d809939f385cadd5718e549cdf5f9c');
+assert.equal(eggProvenance.imageSHA256,'d375c4f2443cb29f2c206dc0ef57673179d809939f385cadd5718e549cdf5f9c');
+assert.equal(eggProvenance.sourceShellSHA256,'368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2');
+assert.equal(eggProvenance.sourceMaggotSHA256,'344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96');
+assert.notEqual(eggProvenance.imageSHA256,'8a435ce0f56e7e8d97e9b34a0fe7e76803c060e4a7383497b710da5e63d9868b');
 assert.doesNotMatch(main,/createTankerBugsAsync\([\s\S]{0,400}solid/);
 assert.doesNotMatch(main,/createBankDemons\([^)]*skinnedSolids/);
 
-console.log(JSON.stringify({passed:true,identity:'0.54.61',imageSHA256:imageHash},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.62',imageSHA256:imageHash},null,2));

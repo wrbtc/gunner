@@ -1,4 +1,4 @@
-# Field Guide skinned solids (v0.54.61)
+# Field Guide skinned solids (v0.54.62)
 
 Alien Field Guide VIEW 3D museum meshes. Combat and world visuals stay on the
 live procedural rimmer / plasma paths, the lava loco bank creeper, live Cinder
@@ -30,8 +30,9 @@ for Field Notes only; the source surface/material bytes are preserved and the
 live Cinder Maw gameplay model is untouched.
 
 Egg larva presentation rig: armature `MaggotArmature`, clip `maggot_wriggle`.
-It is an independent Field Notes specimen and does not replace the live nest
-embryo or assemble the egg nest.
+The Larva specimen stays independent. Field Notes Intact egg nests this
+larva inside `egg-shell-a.glb` for the museum only and does not replace the
+live nest embryo.
 
 Vein Ascetic draft: armature `VeinArmature`, clips `ritual_idle` and
 `ritual_walk`. VIEW 3D plays `ritual_idle` only. Do not remesh or retexture
@@ -48,8 +49,9 @@ a placeholder, empty file, or invented GLB.
 
 Until a binary is present, Field Guide VIEW 3D keeps the previous museum
 fallback (procedural rimmer / plasma, lava loco creeper when that GLB loads,
-live Cinder Maw clone, orange-spirit dancer). The dragon card keeps the
-identification still until `dragon-fg-a.glb` lands.
+live Cinder Maw clone, orange-spirit dancer). Dragon A is listed as an LFS
+pointer (`dragon-fg-a.glb`, 64020728 bytes, `38fdb98e…`); VIEW 3D uses that
+museum solid once LFS hydrates it. Do not retarget live sky dragons.
 `loadSkinnedSolids()` rejects LFS pointers, hash/size mismatches, the rejected
 SOLID Hollow pack, and the blocked morph prefixes `75ddc18f` / `a2ac5ebb` /
 `1c10edf7` / `45123f4c` / `9cd194e6` / `a9dcb2b6`. Dragon A loads only when
