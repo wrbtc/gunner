@@ -34,7 +34,7 @@ export const SKINNED_SOLIDS=Object.freeze({
  dragons:Object.freeze({
   id:'dragons',
   asset:'dragon-fg-a',
-  sha256Prefix:'38fdb98e6c774ced',
+  sha256:'38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27',
   bytes:64020728,
   static:true
  })
@@ -97,8 +97,7 @@ async function loadOne(spec){
  if(spec.id==='creepers'&&(sha256===REJECTED_EMBER_SOLID.sha256||bytes.byteLength===REJECTED_EMBER_SOLID.bytes)){
   throw Error('Rejected SOLID Ember Hollow pack');
  }
- if(spec.sha256&&sha256!==spec.sha256)throw Error('Field-guide solid hash mismatch: '+spec.asset);
- if(spec.sha256Prefix&&!sha256.startsWith(spec.sha256Prefix))throw Error('Field-guide solid hash prefix mismatch: '+spec.asset);
+ if(sha256!==spec.sha256)throw Error('Field-guide solid hash mismatch: '+spec.asset);
  if(bytes.byteLength!==spec.bytes)throw Error('Field-guide solid size mismatch: '+spec.asset);
  const gltf=await makeLoader().parseAsync(buffer,'');
  const scene=gltf.scene;

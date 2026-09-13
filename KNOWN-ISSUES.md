@@ -598,7 +598,7 @@ Gated museum binaries:
 - `rimmer-skinned-solid.glb` — 1153368 bytes, `1cc99c3e…`
 - `plasma-bug-skinned-solid.glb` — 1135104 bytes, `127e6fdc…`
 - `creeper-ember-hollow.glb` — 1091768 bytes, `25a1be82…` (slim pack; reject SOLID `085943e9…` / 4803580)
-- `dragon-fg-a.glb` — 64020728 bytes, sha256 prefix `38fdb98e6c774ced` (static; lazy Field Guide load)
+- `dragon-fg-a.glb` — 64020728 bytes, `38fdb98e…` (static; lazy Field Guide load)
 
 This tip wires the loaders and hash gates. The real LFS objects still need to
 land on those paths before VIEW 3D can show the new meshes. Reject morph prefixes `75ddc18f` /

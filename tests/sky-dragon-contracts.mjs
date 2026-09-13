@@ -47,7 +47,7 @@ for(const source of [guide,solids,viewer,briefing]){
 }
 assert.match(guide,/id==='dragons'/);
 assert.match(solids,/dragon-fg-a/);
-assert.match(solids,/38fdb98e6c774ced/);
+assert.match(solids,/38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27/);
 assert.match(solids,/64020728/);
 assert.doesNotMatch(solids,/sky-activity|skyActivity|createSkyActivity/);
 assert.match(note,/must not\nretarget live sky dragons/);

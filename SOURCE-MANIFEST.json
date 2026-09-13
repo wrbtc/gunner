@@ -18,8 +18,8 @@
     },
     {
       "path": "game/assets/SKINNED-SOLIDS.md",
-      "bytes": 2647,
-      "sha256": "a2a783f7386d8219e11ebc94940807981cca24f2478b7b1391b57e61f15d1949"
+      "bytes": 2476,
+      "sha256": "ec6934ddfb646a36d7046bc1e9ce3971f35385556a47a1c28b9a257b3305678b"
     },
     {
       "path": "game/assets/audio/KOKORO-CODE-LICENSE.txt",
@@ -103,8 +103,8 @@
     },
     {
       "path": "game/assets/field-guide/DRAGON-PROVENANCE.json",
-      "bytes": 512,
-      "sha256": "2caea18e9bbc152463b7475541b32b88eb67b9bc71e075a06bb09504c9e6f0bd"
+      "bytes": 554,
+      "sha256": "567443a854d0ba2d0eb2fc9716de04d99dd65cfda1c7c0ba9699bc1b5e65abb8"
     },
     {
       "path": "game/assets/field-guide/PLASMA-PROVENANCE.json",
@@ -553,8 +553,8 @@
     },
     {
       "path": "game/src/skinned-solids.js",
-      "bytes": 5872,
-      "sha256": "bcaae11622d96cf0c7b9a7e37922221948fb6ab740b4b605f91eb9cf92b05365"
+      "bytes": 5772,
+      "sha256": "64abe34cb58d627f515742a5cb0ed1d469090e8c9d6a1e23b9e2d42c93df0256"
     },
     {
       "path": "game/src/sky-activity.js",
@@ -637,5 +637,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.61 is a Field Guide-first identity: VIEW 3D museum solids for rimmers (game/assets/rimmer-skinned-solid.glb, 1153368 bytes, sha256 1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456), plasma (game/assets/plasma-bug-skinned-solid.glb, 1135104 bytes, sha256 127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f), Ember Hollow creepers (game/assets/creeper-ember-hollow.glb, 1091768 bytes, sha256 25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe; EmberArmature, ember_idle museum loop; reject SOLID 4803580 bytes, sha256 085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f), and Dragon A (game/assets/dragon-fg-a.glb, 64020728 bytes, sha256 prefix 38fdb98e6c774ced; static museum pose; lazy Field Guide load). Combat and world meshes stay on the v0.54.60 path: lava loco (game/assets/creeper-lava-loco-003.glb, 9840676 bytes, sha256 e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5), procedural rimmers/plasma/eggs, Cinder Maw tanks, and sky dragons. Soft-GPU stays off. prefers-reduced-motion still quiets flash and camera motion. Do not land morph creeper hashes 75ddc18f / a2ac5ebb / 1c10edf7 / 45123f4c / 9cd194e6 / a9dcb2b6. Do not treat 0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59 or 0.54.60 as this identity. Physical Intel Safari combat acceptance remains pending."
+  "note": "Gunner v0.54.61 is a Field Guide-first identity: VIEW 3D museum solids for rimmers (game/assets/rimmer-skinned-solid.glb, 1153368 bytes, sha256 1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456), plasma (game/assets/plasma-bug-skinned-solid.glb, 1135104 bytes, sha256 127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f), Ember Hollow creepers (game/assets/creeper-ember-hollow.glb, 1091768 bytes, sha256 25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe; EmberArmature, ember_idle museum loop; reject SOLID 4803580 bytes, sha256 085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f), and Dragon A (game/assets/dragon-fg-a.glb, 64020728 bytes, sha256 38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27; static museum pose; lazy Field Guide load). Combat and world meshes stay on the v0.54.60 path: lava loco (game/assets/creeper-lava-loco-003.glb, 9840676 bytes, sha256 e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5), procedural rimmers/plasma/eggs, Cinder Maw tanks, and sky dragons. Soft-GPU stays off. prefers-reduced-motion still quiets flash and camera motion. Do not land morph creeper hashes 75ddc18f / a2ac5ebb / 1c10edf7 / 45123f4c / 9cd194e6 / a9dcb2b6. Do not treat 0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59 or 0.54.60 as this identity. Physical Intel Safari combat acceptance remains pending."
 }
