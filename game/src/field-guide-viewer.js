@@ -1,5 +1,5 @@
 import * as THREE from '../vendor/three.module.js?v=052';
-const MODEL_IDS=['eggs','creepers','dancers','rimmers','tanks','plasma'];
+const MODEL_IDS=['eggs','creepers','dancers','rimmers','tanks','plasma','dragons'];
 // One lazy context for all thumbnails and the selected interactive model.
 export function createFieldGuideViewer({dialog,provider}){
  const detail=document.createElement('dialog');detail.id='guideModelDialog';detail.setAttribute('aria-labelledby','guideModelTitle');
@@ -35,7 +35,7 @@ export function createFieldGuideViewer({dialog,provider}){
  function reset(){if(!current)return;current.root.rotation.set(0,current.initialY,0);if(tickRaf)return;schedule();}
  async function prepare(){
   if(building||!dialog.open||models.size===MODEL_IDS.length)return;const make=provider();if(!make)return;building=true;const token=generation;
-  try{ensureRenderer();for(const id of MODEL_IDS){if(models.has(id))continue;if(!dialog.open||token!==generation)break;const model=await make(id);if(!dialog.open||token!==generation){model.dispose();break;}model.initialY=model.root.rotation.y;models.set(id,model);renderModel(model,420,330);const url=renderer.domElement.toDataURL('image/png');thumbs.set(id,url);const img=dialog.querySelector(`[data-creature="${id}"] img`);img.src=url;img.dataset.modelReady='true';img.alt=id+' — 3D model preview';await new Promise(resolve=>setTimeout(resolve,0));}
+  try{ensureRenderer();for(const id of MODEL_IDS){if(models.has(id))continue;if(!dialog.open||token!==generation)break;let model;try{model=await make(id);}catch(e){if(id!=='dragons')throw e;error=String(e.message||e);continue;}if(!dialog.open||token!==generation){model.dispose();break;}model.initialY=model.root.rotation.y;models.set(id,model);renderModel(model,420,330);const url=renderer.domElement.toDataURL('image/png');thumbs.set(id,url);const img=dialog.querySelector(`[data-creature="${id}"] img`);img.src=url;img.dataset.modelReady='true';img.alt=id+' — 3D model preview';await new Promise(resolve=>setTimeout(resolve,0));}
   }catch(e){error=String(e.message||e);status.textContent='3D view could not load. Close and reopen the guide to retry.';}
   finally{building=false;if(token!==generation&&dialog.open)queueMicrotask(prepare);else if(token===generation&&detail.open&&trigger)show(trigger);}
  }

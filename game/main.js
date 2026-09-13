@@ -26,7 +26,7 @@ import * as THREE from './vendor/three.module.js?v=052';
 import {createEggNests} from './src/egg-nests.js?v=054-26';
 import {createBankDemons} from './src/bank-demons.js?v=054-61';
 import {loadCreeperLoco} from './src/creeper-loco.js?v=054-61';
-import {loadSkinnedSolids} from './src/skinned-solids.js?v=054-61';
+import {loadSkinnedSolids,loadGuideDragonSolid} from './src/skinned-solids.js?v=054-61';
 import {createBlastWorld} from './src/blast-world.js?v=054-61';
 import {createHellWorld} from './src/hell-world.js?v=054-61';
 import {createCinematicPass} from './src/cinematic-pass.js?v=054-61';
@@ -1718,7 +1718,7 @@ await prepareFlightGraphics();
 startupMark('graphics','end');
 if(!loadingStage('shaders'))throw preparationError('Flight preparation already failed');
 startupMark('startup','ready');
-setGuideModelProvider(async id=>{const {buildGuideModel}=await import('./src/guide-models.js?v=054-61');return buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco:creeperLocoBootstrap?.value,skinnedSolids:skinnedSolidsBootstrap?.value});});
+setGuideModelProvider(async id=>{const {buildGuideModel}=await import('./src/guide-models.js?v=054-61');const skinnedSolids={...(skinnedSolidsBootstrap?.value||{})};if(id==='dragons')skinnedSolids.dragons=await loadGuideDragonSolid();return buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco:creeperLocoBootstrap?.value,skinnedSolids});});
 bootCompleted=true;graphicsReady=true;dom.start.disabled=false;dom.start.textContent='DEPLOY GUNNER';
 if(query.has('preview'))setPreview(query.get('preview'));
 else if(QA_MODE){qaReset();if(CAPTURE){dom.intro.hidden=true;dom.hud.classList.add('visible');}}

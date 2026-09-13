@@ -15,6 +15,8 @@ const portrait=readFileSync(new URL('game/assets/field-guide/creepers.png',root)
 const provenance=JSON.parse(read('game/assets/field-guide/CREEPER-PROVENANCE.json'));
 const rimmerProvenance=JSON.parse(read('game/assets/field-guide/RIMMER-PROVENANCE.json'));
 const plasmaProvenance=JSON.parse(read('game/assets/field-guide/PLASMA-PROVENANCE.json'));
+const dragonProvenance=JSON.parse(read('game/assets/field-guide/DRAGON-PROVENANCE.json'));
+const dragonPortrait=readFileSync(new URL('game/assets/field-guide/dragons.png',root));
 
 assert.equal(packageJson.version,'0.54.61');
 assert.match(briefing,/export const REPORT_BUILD='0\.54\.61'/);
@@ -50,10 +52,15 @@ assert.equal(dancers[1],'Dancing Creepers');
 assert.match(dancers[3],/Orange spirits/);
 
 assert.match(briefing,/\?v=054-61/);
-assert.match(briefing,/id==='dragons'\|\|id==='queen'\?'ENLARGE ↗':'VIEW 3D ↗'/);
+assert.match(briefing,/id==='queen'\?'ENLARGE ↗':'VIEW 3D ↗'/);
+assert.doesNotMatch(briefing,/id==='dragons'\|\|id==='queen'/);
 assert.doesNotMatch(guide,/sky-activity|skyActivity|createSkyActivity/);
-assert.doesNotMatch(guide,/id==='dragons'/);
-assert.doesNotMatch(solids,/dragon/i);
+assert.match(guide,/id==='dragons'/);
+assert.match(guide,/solidGuideRoot\(skinnedSolids\?\.dragons\)/);
+assert.match(solids,/asset:'dragon-fg-a'/);
+assert.match(solids,/38fdb98e6c774ced/);
+assert.match(solids,/64020728/);
+assert.match(solids,/loadGuideDragonSolid/);
 assert.doesNotMatch(main,/buildGuideModel\([\s\S]*skyActivity/);
 assert.match(guide,/function solidGuideRoot\(solid\)/);
 assert.match(guide,/function creeperGuideRoot\(creeperLoco,solid\)/);
@@ -101,6 +108,8 @@ assert.doesNotMatch(main,/createRimmers\([^)]*skinnedSolids/);
 assert.doesNotMatch(main,/createPlasmaBugs\([^)]*skinnedSolids/);
 assert.doesNotMatch(main,/createBankDemons\([^)]*skinnedSolids/);
 assert.doesNotMatch(main,/locoKit:skinnedSolids/);
+assert.match(main,/loadGuideDragonSolid/);
+assert.match(main,/id==='dragons'\)skinnedSolids\.dragons/);
 
 assert.match(loco,/CREEPER_LOCO_ASSET = 'creeper-lava-loco-003'/);
 assert.match(loco,/visual\.rotation\.y \+= Math\.PI/);
@@ -112,6 +121,7 @@ assert.match(main,/powerPreference: 'high-performance'/);
 assert.doesNotMatch(sky,/rimmer-skinned-solid/);
 assert.doesNotMatch(sky,/plasma-bug-skinned-solid/);
 assert.doesNotMatch(sky,/creeper-ember-hollow/);
+assert.doesNotMatch(sky,/dragon-fg-a/);
 
 assert.equal(portrait.readUInt32BE(16),512);
 assert.equal(portrait.readUInt32BE(20),384);
@@ -126,5 +136,14 @@ assert.equal(rimmerProvenance.sourceModel,'game/assets/rimmer-skinned-solid.glb'
 assert.equal(rimmerProvenance.sourceModelSHA256,'1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456');
 assert.equal(plasmaProvenance.sourceModel,'game/assets/plasma-bug-skinned-solid.glb');
 assert.equal(plasmaProvenance.sourceModelSHA256,'127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f');
+assert.equal(dragonPortrait.readUInt32BE(16),512);
+assert.equal(dragonPortrait.readUInt32BE(20),384);
+assert.equal(createHash('sha256').update(dragonPortrait).digest('hex'),'b635f0b5ee69a5eb8ac8a3e259b9079ad8b6cb06b639bafc162128cde0c9d092');
+assert.equal(dragonProvenance.sourceModel,'game/assets/dragon-fg-a.glb');
+assert.equal(dragonProvenance.sourceModelSHA256Prefix,'38fdb98e6c774ced');
+assert.equal(dragonProvenance.sourceModelBytes,64020728);
+assert.equal(dragonProvenance.imageSHA256,'b635f0b5ee69a5eb8ac8a3e259b9079ad8b6cb06b639bafc162128cde0c9d092');
+assert.match(dragonProvenance.render,/VIEW 3D/);
+assert.doesNotMatch(dragonProvenance.source,/sky-activity/);
 
 console.log(JSON.stringify({passed:true,identity:'0.54.61',imageSHA256:imageHash},null,2));

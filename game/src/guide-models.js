@@ -17,8 +17,8 @@ function isolateGuideMeshes(root){
  root.traverse(node=>{
   if(!node.isMesh)return;
   node.material=Array.isArray(node.material)?node.material.map(cloneGuideMaterial):cloneGuideMaterial(node.material);
-  // Keep SkinnedMesh geometry shared so ember_idle can drive the Hollow museum pose.
-  if(!node.isSkinnedMesh)node.geometry=node.geometry.clone();
+  // Keep SkinnedMesh / static museum geometry shared (Hollow idle, 64MB dragon).
+  if(!node.isSkinnedMesh&&!root.userData.shareGuideGeometry)node.geometry=node.geometry.clone();
  });
  return root;
 }
@@ -40,7 +40,7 @@ function creeperGuideRoot(creeperLoco,solid){
  root.rotation.y=0;
  return isolateGuideMeshes(root);
 }
-// Dragons stay portrait / ENLARGE. Do not clone live canyon wyverns for museum use.
+// Dragons use the Field Guide A museum solid only. Do not clone live canyon wyverns.
 export function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco,skinnedSolids}){
  let root;
  if(id==='eggs')root=eggNests.guideModel();
@@ -55,6 +55,7 @@ export function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco,
   root=solidGuideRoot(skinnedSolids?.plasma);
   if(!root){root=cloneGuideTree(plasmaBugs.actors[0].root);root.position.set(0,0,0);root.quaternion.identity();root.scale.setScalar(1);}
  }
+ else if(id==='dragons')root=solidGuideRoot(skinnedSolids?.dragons);
  if(!root)throw Error('No 3D guide model: '+id);
  root.visible=true;root.position.set(0,0,0);root.updateMatrixWorld(true);
  root.traverse(n=>{n.layers.set(0);n.frustumCulled=false;n.castShadow=false;n.receiveShadow=false;});

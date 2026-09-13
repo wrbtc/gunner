@@ -17,8 +17,8 @@ const main=read('game/main.js');
 const note=read('game/assets/SKINNED-SOLIDS.md');
 const manifest=JSON.parse(read('SOURCE-MANIFEST.json'));
 
-// Live canyon wyverns stay on the 0.54.60 module. Field Guide dragons are
-// portrait / ENLARGE only and must never retarget this combat path.
+// Live canyon wyverns stay on the 0.54.60 module. Field Guide dragons use a
+// separate museum solid and must never retarget this combat path.
 assert.equal(sha256('game/src/sky-activity.js'),'06c3ef75ab6e5f4c8b25eed6f6e25fec73a546e22b73d73ccf16ec038d08f54a');
 assert.equal(sha256('game/src/hell-world.js'),'c1ce149c0cc524cc94177e7db15fac381cab2bd9d357c3f7c44bd2fee00a1ef1');
 const skyRow=manifest.files.find(row=>row.path==='game/src/sky-activity.js');
@@ -35,17 +35,21 @@ assert.match(main,/dragonSlots:hellWorld\.skyActivity\.dragons\.length/);
 assert.doesNotMatch(main,/setGuideModelProvider\([\s\S]*skyActivity/);
 assert.doesNotMatch(main,/buildGuideModel\([\s\S]*skyActivity/);
 
-assert.match(briefing,/id==='dragons'\|\|id==='queen'\?'ENLARGE ↗':'VIEW 3D ↗'/);
-assert.match(viewer,/const MODEL_IDS=\['eggs','creepers','dancers','rimmers','tanks','plasma'\]/);
-assert.doesNotMatch(viewer,/'dragons'/);
+assert.match(briefing,/id==='queen'\?'ENLARGE ↗':'VIEW 3D ↗'/);
+assert.doesNotMatch(briefing,/id==='dragons'\|\|id==='queen'/);
+assert.match(viewer,/const MODEL_IDS=\['eggs','creepers','dancers','rimmers','tanks','plasma','dragons'\]/);
+assert.match(viewer,/'dragons'/);
 
 for(const source of [guide,solids,viewer,briefing]){
  assert.doesNotMatch(source,/sky-activity/);
  assert.doesNotMatch(source,/skyActivity/);
  assert.doesNotMatch(source,/createSkyActivity/);
 }
-assert.doesNotMatch(guide,/id==='dragons'/);
-assert.doesNotMatch(solids,/dragon/i);
+assert.match(guide,/id==='dragons'/);
+assert.match(solids,/dragon-fg-a/);
+assert.match(solids,/38fdb98e6c774ced/);
+assert.match(solids,/64020728/);
+assert.doesNotMatch(solids,/sky-activity|skyActivity|createSkyActivity/);
 assert.match(note,/must not\nretarget live sky dragons/);
 assert.match(note,/sky-activity\.js/);
 assert.match(note,/hellWorld\.skyActivity/);

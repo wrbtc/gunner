@@ -578,12 +578,13 @@ HUD FPS on the full path. Do not enable Soft-GPU.
 
 ## Field Guide skinned solids (v0.54.61)
 
-v0.54.61 is a Field Guide-first identity. Rimmers, plasma bugs, and Ember Hollow
-creepers use VIEW 3D museum solids when the LFS objects are present. Rimmers and
-plasma stay rest pose. Ember Hollow VIEW 3D plays `ember_idle` only on
-`EmberArmature` (`ember_walk` stays unused). Cloned materials, no combat mixers,
-no live-actor mutation. Dragons and the Queen stay ENLARGE. The dragon Field
-Guide card must not retarget live sky dragons: `game/src/sky-activity.js` and
+v0.54.61 is a Field Guide-first identity. Rimmers, plasma bugs, Ember Hollow
+creepers, and Dragon A use VIEW 3D museum solids when the LFS objects are
+present. Rimmers and plasma stay rest pose. Ember Hollow VIEW 3D plays
+`ember_idle` only on `EmberArmature` (`ember_walk` stays unused). Dragon A is a
+static rest-pose mesh (no clips). Cloned materials, no combat mixers, no
+live-actor mutation. The Queen stays ENLARGE. The dragon Field Guide card must
+not retarget live sky dragons: `game/src/sky-activity.js` and
 `hellWorld.skyActivity` stay on the prior live path. Dancing creepers stay on
 the orange-spirit guide model. Eggs stay on the existing procedural guide model.
 
@@ -597,6 +598,7 @@ Gated museum binaries:
 - `rimmer-skinned-solid.glb` — 1153368 bytes, `1cc99c3e…`
 - `plasma-bug-skinned-solid.glb` — 1135104 bytes, `127e6fdc…`
 - `creeper-ember-hollow.glb` — 1091768 bytes, `25a1be82…` (slim pack; reject SOLID `085943e9…` / 4803580)
+- `dragon-fg-a.glb` — 64020728 bytes, sha256 prefix `38fdb98e6c774ced` (static; lazy Field Guide load)
 
 This tip wires the loaders and hash gates. The real LFS objects still need to
 land on those paths before VIEW 3D can show the new meshes. Reject morph prefixes `75ddc18f` /
@@ -604,7 +606,8 @@ land on those paths before VIEW 3D can show the new meshes. Reject morph prefixe
 0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59 or 0.54.60 as this identity.
 
 In-game eyeball: open the Alien Field Guide and confirm VIEW 3D for rimmers,
-plasma, and creepers. Combat meshes must still be the prior live visuals.
+plasma, creepers, and dragons. The Queen stays ENLARGE. Combat meshes must
+still be the prior live visuals, including canyon wyverns.
 
 ## Testing and patch requests
 

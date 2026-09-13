@@ -30,8 +30,16 @@ export const SKINNED_SOLIDS=Object.freeze({
   bytes:1091768,
   armature:'EmberArmature',
   clips:Object.freeze({idle:'ember_idle',walk:'ember_walk'})
+ }),
+ dragons:Object.freeze({
+  id:'dragons',
+  asset:'dragon-fg-a',
+  sha256Prefix:'38fdb98e6c774ced',
+  bytes:64020728,
+  static:true
  })
 });
+const BOOT_SOLIDS=Object.freeze(['rimmers','plasma','creepers']);
 
 let pending;
 
@@ -89,15 +97,17 @@ async function loadOne(spec){
  if(spec.id==='creepers'&&(sha256===REJECTED_EMBER_SOLID.sha256||bytes.byteLength===REJECTED_EMBER_SOLID.bytes)){
   throw Error('Rejected SOLID Ember Hollow pack');
  }
- if(sha256!==spec.sha256)throw Error('Field-guide solid hash mismatch: '+spec.asset);
+ if(spec.sha256&&sha256!==spec.sha256)throw Error('Field-guide solid hash mismatch: '+spec.asset);
+ if(spec.sha256Prefix&&!sha256.startsWith(spec.sha256Prefix))throw Error('Field-guide solid hash prefix mismatch: '+spec.asset);
  if(bytes.byteLength!==spec.bytes)throw Error('Field-guide solid size mismatch: '+spec.asset);
  const gltf=await makeLoader().parseAsync(buffer,'');
  const scene=gltf.scene;
  scene.name='Guide_solid_'+spec.id;
  scene.updateMatrixWorld(true);
- let skinned=0;
- scene.traverse(node=>{if(node.isSkinnedMesh)skinned++;});
- if(!skinned)throw Error('Field-guide solid skinned mesh missing: '+spec.asset);
+ let skinned=0,meshes=0;
+ scene.traverse(node=>{if(node.isMesh)meshes++;if(node.isSkinnedMesh)skinned++;});
+ if(!meshes)throw Error('Field-guide solid mesh missing: '+spec.asset);
+ if(!spec.static&&!skinned)throw Error('Field-guide solid skinned mesh missing: '+spec.asset);
  if(spec.armature&&!namedNode(scene,spec.armature))throw Error('Field-guide solid armature missing: '+spec.armature);
  const animations=gltf.animations||[];
  if(spec.clips){
@@ -111,14 +121,15 @@ async function loadOne(spec){
   scene,
   animations,
   museumRoot(){
-   const root=cloneSkinnedGuide(scene);
+   const root=skinned?cloneSkinnedGuide(scene):scene.clone(true);
    root.name='Museum '+spec.id;
    root.visible=true;
    root.position.set(0,0,0);
    root.rotation.set(0,0,0);
    root.scale.setScalar(1);
+   if(spec.static)root.userData.shareGuideGeometry=true;
    // Museum idle only. Do not start combat mixers or mutate live actors.
-   if(spec.clips?.idle){
+   if(!spec.static&&spec.clips?.idle){
     const clip=animations.find(item=>item.name===spec.clips.idle);
     const mixer=new THREE.AnimationMixer(root);
     mixer.clipAction(clip).reset().play();
@@ -131,7 +142,7 @@ async function loadOne(spec){
 
 export function loadSkinnedSolids(){
  if(!pending){
-  pending=Promise.all(Object.values(SKINNED_SOLIDS).map(spec=>loadOne(spec).then(value=>[spec.id,value],()=>[spec.id,null])))
+  pending=Promise.all(BOOT_SOLIDS.map(id=>loadOne(SKINNED_SOLIDS[id]).then(value=>[id,value],()=>[id,null])))
    .then(entries=>{
     const kit=Object.fromEntries(entries);
     if(!kit.rimmers&&!kit.plasma&&!kit.creepers)throw Error('No field-guide skinned solids');
@@ -140,4 +151,12 @@ export function loadSkinnedSolids(){
    .catch(error=>{pending=null;throw error;});
  }
  return pending;
+}
+
+let dragonPending;
+export function loadGuideDragonSolid(){
+ if(!dragonPending){
+  dragonPending=loadOne(SKINNED_SOLIDS.dragons).catch(()=>{dragonPending=null;return null;});
+ }
+ return dragonPending;
 }

@@ -14,7 +14,8 @@ const manifest=JSON.parse(read('SOURCE-MANIFEST.json'));
 const expected=[
  {path:'game/assets/rimmer-skinned-solid.glb',bytes:1153368,sha256:'1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456'},
  {path:'game/assets/plasma-bug-skinned-solid.glb',bytes:1135104,sha256:'127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f'},
- {path:'game/assets/creeper-ember-hollow.glb',bytes:1091768,sha256:'25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe'}
+ {path:'game/assets/creeper-ember-hollow.glb',bytes:1091768,sha256:'25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe'},
+ {path:'game/assets/dragon-fg-a.glb',bytes:64020728,sha256Prefix:'38fdb98e6c774ced'}
 ];
 const forbidden=['75ddc18f','a2ac5ebb','1c10edf7','45123f4c','9cd194e6','a9dcb2b6'];
 
@@ -40,6 +41,9 @@ assert.match(note,/ember_idle/);
 assert.match(note,/EmberArmature/);
 assert.match(note,/Reject the 4\.58MB SOLID/);
 assert.match(note,/Combat and world visuals stay/);
+assert.match(note,/dragon-fg-a/);
+assert.match(note,/38fdb98e6c774ced/);
+assert.match(note,/64020728/);
 assert.doesNotMatch(note,/Roland|Phil|Dee/);
 assert.match(solids,/REJECTED_EMBER_SOLID/);
 assert.match(solids,/EmberArmature/);
@@ -50,17 +54,26 @@ assert.match(manifest.note,/25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd
 assert.match(manifest.note,/1091768/);
 assert.match(manifest.note,/085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f/);
 assert.match(manifest.note,/reject/);
+assert.match(manifest.note,/38fdb98e6c774ced/);
+assert.match(manifest.note,/64020728/);
+assert.match(solids,/loadGuideDragonSolid/);
+assert.match(solids,/BOOT_SOLIDS/);
+assert.match(solids,/static:true/);
+assert.match(guide,/skinnedSolids\?\.dragons/);
+assert.match(main,/loadGuideDragonSolid/);
 
 for(const row of expected){
  assert.match(attributes,new RegExp(row.path.replace(/\//g,'\\/')+' filter=lfs'));
- assert.match(solids,new RegExp(row.sha256));
+ const digest=row.sha256||row.sha256Prefix;
+ assert.match(solids,new RegExp(digest));
  assert.match(solids,new RegExp(String(row.bytes)));
- assert.match(manifest.note,new RegExp(row.sha256));
+ assert.match(manifest.note,new RegExp(digest));
  assert.match(manifest.note,new RegExp(String(row.bytes)));
  const manifestRow=manifest.files.find(item=>item.path===row.path);
  if(manifestRow){
   assert.equal(manifestRow.bytes,row.bytes);
-  assert.equal(manifestRow.sha256,row.sha256);
+  if(row.sha256)assert.equal(manifestRow.sha256,row.sha256);
+  else assert.match(manifestRow.sha256,new RegExp('^'+row.sha256Prefix));
  }
 }
 
@@ -79,7 +92,9 @@ for(const row of expected){
   state=head.includes('git-lfs.github.com')?'pointer':(bytes.byteLength===row.bytes?'binary':'unexpected');
   if(state==='binary'){
    const {createHash}=await import('node:crypto');
-   assert.equal(createHash('sha256').update(bytes).digest('hex'),row.sha256);
+   const digest=createHash('sha256').update(bytes).digest('hex');
+   if(row.sha256)assert.equal(digest,row.sha256);
+   else assert.match(digest,new RegExp('^'+row.sha256Prefix));
   }
  }
  binaryStatus[row.path]=state;
