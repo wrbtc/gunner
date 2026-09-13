@@ -1,4 +1,4 @@
-# Release validation — v0.54.60
+# Release validation — v0.54.61
 
 ## Older Intel Safari / short desktop viewport
 
@@ -520,7 +520,7 @@ orange-spirit path. Combat loco, GLB bytes, and attach yaw are unchanged from
 
 Do not treat that Field Guide identity as 0.54.54 (creeper motion GLB) or
 0.54.55 (held menu Deploy gap). This tip keeps that Field Guide copy and art
-while identifying as v0.54.60.
+while identifying as v0.54.61.
 
 ## Deploy ammo breathing room (v0.54.58)
 
@@ -568,13 +568,41 @@ quality flags, every rAF presents, and particle / atmosphere / light / geology
 caps that existed only for Reduced are gone. HUD FPS stays `all-frame-passes`;
 there is no `Intel Reduced present` title. Soft-GPU stays off and is not a
 substitute. `prefers-reduced-motion` still quiets flash, heat and camera motion.
-This tip keeps the v0.54.52 attach yaw, the v0.54.59 live-clip loco LFS
-(`e8140b94…` / 9840676; reject stub `744f1b66…` / 9750920), Field Guide copy/art,
-and the v0.54.58 Deploy ammo gap. Do not treat 0.54.52, 0.54.53, 0.54.57,
-0.54.58 or 0.54.59 as this identity.
+That Reduced-remove identity is kept. The current tip is v0.54.61.
 
 Physical Intel Safari combat acceptance remains pending. Record unpaused combat
 HUD FPS on the full path. Do not enable Soft-GPU.
+
+## Upright human creeper loco (v0.54.61)
+
+Live 0.54.60 still bound bank walk to `KW_knuckle_walk` on the lean GLB
+(`e8140b94…` / 9840676). v0.54.61 replaces that same LFS path
+(`game/assets/creeper-lava-loco-003.glb`) with the upright human pack and
+binds walk to `HW_human_walk`. Climb stays `CL_cliff_climb`. `HW_human_idle`
+plays when the mixer has that clip and world speed is near zero. Leftover
+`KW_knuckle_walk` is not used as walk.
+
+Stride is measured from `HW_human_walk` (meters/cycle and duration) at load.
+Bank playRate follows that gait so plant distance matches world travel. The
+old 0.70 m/s −Y knuckle-walk plan is not used. The 0.54.52 `+Math.PI` attach
+yaw stays: bank roots still face −Z, and this tip does not have a packed
+binary that proves +Z facing is already correct.
+
+The intended LFS object is
+`sha256:1c10edf73aca5c0a8f2b214690043382a251e20ca193d4bb8b91554349164b67`
+(27117680 bytes, ~21955 faces). Reject lean `e8140b94…` / 9840676, stub
+`744f1b66…` / 9750920, and rejected upright hashes `9cd194e6…` and
+`a9dcb2b6…`. This tip still has the lean LFS stand-in (`e8140b94…` / 9840676)
+because the 27MB pack was not on the build host and GitHub rejects a pointer
+to an unknown LFS object. The operator must land those exact bytes on the
+tip. Do not invent a placeholder binary.
+
+Soft-GPU stays off. Field Guide lava creeper copy/art, the v0.54.58 Deploy
+ammo gap, Reduced-remove, and Master Mode stay. Do not treat 0.54.52,
+0.54.53, 0.54.57, 0.54.58, 0.54.59 or 0.54.60 as this identity.
+
+In-game eyeball: a near bank creeper should human-walk / cliff-climb on the
+armature, not knuckle-walk or glide in rest pose.
 
 ## Testing and patch requests
 

@@ -5,9 +5,9 @@ Fly through a volcanic canyon, destroy nests and creatures, and survive the Quee
 
 **Play Gunner: https://gunner.satoshis.watch/**
 
-This is the **v0.54.60 runtime with the concept-24 / hive menu**. The menu keeps 16px between the life/bullet row and DEPLOY GUNNER. The Alien Field Guide creeper card uses the shipped lava remesh
-(cracked basalt / molten veins, pale bone face mask, glowing eyes, knuckle-walk / cliff-climb). Bank creepers and climbers still use the lava loco skinned mesh when
-`creeper-lava-loco-003.glb` is present (live knuckle-walk / cliff-climb clips), with the 0.54.52 attach yaw so the +Z GLB matches −Z travel. It fits the briefing to short desktop viewports, keeps its report
+This is the **v0.54.61 runtime with the concept-24 / hive menu**. The menu keeps 16px between the life/bullet row and DEPLOY GUNNER. The Alien Field Guide creeper card uses the shipped lava remesh
+(cracked basalt / molten veins, pale bone face mask, glowing eyes, knuckle-walk / cliff-climb). Bank creepers and climbers use the upright human loco pack when
+`creeper-lava-loco-003.glb` is present (`HW_human_walk` / `CL_cliff_climb`, optional `HW_human_idle`), with the 0.54.52 attach yaw so the +Z GLB matches −Z travel. World travel playRate follows measured `HW_human_walk` stride. It fits the briefing to short desktop viewports, keeps its report
 controls clear of the macOS Dock, and adds the supplied Queen reveal growl and raised-arms shriek,
 timed to the cinematic, and keeps menu/outcome music silent until the player
 explicitly presses `PLAY MUSIC`. The right stack is Coming Soon → ammo → DEPLOY.
@@ -136,6 +136,6 @@ for some original models, illustrations and dialogue audio.
 homepage and HTML canonical/Open Graph URLs point there. The public repository
 does not advertise internal testing sites.
 
-This export is the v0.54.60 successor to the production concept-24 runtime,
+This export is the v0.54.61 successor to the production concept-24 runtime,
 subject only to the publication adaptations listed above. Telemetry remains disabled. See
 [KNOWN-ISSUES.md](KNOWN-ISSUES.md) for the testing limits.

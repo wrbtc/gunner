@@ -197,8 +197,11 @@ export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=nu
   locoNear.sort((a,b)=>a.stand.distanceToSquared(reviewPosition)-b.stand.distanceToSquared(reviewPosition));
   for(const a of locoNear){
    pose(a,time,-1);a.locoVisual.root.visible=true;
-   const rate=a.climb?Math.min(1.35,.55+a.moveRate*.22):Math.min(1.45,.4+Math.min(a.speed||0,5)*.18);
-   a.locoVisual.play(a.climb?'climb':'walk',dt,rate);locoVisible++;
+   const gait=locoKit.gait||{},world=a.speed||0;
+   const kind=a.climb?'climb':(world<.12&&gait.idle?'idle':'walk');
+   const clipSpeed=(kind==='climb'?gait.climbSpeed:gait.walkSpeed)||0;
+   const rate=kind==='idle'?1:clipSpeed>.05?Math.min(2.4,Math.max(0,world/(clipSpeed*a.scale))):kind==='climb'?Math.min(1.35,.55+a.moveRate*.22):1;
+   a.locoVisual.play(kind,dt,rate);locoVisible++;
   }
   for(const p of Object.values(parts)){p.count=visible;p.instanceMatrix.needsUpdate=true;if(p.instanceColor)p.instanceColor.needsUpdate=true;p.geometry.attributes.emberAmount.needsUpdate=true;p.geometry.attributes.hitAmount.needsUpdate=true;}
  }

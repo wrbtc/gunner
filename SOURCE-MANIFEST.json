@@ -1,5 +1,5 @@
 {
-  "version": "0.54.60",
+  "version": "0.54.61",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -13,8 +13,8 @@
     },
     {
       "path": "game/assets/CREEPER-LAVA-LOCO.md",
-      "bytes": 1609,
-      "sha256": "61bb0ac1557a4a810400d18c2fd41ce1c6f446f9d925282a3129603adca44202"
+      "bytes": 2038,
+      "sha256": "1b7c9d49cd9ae15a55e6dedcb0dfc0c62af927181b637d06ae9d2e4e71f3c724"
     },
     {
       "path": "game/assets/audio/KOKORO-CODE-LICENSE.txt",
@@ -214,17 +214,17 @@
     {
       "path": "game/index.html",
       "bytes": 13320,
-      "sha256": "ef8026179afe13908633ca4704c68cadbc1d0c4974ba4f7574d62d27cf5ee2d2"
+      "sha256": "4338d3b97f385b7ee39f07cebdb6ae815e8be7b1d79ea0160d380d5fee1819f4"
     },
     {
       "path": "game/main.js",
       "bytes": 159797,
-      "sha256": "dcdbd76b2ad708d9dcd37db912e1f581f548090c8f78958d778d05055ca94ec2"
+      "sha256": "2745081457d5302ea70d3c81df3d0ddf0ab7366b02a8c5e1783a4898c2082262"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "eeb03e1e4476f790d58501428cf8bb91ceaf8bb59a5f779f40bc9ff89acd9689"
+      "sha256": "454bc52c57d7d9210c2db9c8afa0993f6bc87426310d529ab4a9a8a1aeefb2c6"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -263,8 +263,8 @@
     },
     {
       "path": "game/src/bank-demons.js",
-      "bytes": 26889,
-      "sha256": "50e06d49950b5c44061c2d05e946164615870361246669a88c3e9076f32fe52e"
+      "bytes": 27105,
+      "sha256": "4aeea7bf82b5759f536e0f49c71bf9b4b0450440e5424816162abea84e8aac7f"
     },
     {
       "path": "game/src/basalt-detail.js",
@@ -333,8 +333,8 @@
     },
     {
       "path": "game/src/creeper-loco.js",
-      "bytes": 6119,
-      "sha256": "4ad80814cb01e29736e6b10ff73f9f200b9c89c75a5714551eeb43ed65e70a8f"
+      "bytes": 11761,
+      "sha256": "5bd2b7cb97cd00e34902870147e2f66fa83f4c3c3baf125c4e45917773225ec4"
     },
     {
       "path": "game/src/dance-circle.js",
@@ -424,7 +424,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26882,
-      "sha256": "fd3d2be65d5328d48adacf05de4d5f92b48685ab5bbad845a1834f80a2538f55"
+      "sha256": "f26b5fe283ab7ebf13d1eeeeb713571fb15ba3992a9799e25a89b86d66ef2e39"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -617,5 +617,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.60 removes Reduced Effects entirely: no checkbox, no reduced-auto, no preferences.reduced store flag (older reduced / reducedUserSet keys are ignored and rewritten out), no quarter-res live world HDR, no Reduced-only contact/bloom skip, no every-second-rAF Reduced present, and no Reduced-only particle/atmosphere/light/geology/loco caps. The former non-Reduced cinematic/world path is the only path. This tip keeps the v0.54.52 attach yaw, the v0.54.59 live-clip loco LFS (game/assets/creeper-lava-loco-003.glb, 9840676 bytes, sha256 e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5), the Alien Field Guide lava creeper copy/art, the v0.54.58 Deploy ammo gap, and Master Mode. Soft-GPU stays off. prefers-reduced-motion still quiets flash and camera motion. Do not ship the stub lean LFS object. Do not treat 0.54.52, 0.54.53, 0.54.57, 0.54.58 or 0.54.59 as this identity. Physical Intel Safari combat acceptance remains pending."
+  "note": "Gunner v0.54.61 wires the upright human creeper loco: walk binds HW_human_walk; climb stays CL_cliff_climb; HW_human_idle is optional when world speed is near zero. KW_knuckle_walk is leftover and is not walk. Stride is measured from HW_human_walk (meters/cycle, duration) and bank playRate follows that gait so plant distance matches travel. The old 0.70 m/s -Y knuckle-walk plan is not used. The intended LFS object is game/assets/creeper-lava-loco-003.glb sha256 1c10edf73aca5c0a8f2b214690043382a251e20ca193d4bb8b91554349164b67 (27117680 bytes). This tip still lists the lean stand-in e8140b94 / 9840676 because the 27MB pack was not on the build host and GitHub rejects a pointer to an unknown LFS object. The operator must land sha256 1c10edf7 size 27117680 on the tip and refresh this row. Reject stub 744f1b66 / 9750920 and rejected upright hashes 9cd194e6 and a9dcb2b6. This tip keeps the v0.54.52 attach yaw, the Alien Field Guide lava creeper copy/art, the v0.54.58 Deploy ammo gap, Reduced-remove from v0.54.60, and Master Mode. Soft-GPU stays off. prefers-reduced-motion still quiets flash and camera motion. Do not treat 0.54.52, 0.54.53, 0.54.57, 0.54.58, 0.54.59 or 0.54.60 as this identity. Physical Intel Safari combat acceptance remains pending."
 }
