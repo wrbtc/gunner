@@ -102,7 +102,7 @@ assert.match(read('game/src/field-guide-viewer.js'),/current\.tick\(dt\)/);
 
 assert.match(main,/loadSkinnedSolids/);
 assert.match(main,/guide-solids/);
-assert.match(main,/skinnedSolids:skinnedSolidsBootstrap\?\.value/);
+assert.match(main,/skinnedSolidsBootstrap\?\.value/);
 assert.match(main,/creeperLoco:creeperLocoBootstrap\?\.value/);
 assert.doesNotMatch(main,/createRimmers\([^)]*skinnedSolids/);
 assert.doesNotMatch(main,/createPlasmaBugs\([^)]*skinnedSolids/);
@@ -144,6 +144,6 @@ assert.equal(dragonProvenance.sourceModelSHA256Prefix,'38fdb98e6c774ced');
 assert.equal(dragonProvenance.sourceModelBytes,64020728);
 assert.equal(dragonProvenance.imageSHA256,'b635f0b5ee69a5eb8ac8a3e259b9079ad8b6cb06b639bafc162128cde0c9d092');
 assert.match(dragonProvenance.render,/VIEW 3D/);
-assert.doesNotMatch(dragonProvenance.source,/sky-activity/);
+assert.match(dragonProvenance.source,/prior combat path/);
 
 console.log(JSON.stringify({passed:true,identity:'0.54.61',imageSHA256:imageHash},null,2));

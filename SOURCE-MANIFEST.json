@@ -103,8 +103,8 @@
     },
     {
       "path": "game/assets/field-guide/DRAGON-PROVENANCE.json",
-      "bytes": 503,
-      "sha256": "f1c70122fc7466c0283c0344232d3bce6d597c0effa47c19b7a864c6fb9eb924"
+      "bytes": 512,
+      "sha256": "2caea18e9bbc152463b7475541b32b88eb67b9bc71e075a06bb09504c9e6f0bd"
     },
     {
       "path": "game/assets/field-guide/PLASMA-PROVENANCE.json",

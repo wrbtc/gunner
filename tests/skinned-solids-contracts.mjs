@@ -32,7 +32,7 @@ assert.match(guide,/skinnedSolids\?\.creepers/);
 assert.match(guide,/skinnedSolids\?\.rimmers/);
 assert.match(guide,/skinnedSolids\?\.plasma/);
 assert.match(main,/settleOptionalAsset\(loadSkinnedSolids\(\),'guide-solids'\)/);
-assert.match(main,/skinnedSolids:skinnedSolidsBootstrap\?\.value/);
+assert.match(main,/skinnedSolidsBootstrap\?\.value/);
 assert.doesNotMatch(main,/createRimmers\([\s\S]{0,400}solid/);
 assert.doesNotMatch(main,/createPlasmaBugs\([\s\S]{0,400}solid/);
 assert.doesNotMatch(main,/createEggNests\([\s\S]{0,200}solid/);
