@@ -93,13 +93,13 @@
     },
     {
       "path": "game/assets/creeper-ember-hollow.glb",
-      "bytes": 132,
-      "sha256": "a7090e48b1f49edf2cd4b45072b461644819fa39b90936335cfa0f083cac95e1"
+      "bytes": 1091768,
+      "sha256": "25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe"
     },
     {
       "path": "game/assets/creeper-lava-loco-003.glb",
-      "bytes": 132,
-      "sha256": "ff6264874b761fcbf1adc401efd696d7a368c202b1ec70d5e2eb0f3409abc6ee"
+      "bytes": 9840676,
+      "sha256": "e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5"
     },
     {
       "path": "game/assets/demon-002.glb",
@@ -108,13 +108,13 @@
     },
     {
       "path": "game/assets/dragon-fg-a.glb",
-      "bytes": 133,
-      "sha256": "406f677f048b18c6c2e1111c9a3c547ba4f9f1d7ac7508bd9338411c19e881aa"
+      "bytes": 64020728,
+      "sha256": "38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27"
     },
     {
       "path": "game/assets/egg-shell-a.glb",
-      "bytes": 131,
-      "sha256": "13ce428c436dde2e8f77546db48d69af925a31692b3633adfc4373bf73130b7b"
+      "bytes": 817236,
+      "sha256": "368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2"
     },
     {
       "path": "game/assets/field-guide/CREEPER-PROVENANCE.json",
@@ -193,13 +193,13 @@
     },
     {
       "path": "game/assets/field-notes-v02/cinder-maw-fieldnotes-v02.glb",
-      "bytes": 132,
-      "sha256": "5f44118cd4bfb3b2d79af0a6d4a9a8081c1ec5754267050811e489ed667bdca3"
+      "bytes": 1483396,
+      "sha256": "2a829abf1fbb8419c8f0081ecedeeeddc7a3d6adc922f6a21108148ba4f53c52"
     },
     {
       "path": "game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb",
-      "bytes": 132,
-      "sha256": "d83f73c65ac8553e8c6dd58c440d10497c6a2486c5b1d25b1e727588020660fc"
+      "bytes": 1075680,
+      "sha256": "344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96"
     },
     {
       "path": "game/assets/geology/PROVENANCE.json",
@@ -238,8 +238,8 @@
     },
     {
       "path": "game/assets/plasma-bug-skinned-solid.glb",
-      "bytes": 132,
-      "sha256": "076b48bdd3d1bad651aac4777e93a0cf56f83aaba1ba5556e80fe9d63da53851"
+      "bytes": 1135104,
+      "sha256": "127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f"
     },
     {
       "path": "game/assets/ranks/PROVENANCE.json",
@@ -273,8 +273,8 @@
     },
     {
       "path": "game/assets/rimmer-skinned-solid.glb",
-      "bytes": 132,
-      "sha256": "7232d398d5ca61886f8e6e4a465d4af16630d37aa912318aaf2e1b0a50673af0"
+      "bytes": 1153368,
+      "sha256": "1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456"
     },
     {
       "path": "game/assets/siege-002.glb",
@@ -283,8 +283,8 @@
     },
     {
       "path": "game/assets/vein-ascetic-skinned-draft.glb",
-      "bytes": 132,
-      "sha256": "36aace613bb11a16669f76f230be1d3a8b1afe1e9cf3749bf227bf48169032cb"
+      "bytes": 2502928,
+      "sha256": "3b3dc30a3ae7dafe87b82932f37c1c371fcbce7a0db4f6491dff494e6b05bce4"
     },
     {
       "path": "game/index.html",
