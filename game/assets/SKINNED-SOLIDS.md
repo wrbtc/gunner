@@ -1,4 +1,4 @@
-# Field Guide skinned solids (v0.54.64)
+# Field Guide skinned solids (v0.54.65)
 
 Alien Field Guide VIEW 3D museum meshes. Combat and world visuals stay on the
 live procedural rimmer / plasma paths, the lava loco bank creeper, live Cinder
@@ -62,4 +62,6 @@ materials, no combat mixers, no live-actor mutation. The Queen stays ENLARGE.
 HERO is unchanged. Soft-GPU stays off.
 
 Every VIEW 3D specimen supports bounded camera zoom by wheel/trackpad, − / +
-buttons, or keyboard − / +. RESET VIEW restores rotation and 100% zoom.
+buttons, or keyboard − / +. Horizontal drag turns the specimen; vertical drag
+repositions it within bounded view space. RESET VIEW restores position,
+rotation, and 100% zoom.

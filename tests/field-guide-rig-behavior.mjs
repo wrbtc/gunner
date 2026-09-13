@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import * as THREE from '../game/vendor/three.module.js?v=052';
-import {cloneSkinnedGuide} from '../game/src/skinned-solids.js?v=054-64';
+import {cloneSkinnedGuide} from '../game/src/skinned-solids.js?v=054-65';
 import {buildGuideModel,cloneGuideTree,cloneGuideMaterial} from '../game/src/guide-models.js';
-import {clampGuideZoom} from '../game/src/field-guide-viewer.js';
+import {clampGuidePan,clampGuideZoom} from '../game/src/field-guide-viewer.js';
 assert.equal(clampGuideZoom(0),.6);assert.equal(clampGuideZoom(1),1);assert.equal(clampGuideZoom(4),3);
+assert.equal(clampGuidePan(-1),-.65);assert.equal(clampGuidePan(.2),.2);assert.equal(clampGuidePan(1),.65);
 const source=new THREE.Group(),bone=new THREE.Bone();bone.name='jaw';source.add(bone);
 const geometry=new THREE.BufferGeometry();
 geometry.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0,1,0,0,0,1,0],3));
@@ -31,7 +32,7 @@ model.dispose();model.dispose();assert.equal(ownedDisposals,2);assert.equal(sour
 const stopped=animated.skeleton.bones[0].position.x;model.tick(.25);model.playClip('cinder_idle');assert.equal(animated.skeleton.bones[0].position.x,stopped);
 
 const {assembleIntactEgg}=await import('../game/src/field-guide-egg-parts.js');
-const {adaptEggShellMaterial}=await import('../game/src/egg-solids.js?v=054-64');
+const {adaptEggShellMaterial}=await import('../game/src/egg-solids.js?v=054-65');
 const shellGeo=new THREE.SphereGeometry(.4,8,6),maggotGeo=new THREE.BoxGeometry(1.9,.35,.7);
 const shellMat=new THREE.MeshStandardMaterial({color:0xffffff,transparent:false,opacity:1,roughness:.2});
 const maggotMat=new THREE.MeshStandardMaterial({color:0x553322});

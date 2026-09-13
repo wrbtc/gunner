@@ -19,9 +19,9 @@ const plasmaProvenance=JSON.parse(read('game/assets/field-guide/PLASMA-PROVENANC
 const dragonProvenance=JSON.parse(read('game/assets/field-guide/DRAGON-PROVENANCE.json'));
 const dragonPortrait=readFileSync(new URL('game/assets/field-guide/dragons.png',root));
 
-assert.equal(packageJson.version,'0.54.64');
-assert.match(briefing,/export const REPORT_BUILD='0\.54\.64'/);
-assert.match(main,/version:'0\.54\.64'/);
+assert.equal(packageJson.version,'0.54.65');
+assert.match(briefing,/export const REPORT_BUILD='0\.54\.65'/);
+assert.match(main,/version:'0\.54\.65'/);
 assert.doesNotMatch(briefing,/0\.54\.52/);
 assert.doesNotMatch(briefing,/0\.54\.53/);
 assert.doesNotMatch(briefing,/0\.54\.57/);
@@ -55,7 +55,7 @@ assert.ok(dancers,'dancer field-guide row must remain');
 assert.equal(dancers[1],'Dancing Creepers');
 assert.match(dancers[3],/Orange spirits/);
 
-assert.match(briefing,/\?v=054-64/);
+assert.match(briefing,/\?v=054-65/);
 assert.match(briefing,/id==='queen'\?'ENLARGE ↗':'VIEW 3D ↗'/);
 assert.doesNotMatch(briefing,/id==='dragons'\|\|id==='queen'/);
 assert.doesNotMatch(guide,/sky-activity|skyActivity|createSkyActivity/);
@@ -134,6 +134,9 @@ assert.match(viewer,/data-zoom="-1"/);assert.match(viewer,/data-zoom="1"/);
 assert.match(viewer,/canvas\.addEventListener\('wheel'/);assert.match(viewer,/passive:false/);
 assert.match(viewer,/camera\.zoom=clampGuideZoom/);assert.match(viewer,/current\.zoom=clampGuideZoom/);
 assert.match(viewer,/current\.zoom=1/);assert.match(viewer,/zoom:current\?\.zoom/);
+assert.match(viewer,/DRAG: TURN \/ MOVE/);assert.match(viewer,/current\.panY=clampGuidePan/);
+assert.match(viewer,/camera\.lookAt\(0,panY,0\)/);assert.match(viewer,/current\.panY=0/);
+assert.match(viewer,/panY:current\?\.panY/);
 
 assert.match(main,/loadSkinnedSolids/);
 assert.match(main,/guide-solids/);
@@ -214,4 +217,4 @@ assert.notEqual(eggProvenance.imageSHA256,'8a435ce0f56e7e8d97e9b34a0fe7e76803c06
 assert.doesNotMatch(main,/createTankerBugsAsync\([\s\S]{0,400}solid/);
 assert.doesNotMatch(main,/createBankDemons\([^)]*skinnedSolids/);
 
-console.log(JSON.stringify({passed:true,identity:'0.54.64',imageSHA256:imageHash},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.65',imageSHA256:imageHash},null,2));
