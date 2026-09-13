@@ -398,8 +398,8 @@
     },
     {
       "path": "game/src/guide-models.js",
-      "bytes": 4649,
-      "sha256": "31609ac7732ef91458e87afafbbeba523f48a8beefd425abf1a32a8b90470675"
+      "bytes": 4686,
+      "sha256": "a9e47cd45cc6f611262f54804bf75a9ef58c5d4194a93de4ebebeb3234df40fc"
     },
     {
       "path": "game/src/gun-bubble.js",

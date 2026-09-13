@@ -25,7 +25,7 @@ function isolateGuideMeshes(root){
 function solidGuideRoot(solid){
  if(!solid)return null;
  const root=solid.museumRoot();
- // Isolation copies keep combat actors untouched. Museum idle may play.
+ // Isolation copies keep combat actors untouched. Hollow ember_idle, tank idle, dancer ritual_idle may play.
  root.rotation.y=0;
  return isolateGuideMeshes(root);
 }
