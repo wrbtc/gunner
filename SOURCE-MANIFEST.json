@@ -283,8 +283,8 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 13320,
-      "sha256": "a338be136f81f1a121e09c4f377bbda9c486d3d5db9f5c79dcf0bef3521dc524"
+      "bytes": 13333,
+      "sha256": "7b98ca44a8dd8eb1b40d3d51f979e6ec4582e39425d9c5206db3af56a37e02dc"
     },
     {
       "path": "game/main.js",
