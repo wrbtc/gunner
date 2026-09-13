@@ -1,4 +1,4 @@
-# Field Guide skinned solids (v0.54.61)
+# Field Guide skinned solids (v0.54.62)
 
 Alien Field Guide VIEW 3D museum meshes. Combat and world visuals stay on the
 live procedural rimmer / plasma paths, the lava loco bank creeper, live Cinder
@@ -41,15 +41,13 @@ Dragon Field Guide A is a static museum mesh (no clips). VIEW 3D only and must n
 retarget live sky dragons. Leave `game/src/sky-activity.js` and
 `hellWorld.skyActivity` alone. Remesh is out of scope.
 
-`.gitattributes` routes those paths through Git LFS. This tip wires the
-loaders and hash gates only. The real objects must be LFS-landed on those
-paths and `SOURCE-MANIFEST.json` files[] bytes/sha256 refreshed. Do not commit
-a placeholder, empty file, or invented GLB.
+`.gitattributes` routes those paths through Git LFS. This tip includes the real
+Dragon A object at the hash and size above; `SOURCE-MANIFEST.json` binds it.
+Do not replace it with a placeholder, empty file, or invented GLB.
 
-Until a binary is present, Field Guide VIEW 3D keeps the previous museum
-fallback (procedural rimmer / plasma, lava loco creeper when that GLB loads,
-live Cinder Maw clone, orange-spirit dancer). The dragon card keeps the
-identification still until `dragon-fg-a.glb` lands.
+Dragon A remains lazy: it downloads only after the Field Guide asks for the
+dragon card. Existing boot-time museum solids and gameplay assets keep their
+previous loading paths.
 `loadSkinnedSolids()` rejects LFS pointers, hash/size mismatches, the rejected
 SOLID Hollow pack, and the blocked morph prefixes `75ddc18f` / `a2ac5ebb` /
 `1c10edf7` / `45123f4c` / `9cd194e6` / `a9dcb2b6`. Dragon A loads only when

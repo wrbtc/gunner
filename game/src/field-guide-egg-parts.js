@@ -1,4 +1,4 @@
-import {loadGuideSolid} from './skinned-solids.js?v=054-61';
+import {loadGuideSolid} from './skinned-solids.js?v=054-62';
 // Independent specimen views only; the live nest and its source assets are untouched.
 const SPECS={
  'egg-maggot':{id:'egg-maggot',asset:'field-notes-v02/egg-maggot-fieldnotes-v02',sha256:'344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96',bytes:1075680,armature:'MaggotArmature',clips:{idle:'maggot_wriggle'}},

@@ -1,4 +1,4 @@
-# Release validation — v0.54.61
+# Release validation — v0.54.62
 
 ## Older Intel Safari / short desktop viewport
 
@@ -520,7 +520,7 @@ orange-spirit path. Combat loco, GLB bytes, and attach yaw are unchanged from
 
 Do not treat that Field Guide identity as 0.54.54 (creeper motion GLB) or
 0.54.55 (held menu Deploy gap). This tip keeps that Field Guide copy and art
-while identifying as v0.54.61.
+while identifying as v0.54.62.
 
 ## Deploy ammo breathing room (v0.54.58)
 
@@ -576,9 +576,9 @@ and the v0.54.58 Deploy ammo gap. Do not treat 0.54.52, 0.54.53, 0.54.57,
 Physical Intel Safari combat acceptance remains pending. Record unpaused combat
 HUD FPS on the full path. Do not enable Soft-GPU.
 
-## Field Guide skinned solids (v0.54.61)
+## Field Guide skinned solids (v0.54.62)
 
-v0.54.61 is a Field Guide-first identity. Rimmers, plasma bugs, Ember Hollow
+v0.54.62 is a Field Guide-first identity. Rimmers, plasma bugs, Ember Hollow
 creepers, Dragon A, Cinder Maw tanks, Dancing Creepers, egg larvae, and egg
 shells use VIEW 3D museum solids when the LFS objects are present. Rimmers and
 plasma stay rest pose.

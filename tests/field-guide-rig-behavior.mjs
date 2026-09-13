@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import * as THREE from '../game/vendor/three.module.js?v=052';
-import {cloneSkinnedGuide} from '../game/src/skinned-solids.js?v=054-61';
+import {cloneSkinnedGuide} from '../game/src/skinned-solids.js?v=054-62';
 import {buildGuideModel,cloneGuideTree,cloneGuideMaterial} from '../game/src/guide-models.js';
 const source=new THREE.Group(),bone=new THREE.Bone();bone.name='jaw';source.add(bone);
 const geometry=new THREE.BufferGeometry();
