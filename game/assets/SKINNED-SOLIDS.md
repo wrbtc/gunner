@@ -59,3 +59,6 @@ to `ember_idle`; Cinder Maw defaults to `cinder_idle`; Vein Ascetic defaults to
 stay rigid. Motion selection and pause remain inside Field Notes. Cloned
 materials, no combat mixers, no live-actor mutation. The Queen stays ENLARGE.
 HERO is unchanged. Soft-GPU stays off.
+
+Every VIEW 3D specimen supports bounded camera zoom by wheel/trackpad, − / +
+buttons, or keyboard − / +. RESET VIEW restores rotation and 100% zoom.

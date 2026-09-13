@@ -397,6 +397,7 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 .guide-model-stage{width:100%;height:min(55vh,520px);min-height:160px;display:flex;align-items:center;justify-content:center;background:#121b17;overflow:hidden}
 .guide-model-stage canvas{display:block;width:100%!important;height:100%!important;cursor:grab}.guide-model-stage canvas:active{cursor:grabbing}.guide-model-stage img{max-width:100%;max-height:100%;object-fit:contain}
 .guide-model-tools{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:14px;font:11px monospace;color:#b9c5ad}.guide-model-tools[hidden]{display:none}.guide-model-status{font:12px system-ui,sans-serif;color:#cdbf94}.guide-model-status:empty{display:none}
+.guide-model-zoom{display:flex;align-items:center;gap:7px}.guide-model-zoom output{min-width:4ch;text-align:center;font-variant-numeric:tabular-nums;color:#e1e3d1}
 @media(max-width:600px){#guideModelDialog{padding:14px}.guide-model-tools{gap:6px;font-size:9px}.guide-model-tools button{padding:9px!important}}
 
 /* Keep model controls compact and clear old species paint behind rendered thumbnails. */

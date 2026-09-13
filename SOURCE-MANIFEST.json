@@ -273,8 +273,8 @@
     },
     {
       "path": "game/assets/SKINNED-SOLIDS.md",
-      "bytes": 3704,
-      "sha256": "d4f01a639586bd1b1f75d1372510343de8aa8a885b40fe6a3cd4a6f8d77152f8"
+      "bytes": 3858,
+      "sha256": "7b3d8086886b83989a5a81ca352fef70d333b8e819e069d0973e2e5bc8a46655"
     },
     {
       "path": "game/assets/vein-ascetic-skinned-draft.glb",
@@ -433,8 +433,8 @@
     },
     {
       "path": "game/src/field-guide-viewer.js",
-      "bytes": 12257,
-      "sha256": "0d2048dc50bb06dc9d4f4c162a35fc504f1588176972735526483297f6464693"
+      "bytes": 13574,
+      "sha256": "831a5bb0e5f77911aa6ea497919fee2cf95f95603538c55732e5a5ee25b7b7d8"
     },
     {
       "path": "game/src/guide-models.js",
@@ -678,8 +678,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 56927,
-      "sha256": "3351dbff64265b2f7a058d7af6294695191b68bfa76227437973a5762c332824"
+      "bytes": 57091,
+      "sha256": "aff647fe0b3cfc2bbc45c736d295de90af26e94a1ac95faa08c65d1258425ccf"
     },
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
