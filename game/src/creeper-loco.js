@@ -3,9 +3,15 @@ import {GLTFLoader} from '../vendor/GLTFLoader.js?v=052';
 
 // Bank creeper / climber visual. Combat, HP, and routing stay in bank-demons.
 export const CREEPER_LOCO_ASSET = 'creeper-lava-loco-003';
-export const CREEPER_LOCO_CLIPS = Object.freeze({walk:'KW_knuckle_walk',climb:'CL_cliff_climb'});
+export const CREEPER_LOCO_CLIPS = Object.freeze({
+  walk: 'HW_human_walk',
+  climb: 'CL_cliff_climb',
+  idle: 'HW_human_idle',
+});
 const TARGET_HEIGHT = 6.15;
 const CROSSFADE = .28;
+const ROOT_BONE = /(^|:)(root|hips|hip|pelvis|armature|charliearmature)$/i;
+const FOOT_BONE = /foot|toe|ankle/i;
 let pending;
 
 function clipNamed(animations, name){
@@ -100,6 +106,151 @@ function prepareScene(scene){
   };
 }
 
+function axisTravel(values, count, axis){
+  if (count < 2) return 0;
+  let net = values[(count - 1) * 3 + axis] - values[axis];
+  let pos = 0, neg = 0, lo = values[axis], hi = values[axis];
+  for (let i = 1; i < count; i++){
+    const v = values[i * 3 + axis];
+    const d = v - values[(i - 1) * 3 + axis];
+    if (d > 0) pos += d; else neg += -d;
+    lo = Math.min(lo, v);
+    hi = Math.max(hi, v);
+  }
+  const range = hi - lo;
+  const oneWay = Math.max(pos, neg);
+  let meters = Math.abs(net);
+  if (meters < range * .45) meters = Math.max(range, oneWay);
+  return meters < .04 ? 0 : meters;
+}
+
+function trackGait(clip, vertical){
+  const names = ['x', 'y', 'z'];
+  const axes = vertical ? [1] : [0, 2, 1];
+  let meters = 0, axis = vertical ? 'y' : 'xz';
+  for (const track of clip.tracks || []){
+    const name = track.name || '';
+    if (!name.endsWith('.position')) continue;
+    const bone = name.slice(0, -'.position'.length).split('/').pop();
+    if (!ROOT_BONE.test(bone)) continue;
+    const values = track.values;
+    const count = values ? (values.length / 3) | 0 : 0;
+    if (count < 2) continue;
+    for (const index of axes){
+      const travel = axisTravel(values, count, index);
+      if (travel > meters){
+        meters = travel;
+        axis = names[index];
+      }
+    }
+  }
+  return {meters, axis, method: meters > 0 ? 'root-track' : 'none'};
+}
+
+function sampleMixerGait(clip, scene, vertical){
+  const visual = cloneSkinned(scene);
+  const mixer = new THREE.AnimationMixer(visual);
+  const action = mixer.clipAction(clip);
+  action.enabled = true;
+  action.setLoop(THREE.LoopOnce, 1);
+  action.play();
+  const bones = [];
+  visual.traverse(node => { if (node.isBone) bones.push(node); });
+  const rootBone = bones.find(bone => ROOT_BONE.test(bone.name)) || visual;
+  const feet = bones.filter(bone => FOOT_BONE.test(bone.name));
+  const steps = 48;
+  const dt = Math.max(clip.duration, 1e-4) / steps;
+  const root = new THREE.Vector3();
+  const samples = [];
+  for (let i = 0; i <= steps; i++){
+    mixer.setTime(Math.min(clip.duration, i * dt));
+    visual.updateMatrixWorld(true);
+    rootBone.getWorldPosition(root);
+    samples.push({
+      root: root.clone(),
+      feet: feet.map(bone => bone.getWorldPosition(new THREE.Vector3())),
+    });
+  }
+  mixer.stopAllAction();
+  mixer.uncacheRoot(visual);
+  const packed = new Float32Array(samples.length * 3);
+  for (let i = 0; i < samples.length; i++){
+    packed[i * 3] = samples[i].root.x;
+    packed[i * 3 + 1] = samples[i].root.y;
+    packed[i * 3 + 2] = samples[i].root.z;
+  }
+  const names = ['x', 'y', 'z'];
+  const axes = vertical ? [1] : [0, 2, 1];
+  let meters = 0, axis = vertical ? 'y' : 'xz';
+  for (const index of axes){
+    const travel = axisTravel(packed, samples.length, index);
+    if (travel > meters){
+      meters = travel;
+      axis = names[index];
+    }
+  }
+  let method = meters > 0 ? 'root-mixer' : 'none';
+  if (meters < .08 && samples[0]?.feet.length){
+    let footStride = 0;
+    for (let f = 0; f < samples[0].feet.length; f++){
+      const xs = samples.map(sample => sample.feet[f].x - sample.root.x);
+      const zs = samples.map(sample => sample.feet[f].z - sample.root.z);
+      const step = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...zs) - Math.min(...zs));
+      footStride = Math.max(footStride, step * 2);
+    }
+    if (footStride > meters){
+      meters = footStride;
+      axis = 'xz';
+      method = 'foot-plants';
+    }
+  }
+  return {meters, axis, method};
+}
+
+export function measureClipGait(clip, options = {}){
+  const uniform = Number.isFinite(options.uniform) ? options.uniform : 1;
+  const duration = Math.max(Number(clip?.duration) || 0, 1e-4);
+  const vertical = !!options.vertical;
+  let measured = trackGait(clip, vertical);
+  if (measured.meters < .04 && options.scene){
+    const sampled = sampleMixerGait(clip, options.scene, vertical);
+    if (sampled.meters > measured.meters) measured = sampled;
+  }
+  const strideMeters = measured.meters * uniform;
+  return {
+    duration,
+    strideMeters,
+    speed: strideMeters / duration,
+    axis: measured.axis,
+    method: measured.method,
+  };
+}
+
+export function locoGaitPlayRate(gait, kind, worldSpeed, actorScale = 1){
+  if (kind === 'idle') return 1;
+  const clipSpeed = kind === 'climb' ? gait?.climbSpeed : gait?.walkSpeed;
+  const scaled = (clipSpeed || 0) * Math.max(actorScale || 1, 1e-4);
+  if (scaled < .05) return 1;
+  return THREE.MathUtils.clamp((worldSpeed || 0) / scaled, 0, 2.4);
+}
+
+function measurePackGait(walk, climb, scene, uniform){
+  const walkGait = measureClipGait(walk, {scene, uniform, vertical: false});
+  const climbGait = measureClipGait(climb, {scene, uniform, vertical: true});
+  return Object.freeze({
+    walkStride: walkGait.strideMeters,
+    walkDuration: walkGait.duration,
+    walkSpeed: walkGait.speed,
+    walkAxis: walkGait.axis,
+    walkMethod: walkGait.method,
+    climbStride: climbGait.strideMeters,
+    climbDuration: climbGait.duration,
+    climbSpeed: climbGait.speed,
+    climbAxis: climbGait.axis,
+    climbMethod: climbGait.method,
+  });
+}
+
 export function loadCreeperLoco(){
   if (!pending){
     const loader = new GLTFLoader();
@@ -118,13 +269,17 @@ export function loadCreeperLoco(){
       const layout = prepareScene(scene);
       const walk = clipNamed(gltf.animations, CREEPER_LOCO_CLIPS.walk);
       const climb = clipNamed(gltf.animations, CREEPER_LOCO_CLIPS.climb);
+      const idle = gltf.animations.find(item => item.name === CREEPER_LOCO_CLIPS.idle) || null;
+      const gait = measurePackGait(walk, climb, scene, layout.uniform);
       return {
-        stats: layout.stats,
+        stats: Object.assign({}, layout.stats, {gait}),
+        gait: Object.assign({idle: !!idle}, gait),
         attach(parent){
           const visual = cloneSkinned(scene);
           visual.name = 'Creeper_lava_loco';
           visual.scale.setScalar(layout.uniform);
-          // Bank walk/climb roots face −Z (atan2(-dir.x,-dir.z)); the GLB faces +Z.
+          // Bank walk/climb roots face −Z (atan2(-dir.x,-dir.z)). Keep +Math.PI
+          // unless a packed binary is proven to already face that way.
           visual.rotation.y += Math.PI;
           visual.position.set(0, layout.plantY, 0);
           const mixer = new THREE.AnimationMixer(visual);
@@ -132,6 +287,7 @@ export function loadCreeperLoco(){
             walk: mixer.clipAction(walk),
             climb: mixer.clipAction(climb),
           };
+          if (idle) actions.idle = mixer.clipAction(idle);
           for (const action of Object.values(actions)){
             action.enabled = true;
             action.setLoop(THREE.LoopRepeat, Infinity);
@@ -139,7 +295,7 @@ export function loadCreeperLoco(){
           }
           let current = null;
           function play(kind, dt = 0, timeScale = 1){
-            const next = kind === 'climb' ? 'climb' : 'walk';
+            const next = kind === 'climb' ? 'climb' : kind === 'idle' && actions.idle ? 'idle' : 'walk';
             if (current !== next){
               const incoming = actions[next];
               if (current && actions[current].isRunning()) incoming.reset().crossFadeFrom(actions[current], CROSSFADE, false).play();

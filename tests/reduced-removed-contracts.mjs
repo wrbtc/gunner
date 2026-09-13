@@ -14,13 +14,14 @@ const blastSource=read('game/src/blast-world.js');
 const mayhemSource=read('game/src/mayhem-fx.js');
 const packageJson=JSON.parse(read('package.json'));
 
-assert.equal(packageJson.version,'0.54.60');
-assert.match(main,/version:'0\.54\.60'/);
+assert.equal(packageJson.version,'0.54.61');
+assert.match(main,/version:'0\.54\.61'/);
 assert.doesNotMatch(main,/0\.54\.52/);
 assert.doesNotMatch(main,/0\.54\.53/);
 assert.doesNotMatch(main,/0\.54\.57/);
 assert.doesNotMatch(main,/0\.54\.58/);
 assert.doesNotMatch(main,/0\.54\.59/);
+assert.doesNotMatch(main,/0\.54\.60/);
 assert.doesNotMatch(html,/0\.54\.52/);
 assert.doesNotMatch(html,/0\.54\.53/);
 
