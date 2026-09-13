@@ -25,7 +25,7 @@ function isolateGuideMeshes(root){
 function solidGuideRoot(solid){
  if(!solid)return null;
  const root=solid.museumRoot();
- // Isolation copies keep combat actors untouched. Hollow may play ember_idle.
+ // Isolation copies keep combat actors untouched. Museum idle may play.
  root.rotation.y=0;
  return isolateGuideMeshes(root);
 }
@@ -45,11 +45,14 @@ export function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco,
  let root;
  if(id==='eggs')root=eggNests.guideModel();
  else if(id==='creepers')root=creeperGuideRoot(creeperLoco,skinnedSolids?.creepers);
- else if(id==='dancers')root=createBankGuideModel(true);
+ else if(id==='dancers')root=solidGuideRoot(skinnedSolids?.dancers)||createBankGuideModel(true);
  else if(id==='rimmers')root=solidGuideRoot(skinnedSolids?.rimmers)||cloneGuideTree(createRimmerModel().root);
  else if(id==='tanks'){
-  const rig=cinderModel.clone();rig.resetPose();root=rig.root;
-  root.traverse(n=>{if(n.isMesh)n.geometry=n.geometry.clone();});
+  root=solidGuideRoot(skinnedSolids?.tanks);
+  if(!root){
+   const rig=cinderModel.clone();rig.resetPose();root=rig.root;
+   root.traverse(n=>{if(n.isMesh)n.geometry=n.geometry.clone();});
+  }
  }
  else if(id==='plasma'){
   root=solidGuideRoot(skinnedSolids?.plasma);

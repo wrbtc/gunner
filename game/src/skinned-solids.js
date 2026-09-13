@@ -37,9 +37,26 @@ export const SKINNED_SOLIDS=Object.freeze({
   sha256:'38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27',
   bytes:64020728,
   static:true
+ }),
+ tanks:Object.freeze({
+  id:'tanks',
+  asset:'cinder-maw-skinned-draft',
+  sha256:'2af643fb2751ad128e6b06cf9a3244348220a4a58cb9884603e6cf9a6e13a1d4',
+  bytes:1004440,
+  armature:'TankArmature',
+  clips:Object.freeze({idle:'idle',walk:'SW_slow_walk',jaw:'jaw_windup'}),
+  bones:Object.freeze(['body','jaw','cinder_mouth'])
+ }),
+ dancers:Object.freeze({
+  id:'dancers',
+  asset:'vein-ascetic-skinned-draft',
+  sha256:'3b3dc30a3ae7dafe87b82932f37c1c371fcbce7a0db4f6491dff494e6b05bce4',
+  bytes:2502928,
+  armature:'VeinArmature',
+  clips:Object.freeze({idle:'ritual_idle',walk:'ritual_walk'})
  })
 });
-const BOOT_SOLIDS=Object.freeze(['rimmers','plasma','creepers']);
+const BOOT_SOLIDS=Object.freeze(['rimmers','plasma','creepers','tanks','dancers']);
 
 let pending;
 
@@ -108,6 +125,11 @@ async function loadOne(spec){
  if(!meshes)throw Error('Field-guide solid mesh missing: '+spec.asset);
  if(!spec.static&&!skinned)throw Error('Field-guide solid skinned mesh missing: '+spec.asset);
  if(spec.armature&&!namedNode(scene,spec.armature))throw Error('Field-guide solid armature missing: '+spec.armature);
+ if(spec.bones){
+  for(const name of spec.bones){
+   if(!namedNode(scene,name))throw Error('Field-guide solid bone missing: '+name);
+  }
+ }
  const animations=gltf.animations||[];
  if(spec.clips){
   const names=new Set(animations.map(clip=>clip.name));
@@ -144,7 +166,7 @@ export function loadSkinnedSolids(){
   pending=Promise.all(BOOT_SOLIDS.map(id=>loadOne(SKINNED_SOLIDS[id]).then(value=>[id,value],()=>[id,null])))
    .then(entries=>{
     const kit=Object.fromEntries(entries);
-    if(!kit.rimmers&&!kit.plasma&&!kit.creepers)throw Error('No field-guide skinned solids');
+    if(!kit.rimmers&&!kit.plasma&&!kit.creepers&&!kit.tanks&&!kit.dancers)throw Error('No field-guide skinned solids');
     return kit;
    })
    .catch(error=>{pending=null;throw error;});

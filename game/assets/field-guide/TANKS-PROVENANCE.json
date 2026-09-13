@@ -1,0 +1,8 @@
+{
+  "source": "Field Guide museum draft. Combat still uses the live Cinder Maw until a later PASS of this 3D view.",
+  "sourceModel": "game/assets/cinder-maw-skinned-draft.glb",
+  "sourceModelSHA256": "2af643fb2751ad128e6b06cf9a3244348220a4a58cb9884603e6cf9a6e13a1d4",
+  "sourceModelBytes": 1004440,
+  "imageSHA256": "40cf7622952c15bed326d70d0d87b83be977290f68c0caa9bf8d2c3c37ea54c6",
+  "render": "Card portrait remains the prior identification still. VIEW 3D uses TankArmature idle. Bones body / jaw / cinder_mouth must survive. Do not remesh or retexture this draft."
+}

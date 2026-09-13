@@ -23,8 +23,8 @@
     },
     {
       "path": "game/assets/SKINNED-SOLIDS.md",
-      "bytes": 2480,
-      "sha256": "6753aa95f6bc26cd0ac095c367a6e899935f5378b8eb2e207c538c5192ae6458"
+      "bytes": 3224,
+      "sha256": "e2ef614f8493db397fda911286e0e0bd5bd6362027b4350a519da0067d5f7cc7"
     },
     {
       "path": "game/assets/audio/KOKORO-CODE-LICENSE.txt",
@@ -107,6 +107,11 @@
       "sha256": "cb0acd0e31a6bbd2caf104658e7ce27da50b9885d7e859985e5a4c65b8e78e33"
     },
     {
+      "path": "game/assets/field-guide/DANCERS-PROVENANCE.json",
+      "bytes": 552,
+      "sha256": "3a333346b9413fa324939b723c548cff84ff80277d0a8a6938a80b1494c1feac"
+    },
+    {
       "path": "game/assets/field-guide/DRAGON-PROVENANCE.json",
       "bytes": 554,
       "sha256": "567443a854d0ba2d0eb2fc9716de04d99dd65cfda1c7c0ba9699bc1b5e65abb8"
@@ -125,6 +130,11 @@
       "path": "game/assets/field-guide/RIMMER-PROVENANCE.json",
       "bytes": 473,
       "sha256": "30368c6aa88e941c35afc0efafba67b6fa557c53867cb9c963a833e8233a24a2"
+    },
+    {
+      "path": "game/assets/field-guide/TANKS-PROVENANCE.json",
+      "bytes": 572,
+      "sha256": "32419976e5ec78e03491d523ad8979dd9bf61871222b4b395046cf2627723670"
     },
     {
       "path": "game/assets/field-guide/creepers.png",
@@ -388,8 +398,8 @@
     },
     {
       "path": "game/src/guide-models.js",
-      "bytes": 4551,
-      "sha256": "31d1321c8e455e7d9960d4e19cc2f169284ebeb5dea02d303c34e1dd5dd9fa3b"
+      "bytes": 4649,
+      "sha256": "31609ac7732ef91458e87afafbbeba523f48a8beefd425abf1a32a8b90470675"
     },
     {
       "path": "game/src/gun-bubble.js",
@@ -568,8 +578,8 @@
     },
     {
       "path": "game/src/skinned-solids.js",
-      "bytes": 5772,
-      "sha256": "64abe34cb58d627f515742a5cb0ed1d469090e8c9d6a1e23b9e2d42c93df0256"
+      "bytes": 6551,
+      "sha256": "17acdb84a11d43409861e07643d6902de883dd312fdf756ee57e98b00b1f3d7e"
     },
     {
       "path": "game/src/sky-activity.js",
@@ -652,5 +662,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.61 is a Field Guide-first identity: VIEW 3D museum solids for rimmers (game/assets/rimmer-skinned-solid.glb, 1153368 bytes, sha256 1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456), plasma (game/assets/plasma-bug-skinned-solid.glb, 1135104 bytes, sha256 127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f), Ember Hollow creepers (game/assets/creeper-ember-hollow.glb, 1091768 bytes, sha256 25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe; EmberArmature, ember_idle museum loop; reject SOLID 4803580 bytes, sha256 085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f), and Dragon A (game/assets/dragon-fg-a.glb, 64020728 bytes, sha256 38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27; static museum pose; lazy Field Guide load). Live nests and Field Guide eggs use egg-shell-a.glb (817236 bytes, sha256 368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2) and egg-maggot-a.glb (732684 bytes, sha256 3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127); maggot stays inside the shell until rupture. Combat and world meshes otherwise stay on the v0.54.60 path: lava loco (game/assets/creeper-lava-loco-003.glb, 9840676 bytes, sha256 e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5), procedural rimmers/plasma, Cinder Maw tanks, and sky dragons. Soft-GPU stays off. prefers-reduced-motion still quiets flash and camera motion. Do not land morph creeper hashes 75ddc18f / a2ac5ebb / 1c10edf7 / 45123f4c / 9cd194e6 / a9dcb2b6. Do not treat 0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59 or 0.54.60 as this identity. Physical Intel Safari combat acceptance remains pending."
+  "note": "Gunner v0.54.61 is a Field Guide-first identity: VIEW 3D museum solids for rimmers (game/assets/rimmer-skinned-solid.glb, 1153368 bytes, sha256 1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456), plasma (game/assets/plasma-bug-skinned-solid.glb, 1135104 bytes, sha256 127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f), Ember Hollow creepers (game/assets/creeper-ember-hollow.glb, 1091768 bytes, sha256 25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe; EmberArmature, ember_idle museum loop; reject SOLID 4803580 bytes, sha256 085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f), Dragon A (game/assets/dragon-fg-a.glb, 64020728 bytes, sha256 38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27; static museum pose; lazy Field Guide load), Cinder Maw tanks (game/assets/cinder-maw-skinned-draft.glb, 1004440 bytes, sha256 2af643fb2751ad128e6b06cf9a3244348220a4a58cb9884603e6cf9a6e13a1d4; TankArmature; museum idle clip idle; bones body / jaw / cinder_mouth; clips idle, SW_slow_walk, jaw_windup), and Dancing Creepers (game/assets/vein-ascetic-skinned-draft.glb, 2502928 bytes, sha256 3b3dc30a3ae7dafe87b82932f37c1c371fcbce7a0db4f6491dff494e6b05bce4; VeinArmature; museum idle clip ritual_idle; clips ritual_idle, ritual_walk). Live nests and Field Guide eggs use egg-shell-a.glb (817236 bytes, sha256 368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2) and egg-maggot-a.glb (732684 bytes, sha256 3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127); maggot stays inside the shell until rupture. Combat and world meshes otherwise stay on the v0.54.60 path: lava loco (game/assets/creeper-lava-loco-003.glb, 9840676 bytes, sha256 e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5), procedural rimmers/plasma, live Cinder Maw tanks, orange-spirit dancers, and sky dragons. Soft-GPU stays off. prefers-reduced-motion still quiets flash and camera motion. Do not land morph creeper hashes 75ddc18f / a2ac5ebb / 1c10edf7 / 45123f4c / 9cd194e6 / a9dcb2b6. Do not treat 0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59 or 0.54.60 as this identity. Physical Intel Safari combat acceptance remains pending."
 }
