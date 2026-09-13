@@ -41,7 +41,8 @@ assert.match(main,/failIfMajorPerformanceCaveat: false/);
 assert.match(main,/powerPreference: 'high-performance'/);
 assert.doesNotMatch(sky,/egg-shell-a|egg-maggot-a/);
 assert.doesNotMatch(note,/Roland|Phil|Dee/);
-assert.match(note,/Maggot sits inside/);
+assert.match(note,/Field Notes uses the 1075680-byte rigged larva/);
+assert.match(note,/does not replace the live\s+nest embryo/);
 assert.equal(provenance.sourceShellSHA256,expected[0].sha256);
 assert.equal(provenance.sourceMaggotSHA256,expected[1].sha256);
 

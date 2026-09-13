@@ -15,13 +15,15 @@ export const SKINNED_SOLIDS=Object.freeze({
   id:'rimmers',
   asset:'rimmer-skinned-solid',
   sha256:'1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456',
-  bytes:1153368
+  bytes:1153368,
+  clips:Object.freeze({idle:'rimmer_idle',walk:'rimmer_walk'})
  }),
  plasma:Object.freeze({
   id:'plasma',
   asset:'plasma-bug-skinned-solid',
   sha256:'127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f',
-  bytes:1135104
+  bytes:1135104,
+  clips:Object.freeze({idle:'plasma_idle',walk:'plasma_crawl'})
  }),
  creepers:Object.freeze({
   id:'creepers',
@@ -40,11 +42,11 @@ export const SKINNED_SOLIDS=Object.freeze({
  }),
  tanks:Object.freeze({
   id:'tanks',
-  asset:'cinder-maw-skinned-draft',
-  sha256:'2af643fb2751ad128e6b06cf9a3244348220a4a58cb9884603e6cf9a6e13a1d4',
-  bytes:1004440,
+  asset:'field-notes-v02/cinder-maw-fieldnotes-v02',
+  sha256:'2a829abf1fbb8419c8f0081ecedeeeddc7a3d6adc922f6a21108148ba4f53c52',
+  bytes:1483396,
   armature:'TankArmature',
-  clips:Object.freeze({idle:'idle',walk:'SW_slow_walk',jaw:'jaw_windup'}),
+  clips:Object.freeze({idle:'cinder_idle',jaw:'cinder_jaw_inspect',shift:'cinder_weight_shift'}),
   bones:Object.freeze(['body','jaw','cinder_mouth'])
  }),
  dancers:Object.freeze({
@@ -71,7 +73,7 @@ function namedNode(root,name){
  root.traverse(node=>{if(!found&&node.name===name)found=node;});
  return found;
 }
-function cloneSkinnedGuide(source){
+export function cloneSkinnedGuide(source){
  const root=source.clone(true);
  const bySource=new Map();
  function pair(a,b){
@@ -83,7 +85,7 @@ function cloneSkinnedGuide(source){
   if(!node.isSkinnedMesh)return;
   const mesh=bySource.get(node);
   mesh.skeleton=new THREE.Skeleton(
-   node.skeleton.bones.map(bone=>bySource.get(bone)),
+   node.skeleton.bones.map(bone=>{const copy=bySource.get(bone);if(!copy)throw Error('Field-guide skeleton escapes cloned root');return copy;}),
    node.skeleton.boneInverses.map(inverse=>inverse.clone())
   );
   mesh.bindMatrix.copy(node.bindMatrix);
@@ -102,7 +104,7 @@ function makeLoader(){
  });
  return loader;
 }
-async function loadOne(spec){
+export async function loadGuideSolid(spec){
  const url=new URL(`../assets/${spec.asset}.glb`,import.meta.url).href;
  const response=await fetch(url);
  if(!response.ok)throw Error('Field-guide solid missing: '+spec.asset);
@@ -119,6 +121,12 @@ async function loadOne(spec){
  const gltf=await makeLoader().parseAsync(buffer,'');
  const scene=gltf.scene;
  scene.name='Guide_solid_'+spec.id;
+ scene.traverse(node=>{if(!node.isMesh)return;for(const material of Array.isArray(node.material)?node.material:[node.material]){
+  const index=gltf.parser.associations.get(material)?.materials,definition=gltf.parser.json.materials?.[index]||{},pbr=definition.pbrMetallicRoughness||{};
+  for(const [key,required] of [['map',pbr.baseColorTexture],['normalMap',definition.normalTexture],['emissiveMap',definition.emissiveTexture],['roughnessMap',pbr.metallicRoughnessTexture],['metalnessMap',pbr.metallicRoughnessTexture]]){
+   if(required&&(!material[key]||!material[key].image))throw Error('Field-guide texture did not decode: '+spec.asset+' '+key);
+  }
+ }});
  scene.updateMatrixWorld(true);
  let skinned=0,meshes=0;
  scene.traverse(node=>{if(node.isMesh)meshes++;if(node.isSkinnedMesh)skinned++;});
@@ -154,7 +162,9 @@ async function loadOne(spec){
     const clip=animations.find(item=>item.name===spec.clips.idle);
     const mixer=new THREE.AnimationMixer(root);
     mixer.clipAction(clip).reset().play();
+    mixer.update(0);
     root.userData.guideMixer=mixer;
+    root.userData.guideClips=animations;
    }
    return root;
   }
@@ -163,7 +173,7 @@ async function loadOne(spec){
 
 export function loadSkinnedSolids(){
  if(!pending){
-  pending=Promise.all(BOOT_SOLIDS.map(id=>loadOne(SKINNED_SOLIDS[id]).then(value=>[id,value],()=>[id,null])))
+  pending=Promise.all(BOOT_SOLIDS.map(id=>loadGuideSolid(SKINNED_SOLIDS[id]).then(value=>[id,value],()=>[id,null])))
    .then(entries=>{
     const kit=Object.fromEntries(entries);
     if(!kit.rimmers&&!kit.plasma&&!kit.creepers&&!kit.tanks&&!kit.dancers)throw Error('No field-guide skinned solids');
@@ -177,7 +187,7 @@ export function loadSkinnedSolids(){
 let dragonPending;
 export function loadGuideDragonSolid(){
  if(!dragonPending){
-  dragonPending=loadOne(SKINNED_SOLIDS.dragons).catch(()=>{dragonPending=null;return null;});
+  dragonPending=loadGuideSolid(SKINNED_SOLIDS.dragons).catch(()=>{dragonPending=null;return null;});
  }
  return dragonPending;
 }

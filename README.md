@@ -5,7 +5,7 @@ Fly through a volcanic canyon, destroy nests and creatures, and survive the Quee
 
 **Play Gunner: https://gunner.satoshis.watch/**
 
-This is the **v0.54.61 runtime with the concept-24 / hive menu**. The menu keeps 16px between the life/bullet row and DEPLOY GUNNER. The Alien Field Guide uses VIEW 3D museum solids for rimmers, plasma bugs, and Ember Hollow creepers when those LFS objects are present. Bank creepers and climbers still use the lava loco skinned mesh when
+This is the **v0.54.61 runtime with the concept-24 / hive menu**. The menu keeps 16px between the life/bullet row and DEPLOY GUNNER. The Alien Field Guide uses VIEW 3D museum solids for rimmers, plasma bugs, Ember Hollow creepers, Cinder Maw tanks, Dancing Creepers, egg larvae, and egg shells when those LFS objects are present. Hatter's repaired Cinder and larva rigs are presentation-only; gameplay meshes, nests, AI, hitboxes, and combat remain unchanged. Bank creepers and climbers still use the lava loco skinned mesh when
 `creeper-lava-loco-003.glb` is present (live knuckle-walk / cliff-climb clips), with the 0.54.52 attach yaw so the +Z GLB matches −Z travel. Combat rimmer and plasma meshes stay on the authored procedural paths. It fits the briefing to short desktop viewports, keeps its report
 controls clear of the macOS Dock, and adds the supplied Queen reveal growl and raised-arms shriek,
 timed to the cinematic, and keeps menu/outcome music silent until the player

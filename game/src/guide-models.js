@@ -1,24 +1,27 @@
 import * as THREE from '../vendor/three.module.js?v=052';
 import {createBankGuideModel} from './bank-demons.js?v=052';
 import {createRimmerModel} from './rimmer-model.js?v=052';
+import {cloneSkinnedGuide} from './skinned-solids.js?v=054-61';
+import {loadGuideEggPart} from './field-guide-egg-parts.js';
 // Copy display state without touching actor transforms, uniforms or lifetimes.
 export function cloneGuideMaterial(source){
- const material=new source.constructor();
- for(const key of ['color','emissive','normalScale'])if(source[key]&&material[key])material[key].copy(source[key]);
- for(const key of ['map','normalMap','roughnessMap','metalnessMap','emissiveMap','alphaMap','roughness','metalness','emissiveIntensity','opacity','transparent','side','alphaTest','depthWrite','vertexColors','toneMapped','blending'])if(key in source)material[key]=source[key];
+ const material=source.clone();
+ // Material.copy preserves flatShading for GLBs without normals, all texture
+ // channels, alpha modes and color-space interpretation; callbacks need explicit copying.
  material.onBeforeCompile=source.onBeforeCompile;material.customProgramCacheKey=source.customProgramCacheKey;return material;
 }
 export function cloneGuideTree(source){
- const root=source.isMesh?new THREE.Mesh(source.geometry.clone(),Array.isArray(source.material)?source.material.map(cloneGuideMaterial):cloneGuideMaterial(source.material)):new THREE.Group();
- root.name=source.name;root.position.copy(source.position);root.quaternion.copy(source.quaternion);root.scale.copy(source.scale);root.visible=source.visible;root.renderOrder=source.renderOrder;
- for(const child of source.children)if(!child.isLight&&!child.isSprite)root.add(cloneGuideTree(child));return root;
+ const root=cloneSkinnedGuide(source);
+ root.traverse(node=>{if(node.isMesh){node.geometry=node.geometry.clone();node.material=Array.isArray(node.material)?node.material.map(cloneGuideMaterial):cloneGuideMaterial(node.material);}});
+ const excluded=[];root.traverse(node=>{if(node.isLight||node.isSprite)excluded.push(node);});excluded.forEach(node=>node.removeFromParent());return root;
 }
+
 function isolateGuideMeshes(root){
  root.traverse(node=>{
   if(!node.isMesh)return;
   node.material=Array.isArray(node.material)?node.material.map(cloneGuideMaterial):cloneGuideMaterial(node.material);
-  // Keep SkinnedMesh / static museum geometry shared (Hollow idle, 64MB dragon).
-  if(!node.isSkinnedMesh&&!root.userData.shareGuideGeometry)node.geometry=node.geometry.clone();
+  // Each animated guide owns its geometry. Cached templates survive guide closure.
+  if(!root.userData.shareGuideGeometry)node.geometry=node.geometry.clone();
  });
  return root;
 }
@@ -41,9 +44,10 @@ function creeperGuideRoot(creeperLoco,solid){
  return isolateGuideMeshes(root);
 }
 // Dragons use the Field Guide A museum solid only. Do not clone live canyon wyverns.
-export function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco,skinnedSolids}){
+export async function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco,skinnedSolids}){
  let root;
- if(id==='eggs')root=eggNests.guideModel();
+ if(id==='egg-maggot'||id==='egg-shell')root=solidGuideRoot(await loadGuideEggPart(id));
+ else if(id==='eggs')root=eggNests.guideModel();
  else if(id==='creepers')root=creeperGuideRoot(creeperLoco,skinnedSolids?.creepers);
  else if(id==='dancers')root=solidGuideRoot(skinnedSolids?.dancers)||createBankGuideModel(true);
  else if(id==='rimmers')root=solidGuideRoot(skinnedSolids?.rimmers)||cloneGuideTree(createRimmerModel().root);
@@ -63,9 +67,18 @@ export function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco,
  root.visible=true;root.position.set(0,0,0);root.updateMatrixWorld(true);
  root.traverse(n=>{n.layers.set(0);n.frustumCulled=false;n.castShadow=false;n.receiveShadow=false;});
  const bounds=new THREE.Box3().setFromObject(root),center=bounds.getCenter(new THREE.Vector3()),extent=bounds.getSize(new THREE.Vector3()),scale=2.4/Math.max(extent.x,extent.y,extent.z);
- const frame=new THREE.Group(),pivot=new THREE.Group();frame.add(pivot);pivot.add(root);pivot.scale.setScalar(scale);root.position.sub(center);frame.name='Guide '+id;frame.rotation.y=id==='creepers'?0:id==='eggs'?.25:Math.PI+.4;
- let mixer=null;
- root.traverse(n=>{if(n.userData.guideMixer)mixer=n.userData.guideMixer;});
- const dispose=()=>{if(mixer){mixer.stopAllAction();mixer.uncacheRoot(root);}const geos=new Set(),mats=new Set();root.traverse(n=>{if(n.geometry)geos.add(n.geometry);if(n.material)for(const m of Array.isArray(n.material)?n.material:[n.material])mats.add(m);if(n.isSkinnedMesh)n.skeleton.dispose();});geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose());};
- return mixer?{root:frame,tick(dt){mixer.update(dt);},dispose}:{root:frame,dispose};
+ const frame=new THREE.Group(),pivot=new THREE.Group();frame.add(pivot);pivot.add(root);pivot.scale.setScalar(scale);root.position.sub(center);frame.name='Guide '+id;frame.rotation.y=['creepers','rimmers','plasma','tanks','dancers','egg-maggot','egg-shell'].includes(id)?.35:id==='eggs'?.25:Math.PI+.4;
+ const mixers=[];
+ root.traverse(n=>{if(n.userData.guideMixer&&!mixers.includes(n.userData.guideMixer))mixers.push(n.userData.guideMixer);});
+ let clips=[];root.traverse(n=>{if(n.userData.guideClips)clips=n.userData.guideClips;});
+ let disposed=false;
+ const dispose=()=>{if(disposed)return;disposed=true;for(const mixer of mixers){mixer.stopAllAction();mixer.uncacheRoot(mixer.getRoot());}const geos=new Set(),mats=new Set(),skeletons=new Set();root.traverse(n=>{if(n.geometry&&!root.userData.shareGuideGeometry)geos.add(n.geometry);if(n.material)for(const m of Array.isArray(n.material)?n.material:[n.material])mats.add(m);if(n.isSkinnedMesh)skeletons.add(n.skeleton);});skeletons.forEach(s=>s.dispose());geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose());};
+ const result={root:frame,dispose,viewRadius:Math.max(1.25,extent.length()*scale/2)+.20};
+ if(mixers.length){
+  result.clips=clips.map(c=>({name:c.name,label:c.name.replace(/^(ember|rimmer|plasma|ritual|cinder|maggot)_/,'').replaceAll('_',' ')}));
+  result.activeClip=clips.find(c=>/idle|wriggle/.test(c.name))?.name||clips[0]?.name;
+  result.tick=dt=>{if(!disposed)mixers.forEach(m=>m.update(dt));};
+  result.playClip=name=>{const clip=clips.find(c=>c.name===name);if(!clip||disposed)return;result.activeClip=name;for(const mixer of mixers){mixer.stopAllAction();mixer.clipAction(clip).reset().play();mixer.update(0);}};
+ }
+ return result;
 }

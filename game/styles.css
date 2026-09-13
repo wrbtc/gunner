@@ -642,3 +642,8 @@ html[data-app-short] #intro.mission-poster.load-failed .mission-orders{display:n
   #intro.mission-poster .poster-chapter p{font-size:14px}
   #intro.mission-poster #startButton{padding:16px 18px;min-height:54px}
 }
+/* Field Notes specimen/clip controls; no gameplay layout changes. */
+.guide-model-tools label:not([hidden]){display:flex;align-items:center;gap:6px}
+.guide-model-tools select{max-width:170px;padding:7px;border:1px solid #596554;border-radius:3px;background:#162019;color:#e3ebd9;font:inherit;text-transform:uppercase}
+.guide-model-tools [hidden]{display:none}
+.guide-model-tools select:focus-visible{outline:2px solid #c7da9d;outline-offset:2px}

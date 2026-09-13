@@ -1,7 +1,9 @@
 # Brood egg solids (v0.54.61)
 
-Live nest and Field Guide VIEW 3D egg meshes. Maggot sits inside the shell
-until rupture. Placement, clusters, gallery, queen brood, HP/hit, filaments,
+Live-nest source meshes plus the rigid Field Notes shell. The independently
+rigged Field Notes larva lives at
+`field-notes-v02/egg-maggot-fieldnotes-v02.glb`; it does not replace the live
+nest embryo. Placement, clusters, gallery, queen brood, HP/hit, filaments,
 sockets, and rupture physics stay on the existing `makeEgg` path.
 
 Expected binaries next to this note:
@@ -18,6 +20,11 @@ embryo.
 
 An opaque shell bake is adapted to a leathery window (alpha / roughness) so a
 careful look shows a vague maggot silhouette. No glow, slit, or extra limbs.
+
+The original static maggot source remains identified above for live-nest
+provenance. Field Notes uses the 1075680-byte rigged larva with SHA-256
+`344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96`
+and clip `maggot_wriggle` through `field-guide-egg-parts.js`.
 
 Rimmers, plasma, Ember Hollow slim (`25a1be82…`), and Dragon A stay on their
 already wired paths. Leave `game/src/sky-activity.js` and live canyon wyverns

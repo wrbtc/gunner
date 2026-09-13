@@ -579,18 +579,20 @@ HUD FPS on the full path. Do not enable Soft-GPU.
 ## Field Guide skinned solids (v0.54.61)
 
 v0.54.61 is a Field Guide-first identity. Rimmers, plasma bugs, Ember Hollow
-creepers, Dragon A, Cinder Maw tanks, and Dancing Creepers use VIEW 3D museum
-solids when the LFS objects are present. Rimmers and plasma stay rest pose.
+creepers, Dragon A, Cinder Maw tanks, Dancing Creepers, egg larvae, and egg
+shells use VIEW 3D museum solids when the LFS objects are present. Rimmers and
+plasma stay rest pose.
 Ember Hollow VIEW 3D plays `ember_idle` only on `EmberArmature` (`ember_walk`
-stays unused). Cinder Maw VIEW 3D plays `idle` only on `TankArmature` (`body` /
-`jaw` / `cinder_mouth` must survive). Dancing Creepers VIEW 3D plays
+stays available as a presentation study). Cinder Maw defaults to `cinder_idle`
+on its repaired 21-joint `TankArmature`; `cinder_jaw_inspect` and
+`cinder_weight_shift` remain selectable. Dancing Creepers VIEW 3D plays
 `ritual_idle` only on `VeinArmature`. Dragon A is a static rest-pose mesh (no
 clips). Cloned materials, no combat mixers, no live-actor mutation. The Queen
 stays ENLARGE. The dragon Field Guide card must not retarget live sky dragons:
 `game/src/sky-activity.js` and `hellWorld.skyActivity` stay on the prior live
-path. Eggs use `egg-shell-a` / `egg-maggot-a` for live nests and Field Guide
-VIEW 3D when those LFS objects are present (maggot inside the shell until
-rupture; procedural fallback until they land).
+path. Field Notes exposes a separate 11-joint larva with `maggot_wriggle` and a
+rigid shell. Live nests, their embedded embryo, and rupture behavior are
+unchanged.
 
 Combat and world meshes otherwise stay on the prior path: bank/climber lava loco,
 procedural rimmers, procedural plasma, live Cinder Maw tanks, orange-spirit
@@ -604,22 +606,22 @@ Gated museum binaries:
 - `plasma-bug-skinned-solid.glb` — 1135104 bytes, `127e6fdc…`
 - `creeper-ember-hollow.glb` — 1091768 bytes, `25a1be82…` (slim pack; reject SOLID `085943e9…` / 4803580)
 - `dragon-fg-a.glb` — 64020728 bytes, `38fdb98e…` (static; lazy Field Guide load)
-- `cinder-maw-skinned-draft.glb` — 1004440 bytes, `2af643fb…` (TankArmature; museum idle)
+- `field-notes-v02/cinder-maw-fieldnotes-v02.glb` — 1483396 bytes, `2a829abf…` (repaired TankArmature; three presentation clips)
 - `vein-ascetic-skinned-draft.glb` — 2502928 bytes, `3b3dc30a…` (VeinArmature; ritual_idle)
 - `egg-shell-a.glb` — 817236 bytes, `368d9e85…`
-- `egg-maggot-a.glb` — 732684 bytes, `3b9e16e2…`
+- `field-notes-v02/egg-maggot-fieldnotes-v02.glb` — 1075680 bytes, `344d2131…` (MaggotArmature; maggot_wriggle)
 
-This tip wires the loaders and hash gates. The real LFS objects still need to
-land on those paths before VIEW 3D can show the new meshes. Do not remesh or
-retexture the tank or dancer drafts. Reject morph prefixes `75ddc18f` /
+This tip includes the real LFS objects on those paths. Cinder and larva retain
+the supplied surface/material identity while adding presentation rigs. Do not
+retarget them into gameplay. Reject morph prefixes `75ddc18f` /
 `a2ac5ebb` / `1c10edf7` / `45123f4c` / `9cd194e6` / `a9dcb2b6`. Do not treat
 0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59 or 0.54.60 as this identity.
 
 In-game eyeball: open the Alien Field Guide and confirm VIEW 3D for rimmers,
 plasma, creepers, tanks, dancers, dragons, and eggs. The Queen stays ENLARGE.
-After egg LFS land, confirm a vague maggot silhouette inside the shell, then
-rupture still hides the shell and drops the maggot. Canyon wyverns stay on the
-live path. Live tanks and ritual dancers stay on the prior combat meshes.
+Confirm the separate rigid shell and animated larva specimens. Live nest
+rupture still uses the prior path. Canyon wyverns stay live; live tanks and
+ritual dancers stay on their prior combat meshes.
 
 ## Testing and patch requests
 
