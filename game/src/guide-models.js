@@ -39,6 +39,7 @@ function creeperGuideRoot(creeperLoco,solid){
  root.rotation.y=0;
  return isolateGuideMeshes(root);
 }
+// Dragons stay portrait / ENLARGE. Do not clone live canyon wyverns for museum use.
 export function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco,skinnedSolids}){
  let root;
  if(id==='eggs')root=eggNests.guideModel();

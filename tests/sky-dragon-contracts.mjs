@@ -1,0 +1,58 @@
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {readFileSync} from 'node:fs';
+
+const root=new URL('../',import.meta.url);
+const read=name=>readFileSync(new URL(name,root),'utf8');
+const bytes=name=>readFileSync(new URL(name,root));
+const sha256=name=>createHash('sha256').update(bytes(name)).digest('hex');
+
+const sky=read('game/src/sky-activity.js');
+const world=read('game/src/hell-world.js');
+const guide=read('game/src/guide-models.js');
+const solids=read('game/src/skinned-solids.js');
+const viewer=read('game/src/field-guide-viewer.js');
+const briefing=read('game/src/mission-screen.js');
+const main=read('game/main.js');
+const note=read('game/assets/SKINNED-SOLIDS.md');
+const manifest=JSON.parse(read('SOURCE-MANIFEST.json'));
+
+// Live canyon wyverns stay on the 0.54.60 module. Field Guide dragons are
+// portrait / ENLARGE only and must never retarget this combat path.
+assert.equal(sha256('game/src/sky-activity.js'),'06c3ef75ab6e5f4c8b25eed6f6e25fec73a546e22b73d73ccf16ec038d08f54a');
+assert.equal(sha256('game/src/hell-world.js'),'c1ce149c0cc524cc94177e7db15fac381cab2bd9d357c3f7c44bd2fee00a1ef1');
+const skyRow=manifest.files.find(row=>row.path==='game/src/sky-activity.js');
+const worldRow=manifest.files.find(row=>row.path==='game/src/hell-world.js');
+assert.equal(skyRow.sha256,'06c3ef75ab6e5f4c8b25eed6f6e25fec73a546e22b73d73ccf16ec038d08f54a');
+assert.equal(worldRow.sha256,'c1ce149c0cc524cc94177e7db15fac381cab2bd9d357c3f7c44bd2fee00a1ef1');
+
+assert.match(world,/import \{createSkyActivity\} from '\.\/sky-activity\.js\?v=052'/);
+assert.match(world,/const skyActivity=createSkyActivity\(scene\)/);
+assert.match(world,/skyActivity,/);
+assert.match(main,/hellWorld\.skyActivity\.setCombat\(/);
+assert.match(main,/hellWorld\.skyActivity\.update\(/);
+assert.match(main,/dragonSlots:hellWorld\.skyActivity\.dragons\.length/);
+assert.doesNotMatch(main,/setGuideModelProvider\([\s\S]*skyActivity/);
+assert.doesNotMatch(main,/buildGuideModel\([\s\S]*skyActivity/);
+
+assert.match(briefing,/id==='dragons'\|\|id==='queen'\?'ENLARGE ↗':'VIEW 3D ↗'/);
+assert.match(viewer,/const MODEL_IDS=\['eggs','creepers','dancers','rimmers','tanks','plasma'\]/);
+assert.doesNotMatch(viewer,/'dragons'/);
+
+for(const source of [guide,solids,viewer,briefing]){
+ assert.doesNotMatch(source,/sky-activity/);
+ assert.doesNotMatch(source,/skyActivity/);
+ assert.doesNotMatch(source,/createSkyActivity/);
+}
+assert.doesNotMatch(guide,/id==='dragons'/);
+assert.doesNotMatch(solids,/dragon/i);
+assert.match(note,/must not\nretarget live sky dragons/);
+assert.match(note,/sky-activity\.js/);
+assert.match(note,/hellWorld\.skyActivity/);
+
+assert.doesNotMatch(main,/failIfMajorPerformanceCaveat:\s*true/);
+assert.doesNotMatch(main,/powerPreference:\s*'low-power'/);
+assert.match(main,/failIfMajorPerformanceCaveat: false/);
+assert.match(main,/powerPreference: 'high-performance'/);
+
+console.log(JSON.stringify({passed:true,identity:'0.54.61',skyActivity:'untouched',softGpu:'off'},null,2));

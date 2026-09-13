@@ -51,6 +51,10 @@ assert.match(dancers[3],/Orange spirits/);
 
 assert.match(briefing,/\?v=054-61/);
 assert.match(briefing,/id==='dragons'\|\|id==='queen'\?'ENLARGE ↗':'VIEW 3D ↗'/);
+assert.doesNotMatch(guide,/sky-activity|skyActivity|createSkyActivity/);
+assert.doesNotMatch(guide,/id==='dragons'/);
+assert.doesNotMatch(solids,/dragon/i);
+assert.doesNotMatch(main,/buildGuideModel\([\s\S]*skyActivity/);
 assert.match(guide,/function solidGuideRoot\(solid\)/);
 assert.match(guide,/function creeperGuideRoot\(creeperLoco,solid\)/);
 assert.match(guide,/else if\(id==='creepers'\)root=creeperGuideRoot\(creeperLoco,skinnedSolids\?\.creepers\)/);

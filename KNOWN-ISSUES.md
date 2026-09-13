@@ -581,7 +581,9 @@ HUD FPS on the full path. Do not enable Soft-GPU.
 v0.54.61 is a Field Guide-first identity. Rimmers, plasma bugs, and Ember Hollow
 creepers use VIEW 3D museum solids when the LFS objects are present. The viewer
 is rest-pose only: cloned materials, no combat mixers, no live-actor mutation.
-Dragons and the Queen stay ENLARGE. Dancing creepers stay on the orange-spirit
+Dragons and the Queen stay ENLARGE. The dragon Field Guide card must not
+retarget live sky dragons: `game/src/sky-activity.js` and `hellWorld.skyActivity`
+stay on the prior live path. Dancing creepers stay on the orange-spirit
 guide model. Eggs stay on the existing procedural guide model.
 
 Combat and world meshes are unchanged: bank/climber lava loco, procedural

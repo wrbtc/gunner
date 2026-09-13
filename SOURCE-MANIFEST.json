@@ -18,8 +18,8 @@
     },
     {
       "path": "game/assets/SKINNED-SOLIDS.md",
-      "bytes": 1593,
-      "sha256": "5d3a035c3ace22495369d1558f891fdd254bac73a81632ec069905dfedea424d"
+      "bytes": 1743,
+      "sha256": "843b009007cc1a0629f2b27c0c64819f8a77c12ec3ebf4e5d4dfbb4dbfbd48fd"
     },
     {
       "path": "game/assets/audio/KOKORO-CODE-LICENSE.txt",
@@ -368,8 +368,8 @@
     },
     {
       "path": "game/src/guide-models.js",
-      "bytes": 4026,
-      "sha256": "fa40b284317890e3da1a7c02fefe652e57644881d83a6954a9c0b20f23921841"
+      "bytes": 4111,
+      "sha256": "82c572c7dd41dada3e928d10475ca53178ef17edb95696ba5b6686e779c57158"
     },
     {
       "path": "game/src/gun-bubble.js",

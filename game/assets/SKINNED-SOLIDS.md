@@ -25,5 +25,8 @@ blocked morph prefixes `75ddc18f` / `a2ac5ebb` / `1c10edf7` / `45123f4c` /
 `9cd194e6` / `a9dcb2b6`.
 
 Museum pose only: rest pose, cloned materials, no combat mixers, no live-actor
-mutation. Sky dragons, HERO, Cinder Maw, and dancing-creeper orange spirits are
-unchanged. Eggs stay on the existing procedural guide model. Soft-GPU stays off.
+mutation. The dragon Field Guide card is portrait / ENLARGE only and must not
+retarget live sky dragons. Leave `game/src/sky-activity.js` and
+`hellWorld.skyActivity` alone. HERO, Cinder Maw, and dancing-creeper orange
+spirits are unchanged. Eggs stay on the existing procedural guide model.
+Soft-GPU stays off.
