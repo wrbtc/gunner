@@ -1,17 +1,17 @@
 import {menuMusic} from './src/menu-music.js?v=054-22';
 import {missionBenchmark,missionRating,createRankReveal} from './src/mission-rating.js?v=054-6';
-import {setGuideModelProvider,guideViewerStats,loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-60';
+import {setGuideModelProvider,guideViewerStats,loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-61';
 import {createPlayTracking} from './src/play-tracking.js?v=052';
 import {createPilotRadio} from './src/pilot-radio.js?v=054-16';
 import {createQueenEncounter} from './src/queen-encounter.js?v=054-22';
 import {installQueenSampleCues} from './src/queen-sample-cues.js?v=054-22';
 import {createPlasmaBursts} from './src/plasma-burst.js?v=054-42';
-import {createPlasmaBugs} from './src/plasma-bugs.js?v=054-60';
+import {createPlasmaBugs} from './src/plasma-bugs.js?v=054-61';
 import {riverWidthAt,NESTING_POOLS} from './src/river-profile.js?v=052';
-import {createRimmers} from './src/rimmers.js?v=054-60';
+import {createRimmers} from './src/rimmers.js?v=054-61';
 import {createTankerBugsAsync} from './src/tanker-bug.js?v=054-6';
 import {loadCinderMaw} from './src/cinder-maw.js?v=053-1';
-import {createTankerSpray} from './src/tanker-spray.js?v=054-60';
+import {createTankerSpray} from './src/tanker-spray.js?v=054-61';
 import {createEndingFlight} from './src/ending-flight.js?v=052';
 import {GUN,HP,POINTS,enemyKind,createHitFeedback} from './src/combat-balance.js?v=052';
 startupMark('main-evaluation','begin');
@@ -24,13 +24,14 @@ import {createRomanRuinsAsync} from './src/roman-ruins.js?v=054-6';
 import {createStaticRaycast} from './src/static-raycast.js?v=052';
 import * as THREE from './vendor/three.module.js?v=052';
 import {createEggNests} from './src/egg-nests.js?v=054-26';
-import {createBankDemons} from './src/bank-demons.js?v=054-60';
-import {loadCreeperLoco} from './src/creeper-loco.js?v=054-60';
-import {createBlastWorld} from './src/blast-world.js?v=054-60';
-import {createHellWorld} from './src/hell-world.js?v=054-60';
-import {createCinematicPass} from './src/cinematic-pass.js?v=054-60';
+import {createBankDemons} from './src/bank-demons.js?v=054-61';
+import {loadCreeperLoco} from './src/creeper-loco.js?v=054-61';
+import {loadSkinnedSolids} from './src/skinned-solids.js?v=054-61';
+import {createBlastWorld} from './src/blast-world.js?v=054-61';
+import {createHellWorld} from './src/hell-world.js?v=054-61';
+import {createCinematicPass} from './src/cinematic-pass.js?v=054-61';
 import {createCalderaEnvironment} from './src/caldera-light.js?v=052';
-import {createMayhemFX} from './src/mayhem-fx.js?v=054-60';
+import {createMayhemFX} from './src/mayhem-fx.js?v=054-61';
 import {SoundEngine as MayhemSoundEngine} from './src/mayhem-audio.js?v=054-6';
 import {loadAssetKit} from './src/asset-kit.js?v=052';
 import {upgradeGunBubble} from './src/gun-bubble.js?v=052';
@@ -1485,7 +1486,7 @@ function qaCoreChecks(){
   return {kind:'diagnostic-core-checks',passed:checks.filter(c=>c.pass).length,total:checks.length,checks};
 }
 const qaApi={
-  version:'0.54.60',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,masterMode:preferences.master,masterUsed:game.masterUsed,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:frameMetrics.counterScope||'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
+  version:'0.54.61',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,masterMode:preferences.master,masterUsed:game.masterUsed,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:frameMetrics.counterScope||'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
   start:()=>start({skipOpening:true,legacyRoute:true}),beginOpening:()=>start(),skipOpening:()=>finishOpening(true),openingState:()=>({active:game.opening,title:game.title,time:game.openingTime,phase:openingPhase,flightProgress:currentFlightProgress(),camera:camera.position.toArray(),quaternion:camera.quaternion.toArray(),fov:camera.fov,fade:Number(dom.openingFade.style.opacity)||0,exterior:bomberExterior?.stats(),cameraPath:openingCamera?.stats()}),seekOpening:(seconds)=>{game.openingTime=THREE.MathUtils.clamp(seconds,0,OPENING_SECONDS);game.captureFreeze=true;updatePlane(0);updateOpeningPresentation();return true;},reset:qaReset,pause,resume,setTime:(seconds)=>{game.time=THREE.MathUtils.clamp(seconds,0,RUN_SECONDS);updatePlane(0);creatureTracking?.seek(game.time);},setView:(yaw,pitch)=>{game.yaw=yaw;game.pitch=THREE.MathUtils.clamp(pitch,-1.38,.95);updatePlane(0);},turnAround,toggleRear:turnAround,fireCannon,fireRound,damage:(amount=6)=>damageHull(amount,planePos),masterMode:(enabled=true)=>setMasterMode(enabled,{persist:false}),explode:()=>explode(planePos.clone().addScaledVector(planeTangent,70),14),preview:setPreview,
   events:()=>game.eventLog.slice(),runtime:gunnerRuntime,trace:qaTrace,replay:qaReplay,checkCore:qaCoreChecks,
   aimAt:(target)=>{const actor=typeof target==='string'?enemies.concat(siege).find(e=>e.id===target):null;qaAimAt(actor?actorCenter(actor):new THREE.Vector3().fromArray(target));},
@@ -1522,9 +1523,9 @@ async function optionalCreeperLoco(){
     return {value:null,degraded:true,outcome:'rejected'};
   }
 }
-const [worldBootstrap,[assetBootstrap,creeperLocoBootstrap,cinderModel]]=await Promise.all([
+const [worldBootstrap,[assetBootstrap,creeperLocoBootstrap,cinderModel,skinnedSolidsBootstrap]]=await Promise.all([
   settleOptionalAsset(hellWorld.ready,'world-assets').then(value=>{if(!cinderLoadFailed)loadingStage('world');return value;}),
-  Promise.all([settleOptionalAsset(loadAssetKit(),'kit-assets'),optionalCreeperLoco(),requiredCinder()]).then(value=>{loadingStage('models');return value;})
+  Promise.all([settleOptionalAsset(loadAssetKit(),'kit-assets'),optionalCreeperLoco(),requiredCinder(),settleOptionalAsset(loadSkinnedSolids(),'guide-solids')]).then(value=>{loadingStage('models');return value;})
 ]);
 loadingProgress('scene');await yieldLoadingPaint();
 if(loadingSnapshot().status==='failed')throw preparationError('Flight preparation already failed');
@@ -1717,7 +1718,7 @@ await prepareFlightGraphics();
 startupMark('graphics','end');
 if(!loadingStage('shaders'))throw preparationError('Flight preparation already failed');
 startupMark('startup','ready');
-setGuideModelProvider(async id=>{const {buildGuideModel}=await import('./src/guide-models.js');return buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco:creeperLocoBootstrap?.value});});
+setGuideModelProvider(async id=>{const {buildGuideModel}=await import('./src/guide-models.js?v=054-61');return buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco:creeperLocoBootstrap?.value,skinnedSolids:skinnedSolidsBootstrap?.value});});
 bootCompleted=true;graphicsReady=true;dom.start.disabled=false;dom.start.textContent='DEPLOY GUNNER';
 if(query.has('preview'))setPreview(query.get('preview'));
 else if(QA_MODE){qaReset();if(CAPTURE){dom.intro.hidden=true;dom.hud.classList.add('visible');}}

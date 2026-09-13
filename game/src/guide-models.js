@@ -13,13 +13,7 @@ export function cloneGuideTree(source){
  root.name=source.name;root.position.copy(source.position);root.quaternion.copy(source.quaternion);root.scale.copy(source.scale);root.visible=source.visible;root.renderOrder=source.renderOrder;
  for(const child of source.children)if(!child.isLight&&!child.isSprite)root.add(cloneGuideTree(child));return root;
 }
-function creeperGuideRoot(creeperLoco){
- if(!creeperLoco)return createBankGuideModel(false);
- const visual=creeperLoco.attach(new THREE.Group());
- const root=visual.root;
- root.visible=true;
- // Museum facing: GLB +Z toward the guide camera. Combat attach yaw stays in loco.
- root.rotation.y=0;
+function isolateGuideMeshes(root){
  root.traverse(node=>{
   if(!node.isMesh)return;
   node.material=Array.isArray(node.material)?node.material.map(cloneGuideMaterial):cloneGuideMaterial(node.material);
@@ -27,18 +21,37 @@ function creeperGuideRoot(creeperLoco){
  });
  return root;
 }
-export function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco}){
+function solidGuideRoot(solid){
+ if(!solid)return null;
+ const root=solid.museumRoot();
+ // Museum rest pose only. Isolation copies keep combat actors untouched.
+ root.rotation.y=0;
+ return isolateGuideMeshes(root);
+}
+function creeperGuideRoot(creeperLoco,solid){
+ const fromSolid=solidGuideRoot(solid);
+ if(fromSolid)return fromSolid;
+ if(!creeperLoco)return createBankGuideModel(false);
+ const visual=creeperLoco.attach(new THREE.Group());
+ const root=visual.root;
+ root.visible=true;
+ // Museum facing: GLB +Z toward the guide camera. Combat attach yaw stays in loco.
+ root.rotation.y=0;
+ return isolateGuideMeshes(root);
+}
+export function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco,skinnedSolids}){
  let root;
  if(id==='eggs')root=eggNests.guideModel();
- else if(id==='creepers')root=creeperGuideRoot(creeperLoco);
+ else if(id==='creepers')root=creeperGuideRoot(creeperLoco,skinnedSolids?.creepers);
  else if(id==='dancers')root=createBankGuideModel(true);
- else if(id==='rimmers'){root=cloneGuideTree(createRimmerModel().root);}
+ else if(id==='rimmers')root=solidGuideRoot(skinnedSolids?.rimmers)||cloneGuideTree(createRimmerModel().root);
  else if(id==='tanks'){
   const rig=cinderModel.clone();rig.resetPose();root=rig.root;
   root.traverse(n=>{if(n.isMesh)n.geometry=n.geometry.clone();});
  }
  else if(id==='plasma'){
-  root=cloneGuideTree(plasmaBugs.actors[0].root);root.position.set(0,0,0);root.quaternion.identity();root.scale.setScalar(1);
+  root=solidGuideRoot(skinnedSolids?.plasma);
+  if(!root){root=cloneGuideTree(plasmaBugs.actors[0].root);root.position.set(0,0,0);root.quaternion.identity();root.scale.setScalar(1);}
  }
  if(!root)throw Error('No 3D guide model: '+id);
  root.visible=true;root.position.set(0,0,0);root.updateMatrixWorld(true);

@@ -1,6 +1,7 @@
 # Creeper lava loco (003)
 
-Bank creeper and climber combat visual.
+Bank creeper and climber combat visual. The Alien Field Guide prefers
+`creeper-ember-hollow.glb` when that museum solid is present; combat stays here.
 
 Expected binary next to this note:
 

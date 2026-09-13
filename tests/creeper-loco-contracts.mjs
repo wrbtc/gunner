@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {existsSync} from 'node:fs';
 import * as THREE from '../game/vendor/three.module.js?v=052';
-import {creeperLocoVisualBounds} from '../game/src/creeper-loco.js?v=054-60';
+import {creeperLocoVisualBounds} from '../game/src/creeper-loco.js?v=054-61';
 
 const root = new URL('../', import.meta.url);
 const read = name => readFileSync(new URL(name, root), 'utf8');
@@ -52,15 +52,16 @@ assert.match(bank, /Math\.atan2\(-dir\.x,-dir\.z\)/);
 assert.doesNotMatch(bank, /locoVisual\.root\.rotation/);
 
 assert.match(main, /loadCreeperLoco/);
-assert.match(main, /creeper-loco\.js\?v=054-60/);
-assert.match(main, /bank-demons\.js\?v=054-60/);
+assert.match(main, /creeper-loco\.js\?v=054-61/);
+assert.match(main, /bank-demons\.js\?v=054-61/);
 assert.match(main, /optionalCreeperLoco/);
 assert.match(main, /locoKit:creeperLocoBootstrap\?\.value/);
-assert.match(main, /version:'0\.54\.60'/);
+assert.match(main, /version:'0\.54\.61'/);
 assert.doesNotMatch(main, /version:'0\.54\.52'/);
 assert.doesNotMatch(main, /version:'0\.54\.57'/);
 assert.doesNotMatch(main, /version:'0\.54\.58'/);
 assert.doesNotMatch(main, /version:'0\.54\.59'/);
+assert.doesNotMatch(main, /version:'0\.54\.60'/);
 
 assert.match(note, /creeper-lava-loco-003\.glb/);
 assert.match(note, /KW_knuckle_walk/);
@@ -74,12 +75,13 @@ assert.doesNotMatch(note, /0\.54\.50/);
 assert.match(attributes, /game\/assets\/creeper-lava-loco-003\.glb filter=lfs diff=lfs merge=lfs -text/);
 
 const packageJson = JSON.parse(read('package.json'));
-assert.equal(packageJson.version, '0.54.60');
+assert.equal(packageJson.version, '0.54.61');
 assert.notEqual(packageJson.version, '0.54.57');
 assert.notEqual(packageJson.version, '0.54.58');
 assert.notEqual(packageJson.version, '0.54.59');
+assert.notEqual(packageJson.version, '0.54.60');
 const manifest = JSON.parse(read('SOURCE-MANIFEST.json'));
-assert.equal(manifest.version, '0.54.60');
+assert.equal(manifest.version, '0.54.61');
 const locoRow = manifest.files.find(row => row.path.endsWith('creeper-lava-loco-003.glb'));
 assert.equal(locoRow.bytes, 9840676);
 assert.equal(locoRow.sha256, 'e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5');

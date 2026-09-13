@@ -1,4 +1,4 @@
-# Release validation — v0.54.60
+# Release validation — v0.54.61
 
 ## Older Intel Safari / short desktop viewport
 
@@ -520,7 +520,7 @@ orange-spirit path. Combat loco, GLB bytes, and attach yaw are unchanged from
 
 Do not treat that Field Guide identity as 0.54.54 (creeper motion GLB) or
 0.54.55 (held menu Deploy gap). This tip keeps that Field Guide copy and art
-while identifying as v0.54.60.
+while identifying as v0.54.61.
 
 ## Deploy ammo breathing room (v0.54.58)
 
@@ -575,6 +575,33 @@ and the v0.54.58 Deploy ammo gap. Do not treat 0.54.52, 0.54.53, 0.54.57,
 
 Physical Intel Safari combat acceptance remains pending. Record unpaused combat
 HUD FPS on the full path. Do not enable Soft-GPU.
+
+## Field Guide skinned solids (v0.54.61)
+
+v0.54.61 is a Field Guide-first identity. Rimmers, plasma bugs, and Ember Hollow
+creepers use VIEW 3D museum solids when the LFS objects are present. The viewer
+is rest-pose only: cloned materials, no combat mixers, no live-actor mutation.
+Dragons and the Queen stay ENLARGE. Dancing creepers stay on the orange-spirit
+guide model. Eggs stay on the existing procedural guide model.
+
+Combat and world meshes are unchanged: bank/climber lava loco, procedural
+rimmers, procedural plasma, procedural eggs, Cinder Maw tanks, and sky dragons.
+Do not treat this as a live asset swap. Soft-GPU stays off
+(`powerPreference: high-performance`, `failIfMajorPerformanceCaveat: false`).
+
+Gated museum binaries:
+
+- `rimmer-skinned-solid.glb` — 1153368 bytes, `1cc99c3e…`
+- `plasma-bug-skinned-solid.glb` — 1135104 bytes, `127e6fdc…`
+- `creeper-ember-hollow.glb` — 4803580 bytes, `085943e9…`
+
+This tip wires the loaders and hash gates. The real LFS objects still need to
+land on those paths before VIEW 3D can show the new meshes. Reject morph prefixes `75ddc18f` /
+`a2ac5ebb` / `1c10edf7` / `45123f4c` / `9cd194e6` / `a9dcb2b6`. Do not treat
+0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59 or 0.54.60 as this identity.
+
+In-game eyeball: open the Alien Field Guide and confirm VIEW 3D for rimmers,
+plasma, and creepers. Combat meshes must still be the prior live visuals.
 
 ## Testing and patch requests
 

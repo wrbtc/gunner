@@ -1,5 +1,5 @@
 {
-  "version": "0.54.60",
+  "version": "0.54.61",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -13,8 +13,13 @@
     },
     {
       "path": "game/assets/CREEPER-LAVA-LOCO.md",
-      "bytes": 1609,
-      "sha256": "61bb0ac1557a4a810400d18c2fd41ce1c6f446f9d925282a3129603adca44202"
+      "bytes": 1720,
+      "sha256": "99843365a177e267aa36180a902dc32d32eafef945b99be64fa09b20bee43dfa"
+    },
+    {
+      "path": "game/assets/SKINNED-SOLIDS.md",
+      "bytes": 1593,
+      "sha256": "5d3a035c3ace22495369d1558f891fdd254bac73a81632ec069905dfedea424d"
     },
     {
       "path": "game/assets/audio/KOKORO-CODE-LICENSE.txt",
@@ -93,13 +98,18 @@
     },
     {
       "path": "game/assets/field-guide/CREEPER-PROVENANCE.json",
-      "bytes": 504,
-      "sha256": "460c96210cd05366902defed044b2f6eaffe4318255c04104c5f503cfc33fa02"
+      "bytes": 484,
+      "sha256": "dbe6b4c148b0bd4cfb63b367627882418dfec359f7c52ed4da4dbf5fb869af72"
     },
     {
       "path": "game/assets/field-guide/PLASMA-PROVENANCE.json",
-      "bytes": 370,
-      "sha256": "2e7d2a466b68825ffb2f1bbeeb92130a277417b77e5a13a26f7a2f07e9b68710"
+      "bytes": 484,
+      "sha256": "ad909a38f738c0e18864b44f2df7ea8ba7a034a970f2d5a57d90e112655cc20f"
+    },
+    {
+      "path": "game/assets/field-guide/RIMMER-PROVENANCE.json",
+      "bytes": 473,
+      "sha256": "30368c6aa88e941c35afc0efafba67b6fa557c53867cb9c963a833e8233a24a2"
     },
     {
       "path": "game/assets/field-guide/creepers.png",
@@ -214,17 +224,17 @@
     {
       "path": "game/index.html",
       "bytes": 13320,
-      "sha256": "ef8026179afe13908633ca4704c68cadbc1d0c4974ba4f7574d62d27cf5ee2d2"
+      "sha256": "4338d3b97f385b7ee39f07cebdb6ae815e8be7b1d79ea0160d380d5fee1819f4"
     },
     {
       "path": "game/main.js",
-      "bytes": 159797,
-      "sha256": "dcdbd76b2ad708d9dcd37db912e1f581f548090c8f78958d778d05055ca94ec2"
+      "bytes": 159997,
+      "sha256": "7cec3111e2a249196dfd6a6b12102a4f5e19d85d2a98aa2f010589b0fde4b4ed"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "eeb03e1e4476f790d58501428cf8bb91ceaf8bb59a5f779f40bc9ff89acd9689"
+      "sha256": "454bc52c57d7d9210c2db9c8afa0993f6bc87426310d529ab4a9a8a1aeefb2c6"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -358,8 +368,8 @@
     },
     {
       "path": "game/src/guide-models.js",
-      "bytes": 3526,
-      "sha256": "e712a5aa62f6faa7945db0f046f8c0cc91cbab2a7d337de47ae083df8cb758b0"
+      "bytes": 4026,
+      "sha256": "fa40b284317890e3da1a7c02fefe652e57644881d83a6954a9c0b20f23921841"
     },
     {
       "path": "game/src/gun-bubble.js",
@@ -423,8 +433,8 @@
     },
     {
       "path": "game/src/mission-screen.js",
-      "bytes": 26882,
-      "sha256": "fd3d2be65d5328d48adacf05de4d5f92b48685ab5bbad845a1834f80a2538f55"
+      "bytes": 26834,
+      "sha256": "e9b54a6750002f87c9b242665757a0d86024f9b1dd92539c7e9a9ff83ec12b21"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -537,6 +547,11 @@
       "sha256": "b19c3ab5cb9871c6455c321513e8c04b54b6a045768bee70a2a1f97c327b2b26"
     },
     {
+      "path": "game/src/skinned-solids.js",
+      "bytes": 4024,
+      "sha256": "913d5733223817e2bd2423aa8fc83a115c35e993f13375abe94462d1f83b1005"
+    },
+    {
       "path": "game/src/sky-activity.js",
       "bytes": 11540,
       "sha256": "06c3ef75ab6e5f4c8b25eed6f6e25fec73a546e22b73d73ccf16ec038d08f54a"
@@ -617,5 +632,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.60 removes Reduced Effects entirely: no checkbox, no reduced-auto, no preferences.reduced store flag (older reduced / reducedUserSet keys are ignored and rewritten out), no quarter-res live world HDR, no Reduced-only contact/bloom skip, no every-second-rAF Reduced present, and no Reduced-only particle/atmosphere/light/geology/loco caps. The former non-Reduced cinematic/world path is the only path. This tip keeps the v0.54.52 attach yaw, the v0.54.59 live-clip loco LFS (game/assets/creeper-lava-loco-003.glb, 9840676 bytes, sha256 e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5), the Alien Field Guide lava creeper copy/art, the v0.54.58 Deploy ammo gap, and Master Mode. Soft-GPU stays off. prefers-reduced-motion still quiets flash and camera motion. Do not ship the stub lean LFS object. Do not treat 0.54.52, 0.54.53, 0.54.57, 0.54.58 or 0.54.59 as this identity. Physical Intel Safari combat acceptance remains pending."
+  "note": "Gunner v0.54.61 is a Field Guide-first identity: VIEW 3D museum solids for rimmers (game/assets/rimmer-skinned-solid.glb, 1153368 bytes, sha256 1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456), plasma (game/assets/plasma-bug-skinned-solid.glb, 1135104 bytes, sha256 127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f), and Ember Hollow creepers (game/assets/creeper-ember-hollow.glb, 4803580 bytes, sha256 085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f). Museum rest pose only. Combat and world meshes stay on the v0.54.60 path: lava loco (game/assets/creeper-lava-loco-003.glb, 9840676 bytes, sha256 e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5), procedural rimmers/plasma/eggs, Cinder Maw tanks, and sky dragons. Soft-GPU stays off. prefers-reduced-motion still quiets flash and camera motion. Do not land morph creeper hashes 75ddc18f / a2ac5ebb / 1c10edf7 / 45123f4c / 9cd194e6 / a9dcb2b6. Do not treat 0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59 or 0.54.60 as this identity. Physical Intel Safari combat acceptance remains pending."
 }
