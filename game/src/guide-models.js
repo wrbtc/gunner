@@ -17,14 +17,15 @@ function isolateGuideMeshes(root){
  root.traverse(node=>{
   if(!node.isMesh)return;
   node.material=Array.isArray(node.material)?node.material.map(cloneGuideMaterial):cloneGuideMaterial(node.material);
-  node.geometry=node.geometry.clone();
+  // Keep SkinnedMesh geometry shared so ember_idle can drive the Hollow museum pose.
+  if(!node.isSkinnedMesh)node.geometry=node.geometry.clone();
  });
  return root;
 }
 function solidGuideRoot(solid){
  if(!solid)return null;
  const root=solid.museumRoot();
- // Museum rest pose only. Isolation copies keep combat actors untouched.
+ // Isolation copies keep combat actors untouched. Hollow may play ember_idle.
  root.rotation.y=0;
  return isolateGuideMeshes(root);
 }
@@ -59,5 +60,8 @@ export function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco,
  root.traverse(n=>{n.layers.set(0);n.frustumCulled=false;n.castShadow=false;n.receiveShadow=false;});
  const bounds=new THREE.Box3().setFromObject(root),center=bounds.getCenter(new THREE.Vector3()),extent=bounds.getSize(new THREE.Vector3()),scale=2.4/Math.max(extent.x,extent.y,extent.z);
  const frame=new THREE.Group(),pivot=new THREE.Group();frame.add(pivot);pivot.add(root);pivot.scale.setScalar(scale);root.position.sub(center);frame.name='Guide '+id;frame.rotation.y=id==='creepers'?0:id==='eggs'?.25:Math.PI+.4;
- return{root:frame,dispose(){const geos=new Set(),mats=new Set();root.traverse(n=>{if(n.geometry)geos.add(n.geometry);if(n.material)for(const m of Array.isArray(n.material)?n.material:[n.material])mats.add(m);if(n.isSkinnedMesh)n.skeleton.dispose();});geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose());}};
+ let mixer=null;
+ root.traverse(n=>{if(n.userData.guideMixer)mixer=n.userData.guideMixer;});
+ const dispose=()=>{if(mixer){mixer.stopAllAction();mixer.uncacheRoot(root);}const geos=new Set(),mats=new Set();root.traverse(n=>{if(n.geometry)geos.add(n.geometry);if(n.material)for(const m of Array.isArray(n.material)?n.material:[n.material])mats.add(m);if(n.isSkinnedMesh)n.skeleton.dispose();});geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose());};
+ return mixer?{root:frame,tick(dt){mixer.update(dt);},dispose}:{root:frame,dispose};
 }

@@ -6,6 +6,10 @@ import {GLTFLoader} from '../vendor/GLTFLoader.js?v=052';
 export const FORBIDDEN_MORPH_PREFIXES=Object.freeze([
  '75ddc18f','a2ac5ebb','1c10edf7','45123f4c','9cd194e6','a9dcb2b6'
 ]);
+export const REJECTED_EMBER_SOLID=Object.freeze({
+ sha256:'085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f',
+ bytes:4803580
+});
 export const SKINNED_SOLIDS=Object.freeze({
  rimmers:Object.freeze({
   id:'rimmers',
@@ -22,8 +26,10 @@ export const SKINNED_SOLIDS=Object.freeze({
  creepers:Object.freeze({
   id:'creepers',
   asset:'creeper-ember-hollow',
-  sha256:'085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f',
-  bytes:4803580
+  sha256:'25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe',
+  bytes:1091768,
+  armature:'EmberArmature',
+  clips:Object.freeze({idle:'ember_idle',walk:'ember_walk'})
  })
 });
 
@@ -34,6 +40,11 @@ function hexSha256(bytes){
 }
 function isLfsPointer(bytes){
  return new TextDecoder().decode(bytes.subarray(0,80)).includes('git-lfs.github.com');
+}
+function namedNode(root,name){
+ let found=null;
+ root.traverse(node=>{if(!found&&node.name===name)found=node;});
+ return found;
 }
 function cloneSkinnedGuide(source){
  const root=source.clone(true);
@@ -75,6 +86,9 @@ async function loadOne(spec){
  if(isLfsPointer(bytes))throw Error('Field-guide solid is an LFS pointer: '+spec.asset);
  const sha256=await hexSha256(bytes);
  if(FORBIDDEN_MORPH_PREFIXES.some(prefix=>sha256.startsWith(prefix)))throw Error('Forbidden morph creeper hash');
+ if(spec.id==='creepers'&&(sha256===REJECTED_EMBER_SOLID.sha256||bytes.byteLength===REJECTED_EMBER_SOLID.bytes)){
+  throw Error('Rejected SOLID Ember Hollow pack');
+ }
  if(sha256!==spec.sha256)throw Error('Field-guide solid hash mismatch: '+spec.asset);
  if(bytes.byteLength!==spec.bytes)throw Error('Field-guide solid size mismatch: '+spec.asset);
  const gltf=await makeLoader().parseAsync(buffer,'');
@@ -84,10 +98,18 @@ async function loadOne(spec){
  let skinned=0;
  scene.traverse(node=>{if(node.isSkinnedMesh)skinned++;});
  if(!skinned)throw Error('Field-guide solid skinned mesh missing: '+spec.asset);
+ if(spec.armature&&!namedNode(scene,spec.armature))throw Error('Field-guide solid armature missing: '+spec.armature);
+ const animations=gltf.animations||[];
+ if(spec.clips){
+  const names=new Set(animations.map(clip=>clip.name));
+  for(const name of Object.values(spec.clips)){
+   if(!names.has(name))throw Error('Field-guide solid clip missing: '+name);
+  }
+ }
  return {
   spec,
   scene,
-  animations:gltf.animations||[],
+  animations,
   museumRoot(){
    const root=cloneSkinnedGuide(scene);
    root.name='Museum '+spec.id;
@@ -95,7 +117,13 @@ async function loadOne(spec){
    root.position.set(0,0,0);
    root.rotation.set(0,0,0);
    root.scale.setScalar(1);
-   // Rest pose only. Do not start combat mixers or mutate live actors.
+   // Museum idle only. Do not start combat mixers or mutate live actors.
+   if(spec.clips?.idle){
+    const clip=animations.find(item=>item.name===spec.clips.idle);
+    const mixer=new THREE.AnimationMixer(root);
+    mixer.clipAction(clip).reset().play();
+    root.userData.guideMixer=mixer;
+   }
    return root;
   }
  };

@@ -14,7 +14,7 @@ const manifest=JSON.parse(read('SOURCE-MANIFEST.json'));
 const expected=[
  {path:'game/assets/rimmer-skinned-solid.glb',bytes:1153368,sha256:'1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456'},
  {path:'game/assets/plasma-bug-skinned-solid.glb',bytes:1135104,sha256:'127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f'},
- {path:'game/assets/creeper-ember-hollow.glb',bytes:4803580,sha256:'085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f'}
+ {path:'game/assets/creeper-ember-hollow.glb',bytes:1091768,sha256:'25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe'}
 ];
 const forbidden=['75ddc18f','a2ac5ebb','1c10edf7','45123f4c','9cd194e6','a9dcb2b6'];
 
@@ -35,9 +35,21 @@ assert.match(main,/skinnedSolids:skinnedSolidsBootstrap\?\.value/);
 assert.doesNotMatch(main,/createRimmers\([\s\S]{0,400}solid/);
 assert.doesNotMatch(main,/createPlasmaBugs\([\s\S]{0,400}solid/);
 assert.doesNotMatch(main,/createEggNests\([\s\S]{0,200}solid/);
-assert.match(note,/Museum pose only/);
+assert.match(note,/Museum pose/);
+assert.match(note,/ember_idle/);
+assert.match(note,/EmberArmature/);
+assert.match(note,/Reject the 4\.58MB SOLID/);
 assert.match(note,/Combat and world visuals stay/);
 assert.doesNotMatch(note,/Roland|Phil|Dee/);
+assert.match(solids,/REJECTED_EMBER_SOLID/);
+assert.match(solids,/EmberArmature/);
+assert.match(solids,/ember_idle/);
+assert.match(solids,/ember_walk/);
+assert.match(solids,/085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f/);
+assert.match(manifest.note,/25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe/);
+assert.match(manifest.note,/1091768/);
+assert.match(manifest.note,/085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f/);
+assert.match(manifest.note,/reject/);
 
 for(const row of expected){
  assert.match(attributes,new RegExp(row.path.replace(/\//g,'\\/')+' filter=lfs'));

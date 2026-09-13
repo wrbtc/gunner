@@ -18,8 +18,8 @@
     },
     {
       "path": "game/assets/SKINNED-SOLIDS.md",
-      "bytes": 1743,
-      "sha256": "843b009007cc1a0629f2b27c0c64819f8a77c12ec3ebf4e5d4dfbb4dbfbd48fd"
+      "bytes": 2093,
+      "sha256": "f6495c137ee4062342422ddde6380dcd4670cc646d2acdf32fe87371d061c8bc"
     },
     {
       "path": "game/assets/audio/KOKORO-CODE-LICENSE.txt",
@@ -98,8 +98,8 @@
     },
     {
       "path": "game/assets/field-guide/CREEPER-PROVENANCE.json",
-      "bytes": 484,
-      "sha256": "dbe6b4c148b0bd4cfb63b367627882418dfec359f7c52ed4da4dbf5fb869af72"
+      "bytes": 561,
+      "sha256": "cb0acd0e31a6bbd2caf104658e7ce27da50b9885d7e859985e5a4c65b8e78e33"
     },
     {
       "path": "game/assets/field-guide/PLASMA-PROVENANCE.json",
@@ -363,13 +363,13 @@
     },
     {
       "path": "game/src/field-guide-viewer.js",
-      "bytes": 7697,
-      "sha256": "63a1dd889cd6864ad53e70475dbb63ead8edc242a52d0c90d1e5ed1d086713d4"
+      "bytes": 8352,
+      "sha256": "409a15c3af84a4060006bdf2c732bf6739600cf08774f06cef3a220d7f41ba60"
     },
     {
       "path": "game/src/guide-models.js",
-      "bytes": 4111,
-      "sha256": "82c572c7dd41dada3e928d10475ca53178ef17edb95696ba5b6686e779c57158"
+      "bytes": 4450,
+      "sha256": "ef90d10eb53cd8fff5e929da02d13c688d9f2fb84eaee7dd47f919dd93e7fc98"
     },
     {
       "path": "game/src/gun-bubble.js",
@@ -548,8 +548,8 @@
     },
     {
       "path": "game/src/skinned-solids.js",
-      "bytes": 4024,
-      "sha256": "913d5733223817e2bd2423aa8fc83a115c35e993f13375abe94462d1f83b1005"
+      "bytes": 5125,
+      "sha256": "6de40672fe75dff60de691cb17603ef8246a2cff21c63e3030a060f929e31788"
     },
     {
       "path": "game/src/sky-activity.js",
@@ -632,5 +632,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.61 is a Field Guide-first identity: VIEW 3D museum solids for rimmers (game/assets/rimmer-skinned-solid.glb, 1153368 bytes, sha256 1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456), plasma (game/assets/plasma-bug-skinned-solid.glb, 1135104 bytes, sha256 127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f), and Ember Hollow creepers (game/assets/creeper-ember-hollow.glb, 4803580 bytes, sha256 085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f). Museum rest pose only. Combat and world meshes stay on the v0.54.60 path: lava loco (game/assets/creeper-lava-loco-003.glb, 9840676 bytes, sha256 e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5), procedural rimmers/plasma/eggs, Cinder Maw tanks, and sky dragons. Soft-GPU stays off. prefers-reduced-motion still quiets flash and camera motion. Do not land morph creeper hashes 75ddc18f / a2ac5ebb / 1c10edf7 / 45123f4c / 9cd194e6 / a9dcb2b6. Do not treat 0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59 or 0.54.60 as this identity. Physical Intel Safari combat acceptance remains pending."
+  "note": "Gunner v0.54.61 is a Field Guide-first identity: VIEW 3D museum solids for rimmers (game/assets/rimmer-skinned-solid.glb, 1153368 bytes, sha256 1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456), plasma (game/assets/plasma-bug-skinned-solid.glb, 1135104 bytes, sha256 127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f), and Ember Hollow creepers (game/assets/creeper-ember-hollow.glb, 1091768 bytes, sha256 25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe; EmberArmature, ember_idle museum loop; reject SOLID 4803580 bytes, sha256 085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f). Combat and world meshes stay on the v0.54.60 path: lava loco (game/assets/creeper-lava-loco-003.glb, 9840676 bytes, sha256 e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5), procedural rimmers/plasma/eggs, Cinder Maw tanks, and sky dragons. Soft-GPU stays off. prefers-reduced-motion still quiets flash and camera motion. Do not land morph creeper hashes 75ddc18f / a2ac5ebb / 1c10edf7 / 45123f4c / 9cd194e6 / a9dcb2b6. Do not treat 0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59 or 0.54.60 as this identity. Physical Intel Safari combat acceptance remains pending."
 }

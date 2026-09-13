@@ -579,12 +579,13 @@ HUD FPS on the full path. Do not enable Soft-GPU.
 ## Field Guide skinned solids (v0.54.61)
 
 v0.54.61 is a Field Guide-first identity. Rimmers, plasma bugs, and Ember Hollow
-creepers use VIEW 3D museum solids when the LFS objects are present. The viewer
-is rest-pose only: cloned materials, no combat mixers, no live-actor mutation.
-Dragons and the Queen stay ENLARGE. The dragon Field Guide card must not
-retarget live sky dragons: `game/src/sky-activity.js` and `hellWorld.skyActivity`
-stay on the prior live path. Dancing creepers stay on the orange-spirit
-guide model. Eggs stay on the existing procedural guide model.
+creepers use VIEW 3D museum solids when the LFS objects are present. Rimmers and
+plasma stay rest pose. Ember Hollow VIEW 3D plays `ember_idle` only on
+`EmberArmature` (`ember_walk` stays unused). Cloned materials, no combat mixers,
+no live-actor mutation. Dragons and the Queen stay ENLARGE. The dragon Field
+Guide card must not retarget live sky dragons: `game/src/sky-activity.js` and
+`hellWorld.skyActivity` stay on the prior live path. Dancing creepers stay on
+the orange-spirit guide model. Eggs stay on the existing procedural guide model.
 
 Combat and world meshes are unchanged: bank/climber lava loco, procedural
 rimmers, procedural plasma, procedural eggs, Cinder Maw tanks, and sky dragons.
@@ -595,7 +596,7 @@ Gated museum binaries:
 
 - `rimmer-skinned-solid.glb` — 1153368 bytes, `1cc99c3e…`
 - `plasma-bug-skinned-solid.glb` — 1135104 bytes, `127e6fdc…`
-- `creeper-ember-hollow.glb` — 4803580 bytes, `085943e9…`
+- `creeper-ember-hollow.glb` — 1091768 bytes, `25a1be82…` (slim pack; reject SOLID `085943e9…` / 4803580)
 
 This tip wires the loaders and hash gates. The real LFS objects still need to
 land on those paths before VIEW 3D can show the new meshes. Reject morph prefixes `75ddc18f` /
