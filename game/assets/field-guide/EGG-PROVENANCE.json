@@ -1,8 +1,11 @@
 {
-  "source": "Field Guide and live nest use the same shell and maggot solids. Maggot stays inside the shell until rupture.",
+  "source": "Field Notes Intact egg assembles egg-shell-a with the Field Notes v02 larva. Live nests still identify egg-maggot-a for provenance and stay on the procedural fallback until that object lands.",
   "sourceShell": "game/assets/egg-shell-a.glb",
   "sourceShellSHA256": "368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2",
-  "sourceMaggot": "game/assets/egg-maggot-a.glb",
-  "sourceMaggotSHA256": "3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127",
-  "render": "VIEW 3D shows maggot inside the leathery shell. Combat rupture still hides the shell and drops the maggot."
+  "sourceMaggot": "game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb",
+  "sourceMaggotSHA256": "344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96",
+  "liveNestMaggot": "game/assets/egg-maggot-a.glb",
+  "liveNestMaggotSHA256": "3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127",
+  "imageSHA256": "d375c4f2443cb29f2c206dc0ef57673179d809939f385cadd5718e549cdf5f9c",
+  "render": "Card portrait and VIEW 3D Intact egg show egg-shell-a with the v02 maggot through a leathery window. Shell specimen stays shell-only. Combat rupture still uses the live nest path."
 }

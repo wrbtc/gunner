@@ -19,8 +19,8 @@ const expected=[
  {path:'game/assets/egg-maggot-a.glb',bytes:732684,sha256:'3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127'}
 ];
 
-assert.equal(packageJson.version,'0.54.61');
-assert.equal(manifest.version,'0.54.61');
+assert.equal(packageJson.version,'0.54.62');
+assert.equal(manifest.version,'0.54.62');
 assert.match(solids,/export function loadEggSolids/);
 assert.match(solids,/adaptEggShellMaterial/);
 assert.match(solids,/opacity=\.46/);
@@ -33,7 +33,10 @@ assert.match(nests,/egg\.shell\.visible=false/);
 assert.match(nests,/egg\.socket\.visible=true/);
 assert.match(nests,/embryo\.position\.z=\.15/);
 assert.match(nests,/useBakedShell\?source\.shell\.material\.clone\(\)/);
-assert.match(guide,/if\(id==='eggs'\)root=eggNests\.guideModel\(\)/);
+assert.match(guide,/else if\(id==='eggs'\)root=solidGuideRoot\(skinnedSolids\?\.eggs\|\|await loadGuideIntactEgg\(\)\)/);
+assert.doesNotMatch(guide,/eggNests\.guideModel\(\)/);
+assert.match(read('game/src/field-guide-egg-parts.js'),/export function assembleIntactEgg/);
+assert.match(read('game/src/field-guide-egg-parts.js'),/344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96/);
 assert.match(main,/settleOptionalAsset\(loadEggSolids\(\),'egg-solids'\)/);
 assert.match(main,/eggSolids:eggSolidsBootstrap\?\.value/);
 assert.doesNotMatch(main,/failIfMajorPerformanceCaveat:\s*true/);
@@ -41,10 +44,11 @@ assert.match(main,/failIfMajorPerformanceCaveat: false/);
 assert.match(main,/powerPreference: 'high-performance'/);
 assert.doesNotMatch(sky,/egg-shell-a|egg-maggot-a/);
 assert.doesNotMatch(note,/Roland|Phil|Dee/);
-assert.match(note,/Field Notes uses the 1075680-byte rigged larva/);
-assert.match(note,/does not replace the live\s+nest embryo/);
+assert.match(note,/1075680-byte rigged larva/);
+assert.match(note,/does not replace the\s+live nest embryo/);
 assert.equal(provenance.sourceShellSHA256,expected[0].sha256);
-assert.equal(provenance.sourceMaggotSHA256,expected[1].sha256);
+assert.equal(provenance.sourceMaggotSHA256,'344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96');
+assert.equal(provenance.liveNestMaggotSHA256,expected[1].sha256);
 
 for(const row of expected){
  assert.match(attributes,new RegExp(row.path.replace(/\//g,'\\/')+' filter=lfs'));
@@ -75,4 +79,4 @@ for(const row of expected){
  binaryStatus[row.path]=state;
 }
 
-console.log(JSON.stringify({passed:true,identity:'0.54.61',binaryStatus},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.62',binaryStatus},null,2));

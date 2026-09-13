@@ -49,6 +49,11 @@ assert.match(guide,/id==='dragons'/);
 assert.match(solids,/dragon-fg-a/);
 assert.match(solids,/38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27/);
 assert.match(solids,/64020728/);
+const dragonPointer=read('game/assets/dragon-fg-a.glb');
+assert.match(dragonPointer,/git-lfs\.github\.com/);
+assert.match(dragonPointer,/oid sha256:38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27/);
+assert.match(dragonPointer,/size 64020728/);
+assert.ok(dragonPointer.length<400,'Dragon A must ship as an LFS pointer, not the 64MB object');
 assert.doesNotMatch(solids,/sky-activity|skyActivity|createSkyActivity/);
 assert.match(note,/must not\nretarget live sky dragons/);
 assert.match(note,/sky-activity\.js/);
@@ -59,4 +64,4 @@ assert.doesNotMatch(main,/powerPreference:\s*'low-power'/);
 assert.match(main,/failIfMajorPerformanceCaveat: false/);
 assert.match(main,/powerPreference: 'high-performance'/);
 
-console.log(JSON.stringify({passed:true,identity:'0.54.61',skyActivity:'untouched',softGpu:'off'},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.62',skyActivity:'untouched',softGpu:'off'},null,2));
