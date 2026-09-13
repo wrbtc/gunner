@@ -59,4 +59,4 @@ assert.doesNotMatch(main,/powerPreference:\s*'low-power'/);
 assert.match(main,/failIfMajorPerformanceCaveat: false/);
 assert.match(main,/powerPreference: 'high-performance'/);
 
-console.log(JSON.stringify({passed:true,identity:'0.54.61',skyActivity:'untouched',softGpu:'off'},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.62',skyActivity:'untouched',softGpu:'off'},null,2));

@@ -6,6 +6,7 @@ const root=new URL('../',import.meta.url);
 const read=name=>readFileSync(new URL(name,root),'utf8');
 const briefing=read('game/src/mission-screen.js');
 const guide=read('game/src/guide-models.js');
+const viewer=read('game/src/field-guide-viewer.js');
 const solids=read('game/src/skinned-solids.js');
 const main=read('game/main.js');
 const loco=read('game/src/creeper-loco.js');
@@ -18,9 +19,9 @@ const plasmaProvenance=JSON.parse(read('game/assets/field-guide/PLASMA-PROVENANC
 const dragonProvenance=JSON.parse(read('game/assets/field-guide/DRAGON-PROVENANCE.json'));
 const dragonPortrait=readFileSync(new URL('game/assets/field-guide/dragons.png',root));
 
-assert.equal(packageJson.version,'0.54.61');
-assert.match(briefing,/export const REPORT_BUILD='0\.54\.61'/);
-assert.match(main,/version:'0\.54\.61'/);
+assert.equal(packageJson.version,'0.54.62');
+assert.match(briefing,/export const REPORT_BUILD='0\.54\.62'/);
+assert.match(main,/version:'0\.54\.62'/);
 assert.doesNotMatch(briefing,/0\.54\.52/);
 assert.doesNotMatch(briefing,/0\.54\.53/);
 assert.doesNotMatch(briefing,/0\.54\.57/);
@@ -32,6 +33,7 @@ assert.doesNotMatch(main,/version:'0\.54\.57'/);
 assert.doesNotMatch(main,/version:'0\.54\.58'/);
 assert.doesNotMatch(main,/version:'0\.54\.59'/);
 assert.doesNotMatch(main,/version:'0\.54\.60'/);
+assert.doesNotMatch(main,/version:'0\.54\.61'/);
 
 const creeper=briefing.match(/\['creepers','([^']+)','([^']+)','([^']+)','([^']+)'\]/);
 assert.ok(creeper,'creeper field-guide row must exist');
@@ -51,7 +53,7 @@ assert.ok(dancers,'dancer field-guide row must remain');
 assert.equal(dancers[1],'Dancing Creepers');
 assert.match(dancers[3],/Orange spirits/);
 
-assert.match(briefing,/\?v=054-61/);
+assert.match(briefing,/\?v=054-62/);
 assert.match(briefing,/id==='queen'\?'ENLARGE ↗':'VIEW 3D ↗'/);
 assert.doesNotMatch(briefing,/id==='dragons'\|\|id==='queen'/);
 assert.doesNotMatch(guide,/sky-activity|skyActivity|createSkyActivity/);
@@ -118,8 +120,12 @@ assert.doesNotMatch(solids,/attach\(/);
 assert.match(guide,/ember_idle/);
 assert.match(guide,/cloneSkinnedGuide/);
 assert.match(guide,/result\.tick=dt/);
-assert.match(read('game/src/field-guide-viewer.js'),/startTick/);
-assert.match(read('game/src/field-guide-viewer.js'),/current\.tick\(dt\)/);
+assert.match(viewer,/startTick/);
+assert.match(viewer,/current\.tick\(dt\)/);
+assert.match(viewer,/data-zoom="-1"/);assert.match(viewer,/data-zoom="1"/);
+assert.match(viewer,/canvas\.addEventListener\('wheel'/);assert.match(viewer,/passive:false/);
+assert.match(viewer,/camera\.zoom=clampGuideZoom/);assert.match(viewer,/current\.zoom=clampGuideZoom/);
+assert.match(viewer,/current\.zoom=1/);assert.match(viewer,/zoom:current\?\.zoom/);
 
 assert.match(main,/loadSkinnedSolids/);
 assert.match(main,/guide-solids/);
@@ -191,4 +197,4 @@ assert.match(dancersProvenance.render,/ritual_idle/);
 assert.doesNotMatch(main,/createTankerBugsAsync\([\s\S]{0,400}solid/);
 assert.doesNotMatch(main,/createBankDemons\([^)]*skinnedSolids/);
 
-console.log(JSON.stringify({passed:true,identity:'0.54.61',imageSHA256:imageHash},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.62',imageSHA256:imageHash},null,2));

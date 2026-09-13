@@ -20,9 +20,9 @@ const expected=[
 ];
 const forbidden=['75ddc18f','a2ac5ebb','1c10edf7','45123f4c','9cd194e6','a9dcb2b6'];
 
-assert.equal(packageJson.version,'0.54.61');
-assert.equal(manifest.version,'0.54.61');
-assert.match(manifest.note,/0\.54\.61/);
+assert.equal(packageJson.version,'0.54.62');
+assert.equal(manifest.version,'0.54.62');
+assert.match(manifest.note,/0\.54\.62/);
 assert.match(manifest.note,/Field Guide/);
 assert.match(manifest.note,/VIEW 3D/);
 assert.doesNotMatch(manifest.note,/combat mesh swap/i);
@@ -135,4 +135,4 @@ for(const row of expected){
  binaryStatus[row.path]=state;
 }
 
-console.log(JSON.stringify({passed:true,identity:'0.54.61',binaryStatus},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.62',binaryStatus},null,2));
