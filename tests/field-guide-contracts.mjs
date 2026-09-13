@@ -19,9 +19,9 @@ const plasmaProvenance=JSON.parse(read('game/assets/field-guide/PLASMA-PROVENANC
 const dragonProvenance=JSON.parse(read('game/assets/field-guide/DRAGON-PROVENANCE.json'));
 const dragonPortrait=readFileSync(new URL('game/assets/field-guide/dragons.png',root));
 
-assert.equal(packageJson.version,'0.54.62');
-assert.match(briefing,/export const REPORT_BUILD='0\.54\.62'/);
-assert.match(main,/version:'0\.54\.62'/);
+assert.equal(packageJson.version,'0.54.63');
+assert.match(briefing,/export const REPORT_BUILD='0\.54\.63'/);
+assert.match(main,/version:'0\.54\.63'/);
 assert.doesNotMatch(briefing,/0\.54\.52/);
 assert.doesNotMatch(briefing,/0\.54\.53/);
 assert.doesNotMatch(briefing,/0\.54\.57/);
@@ -34,6 +34,7 @@ assert.doesNotMatch(main,/version:'0\.54\.58'/);
 assert.doesNotMatch(main,/version:'0\.54\.59'/);
 assert.doesNotMatch(main,/version:'0\.54\.60'/);
 assert.doesNotMatch(main,/version:'0\.54\.61'/);
+assert.doesNotMatch(main,/version:'0\.54\.62'/);
 
 const creeper=briefing.match(/\['creepers','([^']+)','([^']+)','([^']+)','([^']+)'\]/);
 assert.ok(creeper,'creeper field-guide row must exist');
@@ -53,7 +54,7 @@ assert.ok(dancers,'dancer field-guide row must remain');
 assert.equal(dancers[1],'Dancing Creepers');
 assert.match(dancers[3],/Orange spirits/);
 
-assert.match(briefing,/\?v=054-62/);
+assert.match(briefing,/\?v=054-63/);
 assert.match(briefing,/id==='queen'\?'ENLARGE ↗':'VIEW 3D ↗'/);
 assert.doesNotMatch(briefing,/id==='dragons'\|\|id==='queen'/);
 assert.doesNotMatch(guide,/sky-activity|skyActivity|createSkyActivity/);
@@ -197,4 +198,4 @@ assert.match(dancersProvenance.render,/ritual_idle/);
 assert.doesNotMatch(main,/createTankerBugsAsync\([\s\S]{0,400}solid/);
 assert.doesNotMatch(main,/createBankDemons\([^)]*skinnedSolids/);
 
-console.log(JSON.stringify({passed:true,identity:'0.54.62',imageSHA256:imageHash},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.63',imageSHA256:imageHash},null,2));
