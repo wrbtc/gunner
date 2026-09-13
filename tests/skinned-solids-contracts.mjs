@@ -35,7 +35,8 @@ assert.match(main,/settleOptionalAsset\(loadSkinnedSolids\(\),'guide-solids'\)/)
 assert.match(main,/skinnedSolidsBootstrap\?\.value/);
 assert.doesNotMatch(main,/createRimmers\([\s\S]{0,400}solid/);
 assert.doesNotMatch(main,/createPlasmaBugs\([\s\S]{0,400}solid/);
-assert.doesNotMatch(main,/createEggNests\([\s\S]{0,200}solid/);
+assert.match(main,/createEggNests\([\s\S]{0,240}eggSolids:eggSolidsBootstrap\?\.value/);
+assert.doesNotMatch(main,/createRimmers\([\s\S]{0,200}eggSolids/);
 assert.match(note,/Museum pose/);
 assert.match(note,/ember_idle/);
 assert.match(note,/EmberArmature/);

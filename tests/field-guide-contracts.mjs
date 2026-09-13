@@ -72,6 +72,9 @@ assert.match(guide,/museumRoot\(\)/);
 assert.match(guide,/root\.rotation\.y=0/);
 assert.match(guide,/else if\(id==='dancers'\)root=createBankGuideModel\(true\)/);
 assert.match(guide,/if\(id==='eggs'\)root=eggNests\.guideModel\(\)/);
+assert.match(read('game/src/egg-nests.js'),/useBakedShell\?source\.shell\.material\.clone\(\)/);
+assert.match(read('game/src/egg-solids.js'),/368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2/);
+assert.match(read('game/src/egg-solids.js'),/3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127/);
 assert.doesNotMatch(guide,/id==='creepers'\|\|id==='dancers'\)root=createBankGuideModel/);
 
 assert.match(solids,/asset:'rimmer-skinned-solid'/);
@@ -122,6 +125,8 @@ assert.doesNotMatch(sky,/rimmer-skinned-solid/);
 assert.doesNotMatch(sky,/plasma-bug-skinned-solid/);
 assert.doesNotMatch(sky,/creeper-ember-hollow/);
 assert.doesNotMatch(sky,/dragon-fg-a/);
+assert.doesNotMatch(sky,/egg-shell-a/);
+assert.doesNotMatch(sky,/egg-maggot-a/);
 
 assert.equal(portrait.readUInt32BE(16),512);
 assert.equal(portrait.readUInt32BE(20),384);

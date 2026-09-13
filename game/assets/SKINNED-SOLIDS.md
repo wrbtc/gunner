@@ -38,5 +38,5 @@ Museum pose: rimmers and plasma stay rest pose. Ember Hollow VIEW 3D plays
 `ember_idle` only (`ember_walk` is present on the pack and must not start).
 Dragon A stays rest pose. Cloned materials, no combat mixers, no live-actor
 mutation. The Queen stays ENLARGE. HERO, Cinder Maw, and dancing-creeper orange
-spirits are unchanged. Eggs stay on the existing procedural guide model.
+spirits are unchanged. Eggs use `egg-shell-a` / `egg-maggot-a` when present.
 Soft-GPU stays off.

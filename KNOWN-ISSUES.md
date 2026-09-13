@@ -586,10 +586,12 @@ static rest-pose mesh (no clips). Cloned materials, no combat mixers, no
 live-actor mutation. The Queen stays ENLARGE. The dragon Field Guide card must
 not retarget live sky dragons: `game/src/sky-activity.js` and
 `hellWorld.skyActivity` stay on the prior live path. Dancing creepers stay on
-the orange-spirit guide model. Eggs stay on the existing procedural guide model.
+the orange-spirit guide model. Eggs use `egg-shell-a` / `egg-maggot-a` for live
+nests and Field Guide VIEW 3D when those LFS objects are present (maggot inside
+the shell until rupture; procedural fallback until they land).
 
-Combat and world meshes are unchanged: bank/climber lava loco, procedural
-rimmers, procedural plasma, procedural eggs, Cinder Maw tanks, and sky dragons.
+Combat and world meshes otherwise stay on the prior path: bank/climber lava loco,
+procedural rimmers, procedural plasma, Cinder Maw tanks, and sky dragons.
 Do not treat this as a live asset swap. Soft-GPU stays off
 (`powerPreference: high-performance`, `failIfMajorPerformanceCaveat: false`).
 
@@ -599,6 +601,8 @@ Gated museum binaries:
 - `plasma-bug-skinned-solid.glb` — 1135104 bytes, `127e6fdc…`
 - `creeper-ember-hollow.glb` — 1091768 bytes, `25a1be82…` (slim pack; reject SOLID `085943e9…` / 4803580)
 - `dragon-fg-a.glb` — 64020728 bytes, `38fdb98e…` (static; lazy Field Guide load)
+- `egg-shell-a.glb` — 817236 bytes, `368d9e85…`
+- `egg-maggot-a.glb` — 732684 bytes, `3b9e16e2…`
 
 This tip wires the loaders and hash gates. The real LFS objects still need to
 land on those paths before VIEW 3D can show the new meshes. Reject morph prefixes `75ddc18f` /
@@ -606,8 +610,9 @@ land on those paths before VIEW 3D can show the new meshes. Reject morph prefixe
 0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59 or 0.54.60 as this identity.
 
 In-game eyeball: open the Alien Field Guide and confirm VIEW 3D for rimmers,
-plasma, creepers, and dragons. The Queen stays ENLARGE. Combat meshes must
-still be the prior live visuals, including canyon wyverns.
+plasma, creepers, dragons, and eggs. The Queen stays ENLARGE. After egg LFS
+land, confirm a vague maggot silhouette inside the shell, then rupture still
+hides the shell and drops the maggot. Canyon wyverns stay on the live path.
 
 ## Testing and patch requests
 

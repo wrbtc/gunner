@@ -1,0 +1,8 @@
+{
+  "source": "Field Guide and live nest use the same shell and maggot solids. Maggot stays inside the shell until rupture.",
+  "sourceShell": "game/assets/egg-shell-a.glb",
+  "sourceShellSHA256": "368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2",
+  "sourceMaggot": "game/assets/egg-maggot-a.glb",
+  "sourceMaggotSHA256": "3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127",
+  "render": "VIEW 3D shows maggot inside the leathery shell. Combat rupture still hides the shell and drops the maggot."
+}

@@ -23,10 +23,11 @@ import {CANNON,createCannonRounds} from './src/cannon-round.js?v=052';
 import {createRomanRuinsAsync} from './src/roman-ruins.js?v=054-6';
 import {createStaticRaycast} from './src/static-raycast.js?v=052';
 import * as THREE from './vendor/three.module.js?v=052';
-import {createEggNests} from './src/egg-nests.js?v=054-26';
+import {createEggNests} from './src/egg-nests.js?v=054-61';
 import {createBankDemons} from './src/bank-demons.js?v=054-61';
 import {loadCreeperLoco} from './src/creeper-loco.js?v=054-61';
 import {loadSkinnedSolids,loadGuideDragonSolid} from './src/skinned-solids.js?v=054-61';
+import {loadEggSolids} from './src/egg-solids.js?v=054-61';
 import {createBlastWorld} from './src/blast-world.js?v=054-61';
 import {createHellWorld} from './src/hell-world.js?v=054-61';
 import {createCinematicPass} from './src/cinematic-pass.js?v=054-61';
@@ -1523,9 +1524,9 @@ async function optionalCreeperLoco(){
     return {value:null,degraded:true,outcome:'rejected'};
   }
 }
-const [worldBootstrap,[assetBootstrap,creeperLocoBootstrap,cinderModel,skinnedSolidsBootstrap]]=await Promise.all([
+const [worldBootstrap,[assetBootstrap,creeperLocoBootstrap,cinderModel,skinnedSolidsBootstrap,eggSolidsBootstrap]]=await Promise.all([
   settleOptionalAsset(hellWorld.ready,'world-assets').then(value=>{if(!cinderLoadFailed)loadingStage('world');return value;}),
-  Promise.all([settleOptionalAsset(loadAssetKit(),'kit-assets'),optionalCreeperLoco(),requiredCinder(),settleOptionalAsset(loadSkinnedSolids(),'guide-solids')]).then(value=>{loadingStage('models');return value;})
+  Promise.all([settleOptionalAsset(loadAssetKit(),'kit-assets'),optionalCreeperLoco(),requiredCinder(),settleOptionalAsset(loadSkinnedSolids(),'guide-solids'),settleOptionalAsset(loadEggSolids(),'egg-solids')]).then(value=>{loadingStage('models');return value;})
 ]);
 loadingProgress('scene');await yieldLoadingPaint();
 if(loadingSnapshot().status==='failed')throw preparationError('Flight preparation already failed');
@@ -1589,7 +1590,7 @@ await assembly.step('blast',()=>{
 blastWorld=createBlastWorld({scene,centerAt,widthAt,bankMeshes:hellWorld.collisionMeshes});
 });
 await assembly.step('nests',()=>{
-eggNests=createEggNests({scene,world:hellWorld,centerAt,widthAt,audio,hitFeedback,onHit:(egg,point)=>bankDemons?.agitate(game.time,egg.center,100),onRupture:(egg,point)=>{if(egg.credited)return;egg.credited=true;game.score+=POINTS.egg;game.hitMarker=.15;audio.creature('egg',point,true);audio.cue('kill');logEvent('egg-ruptured',{source:egg.id,cluster:egg.cluster,stage:egg.stage,points:POINTS.egg});}});
+eggNests=createEggNests({scene,world:hellWorld,centerAt,widthAt,audio,hitFeedback,eggSolids:eggSolidsBootstrap?.value,onHit:(egg,point)=>bankDemons?.agitate(game.time,egg.center,100),onRupture:(egg,point)=>{if(egg.credited)return;egg.credited=true;game.score+=POINTS.egg;game.hitMarker=.15;audio.creature('egg',point,true);audio.cue('kill');logEvent('egg-ruptured',{source:egg.id,cluster:egg.cluster,stage:egg.stage,points:POINTS.egg});}});
 });
 await assembly.step('ruins',async ()=>{
 romanRuins=await createRomanRuinsAsync({scene,world:hellWorld,eggNests,centerAt,widthAt},{checkpoint:assembly.checkpoint});
