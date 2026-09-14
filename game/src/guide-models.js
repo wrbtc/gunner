@@ -1,8 +1,19 @@
 import * as THREE from '../vendor/three.module.js?v=052';
 import {createBankGuideModel} from './bank-demons.js?v=052';
 import {createRimmerModel} from './rimmer-model.js?v=052';
-import {cloneSkinnedGuide} from './skinned-solids.js?v=054-68';
-import {loadGuideEggPart,loadGuideIntactEgg} from './field-guide-egg-parts.js?v=054-68';
+import {cloneSkinnedGuide} from './skinned-solids.js?v=054-71';
+import {loadGuideEggPart,loadGuideIntactEgg} from './field-guide-egg-parts.js?v=054-71';
+const GUIDE_FRONT_YAW=.35,GUIDE_DRAGON_YAW=.18,GUIDE_VERTICAL_FIT=.94;
+export const GUIDE_FRONT_IDS=Object.freeze(['creepers','rimmers','plasma','tanks','dancers','eggs','egg-maggot','egg-shell']);
+export function guideYawFor(id){
+ // Dragons used Math.PI+.4 (rear, flying away). Face the camera instead.
+ return id==='dragons'?GUIDE_DRAGON_YAW:GUIDE_FRONT_IDS.includes(id)?GUIDE_FRONT_YAW:Math.PI+.4;
+}
+export function guideViewRadiusFor(id,extent,scale){
+ // Height-fit into the 40° museum FOV. Bounding-sphere padding left empty cards.
+ const height=Math.max(extent.y*scale,.001),fill=id==='tanks'?1.36:id==='dragons'?1.3:1.18;
+ return Math.max(.36,(height/2)*GUIDE_VERTICAL_FIT/fill);
+}
 // Copy display state without touching actor transforms, uniforms or lifetimes.
 export function cloneGuideMaterial(source){
  const material=source.clone();
@@ -67,13 +78,13 @@ export async function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creepe
  root.visible=true;root.position.set(0,0,0);root.updateMatrixWorld(true);
  root.traverse(n=>{n.layers.set(0);n.frustumCulled=false;n.castShadow=false;n.receiveShadow=false;});
  const bounds=new THREE.Box3().setFromObject(root),center=bounds.getCenter(new THREE.Vector3()),extent=bounds.getSize(new THREE.Vector3()),scale=2.4/Math.max(extent.x,extent.y,extent.z);
- const frame=new THREE.Group(),pivot=new THREE.Group();frame.add(pivot);pivot.add(root);pivot.scale.setScalar(scale);root.position.sub(center);frame.name='Guide '+id;frame.rotation.y=['creepers','rimmers','plasma','tanks','dancers','eggs','egg-maggot','egg-shell'].includes(id)?.35:Math.PI+.4;
+ const frame=new THREE.Group(),pivot=new THREE.Group();frame.add(pivot);pivot.add(root);pivot.scale.setScalar(scale);root.position.sub(center);frame.name='Guide '+id;frame.rotation.y=guideYawFor(id);
  const mixers=[];
  root.traverse(n=>{if(n.userData.guideMixer&&!mixers.includes(n.userData.guideMixer))mixers.push(n.userData.guideMixer);});
  let clips=[];root.traverse(n=>{if(n.userData.guideClips)clips=n.userData.guideClips;});
  let disposed=false;
  const dispose=()=>{if(disposed)return;disposed=true;for(const mixer of mixers){mixer.stopAllAction();mixer.uncacheRoot(mixer.getRoot());}const geos=new Set(),mats=new Set(),skeletons=new Set();root.traverse(n=>{if(n.geometry&&!root.userData.shareGuideGeometry)geos.add(n.geometry);if(n.material)for(const m of Array.isArray(n.material)?n.material:[n.material])mats.add(m);if(n.isSkinnedMesh)skeletons.add(n.skeleton);});skeletons.forEach(s=>s.dispose());geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose());};
- const result={root:frame,dispose,viewRadius:Math.max(1.25,extent.length()*scale/2)+.20};
+ const result={root:frame,dispose,viewRadius:guideViewRadiusFor(id,extent,scale)};
  if(mixers.length){
   result.clips=clips.map(c=>({name:c.name,label:c.name.replace(/^(ember|rimmer|plasma|ritual|cinder|maggot)_/,'').replaceAll('_',' ')}));
   result.activeClip=clips.find(c=>/idle|wriggle/.test(c.name))?.name||clips[0]?.name;

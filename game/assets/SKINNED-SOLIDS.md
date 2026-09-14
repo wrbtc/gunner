@@ -1,4 +1,4 @@
-# Field Guide skinned solids (v0.54.68)
+# Field Guide skinned solids (v0.54.71)
 
 Alien Field Guide VIEW 3D museum meshes. Combat and world visuals stay on the
 live procedural rimmer / plasma paths, the lava loco bank creeper, live Cinder
@@ -61,6 +61,12 @@ to `ember_idle`; Cinder Maw defaults to `cinder_idle`; Vein Ascetic defaults to
 stay rigid. Motion selection and pause remain inside Field Notes. Cloned
 materials, no combat mixers, no live-actor mutation. The Queen stays ENLARGE.
 HERO is unchanged. Soft-GPU stays off.
+
+Museum cameras height-fit every specimen so the subject fills the card; thumbs
+and VIEW 3D share that crop. Cinder Maw is framed huge and close. Dragon A
+faces the camera (not rear / flying away). Card first paint withholds the
+prior identification stills and shows a branded preparing tile until the
+museum thumb lands.
 
 Every VIEW 3D specimen supports bounded camera zoom by wheel/trackpad, − / +
 buttons, or keyboard − / +. Horizontal drag turns the specimen; vertical drag
