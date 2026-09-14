@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import * as THREE from '../game/vendor/three.module.js?v=052';
-import {cloneSkinnedGuide} from '../game/src/skinned-solids.js?v=054-68';
+import {cloneSkinnedGuide} from '../game/src/skinned-solids.js?v=054-70';
 import {buildGuideModel,cloneGuideTree,cloneGuideMaterial} from '../game/src/guide-models.js';
 import {clampGuidePan,clampGuideZoom} from '../game/src/field-guide-viewer.js';
 assert.equal(clampGuideZoom(0),.6);assert.equal(clampGuideZoom(1),1);assert.equal(clampGuideZoom(4),3);
@@ -32,9 +32,8 @@ model.dispose();model.dispose();assert.equal(ownedDisposals,2);assert.equal(sour
 const stopped=animated.skeleton.bones[0].position.x;model.tick(.25);model.playClip('cinder_idle');assert.equal(animated.skeleton.bones[0].position.x,stopped);
 
 const {assembleIntactEgg}=await import('../game/src/field-guide-egg-parts.js');
-const {adaptEggShellMaterial}=await import('../game/src/egg-solids.js?v=054-68');
 const shellGeo=new THREE.SphereGeometry(.4,8,6),maggotGeo=new THREE.BoxGeometry(1.9,.35,.7);
-const shellMat=new THREE.MeshStandardMaterial({color:0xffffff,transparent:false,opacity:1,roughness:.2});
+const shellMat=new THREE.MeshStandardMaterial({color:0xffffff,transparent:true,opacity:.46,roughness:.2});
 const maggotMat=new THREE.MeshStandardMaterial({color:0x553322});
 const wriggle=new THREE.AnimationClip('maggot_wriggle',1,[new THREE.NumberKeyframeTrack('jaw.position[x]',[0,.5,1],[0,.2,0])]);
 const shellSolid={museumRoot(){const root=new THREE.Group();root.name='Museum egg-shell';root.add(new THREE.Mesh(shellGeo,shellMat));return root;}};
@@ -42,10 +41,8 @@ const maggotSolid={spec:{clips:{idle:'maggot_wriggle'}},museumRoot(){const root=
 const assembled=assembleIntactEgg(shellSolid,maggotSolid);
 assert.equal(assembled.name,'Museum eggs');
 assert.equal(assembled.children.length,2);
-const expectedLeather=adaptEggShellMaterial(shellMat);
-assert.equal(expectedLeather.opacity,.46);
-let leather=0,inner=0,base=0;assembled.traverse(n=>{if(!n.isMesh)return;if(n.name==='Intact egg base'){base++;assert.equal(n.material.transparent,false);assert.equal(n.material.opacity,1);assert.equal(n.material.depthWrite,true);assert.equal(n.renderOrder,1);}else if(n.parent?.name==='Museum egg-shell'){leather++;assert.equal(n.material.transparent,true);assert.equal(n.material.opacity,expectedLeather.opacity);assert.ok(n.material.opacity>.32);assert.ok(n.material.opacity<.88);assert.equal(n.material.depthWrite,false);assert.equal(n.renderOrder,2);assert.match(n.material.customProgramCacheKey(),/fn-intact-leather-window/);}if(n.parent?.name==='Museum egg-maggot')inner++;});
-assert.equal(leather,1);assert.equal(inner,1);assert.equal(base,1);
+let leather=0,inner=0,base=0;assembled.traverse(n=>{if(!n.isMesh)return;if(n.name==='Intact egg base')base++;else if(n.parent?.name==='Museum egg-shell'){leather++;assert.equal(n.material.transparent,false);assert.equal(n.material.opacity,1);assert.equal(n.material.depthWrite,true);assert.equal(n.material.alphaTest,0);assert.equal(n.material.alphaMap,null);assert.equal(n.material.transmission||0,0);assert.ok(n.material.roughness>=.7);assert.equal(n.material.userData.intactMaggotCenter.isVector3,true);assert.ok(n.material.userData.intactMaggotRadii.x>0);assert.match(n.material.customProgramCacheKey(),/fn-intact-opaque-membrane-05470/);}if(n.parent?.name==='Museum egg-maggot')inner++;});
+assert.equal(leather,1);assert.equal(inner,1);assert.equal(base,0);
 const shellBox=new THREE.Box3().setFromObject(assembled.children[0]),maggotBox=new THREE.Box3().setFromObject(assembled.children[1]);
 assert.ok(shellBox.containsBox(maggotBox),'maggot must sit inside the shell');
 assert.equal(assembled.userData.guideClips[0].name,'maggot_wriggle');
@@ -65,4 +62,4 @@ let called=false;const intactGuide={guideModel(){called=true;return new THREE.Gr
 await buildGuideModel('eggs',{eggNests:intactGuide,skinnedSolids:{eggs:{museumRoot:()=>assembleIntactEgg(shellSolid,maggotSolid)}}});
 assert.equal(called,false);
 intact.dispose();
-console.log('PASS: independent skeletons/bind matrices, flat shading, independent animation and idempotent owned-resource disposal; Intact egg assembles leather window, opaque base, and enclosed maggot without cloning live nests');
+console.log('PASS: independent skeletons/bind matrices, flat shading, independent animation and idempotent owned-resource disposal; Intact egg assembles uniform opaque leather with a thin-membrane maggot silhouette and enclosed maggot without cloning live nests');

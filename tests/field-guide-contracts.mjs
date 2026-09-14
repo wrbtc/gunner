@@ -19,13 +19,15 @@ const plasmaProvenance=JSON.parse(read('game/assets/field-guide/PLASMA-PROVENANC
 const dragonProvenance=JSON.parse(read('game/assets/field-guide/DRAGON-PROVENANCE.json'));
 const dragonPortrait=readFileSync(new URL('game/assets/field-guide/dragons.png',root));
 
-assert.equal(packageJson.version,'0.54.68');
-assert.match(briefing,/export const REPORT_BUILD='0\.54\.68'/);
-assert.match(main,/version:'0\.54\.68'/);
+assert.equal(packageJson.version,'0.54.70');
+assert.match(briefing,/export const REPORT_BUILD='0\.54\.70'/);
+assert.match(main,/version:'0\.54\.70'/);
 assert.doesNotMatch(briefing,/0\.54\.52/);
 assert.doesNotMatch(briefing,/0\.54\.53/);
 assert.doesNotMatch(briefing,/0\.54\.57/);
 assert.doesNotMatch(briefing,/0\.54\.58/);
+assert.doesNotMatch(briefing,/0\.54\.68/);
+assert.doesNotMatch(briefing,/0\.54\.69/);
 assert.doesNotMatch(main,/version:'0\.54\.52'/);
 assert.doesNotMatch(main,/version:'0\.54\.53'/);
 assert.doesNotMatch(main,/version:'0\.54\.56'/);
@@ -40,6 +42,8 @@ assert.doesNotMatch(main,/version:'0\.54\.64'/);
 assert.doesNotMatch(main,/version:'0\.54\.65'/);
 assert.doesNotMatch(main,/version:'0\.54\.66'/);
 assert.doesNotMatch(main,/version:'0\.54\.67'/);
+assert.doesNotMatch(main,/version:'0\.54\.68'/);
+assert.doesNotMatch(main,/version:'0\.54\.69'/);
 
 const creeper=briefing.match(/\['creepers','([^']+)','([^']+)','([^']+)','([^']+)'\]/);
 assert.ok(creeper,'creeper field-guide row must exist');
@@ -59,8 +63,8 @@ assert.ok(dancers,'dancer field-guide row must remain');
 assert.equal(dancers[1],'Dancing Creepers');
 assert.match(dancers[3],/Orange spirits/);
 
-assert.match(briefing,/\?v=054-68/);
-assert.match(briefing,/id==='queen'\)portrait\.dataset\.src='\.\/assets\/field-guide\/queen\.png\?v=054-68'/);
+assert.match(briefing,/\?v=054-70/);
+assert.match(briefing,/id==='queen'\)portrait\.dataset\.src='\.\/assets\/field-guide\/queen\.png\?v=054-70'/);
 assert.match(briefing,/dataset\.guidePending='true'/);
 assert.match(briefing,/!img\.getAttribute\('src'\)&&img\.dataset\.src/);
 assert.doesNotMatch(briefing,/field-guide\/'\+id/);
@@ -96,10 +100,13 @@ assert.match(read('game/src/field-guide-egg-parts.js'),/export function assemble
 assert.match(read('game/src/field-guide-egg-parts.js'),/export function loadGuideIntactEgg/);
 assert.match(read('game/src/field-guide-egg-parts.js'),/344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96/);
 assert.match(read('game/src/field-guide-egg-parts.js'),/368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2/);
-assert.match(read('game/src/field-guide-egg-parts.js'),/adaptEggShellMaterial/);
-assert.match(read('game/src/field-guide-egg-parts.js'),/Intact egg base/);
+assert.match(read('game/src/field-guide-egg-parts.js'),/fn-intact-opaque-membrane-05470/);
+assert.match(read('game/src/field-guide-egg-parts.js'),/bodySize\.x\*\.62/);
+assert.doesNotMatch(read('game/src/field-guide-egg-parts.js'),/adaptEggShellMaterial/);
+assert.doesNotMatch(read('game/src/field-guide-egg-parts.js'),/Intact egg base/);
+assert.doesNotMatch(read('game/src/field-guide-egg-parts.js'),/intactLocalYShader|leather-window|uIntactBaseTop/);
 assert.doesNotMatch(read('game/src/field-guide-egg-parts.js'),/opacity=Math\.min\(material\.opacity,\.32\)/);
-assert.match(read('game/src/guide-models.js'),/field-guide-egg-parts\.js\?v=054-68/);
+assert.match(read('game/src/guide-models.js'),/field-guide-egg-parts\.js\?v=054-70/);
 assert.match(read('game/src/egg-nests.js'),/useBakedShell\?source\.shell\.material\.clone\(\)/);
 assert.match(read('game/src/egg-solids.js'),/368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2/);
 assert.match(read('game/src/egg-solids.js'),/3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127/);
@@ -245,4 +252,4 @@ assert.match(read('game/styles.css'),/\.guide-portrait img\[data-guide-pending\]
 assert.doesNotMatch(main,/createTankerBugsAsync\([\s\S]{0,400}solid/);
 assert.doesNotMatch(main,/createBankDemons\([^)]*skinnedSolids/);
 
-console.log(JSON.stringify({passed:true,identity:'0.54.68',imageSHA256:imageHash},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.70',imageSHA256:imageHash},null,2));
