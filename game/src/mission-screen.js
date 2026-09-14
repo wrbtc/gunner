@@ -187,7 +187,7 @@ export const loadingSnapshot=()=>Object.freeze({...loading.snapshot(),trace:star
 export const loadingStage=id=>{const ok=loading.complete(id);if(ok)bootHeartbeat();return ok;};
 export const loadingProgress=(id,detail)=>{const ok=loading.begin(id,detail);if(ok)bootHeartbeat();return ok;};
 export const loadingReady=()=>loading.ready();
-export const REPORT_BUILD='0.54.65';
+export const REPORT_BUILD='0.54.66';
 const REPORT_ORIGINS=['https://gunner.satoshis.watch','http://127.0.0.1:8000'];
 const missionBuild=$('missionBuild');
 if(missionBuild)missionBuild.textContent='v'+REPORT_BUILD;
@@ -286,7 +286,10 @@ if(dialog&&trigger){
  for(const [id,name,tag,description,counter]of FIELD_GUIDE){
   const card=document.createElement('article');card.className='guide-entry';card.dataset.creature=id;
   const mark=document.createElement('button');mark.type='button';mark.className='guide-portrait guide-model-trigger '+id;mark.setAttribute('aria-label','Enlarge '+name);mark.setAttribute('aria-haspopup','dialog');mark.setAttribute('aria-expanded','false');
-  const portrait=document.createElement('img');portrait.dataset.src='./assets/field-guide/'+id+(id==='tanks'?'.jpg':'.png')+'?v=054-65';portrait.alt=id==='queen'?"The Queen's silhouette; her appearance remains unknown":name+' — model identification';portrait.width=512;portrait.height=384;portrait.decoding='async';mark.append(portrait);const enlarge=document.createElement('span');enlarge.className='guide-enlarge';enlarge.textContent=id==='queen'?'ENLARGE ↗':'VIEW 3D ↗';mark.append(enlarge);
+  const portrait=document.createElement('img');portrait.alt=id==='queen'?"The Queen's silhouette; her appearance remains unknown":name+' — model identification';portrait.width=512;portrait.height=384;portrait.decoding='async';
+  if(id==='queen')portrait.dataset.src='./assets/field-guide/queen.png?v=054-66';
+  else portrait.dataset.guidePending='true';
+  mark.append(portrait);const enlarge=document.createElement('span');enlarge.className='guide-enlarge';enlarge.textContent=id==='queen'?'ENLARGE ↗':'VIEW 3D ↗';mark.append(enlarge);
   const copy=document.createElement('div');
   for(const [tagName,text,cls]of [['span',tag,'guide-tag'],['h3',name,''],['h4','COUNTERPLAY',''],['p',counter,'guide-counter']]){const node=document.createElement(tagName);node.textContent=text;if(cls)node.className=cls;copy.append(node);}
   const details=document.createElement('details');details.className='guide-details';
@@ -296,7 +299,7 @@ if(dialog&&trigger){
   card.append(mark,copy);grid.append(card);
  }
  function close(){dialog.close();}
- trigger.addEventListener('click',()=>{for(const img of dialog.querySelectorAll('img[data-src]')){if(!img.src)img.src=img.dataset.src;}dialog.showModal();trigger.setAttribute('aria-expanded','true');$('closeGuide').focus();void openGuideViewer();});
+ trigger.addEventListener('click',()=>{for(const img of dialog.querySelectorAll('img[data-src]')){if(!img.getAttribute('src')&&img.dataset.src)img.src=img.dataset.src;}dialog.showModal();trigger.setAttribute('aria-expanded','true');$('closeGuide').focus();void openGuideViewer();});
  dialog.addEventListener('click',e=>{const button=e.target.closest?.('.guide-model-trigger');if(button)void openGuideViewer(button);});
  $('closeGuide').addEventListener('click',close);
  dialog.addEventListener('click',e=>{const b=dialog.getBoundingClientRect();if(e.target===dialog&&(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom))close();});

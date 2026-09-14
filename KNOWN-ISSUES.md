@@ -1,4 +1,4 @@
-# Release validation — v0.54.65
+# Release validation — v0.54.66
 
 ## Older Intel Safari / short desktop viewport
 
@@ -520,7 +520,7 @@ orange-spirit path. Combat loco, GLB bytes, and attach yaw are unchanged from
 
 Do not treat that Field Guide identity as 0.54.54 (creeper motion GLB) or
 0.54.55 (held menu Deploy gap). This tip keeps that Field Guide copy and art
-while identifying as v0.54.65.
+while identifying as v0.54.66.
 
 ## Deploy ammo breathing room (v0.54.58)
 
@@ -576,9 +576,9 @@ and the v0.54.58 Deploy ammo gap. Do not treat 0.54.52, 0.54.53, 0.54.57,
 Physical Intel Safari combat acceptance remains pending. Record unpaused combat
 HUD FPS on the full path. Do not enable Soft-GPU.
 
-## Field Guide skinned solids (v0.54.65)
+## Field Guide skinned solids (v0.54.66)
 
-v0.54.65 is a Field Guide-first identity. Rimmers, plasma bugs, Ember Hollow
+v0.54.66 is a Field Guide-first identity. Rimmers, plasma bugs, Ember Hollow
 creepers, Dragon A, Cinder Maw tanks, Dancing Creepers, Intact brood eggs, egg
 larvae, and egg shells use VIEW 3D museum solids when the LFS objects are
 present. Rimmers and plasma stay rest pose.
@@ -608,7 +608,7 @@ Gated museum binaries:
 - `creeper-ember-hollow.glb` — 1091768 bytes, `25a1be82…` (slim pack; reject SOLID `085943e9…` / 4803580)
 - `dragon-fg-a.glb` — 64020728 bytes, `38fdb98e…` (static; lazy Field Guide load)
 - `field-notes-v02/cinder-maw-fieldnotes-v02.glb` — 1483396 bytes, `2a829abf…` (repaired TankArmature; three presentation clips)
-- `vein-ascetic-skinned-draft.glb` — 2502928 bytes, `3b3dc30a…` (VeinArmature; ritual_idle)
+- `vein-ascetic-skinned.glb` — 1908316 bytes, `9d67a8c5…` (VeinArmature; ritual_idle / ritual_walk). Reject draft `3b3dc30a…` / `vein-ascetic-skinned-draft.glb` / 2502928.
 - `egg-shell-a.glb` — 817236 bytes, `368d9e85…`
 - `field-notes-v02/egg-maggot-fieldnotes-v02.glb` — 1075680 bytes, `344d2131…` (MaggotArmature; maggot_wriggle)
 
@@ -616,10 +616,12 @@ This tip includes the real LFS objects on those paths. Cinder and larva retain
 the supplied surface/material identity while adding presentation rigs. Do not
 retarget them into gameplay. Reject morph prefixes `75ddc18f` /
 `a2ac5ebb` / `1c10edf7` / `45123f4c` / `9cd194e6` / `a9dcb2b6`. Do not treat
-0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59, 0.54.60, 0.54.61, 0.54.62 or 0.54.63 as this identity.
+0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59, 0.54.60, 0.54.61, 0.54.62, 0.54.63, 0.54.64 or 0.54.65 as this identity.
 
-In-game eyeball: open the Alien Field Guide and confirm VIEW 3D for rimmers,
-plasma, creepers, tanks, dancers, dragons, and eggs. The Queen stays ENLARGE.
+In-game eyeball: open the Alien Field Guide and confirm first paint does not
+show the superseded roster stills. Cards wait for VIEW 3D museum thumbs.
+Confirm VIEW 3D for rimmers, plasma, creepers, tanks, dancers, dragons, and
+eggs. The Queen stays ENLARGE.
 Confirm Intact egg is the new shell plus nested larva, not the old mottled
 procedural plate. Confirm the separate rigid shell and animated larva
 specimens. Live nest rupture still uses the prior path. Canyon wyverns stay

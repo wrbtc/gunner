@@ -51,9 +51,9 @@ export const SKINNED_SOLIDS=Object.freeze({
  }),
  dancers:Object.freeze({
   id:'dancers',
-  asset:'vein-ascetic-skinned-draft',
-  sha256:'3b3dc30a3ae7dafe87b82932f37c1c371fcbce7a0db4f6491dff494e6b05bce4',
-  bytes:2502928,
+  asset:'vein-ascetic-skinned',
+  sha256:'9d67a8c5fcdc4a5d8bbbdbae9f428e87a963a978682c0e572f62af28567e495e',
+  bytes:1908316,
   armature:'VeinArmature',
   clips:Object.freeze({idle:'ritual_idle',walk:'ritual_walk'})
  })

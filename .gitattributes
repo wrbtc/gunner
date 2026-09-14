@@ -6,6 +6,6 @@ game/assets/dragon-fg-a.glb filter=lfs diff=lfs merge=lfs -text
 game/assets/egg-shell-a.glb filter=lfs diff=lfs merge=lfs -text
 game/assets/egg-maggot-a.glb filter=lfs diff=lfs merge=lfs -text
 game/assets/cinder-maw-skinned-draft.glb filter=lfs diff=lfs merge=lfs -text
-game/assets/vein-ascetic-skinned-draft.glb filter=lfs diff=lfs merge=lfs -text
+game/assets/vein-ascetic-skinned.glb filter=lfs diff=lfs merge=lfs -text
 game/assets/field-notes-v02/cinder-maw-fieldnotes-v02.glb filter=lfs diff=lfs merge=lfs -text
 game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb filter=lfs diff=lfs merge=lfs -text

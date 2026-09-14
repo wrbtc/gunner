@@ -1,7 +1,7 @@
 import * as THREE from '../vendor/three.module.js?v=052';
 import {createBankGuideModel} from './bank-demons.js?v=052';
 import {createRimmerModel} from './rimmer-model.js?v=052';
-import {cloneSkinnedGuide} from './skinned-solids.js?v=054-65';
+import {cloneSkinnedGuide} from './skinned-solids.js?v=054-66';
 import {loadGuideEggPart,loadGuideIntactEgg} from './field-guide-egg-parts.js';
 // Copy display state without touching actor transforms, uniforms or lifetimes.
 export function cloneGuideMaterial(source){
@@ -49,7 +49,7 @@ export async function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creepe
  if(id==='egg-maggot'||id==='egg-shell')root=solidGuideRoot(await loadGuideEggPart(id));
  else if(id==='eggs')root=solidGuideRoot(skinnedSolids?.eggs||await loadGuideIntactEgg());
  else if(id==='creepers')root=creeperGuideRoot(creeperLoco,skinnedSolids?.creepers);
- else if(id==='dancers')root=solidGuideRoot(skinnedSolids?.dancers)||createBankGuideModel(true);
+ else if(id==='dancers')root=solidGuideRoot(skinnedSolids?.dancers);
  else if(id==='rimmers')root=solidGuideRoot(skinnedSolids?.rimmers)||cloneGuideTree(createRimmerModel().root);
  else if(id==='tanks'){
   root=solidGuideRoot(skinnedSolids?.tanks);

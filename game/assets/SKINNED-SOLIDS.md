@@ -1,4 +1,4 @@
-# Field Guide skinned solids (v0.54.65)
+# Field Guide skinned solids (v0.54.66)
 
 Alien Field Guide VIEW 3D museum meshes. Combat and world visuals stay on the
 live procedural rimmer / plasma paths, the lava loco bank creeper, live Cinder
@@ -14,7 +14,7 @@ Expected binaries next to this note:
 | `game/assets/creeper-ember-hollow.glb` | 1091768 | `25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe` |
 | `game/assets/dragon-fg-a.glb` | 64020728 | `38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27` |
 | `game/assets/field-notes-v02/cinder-maw-fieldnotes-v02.glb` | 1483396 | `2a829abf1fbb8419c8f0081ecedeeeddc7a3d6adc922f6a21108148ba4f53c52` |
-| `game/assets/vein-ascetic-skinned-draft.glb` | 2502928 | `3b3dc30a3ae7dafe87b82932f37c1c371fcbce7a0db4f6491dff494e6b05bce4` |
+| `game/assets/vein-ascetic-skinned.glb` | 1908316 | `9d67a8c5fcdc4a5d8bbbdbae9f428e87a963a978682c0e572f62af28567e495e` |
 | `game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb` | 1075680 | `344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96` |
 
 Ember Hollow is the slim pack: armature `EmberArmature`, clips `ember_idle` and
@@ -34,9 +34,10 @@ The Larva specimen stays independent. Field Notes Intact egg nests this
 larva inside `egg-shell-a.glb` for the museum only and does not replace the
 live nest embryo.
 
-Vein Ascetic draft: armature `VeinArmature`, clips `ritual_idle` and
-`ritual_walk`. VIEW 3D plays `ritual_idle` only. Do not remesh or retexture
-this draft.
+Vein Anunnaki museum solid: armature `VeinArmature`, clips `ritual_idle` and
+`ritual_walk`. VIEW 3D plays `ritual_idle` only. Reject the superseded draft
+`vein-ascetic-skinned-draft.glb` (`2502928` bytes, sha256
+`3b3dc30a3ae7dafe87b82932f37c1c371fcbce7a0db4f6491dff494e6b05bce4`).
 
 Dragon Field Guide A is a static museum mesh (no clips). VIEW 3D only and must not
 retarget live sky dragons. Leave `game/src/sky-activity.js` and
