@@ -1,11 +1,12 @@
-# Brood egg solids (v0.54.67)
+# Brood egg solids (v0.54.68)
 
 Live-nest source meshes plus the rigid Field Notes shell. Field Notes Intact
 egg (`id=eggs`) assembles `egg-shell-a.glb` with the independently rigged
-larva at `field-notes-v02/egg-maggot-fieldnotes-v02.glb` and a leathery
-window so the maggot stays visible inside. That larva does not replace the
-live nest embryo. Placement, clusters, gallery, queen brood, HP/hit,
-filaments, sockets, and rupture physics stay on the existing `makeEgg` path.
+larva at `field-notes-v02/egg-maggot-fieldnotes-v02.glb` behind a leathery
+window, keeps an opaque sac base, and holds the maggot fully inside the
+membrane. That larva does not replace the live nest embryo. Placement,
+clusters, gallery, queen brood, HP/hit, filaments, sockets, and rupture
+physics stay on the existing `makeEgg` path.
 
 Expected binaries next to this note:
 

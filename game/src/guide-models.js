@@ -1,8 +1,8 @@
 import * as THREE from '../vendor/three.module.js?v=052';
 import {createBankGuideModel} from './bank-demons.js?v=052';
 import {createRimmerModel} from './rimmer-model.js?v=052';
-import {cloneSkinnedGuide} from './skinned-solids.js?v=054-67';
-import {loadGuideEggPart,loadGuideIntactEgg} from './field-guide-egg-parts.js';
+import {cloneSkinnedGuide} from './skinned-solids.js?v=054-68';
+import {loadGuideEggPart,loadGuideIntactEgg} from './field-guide-egg-parts.js?v=054-68';
 // Copy display state without touching actor transforms, uniforms or lifetimes.
 export function cloneGuideMaterial(source){
  const material=source.clone();

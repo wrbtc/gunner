@@ -19,8 +19,8 @@ const expected=[
  {path:'game/assets/egg-maggot-a.glb',bytes:732684,sha256:'3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127'}
 ];
 
-assert.equal(packageJson.version,'0.54.67');
-assert.equal(manifest.version,'0.54.67');
+assert.equal(packageJson.version,'0.54.68');
+assert.equal(manifest.version,'0.54.68');
 assert.match(solids,/export function loadEggSolids/);
 assert.match(solids,/adaptEggShellMaterial/);
 assert.match(solids,/opacity=\.46/);
@@ -37,6 +37,8 @@ assert.match(guide,/else if\(id==='eggs'\)root=solidGuideRoot\(skinnedSolids\?\.
 assert.doesNotMatch(guide,/eggNests\.guideModel\(\)/);
 assert.match(read('game/src/field-guide-egg-parts.js'),/export function assembleIntactEgg/);
 assert.match(read('game/src/field-guide-egg-parts.js'),/344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96/);
+assert.match(read('game/src/field-guide-egg-parts.js'),/Intact egg base/);
+assert.doesNotMatch(read('game/src/field-guide-egg-parts.js'),/opacity=Math\.min\(material\.opacity,\.32\)/);
 assert.match(main,/settleOptionalAsset\(loadEggSolids\(\),'egg-solids'\)/);
 assert.match(main,/eggSolids:eggSolidsBootstrap\?\.value/);
 assert.doesNotMatch(main,/failIfMajorPerformanceCaveat:\s*true/);
@@ -79,4 +81,4 @@ for(const row of expected){
  binaryStatus[row.path]=state;
 }
 
-console.log(JSON.stringify({passed:true,identity:'0.54.67',binaryStatus},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.68',binaryStatus},null,2));
