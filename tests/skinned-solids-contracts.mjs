@@ -16,14 +16,15 @@ const expected=[
  {path:'game/assets/plasma-bug-skinned-solid.glb',bytes:1135104,sha256:'127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f'},
  {path:'game/assets/creeper-ember-hollow.glb',bytes:1091768,sha256:'25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe'},
  {path:'game/assets/dragon-fg-a.glb',bytes:64020728,sha256:'38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27'},
+ {path:'game/assets/vein-ascetic-skinned.glb',bytes:1908316,sha256:'9d67a8c5fcdc4a5d8bbbdbae9f428e87a963a978682c0e572f62af28567e495e'},
 ];
 const forbidden=['75ddc18f','a2ac5ebb','1c10edf7','45123f4c','9cd194e6','a9dcb2b6'];
 assert.match(attributes,/game\/assets\/vein-ascetic-skinned\.glb filter=lfs/);
 assert.doesNotMatch(attributes,/vein-ascetic-skinned-draft/);
 
-assert.equal(packageJson.version,'0.54.66');
-assert.equal(manifest.version,'0.54.66');
-assert.match(manifest.note,/0\.54\.66/);
+assert.equal(packageJson.version,'0.54.67');
+assert.equal(manifest.version,'0.54.67');
+assert.match(manifest.note,/0\.54\.67/);
 assert.match(manifest.note,/Field Guide/);
 assert.match(manifest.note,/VIEW 3D/);
 assert.doesNotMatch(manifest.note,/combat mesh swap/i);
@@ -128,6 +129,8 @@ for(const row of candidateRows){
   const {createHash}=await import('node:crypto');assert.equal(createHash('sha256').update(bytes).digest('hex'),row.sha256);
  }
 }
+assert.ok(!existsSync(new URL('game/assets/vein-ascetic-skinned-draft.glb',root)),'superseded draft must not ship');
+assert.ok(!manifest.files.some(row=>row.path==='game/assets/vein-ascetic-skinned-draft.glb'));
 const binaryStatus={};
 for(const row of expected){
  const file=new URL(row.path,root);
@@ -141,7 +144,8 @@ for(const row of expected){
    assert.equal(createHash('sha256').update(bytes).digest('hex'),row.sha256);
   }
  }
+ if(row.path==='game/assets/vein-ascetic-skinned.glb')assert.equal(state,'binary','Vein Anunnaki must be a real hydrated GLB');
  binaryStatus[row.path]=state;
 }
 
-console.log(JSON.stringify({passed:true,identity:'0.54.66',binaryStatus},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.67',binaryStatus},null,2));

@@ -1,4 +1,4 @@
-# Brood egg solids (v0.54.66)
+# Brood egg solids (v0.54.67)
 
 Live-nest source meshes plus the rigid Field Notes shell. Field Notes Intact
 egg (`id=eggs`) assembles `egg-shell-a.glb` with the independently rigged
