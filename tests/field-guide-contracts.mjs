@@ -19,9 +19,9 @@ const plasmaProvenance=JSON.parse(read('game/assets/field-guide/PLASMA-PROVENANC
 const dragonProvenance=JSON.parse(read('game/assets/field-guide/DRAGON-PROVENANCE.json'));
 const dragonPortrait=readFileSync(new URL('game/assets/field-guide/dragons.png',root));
 
-assert.equal(packageJson.version,'0.54.67');
-assert.match(briefing,/export const REPORT_BUILD='0\.54\.67'/);
-assert.match(main,/version:'0\.54\.67'/);
+assert.equal(packageJson.version,'0.54.69');
+assert.match(briefing,/export const REPORT_BUILD='0\.54\.69'/);
+assert.match(main,/version:'0\.54\.69'/);
 assert.doesNotMatch(briefing,/0\.54\.52/);
 assert.doesNotMatch(briefing,/0\.54\.53/);
 assert.doesNotMatch(briefing,/0\.54\.57/);
@@ -38,6 +38,12 @@ assert.doesNotMatch(main,/version:'0\.54\.62'/);
 assert.doesNotMatch(main,/version:'0\.54\.63'/);
 assert.doesNotMatch(main,/version:'0\.54\.64'/);
 assert.doesNotMatch(main,/version:'0\.54\.65'/);
+assert.doesNotMatch(briefing,/0\.54\.66/);
+assert.doesNotMatch(briefing,/0\.54\.67/);
+assert.doesNotMatch(briefing,/0\.54\.68/);
+assert.doesNotMatch(main,/version:'0\.54\.66'/);
+assert.doesNotMatch(main,/version:'0\.54\.67'/);
+assert.doesNotMatch(main,/version:'0\.54\.68'/);
 
 const creeper=briefing.match(/\['creepers','([^']+)','([^']+)','([^']+)','([^']+)'\]/);
 assert.ok(creeper,'creeper field-guide row must exist');
@@ -57,8 +63,8 @@ assert.ok(dancers,'dancer field-guide row must remain');
 assert.equal(dancers[1],'Dancing Creepers');
 assert.match(dancers[3],/Orange spirits/);
 
-assert.match(briefing,/\?v=054-67/);
-assert.match(briefing,/id==='queen'\)portrait\.dataset\.src='\.\/assets\/field-guide\/queen\.png\?v=054-67'/);
+assert.match(briefing,/\?v=054-69/);
+assert.match(briefing,/id==='queen'\)portrait\.dataset\.src='\.\/assets\/field-guide\/queen\.png\?v=054-69'/);
 assert.match(briefing,/dataset\.guidePending='true'/);
 assert.match(briefing,/!img\.getAttribute\('src'\)&&img\.dataset\.src/);
 assert.doesNotMatch(briefing,/field-guide\/'\+id/);
@@ -119,6 +125,15 @@ assert.match(solids,/cinder_jaw_inspect/);
 assert.match(solids,/cinder_weight_shift/);
 assert.match(solids,/ritual_idle/);
 assert.match(solids,/ritual_walk/);
+assert.match(solids,/guideClips is every GLB AnimationClip/);
+assert.match(solids,/guideClips=animations\.slice\(\)/);
+assert.match(guide,/export function guideClipLabel/);
+assert.match(guide,/export function collectGuideClips/);
+assert.match(guide,/Egg-anger/);
+assert.match(guide,/Angry Ground Stomp|groundstomp|stomp/);
+assert.match(guide,/wave names are fallback only/);
+assert.doesNotMatch(guide,/label:c\.name\.replace/);
+assert.doesNotMatch(solids,/ritual_run|Angry Ground Stomp|Over_Shoulder_Throw/);
 assert.match(solids,/cinder_mouth/);
 assert.match(solids,/Field-guide solid bone missing/);
 assert.match(solids,/\['rimmers','plasma','creepers','tanks','dancers'\]/);
@@ -223,6 +238,7 @@ assert.equal(dancersProvenance.sourceModelBytes,1908316);
 assert.match(read('.gitattributes'),/game\/assets\/vein-ascetic-skinned\.glb filter=lfs/);
 assert.equal(dancersProvenance.imageSHA256,'1e1dc9cc63bba3589abad71103c19064b3caeeaf93d7140cd0075810721638cb');
 assert.match(dancersProvenance.render,/ritual_idle/);
+assert.match(dancersProvenance.render,/MOTION lists every AnimationClip/);
 assert.match(dancersProvenance.render,/first paint withholds/);
 assert.match(rimmerProvenance.render,/first paint withholds/);
 assert.match(plasmaProvenance.render,/first paint withholds/);
@@ -240,4 +256,4 @@ assert.match(read('game/styles.css'),/\.guide-portrait img\[data-guide-pending\]
 assert.doesNotMatch(main,/createTankerBugsAsync\([\s\S]{0,400}solid/);
 assert.doesNotMatch(main,/createBankDemons\([^)]*skinnedSolids/);
 
-console.log(JSON.stringify({passed:true,identity:'0.54.67',imageSHA256:imageHash},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.69',imageSHA256:imageHash},null,2));

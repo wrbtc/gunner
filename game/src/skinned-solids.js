@@ -157,14 +157,15 @@ export async function loadGuideSolid(spec){
    root.rotation.set(0,0,0);
    root.scale.setScalar(1);
    if(spec.static)root.userData.shareGuideGeometry=true;
-   // Museum idle only. Do not start combat mixers or mutate live actors.
-   if(!spec.static&&spec.clips?.idle){
-    const clip=animations.find(item=>item.name===spec.clips.idle);
+   // Museum presentation only. Do not start combat mixers or mutate live actors.
+   // guideClips is every GLB AnimationClip; spec.clips is the required-present set, not the menu.
+   if(!spec.static&&animations.length){
+    const clip=animations.find(item=>item.name===spec.clips?.idle)||animations.find(item=>/idle|wriggle/i.test(item.name||''))||animations[0];
     const mixer=new THREE.AnimationMixer(root);
     mixer.clipAction(clip).reset().play();
     mixer.update(0);
     root.userData.guideMixer=mixer;
-    root.userData.guideClips=animations;
+    root.userData.guideClips=animations.slice();
    }
    return root;
   }

@@ -22,9 +22,9 @@ const forbidden=['75ddc18f','a2ac5ebb','1c10edf7','45123f4c','9cd194e6','a9dcb2b
 assert.match(attributes,/game\/assets\/vein-ascetic-skinned\.glb filter=lfs/);
 assert.doesNotMatch(attributes,/vein-ascetic-skinned-draft/);
 
-assert.equal(packageJson.version,'0.54.67');
-assert.equal(manifest.version,'0.54.67');
-assert.match(manifest.note,/0\.54\.67/);
+assert.equal(packageJson.version,'0.54.69');
+assert.equal(manifest.version,'0.54.69');
+assert.match(manifest.note,/0\.54\.69/);
 assert.match(manifest.note,/Field Guide/);
 assert.match(manifest.note,/VIEW 3D/);
 assert.doesNotMatch(manifest.note,/combat mesh swap/i);
@@ -45,6 +45,14 @@ assert.match(solids,/cinder_jaw_inspect/);
 assert.match(solids,/cinder_weight_shift/);
 assert.match(solids,/ritual_idle/);
 assert.match(solids,/ritual_walk/);
+assert.match(solids,/guideClips is every GLB AnimationClip/);
+assert.match(solids,/guideClips=animations\.slice\(\)/);
+assert.match(guide,/export function guideClipLabel/);
+assert.match(guide,/collectGuideClips/);
+assert.match(guide,/Egg-anger/);
+assert.match(note,/MOTION/);
+assert.match(note,/Egg-anger/);
+assert.doesNotMatch(solids,/ritual_run|Angry Ground Stomp|Over_Shoulder_Throw/);
 assert.match(solids,/cinder_mouth/);
 assert.match(solids,/\['rimmers','plasma','creepers','tanks','dancers'\]/);
 assert.match(main,/settleOptionalAsset\(loadSkinnedSolids\(\),'guide-solids'\)/);
@@ -144,8 +152,18 @@ for(const row of expected){
    assert.equal(createHash('sha256').update(bytes).digest('hex'),row.sha256);
   }
  }
- if(row.path==='game/assets/vein-ascetic-skinned.glb')assert.equal(state,'binary','Vein Anunnaki must be a real hydrated GLB');
+ if(row.path==='game/assets/vein-ascetic-skinned.glb'){
+  assert.equal(state,'binary','Vein Anunnaki must be a real hydrated GLB');
+  if(state==='binary'){
+   const bytes=readFileSync(file);
+   const jsonLen=bytes.readUInt32LE(12);
+   const gltf=JSON.parse(bytes.subarray(20,20+jsonLen).toString('utf8'));
+   const names=(gltf.animations||[]).map(item=>item.name);
+   assert.deepEqual(names,['ritual_idle','ritual_walk']);
+   assert.ok(!names.includes('ritual_run')&&!names.includes('Angry Ground Stomp'));
+  }
+ }
  binaryStatus[row.path]=state;
 }
 
-console.log(JSON.stringify({passed:true,identity:'0.54.67',binaryStatus},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.69',binaryStatus},null,2));
