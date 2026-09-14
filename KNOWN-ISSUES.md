@@ -1,4 +1,12 @@
-# Release validation — v0.54.71
+# Release validation — v0.54.72
+
+## Field Guide whole-object framing
+
+Cards and VIEW 3D fit the complete model bounds at 100% zoom. The card label
+has its own space below the preview. Zooming in deliberately magnifies details;
+RESET VIEW restores the full-object framing. The viewer uses the available
+screen area and preserves aspect ratio when limiting render resolution.
+
 
 ## Older Intel Safari / short desktop viewport
 
@@ -520,7 +528,7 @@ orange-spirit path. Combat loco, GLB bytes, and attach yaw are unchanged from
 
 Do not treat that Field Guide identity as 0.54.54 (creeper motion GLB) or
 0.54.55 (held menu Deploy gap). This tip keeps that Field Guide copy and art
-while identifying as v0.54.71.
+while identifying as v0.54.72.
 
 ## Deploy ammo breathing room (v0.54.58)
 
@@ -576,14 +584,14 @@ and the v0.54.58 Deploy ammo gap. Do not treat 0.54.52, 0.54.53, 0.54.57,
 Physical Intel Safari combat acceptance remains pending. Record unpaused combat
 HUD FPS on the full path. Do not enable Soft-GPU.
 
-## Field Guide skinned solids (v0.54.71)
+## Field Guide skinned solids (v0.54.72)
 
-v0.54.71 keeps the Field Guide-first museum solids and tightens presentation.
+v0.54.72 keeps the Field Guide-first museum solids and tightens presentation.
 Card first paint withholds the prior identification stills and shows a branded
 preparing tile until VIEW 3D thumbs land. The Queen keeps her silhouette.
-Every roster specimen uses a height-fit museum crop so the subject fills the
-card; thumbs and VIEW 3D share that framing. Cinder Maw is framed huge and
-close. Dragon A faces the camera for a front intimidation shot and must not
+Every roster specimen fits completely inside its card, with the VIEW 3D
+label below the preview. VIEW 3D fits the full width, height and depth to its
+current screen area at 100% zoom. Dragon A faces the camera and must not
 retarget live sky dragons. Rimmers, plasma bugs, Ember Hollow creepers,
 Cinder Maw tanks, Dancing Creepers, Intact brood eggs, egg larvae, and egg
 shells still use VIEW 3D museum solids when the LFS objects are present.

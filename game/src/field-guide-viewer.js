@@ -3,6 +3,22 @@ const MODEL_IDS=['eggs','creepers','dancers','rimmers','tanks','plasma','dragons
 const MIN_ZOOM=.6,MAX_ZOOM=3,ZOOM_STEP=1.25,MAX_PAN_Y=.65;
 export const clampGuideZoom=value=>THREE.MathUtils.clamp(value,MIN_ZOOM,MAX_ZOOM);
 export const clampGuidePan=value=>THREE.MathUtils.clamp(value,-MAX_PAN_Y,MAX_PAN_Y);
+// Fit the complete model to the current view at 100% zoom.
+// A small border keeps extremities clear; manual zoom still permits inspection.
+export function frameGuideCamera(camera,model,width,height){
+ camera.aspect=width/height;camera.zoom=clampGuideZoom(model.zoom||1);
+ camera.position.set(0,.105,1);camera.lookAt(0,0,0);
+ const rotation=camera.quaternion.clone().invert(),corner=new THREE.Vector3();
+ const tanY=Math.tan(THREE.MathUtils.degToRad(camera.fov)/2),tanX=tanY*camera.aspect,fill=.94;
+ model.root.updateMatrixWorld(true);let distance=.01;
+ for(const bounds of model.viewBoxes||[model.viewBounds])for(const x of [bounds.min.x,bounds.max.x])for(const y of [bounds.min.y,bounds.max.y])for(const z of [bounds.min.z,bounds.max.z]){
+  corner.set(x,y,z).applyMatrix4(model.root.matrixWorld).applyQuaternion(rotation);
+  distance=Math.max(distance,corner.z+Math.abs(corner.x)/(tanX*fill),corner.z+Math.abs(corner.y)/(tanY*fill));
+ }
+ const panY=clampGuidePan(model.panY||0)*2*distance*tanY/camera.zoom;
+ camera.position.normalize().multiplyScalar(distance);camera.position.y+=panY;camera.lookAt(0,panY,0);
+ camera.near=Math.max(.001,distance/1000);camera.far=Math.max(30,distance*4);camera.updateProjectionMatrix();
+}
 // One lazy context for all thumbnails and the selected interactive model.
 export function createFieldGuideViewer({dialog,provider,modelIds=MODEL_IDS}){
  const detail=document.createElement('dialog');detail.id='guideModelDialog';detail.setAttribute('aria-labelledby','guideModelTitle');
@@ -19,8 +35,8 @@ export function createFieldGuideViewer({dialog,provider,modelIds=MODEL_IDS}){
  canvas.addEventListener('keydown',e=>{if(!current||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','+','=','-','_'].includes(e.key))return;e.preventDefault();if(e.key==='Home')reset();else if(e.key==='+'||e.key==='=')setZoom((current.zoom||1)*ZOOM_STEP);else if(e.key==='-'||e.key==='_')setZoom((current.zoom||1)/ZOOM_STEP);else{if(e.key==='ArrowLeft'||e.key==='ArrowRight')current.root.rotation.y+=(e.key==='ArrowLeft'?-1:1)*.2;else current.root.rotation.x=THREE.MathUtils.clamp(current.root.rotation.x+(e.key==='ArrowUp'?-1:1)*.12,-.65,.65);schedule();}});
  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();if(renderer?.domElement!==canvas)return;contextLost=true;stopTick();if(frame){cancelAnimationFrame(frame);frame=0;}error='3D view unavailable. Close and reopen the guide to retry.';status.textContent=error;});
  }
- function renderModel(model,width,height){ensureRenderer();renderer.setSize(width,height);camera.aspect=width/height;camera.zoom=clampGuideZoom(model.zoom||1);const vertical=THREE.MathUtils.degToRad(camera.fov),fov=Math.min(vertical,2*Math.atan(Math.tan(vertical/2)*camera.aspect)),distance=(model.viewRadius||1.65)/Math.sin(fov/2),panY=clampGuidePan(model.panY||0)*2*distance*Math.tan(vertical/2)/camera.zoom;camera.position.set(0,distance*.105+panY,distance);camera.lookAt(0,panY,0);camera.updateProjectionMatrix();scene.add(model.root);renderer.render(scene,camera);scene.remove(model.root);draws++;}
- function draw(){frame=0;if(!detail.open||!current||!renderer||contextLost)return;const b=stage.getBoundingClientRect();renderModel(current,Math.max(1,Math.min(1000,Math.round(b.width))),Math.max(1,Math.min(700,Math.round(b.height))));}
+ function renderModel(model,width,height){ensureRenderer();renderer.setSize(width,height);frameGuideCamera(camera,model,width,height);scene.add(model.root);renderer.render(scene,camera);scene.remove(model.root);draws++;}
+ function draw(){frame=0;if(!detail.open||!current||!renderer||contextLost)return;const b=stage.getBoundingClientRect(),scale=Math.min(1,1000/b.width,700/b.height);renderModel(current,Math.max(1,Math.round(b.width*scale)),Math.max(1,Math.round(b.height*scale)));}
  function schedule(){if(!disposed&&detail.open&&current&&!frame&&!tickRaf&&!contextLost)frame=requestAnimationFrame(draw);}
  function syncMotion(){motionLabel.hidden=!current?.clips?.length;pause.hidden=!current?.tick;motion.replaceChildren(...(current?.clips||[]).map(clip=>{const option=document.createElement('option');option.value=clip.name;option.textContent=clip.label;return option;}));if(current?.activeClip)motion.value=current.activeClip;pause.textContent=motionPaused?'PLAY MOTION':'PAUSE MOTION';pause.setAttribute('aria-pressed',String(motionPaused));}
  motion.addEventListener('change',()=>{current?.playClip?.(motion.value);schedule();});
@@ -46,7 +62,7 @@ export function createFieldGuideViewer({dialog,provider,modelIds=MODEL_IDS}){
  function reset(){if(!current)return;current.root.rotation.set(0,current.initialY,0);current.zoom=1;current.panY=0;syncZoom();if(tickRaf)return;schedule();}
  async function prepare(){
   if(disposed||building||!dialog.open||modelIds.every(id=>models.has(id)))return;const make=provider();if(!make)return;building=true;const token=generation;
-  try{ensureRenderer();for(const id of modelIds){if(models.has(id))continue;if(!dialog.open||token!==generation)break;let model;try{model=await make(id);}catch(e){if(id!=='dragons')throw e;error=String(e.message||e);continue;}if(!dialog.open||token!==generation){model.dispose();break;}model.initialY=model.root.rotation.y;model.zoom=1;model.panY=0;models.set(id,model);renderModel(model,420,330);const url=renderer.domElement.toDataURL('image/png');thumbs.set(id,url);const img=dialog.querySelector(`[data-creature="${id}"] img`);if(img){img.src=url;img.removeAttribute('data-guide-pending');img.dataset.modelReady='true';img.alt=id+' — 3D model preview';img.closest('.guide-portrait')?.removeAttribute('aria-busy');}await new Promise(resolve=>setTimeout(resolve,0));}
+  try{ensureRenderer();for(const id of modelIds){if(models.has(id))continue;if(!dialog.open||token!==generation)break;let model;try{model=await make(id);}catch(e){if(id!=='dragons')throw e;error=String(e.message||e);continue;}if(!dialog.open||token!==generation){model.dispose();break;}model.initialY=model.root.rotation.y;model.zoom=1;model.panY=0;models.set(id,model);const img=dialog.querySelector(`[data-creature="${id}"] img`),b=img?.getBoundingClientRect();renderModel(model,420,b?.width&&b?.height?Math.max(1,Math.round(420*b.height/b.width)):420);const url=renderer.domElement.toDataURL('image/png');thumbs.set(id,url);if(img){img.src=url;img.removeAttribute('data-guide-pending');img.dataset.modelReady='true';img.alt=id+' — 3D model preview';img.closest('.guide-portrait')?.removeAttribute('aria-busy');}await new Promise(resolve=>setTimeout(resolve,0));}
   }catch(e){error=String(e.message||e);status.textContent='3D view could not load. Close and reopen the guide to retry.';}
   finally{building=false;if(!disposed&&token!==generation&&dialog.open)queueMicrotask(prepare);else if(!disposed&&token===generation&&detail.open&&trigger)show(trigger);}
  }

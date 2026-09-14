@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import * as THREE from '../game/vendor/three.module.js?v=052';
-import {cloneSkinnedGuide} from '../game/src/skinned-solids.js?v=054-71';
-import {buildGuideModel,cloneGuideTree,cloneGuideMaterial,guideYawFor,guideViewRadiusFor} from '../game/src/guide-models.js';
-import {clampGuidePan,clampGuideZoom} from '../game/src/field-guide-viewer.js';
+import {cloneSkinnedGuide} from '../game/src/skinned-solids.js?v=054-72';
+import {buildGuideModel,cloneGuideTree,cloneGuideMaterial,guideYawFor} from '../game/src/guide-models.js';
+import {clampGuidePan,clampGuideZoom,frameGuideCamera} from '../game/src/field-guide-viewer.js';
 assert.equal(clampGuideZoom(0),.6);assert.equal(clampGuideZoom(1),1);assert.equal(clampGuideZoom(4),3);
 assert.equal(clampGuidePan(-1),-.65);assert.equal(clampGuidePan(.2),.2);assert.equal(clampGuidePan(1),.65);
 const source=new THREE.Group(),bone=new THREE.Bone();bone.name='jaw';source.add(bone);
@@ -26,7 +26,7 @@ const clip=new THREE.AnimationClip('cinder_idle',1,[new THREE.NumberKeyframeTrac
 const solid={museumRoot(){const root=cloneSkinnedGuide(source),mixer=new THREE.AnimationMixer(root);mixer.clipAction(clip).play();root.userData.guideMixer=mixer;root.userData.guideClips=[clip];return root;}};
 const model=await buildGuideModel('tanks',{skinnedSolids:{tanks:solid}});let animated;model.root.traverse(n=>{if(n.isSkinnedMesh)animated=n;});
 assert.equal(model.root.rotation.y,guideYawFor('tanks'));
-assert.ok(model.viewRadius<1.15,'Cinder Maw museum crop must fill the card');
+assert.ok(!model.viewBounds.isEmpty(),'Cinder Maw must retain complete framing bounds');
 assert.notEqual(animated.geometry,geometry);assert.notEqual(animated.material,material);
 for(const r of [animated.geometry,animated.material])r.addEventListener('dispose',()=>ownedDisposals++);
 model.tick(.25);assert.ok(animated.skeleton.bones[0].position.x>0);assert.equal(bone.position.x,0);
@@ -75,16 +75,28 @@ assert.equal(guideYawFor('creepers'),.35);
 assert.equal(guideYawFor('dancers'),.35);
 assert.equal(guideYawFor('rimmers'),.35);
 assert.equal(guideYawFor('plasma'),.35);
-const rosterExtent=new THREE.Vector3(1.9,.82,1.22),rosterScale=2.4/1.9;
-const legacyRadius=Math.max(1.25,rosterExtent.length()*rosterScale/2)+.20;
-for(const id of ['eggs','creepers','dancers','rimmers','tanks','plasma','dragons','egg-maggot','egg-shell']){
- assert.ok(guideViewRadiusFor(id,rosterExtent,rosterScale)<legacyRadius*0.75,id+' must crop tighter than the bounding-sphere pad');
+// Projection checks catch both height-only fitting and depth/rotation clipping.
+for(const extent of [new THREE.Vector3(.6,3,.5),new THREE.Vector3(4,.4,1),new THREE.Vector3(1,1,3)]){
+ for(const aspect of [.5,1,2.4])for(const yaw of [0,.35,Math.PI/2]){
+  const root=new THREE.Group();root.rotation.set(.4,yaw,0);
+  const model={root,viewBounds:new THREE.Box3(extent.clone().multiplyScalar(-.5),extent.clone().multiplyScalar(.5)),zoom:1};
+  const camera=new THREE.PerspectiveCamera(40,aspect,.01,30);
+  frameGuideCamera(camera,model,600*aspect,600);camera.updateMatrixWorld(true);
+  let fill=0;
+  for(const x of [-.5,.5])for(const y of [-.5,.5])for(const z of [-.5,.5]){
+   const corner=new THREE.Vector3(x*extent.x,y*extent.y,z*extent.z).applyMatrix4(root.matrixWorld).project(camera);
+   assert.ok(Math.abs(corner.x)<=.940001&&Math.abs(corner.y)<=.940001,'entire rotated object must fit');
+   assert.ok(corner.z>-1&&corner.z<1,'depth stays inside clipping planes');
+   fill=Math.max(fill,Math.abs(corner.x),Math.abs(corner.y));
+  }
+  assert.ok(fill>.939,'fit should use the available area, not a padded sphere');
+  model.zoom=2;frameGuideCamera(camera,model,600*aspect,600);assert.equal(camera.zoom,2);
+  model.zoom=1;frameGuideCamera(camera,model,600*aspect,600);assert.equal(camera.zoom,1);
+ }
 }
-assert.ok(guideViewRadiusFor('tanks',rosterExtent,rosterScale)<guideViewRadiusFor('creepers',rosterExtent,rosterScale));
-assert.ok(guideViewRadiusFor('dragons',rosterExtent,rosterScale)<guideViewRadiusFor('creepers',rosterExtent,rosterScale));
 const dragonSolid={museumRoot(){const root=new THREE.Group();root.add(new THREE.Mesh(new THREE.BoxGeometry(1.9,.82,1.22),new THREE.MeshBasicMaterial()));return root;}};
 const dragon=await buildGuideModel('dragons',{skinnedSolids:{dragons:dragonSolid}});
 assert.equal(dragon.root.rotation.y,guideYawFor('dragons'));
-assert.ok(dragon.viewRadius<legacyRadius*0.75);
+assert.ok(Math.abs(dragon.viewBounds.getSize(new THREE.Vector3()).x-2.4)<1e-6);
 dragon.dispose();
-console.log('PASS: independent skeletons/bind matrices, flat shading, independent animation and idempotent owned-resource disposal; Intact egg assembles leather window, opaque base, and enclosed maggot without cloning live nests; museum crop is tight and dragons face the camera');
+console.log('PASS: independent skeletons/bind matrices, flat shading, independent animation and idempotent owned-resource disposal; Intact egg assembles leather window, opaque base, and enclosed maggot without cloning live nests; whole-object framing fills portrait and landscape views, and dragons face the camera');

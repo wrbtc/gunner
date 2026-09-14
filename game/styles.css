@@ -389,14 +389,16 @@ body:has(#pilotCaption:not([hidden])) #result{padding-top:74px}
 
 .guide-model-trigger{position:relative;padding:0;cursor:zoom-in;box-shadow:none;border:1px solid #495541;border-radius:0;min-height:0;color:#d9dbc7}
 .guide-model-trigger:hover{border-color:#d3b779;transform:none}.guide-model-trigger:focus-visible{outline:2px solid #d3b779;outline-offset:3px}
-.guide-enlarge{position:absolute;bottom:0;left:0;right:0;padding:8px 3px;background:#0b1414df;font:10px/1.2 monospace;letter-spacing:.05em}
+.guide-enlarge{position:absolute;bottom:0;left:0;right:0;height:28px;padding:8px 3px;background:#0b1414df;font:10px/1.2 monospace;letter-spacing:.05em}
+.guide-model-trigger img{position:absolute;inset:0 0 28px;width:100%;height:calc(100% - 28px);object-fit:contain}
 .guide-portrait:has(img[data-guide-pending])::before{content:'';position:absolute;inset:12px 12px 34px;pointer-events:none;border:1px dashed #5c6750;background:radial-gradient(ellipse 42% 46% at 50% 54%,#2a3324 0%,transparent 72%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 90' fill='none' stroke='%23c4b07a' stroke-width='1.5' stroke-linecap='round'%3E%3Cellipse cx='40' cy='58' rx='15' ry='19'/%3E%3Cpath d='M29 46C24 30 20 18 27 16c5 6 9 16 11 28'/%3E%3Cpath d='M51 46c5-16 9-28 2-30-5 6-9 16-11 28'/%3E%3Cpath d='M34 74q6 6 12 0'/%3E%3C/svg%3E") center 44%/54% no-repeat}
 .guide-portrait:has(img[data-guide-pending])::after{content:'PREPARING 3D';position:absolute;left:0;right:0;bottom:36px;font:9px/1.2 monospace;letter-spacing:.14em;color:#c4b07a;text-align:center;pointer-events:none}
-.guide-portrait img[data-model-ready=true]{filter:none;transform:none;width:100%;height:100%;object-fit:cover}
-#guideModelDialog{width:min(900px,94vw);padding:20px;border:1px solid #788067;background:#101916;color:#e1e3d1;max-height:94vh;overflow:auto}
+.guide-portrait img[data-model-ready=true]{filter:none;transform:none;width:100%;height:calc(100% - 28px);object-fit:contain}
+#guideModelDialog{width:min(1400px,96vw);padding:20px;border:1px solid #788067;background:#101916;color:#e1e3d1;max-height:94vh;overflow:auto}
+#guideModelDialog[open]{display:flex;flex-direction:column;height:92vh;overflow:hidden}
 #guideModelDialog::backdrop{background:#000d}#guideModelDialog header{display:flex;align-items:center;justify-content:space-between;gap:15px}#guideModelDialog h2{font:32px/1.2 Impact,sans-serif;margin:4px 0 16px}
 #guideModelDialog button{font:12px/1.2 monospace;letter-spacing:.03em;background:#1a281f;border:1px solid #6b775e;color:#e1e3d1;padding:12px;box-shadow:none}
-.guide-model-stage{width:100%;height:min(55vh,520px);min-height:160px;display:flex;align-items:center;justify-content:center;background:#121b17;overflow:hidden}
+.guide-model-stage{width:100%;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#121b17;overflow:hidden}
 .guide-model-stage canvas{display:block;width:100%!important;height:100%!important;cursor:grab}.guide-model-stage canvas:active{cursor:grabbing}.guide-model-stage img{max-width:100%;max-height:100%;object-fit:contain}
 .guide-model-tools{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:14px;font:11px monospace;color:#b9c5ad}.guide-model-tools[hidden]{display:none}.guide-model-status{font:12px system-ui,sans-serif;color:#cdbf94}.guide-model-status:empty{display:none}
 .guide-model-zoom{display:flex;align-items:center;gap:7px}.guide-model-zoom output{min-width:4ch;text-align:center;font-variant-numeric:tabular-nums;color:#e1e3d1}

@@ -1,18 +1,13 @@
 import * as THREE from '../vendor/three.module.js?v=052';
 import {createBankGuideModel} from './bank-demons.js?v=052';
 import {createRimmerModel} from './rimmer-model.js?v=052';
-import {cloneSkinnedGuide} from './skinned-solids.js?v=054-71';
-import {loadGuideEggPart,loadGuideIntactEgg} from './field-guide-egg-parts.js?v=054-71';
-const GUIDE_FRONT_YAW=.35,GUIDE_DRAGON_YAW=.18,GUIDE_VERTICAL_FIT=.94;
+import {cloneSkinnedGuide} from './skinned-solids.js?v=054-72';
+import {loadGuideEggPart,loadGuideIntactEgg} from './field-guide-egg-parts.js?v=054-72';
+const GUIDE_FRONT_YAW=.35,GUIDE_DRAGON_YAW=.18;
 export const GUIDE_FRONT_IDS=Object.freeze(['creepers','rimmers','plasma','tanks','dancers','eggs','egg-maggot','egg-shell']);
 export function guideYawFor(id){
  // Dragons used Math.PI+.4 (rear, flying away). Face the camera instead.
  return id==='dragons'?GUIDE_DRAGON_YAW:GUIDE_FRONT_IDS.includes(id)?GUIDE_FRONT_YAW:Math.PI+.4;
-}
-export function guideViewRadiusFor(id,extent,scale){
- // Height-fit into the 40° museum FOV. Bounding-sphere padding left empty cards.
- const height=Math.max(extent.y*scale,.001),fill=id==='tanks'?1.36:id==='dragons'?1.3:1.18;
- return Math.max(.36,(height/2)*GUIDE_VERTICAL_FIT/fill);
 }
 // Copy display state without touching actor transforms, uniforms or lifetimes.
 export function cloneGuideMaterial(source){
@@ -54,6 +49,24 @@ function creeperGuideRoot(creeperLoco,solid){
  root.rotation.y=0;
  return isolateGuideMeshes(root);
 }
+// Small occupied boxes follow the silhouette more closely than one large box,
+// while avoiding a full vertex scan on every drag or animation frame.
+function guideFramingBoxes(root,bounds,center,scale){
+ const size=bounds.getSize(new THREE.Vector3()),point=new THREE.Vector3(),cells=new Map();
+ root.traverse(mesh=>{
+  if(!mesh.isMesh||!mesh.visible)return;
+  if(mesh.isSkinnedMesh)mesh.skeleton.update();
+  for(let i=0;i<mesh.geometry.attributes.position.count;i++){
+   mesh.getVertexPosition(i,point).applyMatrix4(mesh.matrixWorld);
+   const x=THREE.MathUtils.clamp(Math.floor((point.x-bounds.min.x)/Math.max(size.x,.001)*8),0,7);
+   const y=THREE.MathUtils.clamp(Math.floor((point.y-bounds.min.y)/Math.max(size.y,.001)*8),0,7);
+   const z=THREE.MathUtils.clamp(Math.floor((point.z-bounds.min.z)/Math.max(size.z,.001)*8),0,7),key=x*64+y*8+z;
+   if(!cells.has(key))cells.set(key,new THREE.Box3());
+   cells.get(key).expandByPoint(point);
+  }
+ });
+ return [...cells.values()].map(box=>new THREE.Box3(box.min.sub(center).multiplyScalar(scale),box.max.sub(center).multiplyScalar(scale)));
+}
 // Dragons use the Field Guide A museum solid only. Do not clone live canyon wyverns.
 export async function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco,skinnedSolids}){
  let root;
@@ -78,13 +91,15 @@ export async function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creepe
  root.visible=true;root.position.set(0,0,0);root.updateMatrixWorld(true);
  root.traverse(n=>{n.layers.set(0);n.frustumCulled=false;n.castShadow=false;n.receiveShadow=false;});
  const bounds=new THREE.Box3().setFromObject(root),center=bounds.getCenter(new THREE.Vector3()),extent=bounds.getSize(new THREE.Vector3()),scale=2.4/Math.max(extent.x,extent.y,extent.z);
+ const viewBoxes=guideFramingBoxes(root,bounds,center,scale);
  const frame=new THREE.Group(),pivot=new THREE.Group();frame.add(pivot);pivot.add(root);pivot.scale.setScalar(scale);root.position.sub(center);frame.name='Guide '+id;frame.rotation.y=guideYawFor(id);
  const mixers=[];
  root.traverse(n=>{if(n.userData.guideMixer&&!mixers.includes(n.userData.guideMixer))mixers.push(n.userData.guideMixer);});
  let clips=[];root.traverse(n=>{if(n.userData.guideClips)clips=n.userData.guideClips;});
  let disposed=false;
  const dispose=()=>{if(disposed)return;disposed=true;for(const mixer of mixers){mixer.stopAllAction();mixer.uncacheRoot(mixer.getRoot());}const geos=new Set(),mats=new Set(),skeletons=new Set();root.traverse(n=>{if(n.geometry&&!root.userData.shareGuideGeometry)geos.add(n.geometry);if(n.material)for(const m of Array.isArray(n.material)?n.material:[n.material])mats.add(m);if(n.isSkinnedMesh)skeletons.add(n.skeleton);});skeletons.forEach(s=>s.dispose());geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose());};
- const result={root:frame,dispose,viewRadius:guideViewRadiusFor(id,extent,scale)};
+ const viewBounds=new THREE.Box3(bounds.min.clone().sub(center).multiplyScalar(scale),bounds.max.clone().sub(center).multiplyScalar(scale));
+ const result={root:frame,dispose,viewBounds,viewBoxes};
  if(mixers.length){
   result.clips=clips.map(c=>({name:c.name,label:c.name.replace(/^(ember|rimmer|plasma|ritual|cinder|maggot)_/,'').replaceAll('_',' ')}));
   result.activeClip=clips.find(c=>/idle|wriggle/.test(c.name))?.name||clips[0]?.name;

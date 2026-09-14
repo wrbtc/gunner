@@ -187,7 +187,7 @@ export const loadingSnapshot=()=>Object.freeze({...loading.snapshot(),trace:star
 export const loadingStage=id=>{const ok=loading.complete(id);if(ok)bootHeartbeat();return ok;};
 export const loadingProgress=(id,detail)=>{const ok=loading.begin(id,detail);if(ok)bootHeartbeat();return ok;};
 export const loadingReady=()=>loading.ready();
-export const REPORT_BUILD='0.54.71';
+export const REPORT_BUILD='0.54.72';
 const REPORT_ORIGINS=['https://gunner.satoshis.watch','http://127.0.0.1:8000'];
 const missionBuild=$('missionBuild');
 if(missionBuild)missionBuild.textContent='v'+REPORT_BUILD;
@@ -267,7 +267,7 @@ let guideModelProvider=null,guideViewer=null,guideViewerPromise=null;
 export function setGuideModelProvider(provider){guideModelProvider=provider;if($('fieldGuide')?.open)void openGuideViewer();}
 export const guideViewerStats=()=>guideViewer?.stats()||{models:[],contexts:0};
 async function openGuideViewer(button=null){
- if(!guideViewerPromise)guideViewerPromise=import('./field-guide-viewer.js?v=054-71').then(({createFieldGuideViewer})=>guideViewer=createFieldGuideViewer({dialog:$('fieldGuide'),provider:()=>guideModelProvider})).catch(error=>{guideViewerPromise=null;throw error;});
+ if(!guideViewerPromise)guideViewerPromise=import('./field-guide-viewer.js?v=054-72').then(({createFieldGuideViewer})=>guideViewer=createFieldGuideViewer({dialog:$('fieldGuide'),provider:()=>guideModelProvider})).catch(error=>{guideViewerPromise=null;throw error;});
  try{await guideViewerPromise;if($('fieldGuide')?.open){if(button)guideViewer.show(button);await guideViewer.prepare();}}catch{ /* Existing image identification remains available; retry on next open. */ }
 }
 export const FIELD_GUIDE=Object.freeze([
@@ -287,7 +287,7 @@ if(dialog&&trigger){
   const card=document.createElement('article');card.className='guide-entry';card.dataset.creature=id;
   const mark=document.createElement('button');mark.type='button';mark.className='guide-portrait guide-model-trigger '+id;mark.setAttribute('aria-label','Enlarge '+name);mark.setAttribute('aria-haspopup','dialog');mark.setAttribute('aria-expanded','false');
   const portrait=document.createElement('img');portrait.alt=id==='queen'?"The Queen's silhouette; her appearance remains unknown":name+' — model identification';portrait.width=512;portrait.height=384;portrait.decoding='async';
-  if(id==='queen')portrait.dataset.src='./assets/field-guide/queen.png?v=054-71';
+  if(id==='queen')portrait.dataset.src='./assets/field-guide/queen.png?v=054-72';
   else{portrait.dataset.guidePending='true';mark.setAttribute('aria-busy','true');}
   mark.append(portrait);const enlarge=document.createElement('span');enlarge.className='guide-enlarge';enlarge.textContent=id==='queen'?'ENLARGE ↗':'VIEW 3D ↗';mark.append(enlarge);
   const copy=document.createElement('div');
