@@ -1,12 +1,13 @@
-# Brood egg solids (v0.54.68)
+# Brood egg solids (v0.54.70)
 
 Live-nest source meshes plus the rigid Field Notes shell. Field Notes Intact
 egg (`id=eggs`) assembles `egg-shell-a.glb` with the independently rigged
-larva at `field-notes-v02/egg-maggot-fieldnotes-v02.glb` behind a leathery
-window, keeps an opaque sac base, and holds the maggot fully inside the
-membrane. That larva does not replace the live nest embryo. Placement,
-clusters, gallery, queen brood, HP/hit, filaments, sockets, and rupture
-physics stay on the existing `makeEgg` path.
+larva at `field-notes-v02/egg-maggot-fieldnotes-v02.glb` as one uniform
+opaque leathery sac. The root tuft stays sealed. A thin-membrane occupancy
+shadow lets the enclosed maggot read as a silhouette under the leather, not
+through a glass window. That larva does not replace the live nest embryo.
+Placement, clusters, gallery, queen brood, HP/hit, filaments, sockets, and
+rupture physics stay on the existing `makeEgg` path.
 
 Expected binaries next to this note:
 
@@ -20,8 +21,9 @@ loaders and hash gates only. Do not commit a placeholder, empty file, or
 invented GLB. Until both objects land, nests keep the procedural shell and
 embryo.
 
-An opaque shell bake is adapted to a leathery window (alpha / roughness) so a
-careful look shows a vague maggot silhouette. No glow, slit, or extra limbs.
+An opaque shell bake stays opaque. Field Notes Intact egg dresses that leather
+with a very thin occupancy shadow so a careful look shows a vague maggot
+silhouette under the membrane. No alpha glass, glow, slit, or extra limbs.
 
 The original static maggot source remains identified above for live-nest
 provenance. Field Notes Intact egg and the Larva specimen use the

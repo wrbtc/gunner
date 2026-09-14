@@ -1,6 +1,5 @@
 import * as THREE from '../vendor/three.module.js?v=052';
-import {loadGuideSolid} from './skinned-solids.js?v=054-68';
-import {adaptEggShellMaterial} from './egg-solids.js?v=054-68';
+import {loadGuideSolid} from './skinned-solids.js?v=054-70';
 // Independent specimen views only; the live nest and its source assets are untouched.
 const SPECS={
  'egg-maggot':{id:'egg-maggot',asset:'field-notes-v02/egg-maggot-fieldnotes-v02',sha256:'344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96',bytes:1075680,armature:'MaggotArmature',clips:{idle:'maggot_wriggle'}},
@@ -37,66 +36,101 @@ function nestMaggotInShell(shell,maggot){
  maggot.scale.setScalar(fit);
  maggot.position.copy(nestCenter).sub(maggotCenter.multiplyScalar(fit));
 }
-function intactLocalYShader(kind,baseTop,windowStart){
- return function(shader){
-  shader.uniforms.uIntactBaseTop={value:baseTop};
-  shader.uniforms.uIntactWindowStart={value:windowStart};
-  shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying float vIntactLocalY;');
-  shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvIntactLocalY=transformed.y;');
-  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying float vIntactLocalY;\nuniform float uIntactBaseTop;\nuniform float uIntactWindowStart;');
-  if(kind==='base'){
-   shader.fragmentShader=shader.fragmentShader.replace('#include <clipping_planes_fragment>','#include <clipping_planes_fragment>\nif(vIntactLocalY>uIntactWindowStart)discard;');
-  }else{
-   shader.fragmentShader=shader.fragmentShader.replace('vec4 diffuseColor = vec4( diffuse, opacity );','float intactLift=smoothstep(uIntactBaseTop,uIntactWindowStart,vIntactLocalY);\nvec4 diffuseColor = vec4( diffuse, mix(1.,opacity,intactLift) );');
-  }
- };
+function intactVec3(value){
+ return value&&value.isVector3?value.clone():new THREE.Vector3(value?.x||0,value?.y||0,value?.z||0);
 }
-function leatherBand(geometry){
- if(!geometry.boundingBox)geometry.computeBoundingBox();
- const box=geometry.boundingBox,span=Math.max(box.max.y-box.min.y,1e-6);
- return {baseTop:box.min.y+span*.42,windowStart:box.min.y+span*.58};
+function intactMembraneShader(shader){
+ const center=intactVec3(this.userData.intactMaggotCenter);
+ const radii=intactVec3(this.userData.intactMaggotRadii);
+ const tuft=Number.isFinite(this.userData.intactTuftStartZ)?this.userData.intactTuftStartZ:1e6;
+ shader.uniforms.uIntactMaggotCenter={value:center};
+ shader.uniforms.uIntactMaggotRadii={value:radii};
+ shader.uniforms.uIntactTuftStartZ={value:tuft};
+ shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vIntactLocalPos;varying vec3 vIntactLocalCam;');
+ shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvIntactLocalPos=transformed;\nvIntactLocalCam=(inverse(modelMatrix)*vec4(cameraPosition,1.)).xyz;');
+ shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>
+varying vec3 vIntactLocalPos;varying vec3 vIntactLocalCam;
+uniform vec3 uIntactMaggotCenter;uniform vec3 uIntactMaggotRadii;uniform float uIntactTuftStartZ;`);
+ shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\ndiffuseColor.a=1.;');
+ shader.fragmentShader=shader.fragmentShader.replace('#include <opaque_fragment>',`float intactTuft=step(uIntactTuftStartZ,vIntactLocalPos.z);
+float intactNdv=abs(dot(normalize(normal),normalize(vViewPosition)));
+float intactThin=pow(clamp(intactNdv,0.,1.),1.45)*(1.-intactTuft);
+vec3 intactInvR=1./max(uIntactMaggotRadii,vec3(1e-4));
+vec3 intactRay=normalize(vIntactLocalPos-vIntactLocalCam);
+float intactShellT=length(vIntactLocalPos-vIntactLocalCam);
+vec3 intactToMaggot=(uIntactMaggotCenter-vIntactLocalCam)*intactInvR;
+vec3 intactD=intactRay*intactInvR;
+float intactTClose=dot(intactToMaggot,intactD)/max(dot(intactD,intactD),1e-6);
+vec3 intactClosest=(vIntactLocalCam+intactRay*intactTClose-uIntactMaggotCenter)*intactInvR;
+float intactOcc=1.-smoothstep(.12,1.05,length(intactClosest));
+intactOcc*=(1.-intactTuft)*step(intactShellT,intactTClose);
+outgoingLight*=mix(vec3(1.),vec3(.74,.61,.48),intactThin*.26);
+outgoingLight*=mix(1.,.36,intactOcc*mix(.52,1.,intactThin));
+diffuseColor.a=1.;
+#include <opaque_fragment>`);
 }
-function dressIntactLeather(source,band){
- const leather=adaptEggShellMaterial(source);
- // Keep the shared leathery window. Do not force-cap the whole sac to glass.
- leather.roughness=Math.max(.66,leather.roughness??.5);
- leather.onBeforeCompile=intactLocalYShader('window',band.baseTop,band.windowStart);
- leather.customProgramCacheKey=()=> 'fn-intact-leather-window-05468';
+function dressIntactLeather(source){
+ const leather=source.clone();
+ if(leather.emissive)leather.emissive.setHex(0);
+ if('emissiveIntensity' in leather)leather.emissiveIntensity=0;
+ leather.side=THREE.FrontSide;
+ leather.roughness=Math.max(.7,leather.roughness??.5);
+ if('metalness' in leather)leather.metalness=Math.min(.06,leather.metalness??0);
+ leather.transparent=false;
+ leather.opacity=1;
+ leather.depthWrite=true;
+ leather.depthTest=true;
+ leather.alphaTest=0;
+ leather.alphaMap=null;
+ if('alphaHash' in leather)leather.alphaHash=false;
+ if('transmission' in leather)leather.transmission=0;
+ if('thickness' in leather)leather.thickness=.04;
+ leather.premultipliedAlpha=false;
+ leather.blending=THREE.NormalBlending;
+ leather.onBeforeCompile=intactMembraneShader;
+ leather.customProgramCacheKey=()=> 'fn-intact-opaque-membrane-05470';
  return leather;
 }
-function makeIntactBaseMaterial(source,band){
- const base=source.clone();
- if(base.emissive)base.emissive.setHex(0);
- if('emissiveIntensity' in base)base.emissiveIntensity=0;
- base.side=THREE.FrontSide;
- base.roughness=Math.max(.7,base.roughness??.5);
- if('metalness' in base)base.metalness=Math.min(.06,base.metalness??0);
- base.transparent=false;
- base.opacity=1;
- base.depthWrite=true;
- base.onBeforeCompile=intactLocalYShader('base',band.baseTop,band.windowStart);
- base.customProgramCacheKey=()=> 'fn-intact-opaque-base-05468';
- return base;
+function bindIntactMaggotShadow(shell,maggot){
+ shell.updateMatrixWorld(true);maggot.updateMatrixWorld(true);
+ const shellBox=new THREE.Box3().setFromObject(shell),bodyBox=sacBodyBox(shellBox);
+ const maggotBox=new THREE.Box3().setFromObject(maggot);
+ const worldCenter=maggotBox.getCenter(new THREE.Vector3());
+ const worldRadii=maggotBox.getSize(new THREE.Vector3()).multiplyScalar(.52);
+ const hasTuft=Math.abs(bodyBox.max.z-shellBox.max.z)>1e-4||Math.abs(bodyBox.min.z-shellBox.min.z)>1e-4;
+ const tuftWorld=new THREE.Vector3().copy(bodyBox.getCenter(new THREE.Vector3()));
+ tuftWorld.z=bodyBox.max.z;
+ shell.traverse(node=>{
+  if(!node.isMesh)return;
+  node.updateMatrixWorld(true);
+  const inv=node.matrixWorld.clone().invert();
+  const scale=new THREE.Vector3();
+  node.matrixWorld.decompose(new THREE.Vector3(),new THREE.Quaternion(),scale);
+  const localCenter=worldCenter.clone().applyMatrix4(inv);
+  const localRadii=new THREE.Vector3(
+   worldRadii.x/Math.max(Math.abs(scale.x),1e-6),
+   worldRadii.y/Math.max(Math.abs(scale.y),1e-6),
+   worldRadii.z/Math.max(Math.abs(scale.z),1e-6)
+  );
+  const tuftStartZ=hasTuft?tuftWorld.clone().applyMatrix4(inv).z:1e6;
+  const materials=Array.isArray(node.material)?node.material:[node.material];
+  for(const material of materials){
+   material.userData.intactMaggotCenter=localCenter;
+   material.userData.intactMaggotRadii=localRadii;
+   material.userData.intactTuftStartZ=tuftStartZ;
+  }
+ });
 }
 export function assembleIntactEgg(shellSolid,maggotSolid){
  const root=new THREE.Group();root.name='Museum eggs';
  const shell=shellSolid.museumRoot(),maggot=maggotSolid.museumRoot();
- const bases=[];
  shell.traverse(node=>{
   if(!node.isMesh)return;
-  const sources=Array.isArray(node.material)?node.material:[node.material];
-  const band=leatherBand(node.geometry);
-  const leather=sources.map(material=>dressIntactLeather(material,band));
+  const leather=Array.isArray(node.material)?node.material.map(dressIntactLeather):[dressIntactLeather(node.material)];
   node.material=Array.isArray(node.material)?leather:leather[0];
-  node.renderOrder=2;
-  const floor=node.clone();
-  floor.name='Intact egg base';
-  floor.material=Array.isArray(node.material)?sources.map(material=>makeIntactBaseMaterial(material,band)):makeIntactBaseMaterial(sources[0],band);
-  floor.renderOrder=1;
-  bases.push([node,floor]);
  });
- for(const [node,floor] of bases)node.parent.add(floor);
  nestMaggotInShell(shell,maggot);
+ bindIntactMaggotShadow(shell,maggot);
  root.add(shell);root.add(maggot);
  if(maggot.userData.guideMixer){root.userData.guideMixer=maggot.userData.guideMixer;root.userData.guideClips=maggot.userData.guideClips;}
  return root;
