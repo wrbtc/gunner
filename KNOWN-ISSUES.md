@@ -1,4 +1,11 @@
-# Release validation — v0.54.72
+# Release validation — v0.54.73
+
+## Thin leather egg sac, opaque roots
+
+The entire Field Guide egg sac uses rough, translucent leather so the worm
+can be faintly seen inside. The root crown and filaments remain fully opaque.
+The material transition follows the sac-to-root neck, without a horizontal
+upper/lower split. Separate Larva and Shell specimen views remain available.
 
 ## Field Guide whole-object framing
 
@@ -528,7 +535,7 @@ orange-spirit path. Combat loco, GLB bytes, and attach yaw are unchanged from
 
 Do not treat that Field Guide identity as 0.54.54 (creeper motion GLB) or
 0.54.55 (held menu Deploy gap). This tip keeps that Field Guide copy and art
-while identifying as v0.54.72.
+while identifying as v0.54.73.
 
 ## Deploy ammo breathing room (v0.54.58)
 
@@ -584,9 +591,9 @@ and the v0.54.58 Deploy ammo gap. Do not treat 0.54.52, 0.54.53, 0.54.57,
 Physical Intel Safari combat acceptance remains pending. Record unpaused combat
 HUD FPS on the full path. Do not enable Soft-GPU.
 
-## Field Guide skinned solids (v0.54.72)
+## Field Guide skinned solids (v0.54.73)
 
-v0.54.72 keeps the Field Guide-first museum solids and tightens presentation.
+v0.54.73 keeps the Field Guide-first museum solids and tightens presentation.
 Card first paint withholds the prior identification stills and shows a branded
 preparing tile until VIEW 3D thumbs land. The Queen keeps her silhouette.
 Every roster specimen fits completely inside its card, with the VIEW 3D
@@ -605,8 +612,7 @@ clips). Cloned materials, no combat mixers, no live-actor mutation. The Queen
 stays ENLARGE. `game/src/sky-activity.js` and `hellWorld.skyActivity` stay on
 the prior live path. Field Notes Intact egg (`id=eggs`) assembles
 `egg-shell-a.glb` (`368d9e85…`) with the 11-joint v02 larva (`344d2131…`,
-`maggot_wriggle`) behind a leathery window, keeps an opaque sac base, and
-holds the maggot fully inside the membrane. The Shell specimen stays
+`maggot_wriggle`) inside a thin translucent leather sac with opaque roots. The Shell specimen stays
 shell-only. Live nests, their embedded embryo, and rupture behavior are
 unchanged.
 

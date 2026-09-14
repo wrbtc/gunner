@@ -1,6 +1,5 @@
 import * as THREE from '../vendor/three.module.js?v=052';
 import {loadGuideSolid} from './skinned-solids.js?v=054-68';
-import {adaptEggShellMaterial} from './egg-solids.js?v=054-68';
 // Independent specimen views only; the live nest and its source assets are untouched.
 const SPECS={
  'egg-maggot':{id:'egg-maggot',asset:'field-notes-v02/egg-maggot-fieldnotes-v02',sha256:'344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96',bytes:1075680,armature:'MaggotArmature',clips:{idle:'maggot_wriggle'}},
@@ -37,65 +36,50 @@ function nestMaggotInShell(shell,maggot){
  maggot.scale.setScalar(fit);
  maggot.position.copy(nestCenter).sub(maggotCenter.multiplyScalar(fit));
 }
-function intactLocalYShader(kind,baseTop,windowStart){
- return function(shader){
-  shader.uniforms.uIntactBaseTop={value:baseTop};
-  shader.uniforms.uIntactWindowStart={value:windowStart};
-  shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying float vIntactLocalY;');
-  shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvIntactLocalY=transformed.y;');
-  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying float vIntactLocalY;\nuniform float uIntactBaseTop;\nuniform float uIntactWindowStart;');
-  if(kind==='base'){
-   shader.fragmentShader=shader.fragmentShader.replace('#include <clipping_planes_fragment>','#include <clipping_planes_fragment>\nif(vIntactLocalY>uIntactWindowStart)discard;');
-  }else{
-   shader.fragmentShader=shader.fragmentShader.replace('vec4 diffuseColor = vec4( diffuse, opacity );','float intactLift=smoothstep(uIntactBaseTop,uIntactWindowStart,vIntactLocalY);\nvec4 diffuseColor = vec4( diffuse, mix(1.,opacity,intactLift) );');
-  }
+function intactSurfaceShader(membrane,rootStart,fadeStart){
+ return shader=>{
+  shader.uniforms.uIntactRootStart={value:rootStart};
+  shader.uniforms.uIntactFadeStart={value:fadeStart};
+  shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying float vIntactLocalZ;');
+  shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvIntactLocalZ=transformed.z;');
+  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying float vIntactLocalZ;\nuniform float uIntactRootStart;\nuniform float uIntactFadeStart;');
+  shader.fragmentShader=shader.fragmentShader.replace('#include <clipping_planes_fragment>','#include <clipping_planes_fragment>\n'+(membrane?'if(vIntactLocalZ>=uIntactRootStart)discard;':'if(vIntactLocalZ<uIntactRootStart)discard;'));
+  if(membrane)shader.fragmentShader=shader.fragmentShader.replace('vec4 diffuseColor = vec4( diffuse, opacity );','float rootJoin=smoothstep(uIntactFadeStart,uIntactRootStart,vIntactLocalZ);\nvec4 diffuseColor = vec4( diffuse, mix(opacity,1.,rootJoin) );');
  };
 }
-function leatherBand(geometry){
- if(!geometry.boundingBox)geometry.computeBoundingBox();
- const box=geometry.boundingBox,span=Math.max(box.max.y-box.min.y,1e-6);
- return {baseTop:box.min.y+span*.42,windowStart:box.min.y+span*.58};
-}
-function dressIntactLeather(source,band){
- const leather=adaptEggShellMaterial(source);
- // Keep the shared leathery window. Do not force-cap the whole sac to glass.
- leather.roughness=Math.max(.66,leather.roughness??.5);
- leather.onBeforeCompile=intactLocalYShader('window',band.baseTop,band.windowStart);
- leather.customProgramCacheKey=()=> 'fn-intact-leather-window-05468';
- return leather;
-}
-function makeIntactBaseMaterial(source,band){
- const base=source.clone();
- if(base.emissive)base.emissive.setHex(0);
- if('emissiveIntensity' in base)base.emissiveIntensity=0;
- base.side=THREE.FrontSide;
- base.roughness=Math.max(.7,base.roughness??.5);
- if('metalness' in base)base.metalness=Math.min(.06,base.metalness??0);
- base.transparent=false;
- base.opacity=1;
- base.depthWrite=true;
- base.onBeforeCompile=intactLocalYShader('base',band.baseTop,band.windowStart);
- base.customProgramCacheKey=()=> 'fn-intact-opaque-base-05468';
- return base;
+function makeIntactSurfaceMaterial(source,membrane,rootStart,fadeStart){
+ const material=source.clone();
+ if(material.emissive)material.emissive.setHex(0);
+ if('emissiveIntensity' in material)material.emissiveIntensity=0;
+ material.side=THREE.FrontSide;
+ material.roughness=Math.max(membrane?.82:.7,material.roughness??.5);
+ if('metalness' in material)material.metalness=membrane?0:Math.min(.06,material.metalness??0);
+ material.transparent=membrane;
+ material.opacity=membrane?.42:1;
+ material.depthWrite=!membrane;
+ material.onBeforeCompile=intactSurfaceShader(membrane,rootStart,fadeStart);
+ material.customProgramCacheKey=()=>membrane?'fn-intact-leather-sac-05473':'fn-intact-opaque-roots-05473';
+ return material;
 }
 export function assembleIntactEgg(shellSolid,maggotSolid){
  const root=new THREE.Group();root.name='Museum eggs';
  const shell=shellSolid.museumRoot(),maggot=maggotSolid.museumRoot();
- const bases=[];
+ const membranes=[];
  shell.traverse(node=>{
   if(!node.isMesh)return;
+  const geometry=node.geometry;if(!geometry.boundingBox)geometry.computeBoundingBox();
+  const box=geometry.boundingBox,span=box.max.z-box.min.z;
+  // This authored shell tapers into its root crown along +Z, not across its upper half.
+  const rootStart=box.min.z+span*.7,fadeStart=rootStart-span*.12;
   const sources=Array.isArray(node.material)?node.material:[node.material];
-  const band=leatherBand(node.geometry);
-  const leather=sources.map(material=>dressIntactLeather(material,band));
-  node.material=Array.isArray(node.material)?leather:leather[0];
-  node.renderOrder=2;
-  const floor=node.clone();
-  floor.name='Intact egg base';
-  floor.material=Array.isArray(node.material)?sources.map(material=>makeIntactBaseMaterial(material,band)):makeIntactBaseMaterial(sources[0],band);
-  floor.renderOrder=1;
-  bases.push([node,floor]);
+  const skin=node.clone();skin.name='Intact egg membrane';
+  const dress=membrane=>sources.map(source=>makeIntactSurfaceMaterial(source,membrane,rootStart,fadeStart));
+  const rootMaterials=dress(false),skinMaterials=dress(true);
+  node.name='Intact egg roots';node.material=Array.isArray(node.material)?rootMaterials:rootMaterials[0];
+  skin.material=Array.isArray(skin.material)?skinMaterials:skinMaterials[0];
+  membranes.push([node,skin]);
  });
- for(const [node,floor] of bases)node.parent.add(floor);
+ for(const [node,skin] of membranes)node.parent.add(skin);
  nestMaggotInShell(shell,maggot);
  root.add(shell);root.add(maggot);
  if(maggot.userData.guideMixer){root.userData.guideMixer=maggot.userData.guideMixer;root.userData.guideClips=maggot.userData.guideClips;}
