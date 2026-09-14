@@ -1,4 +1,4 @@
-# Release validation — v0.54.67
+# Release validation — v0.54.69
 
 ## Older Intel Safari / short desktop viewport
 
@@ -520,7 +520,7 @@ orange-spirit path. Combat loco, GLB bytes, and attach yaw are unchanged from
 
 Do not treat that Field Guide identity as 0.54.54 (creeper motion GLB) or
 0.54.55 (held menu Deploy gap). This tip keeps that Field Guide copy and art
-while identifying as v0.54.67.
+while identifying as v0.54.69.
 
 ## Deploy ammo breathing room (v0.54.58)
 
@@ -576,9 +576,9 @@ and the v0.54.58 Deploy ammo gap. Do not treat 0.54.52, 0.54.53, 0.54.57,
 Physical Intel Safari combat acceptance remains pending. Record unpaused combat
 HUD FPS on the full path. Do not enable Soft-GPU.
 
-## Field Guide skinned solids (v0.54.67)
+## Field Guide skinned solids (v0.54.69)
 
-v0.54.67 is a Field Guide-first identity. Rimmers, plasma bugs, Ember Hollow
+v0.54.69 is a Field Guide-first identity. Rimmers, plasma bugs, Ember Hollow
 creepers, Dragon A, Cinder Maw tanks, Dancing Creepers, Intact brood eggs, egg
 larvae, and egg shells use VIEW 3D museum solids when the LFS objects are
 present. Rimmers and plasma stay rest pose.
@@ -586,7 +586,8 @@ Ember Hollow VIEW 3D plays `ember_idle` only on `EmberArmature` (`ember_walk`
 stays available as a presentation study). Cinder Maw defaults to `cinder_idle`
 on its repaired 21-joint `TankArmature`; `cinder_jaw_inspect` and
 `cinder_weight_shift` remain selectable. Dancing Creepers VIEW 3D plays
-`ritual_idle` only on `VeinArmature`. Dragon A is a static rest-pose mesh (no
+`ritual_idle` on `VeinArmature` and lists every AnimationClip on the live
+Vein GLB in MOTION (Idle and Walk on this binary). Dragon A is a static rest-pose mesh (no
 clips). Cloned materials, no combat mixers, no live-actor mutation. The Queen
 stays ENLARGE. The dragon Field Guide card must not retarget live sky dragons:
 `game/src/sky-activity.js` and `hellWorld.skyActivity` stay on the prior live
@@ -616,7 +617,7 @@ This tip includes the real LFS objects on those paths. Cinder and larva retain
 the supplied surface/material identity while adding presentation rigs. Do not
 retarget them into gameplay. Reject morph prefixes `75ddc18f` /
 `a2ac5ebb` / `1c10edf7` / `45123f4c` / `9cd194e6` / `a9dcb2b6`. Do not treat
-0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59, 0.54.60, 0.54.61, 0.54.62, 0.54.63, 0.54.64 or 0.54.65 as this identity.
+0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59, 0.54.60, 0.54.61, 0.54.62, 0.54.63, 0.54.64, 0.54.65, 0.54.66, 0.54.67 or 0.54.68 as this identity.
 
 In-game eyeball: open the Alien Field Guide and confirm first paint does not
 show the superseded roster stills. Cards wait for VIEW 3D museum thumbs.

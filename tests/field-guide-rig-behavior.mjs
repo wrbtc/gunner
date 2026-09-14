@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import * as THREE from '../game/vendor/three.module.js?v=052';
-import {cloneSkinnedGuide} from '../game/src/skinned-solids.js?v=054-67';
-import {buildGuideModel,cloneGuideTree,cloneGuideMaterial} from '../game/src/guide-models.js';
+import {cloneSkinnedGuide} from '../game/src/skinned-solids.js?v=054-69';
+import {buildGuideModel,cloneGuideTree,cloneGuideMaterial,guideClipLabel} from '../game/src/guide-models.js';
 import {clampGuidePan,clampGuideZoom} from '../game/src/field-guide-viewer.js';
 assert.equal(clampGuideZoom(0),.6);assert.equal(clampGuideZoom(1),1);assert.equal(clampGuideZoom(4),3);
 assert.equal(clampGuidePan(-1),-.65);assert.equal(clampGuidePan(.2),.2);assert.equal(clampGuidePan(1),.65);
@@ -57,4 +57,58 @@ assert.equal(called,false);
 const expectedLeather=adaptEggShellMaterial(shellMat);
 assert.equal(expectedLeather.opacity,.46);
 intact.dispose();
-console.log('PASS: independent skeletons/bind matrices, flat shading, independent animation and idempotent owned-resource disposal; Intact egg assembles leather shell + nested maggot without cloning live nests');
+
+assert.equal(guideClipLabel('ritual_idle'),'Idle');
+assert.equal(guideClipLabel('ritual_walk'),'Walk');
+assert.equal(guideClipLabel('ember_run'),'Run');
+assert.equal(guideClipLabel('CL_cliff_climb'),'Climb');
+assert.equal(guideClipLabel('Angry Ground Stomp'),'Egg-anger');
+assert.equal(guideClipLabel('AN_angry_ground_stomp'),'Egg-anger');
+assert.equal(guideClipLabel('HW_Ground_Stomp'),'Egg-anger');
+assert.equal(guideClipLabel('Wave_One_Hand'),'Egg-anger');
+assert.equal(guideClipLabel('AN_wave_one_hand'),'Egg-anger');
+assert.equal(guideClipLabel('Over_Shoulder_Throw'),'Throw');
+assert.equal(guideClipLabel('ritual_throw'),'Throw');
+assert.equal(guideClipLabel('AN_jewel_turn'),'Jewel Turn');
+assert.doesNotMatch(guideClipLabel('Wave_One_Hand'),/wave/i);
+assert.doesNotMatch(guideClipLabel('Angry Ground Stomp'),/wave/i);
+
+const idle=new THREE.AnimationClip('ritual_idle',1,[new THREE.NumberKeyframeTrack('jaw.position[x]',[0,.5,1],[0,.1,0])]);
+const walk=new THREE.AnimationClip('ritual_walk',1,[new THREE.NumberKeyframeTrack('jaw.position[x]',[0,.5,1],[0,.3,0])]);
+const run=new THREE.AnimationClip('ritual_run',1,[new THREE.NumberKeyframeTrack('jaw.position[x]',[0,.5,1],[0,.4,0])]);
+const climb=new THREE.AnimationClip('CL_cliff_climb',1,[new THREE.NumberKeyframeTrack('jaw.position[x]',[0,.5,1],[0,.15,0])]);
+const stomp=new THREE.AnimationClip('Angry Ground Stomp',1,[new THREE.NumberKeyframeTrack('jaw.position[x]',[0,.5,1],[0,.5,0])]);
+const toss=new THREE.AnimationClip('Over_Shoulder_Throw',1,[new THREE.NumberKeyframeTrack('jaw.position[x]',[0,.5,1],[0,.6,0])]);
+const extra=new THREE.AnimationClip('AN_jewel_turn',1,[new THREE.NumberKeyframeTrack('jaw.position[x]',[0,.5,1],[0,.05,0])]);
+const dancerSolid={museumRoot(){const root=cloneSkinnedGuide(source),mixer=new THREE.AnimationMixer(root);mixer.clipAction(idle).play();root.userData.guideMixer=mixer;root.userData.guideClips=[idle,walk,run,climb,stomp,toss,extra];return root;}};
+const dancers=await buildGuideModel('dancers',{skinnedSolids:{dancers:dancerSolid}});
+assert.deepEqual(dancers.clips.map(c=>[c.name,c.label]),[
+ ['ritual_idle','Idle'],
+ ['ritual_walk','Walk'],
+ ['ritual_run','Run'],
+ ['CL_cliff_climb','Climb'],
+ ['Angry Ground Stomp','Egg-anger'],
+ ['Over_Shoulder_Throw','Throw'],
+ ['AN_jewel_turn','Jewel Turn']
+]);
+assert.equal(dancers.activeClip,'ritual_idle');
+assert.ok(!dancers.clips.some(c=>/wave/i.test(c.label)),'Egg-anger must not display as Wave');
+assert.ok(!dancers.clips.some(c=>c.name==='ritual_jump'),'missing clips must not become dead MOTION rows');
+dancers.playClip('ritual_walk');
+assert.equal(dancers.activeClip,'ritual_walk');
+let dancerBone;dancers.root.traverse(n=>{if(n.isSkinnedMesh)dancerBone=n.skeleton.bones[0];});
+dancers.tick(.25);
+assert.ok(dancerBone.position.x>0);
+dancers.playClip('Angry Ground Stomp');
+assert.equal(dancers.activeClip,'Angry Ground Stomp');
+dancers.dispose();
+
+const liveIdle=new THREE.AnimationClip('ritual_idle',1,[new THREE.NumberKeyframeTrack('jaw.position[x]',[0,1],[0,0])]);
+const liveWalk=new THREE.AnimationClip('ritual_walk',1,[new THREE.NumberKeyframeTrack('jaw.position[x]',[0,1],[0,.2])]);
+const liveOnly={museumRoot(){const root=cloneSkinnedGuide(source),mixer=new THREE.AnimationMixer(root);mixer.clipAction(liveIdle).play();root.userData.guideMixer=mixer;root.userData.guideClips=[liveIdle,liveWalk];return root;}};
+const liveDancers=await buildGuideModel('dancers',{skinnedSolids:{dancers:liveOnly}});
+assert.deepEqual(liveDancers.clips.map(c=>c.label),['Idle','Walk']);
+assert.equal(liveDancers.activeClip,'ritual_idle');
+liveDancers.dispose();
+
+console.log('PASS: independent skeletons/bind matrices, flat shading, independent animation and idempotent owned-resource disposal; Intact egg assembles leather shell + nested maggot without cloning live nests; dancers MOTION lists every supplied clip');

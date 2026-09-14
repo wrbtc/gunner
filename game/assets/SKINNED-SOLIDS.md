@@ -1,4 +1,4 @@
-# Field Guide skinned solids (v0.54.67)
+# Field Guide skinned solids (v0.54.69)
 
 Alien Field Guide VIEW 3D museum meshes. Combat and world visuals stay on the
 live procedural rimmer / plasma paths, the lava loco bank creeper, live Cinder
@@ -34,9 +34,13 @@ The Larva specimen stays independent. Field Notes Intact egg nests this
 larva inside `egg-shell-a.glb` for the museum only and does not replace the
 live nest embryo.
 
-Vein Anunnaki museum solid: armature `VeinArmature`, clips `ritual_idle` and
-`ritual_walk`. VIEW 3D plays `ritual_idle` only. Reject the superseded draft
-`vein-ascetic-skinned-draft.glb` (`2502928` bytes, sha256
+Vein Anunnaki museum solid: armature `VeinArmature`. The live GLB exports
+`ritual_idle` and `ritual_walk`. VIEW 3D defaults to `ritual_idle`. MOTION
+lists every AnimationClip on that GLB (Idle and Walk on this binary). Later
+pack names stay optional: run, climb, Angry Ground Stomp (Egg-anger; wave
+aliases are fallback only), and throw. Missing names do not become dead
+rows. Reject the superseded draft `vein-ascetic-skinned-draft.glb`
+(`2502928` bytes, sha256
 `3b3dc30a3ae7dafe87b82932f37c1c371fcbce7a0db4f6491dff494e6b05bce4`).
 
 Dragon Field Guide A is a static museum mesh (no clips). VIEW 3D only and must not
@@ -57,7 +61,7 @@ the Field Guide asks for that card, not during boot.
 
 Museum pose: rimmers and plasma stay rest pose. Ember Hollow VIEW 3D defaults
 to `ember_idle`; Cinder Maw defaults to `cinder_idle`; Vein Ascetic defaults to
-`ritual_idle`; the larva defaults to `maggot_wriggle`; the shell and Dragon A
+`ritual_idle` and lists every Vein clip in MOTION; the larva defaults to `maggot_wriggle`; the shell and Dragon A
 stay rigid. Motion selection and pause remain inside Field Notes. Cloned
 materials, no combat mixers, no live-actor mutation. The Queen stays ENLARGE.
 HERO is unchanged. Soft-GPU stays off.

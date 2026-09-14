@@ -1,8 +1,38 @@
 import * as THREE from '../vendor/three.module.js?v=052';
 import {createBankGuideModel} from './bank-demons.js?v=052';
 import {createRimmerModel} from './rimmer-model.js?v=052';
-import {cloneSkinnedGuide} from './skinned-solids.js?v=054-67';
+import {cloneSkinnedGuide} from './skinned-solids.js?v=054-69';
 import {loadGuideEggPart,loadGuideIntactEgg} from './field-guide-egg-parts.js';
+const CLIP_PREFIX=/^(ember|rimmer|plasma|ritual|cinder|maggot|HW|CL|AN|KW)_/i;
+function clipKey(name){return String(name||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();}
+// Field Notes MOTION labels. Egg-anger is the authored Angry Ground Stomp; wave names are fallback only.
+export function guideClipLabel(name){
+ const key=clipKey(name);
+ if(!key)return '';
+ if(/\b(stomp|anger)\b/.test(key)||/ground\s*stomp|groundstomp|\bangry\b|egg\s*anger/.test(key))return 'Egg-anger';
+ if(/\bwave\b|wave\s*one\s*hand/.test(key))return 'Egg-anger';
+ if(/\bthrow\b|over\s*shoulder/.test(key))return 'Throw';
+ if(/\bclimb\b/.test(key))return 'Climb';
+ if(/\brun\b/.test(key))return 'Run';
+ if(/\bwalk\b/.test(key))return 'Walk';
+ if(/\bidle\b/.test(key))return 'Idle';
+ const words=String(name).replace(CLIP_PREFIX,'').replace(/[_-]+/g,' ').trim();
+ return words?words.replace(/\b[a-zA-Z]/g,c=>c.toUpperCase()):String(name);
+}
+export function collectGuideClips(root){
+ const seen=new Set(),clips=[];
+ root.traverse(node=>{
+  const list=node.userData.guideClips;
+  if(!Array.isArray(list))return;
+  for(const clip of list){
+   const clipName=clip?.name;
+   if(!clipName||seen.has(clipName))continue;
+   seen.add(clipName);
+   clips.push(clip);
+  }
+ });
+ return clips;
+}
 // Copy display state without touching actor transforms, uniforms or lifetimes.
 export function cloneGuideMaterial(source){
  const material=source.clone();
@@ -70,13 +100,13 @@ export async function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creepe
  const frame=new THREE.Group(),pivot=new THREE.Group();frame.add(pivot);pivot.add(root);pivot.scale.setScalar(scale);root.position.sub(center);frame.name='Guide '+id;frame.rotation.y=['creepers','rimmers','plasma','tanks','dancers','eggs','egg-maggot','egg-shell'].includes(id)?.35:Math.PI+.4;
  const mixers=[];
  root.traverse(n=>{if(n.userData.guideMixer&&!mixers.includes(n.userData.guideMixer))mixers.push(n.userData.guideMixer);});
- let clips=[];root.traverse(n=>{if(n.userData.guideClips)clips=n.userData.guideClips;});
+ const clips=collectGuideClips(root);
  let disposed=false;
  const dispose=()=>{if(disposed)return;disposed=true;for(const mixer of mixers){mixer.stopAllAction();mixer.uncacheRoot(mixer.getRoot());}const geos=new Set(),mats=new Set(),skeletons=new Set();root.traverse(n=>{if(n.geometry&&!root.userData.shareGuideGeometry)geos.add(n.geometry);if(n.material)for(const m of Array.isArray(n.material)?n.material:[n.material])mats.add(m);if(n.isSkinnedMesh)skeletons.add(n.skeleton);});skeletons.forEach(s=>s.dispose());geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose());};
  const result={root:frame,dispose,viewRadius:Math.max(1.25,extent.length()*scale/2)+.20};
  if(mixers.length){
-  result.clips=clips.map(c=>({name:c.name,label:c.name.replace(/^(ember|rimmer|plasma|ritual|cinder|maggot)_/,'').replaceAll('_',' ')}));
-  result.activeClip=clips.find(c=>/idle|wriggle/.test(c.name))?.name||clips[0]?.name;
+  result.clips=clips.map(c=>({name:c.name,label:guideClipLabel(c.name)}));
+  result.activeClip=clips.find(c=>/idle|wriggle/i.test(c.name))?.name||clips[0]?.name;
   result.tick=dt=>{if(!disposed)mixers.forEach(m=>m.update(dt));};
   result.playClip=name=>{const clip=clips.find(c=>c.name===name);if(!clip||disposed)return;result.activeClip=name;for(const mixer of mixers){mixer.stopAllAction();mixer.clipAction(clip).reset().play();mixer.update(0);}};
  }
