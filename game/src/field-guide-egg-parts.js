@@ -58,7 +58,7 @@ function makeIntactSurfaceMaterial(source,membrane,rootStart,fadeStart){
  material.opacity=membrane?.42:1;
  material.depthWrite=!membrane;
  material.onBeforeCompile=intactSurfaceShader(membrane,rootStart,fadeStart);
- material.customProgramCacheKey=()=>membrane?'fn-intact-leather-sac-05473':'fn-intact-opaque-roots-05473';
+ material.customProgramCacheKey=()=>membrane?'fn-intact-leather-sac-05474':'fn-intact-opaque-roots-05474';
  return material;
 }
 export function assembleIntactEgg(shellSolid,maggotSolid){

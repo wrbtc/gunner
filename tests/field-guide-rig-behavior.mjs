@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import * as THREE from '../game/vendor/three.module.js?v=052';
-import {cloneSkinnedGuide} from '../game/src/skinned-solids.js?v=054-73';
+import {cloneSkinnedGuide} from '../game/src/skinned-solids.js?v=054-74';
 import {buildGuideModel,cloneGuideTree,cloneGuideMaterial,guideYawFor} from '../game/src/guide-models.js';
 import {clampGuidePan,clampGuideZoom,frameGuideCamera} from '../game/src/field-guide-viewer.js';
 assert.equal(clampGuideZoom(0),.6);assert.equal(clampGuideZoom(1),1);assert.equal(clampGuideZoom(4),3);
