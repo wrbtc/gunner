@@ -51,7 +51,8 @@ let staticRaycast=null;
 let playerFov=66;
 const OPENING_SECONDS=14, APPROACH_START=.025, APPROACH_END=.065;
 const preferences={sensitivity:1,invert:false,master:false,volume:.65,music:.65,voice:.85,captions:true};
-let settingsOnly=false,settingsReady=false,sceneAssemblyComplete=false,firstStartMeasured=false;
+let settingsOnly=false,settingsReady=false,sceneAssemblyComplete=false,firstStartMeasured=false,titlePresented=false;
+function titleIdleHold(){return game.title&&!settingsOnly&&!$('#fieldGuide')?.open&&titlePresented;}
 let startupAssembly=null;
 let lastQueenPhase='dormant';
 const runReview={damage:[],shots:0,hits:0,interruptions:0,repair:0,queenReached:false,lastCue:'',cueUntil:0,killUntil:0,armorUntil:0};
@@ -115,7 +116,8 @@ class Rng {
 
 const rng = new Rng(),fxRng=new Rng(0xa11ce),ejectionRng=new Rng(0xb12a55);
 startupMark('renderer','begin');
-const renderer = new THREE.WebGLRenderer({ canvas: dom.canvas, antialias: true, powerPreference: 'high-performance', failIfMajorPerformanceCaveat: false });
+const renderer = new THREE.WebGLRenderer({ canvas: dom.canvas, antialias: false, powerPreference: 'high-performance', failIfMajorPerformanceCaveat: false });
+const scratchPresentationView = new THREE.Vector3();
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1));
 renderer.setSize(innerWidth, innerHeight, false);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -1201,20 +1203,23 @@ function render(now){
   $('#skipQueen').hidden=!queen?.canSkipCinematic||game.paused;
   document.body.classList.toggle('reduced-effects',reducedOpening());
   const exteriorView=updateOpeningPresentation()||queenView;
-  const presentationView=endingFlight?.started||queenView?camera.getWorldPosition(new THREE.Vector3()):planePos;
-  hellWorld.update(presentationClock(),presentationView,reducedOpening());hellWorld.skyActivity.root.visible=true;hellWorld.skyActivity.update(presentationClock(),planePos,reducedOpening());blastWorld?.update(presentationClock(),presentationView,reducedOpening());bankDemons?.update(game.time,planePos);eggNests?.update(0,game.time,presentationView);plasmaBugs?.update(0,game.time);if(assetKit)assetKit.update(0,game.time,camera);tankerBugs?.update(game.time,planePos);
-  if(game.opening&&!game.paused&&!game.captureFreeze&&!game.contextLost){audio.setListener(getAimOrigin(),getAimDirection());audio.update(dt,presentationClock(),planePos);}
+  const visualTime=presentationClock(),time=game.time;
+  const titleHold=titleIdleHold();
+  if(!titleHold){
+  const presentationView=endingFlight?.started||queenView?camera.getWorldPosition(scratchPresentationView):planePos;
+  hellWorld.update(visualTime,presentationView,reducedOpening());hellWorld.skyActivity.root.visible=true;hellWorld.skyActivity.update(visualTime,planePos,reducedOpening());blastWorld?.update(visualTime,presentationView,reducedOpening());bankDemons?.update(game.time,planePos);eggNests?.update(0,game.time,presentationView);plasmaBugs?.update(0,game.time);if(assetKit)assetKit.update(0,game.time,camera);tankerBugs?.update(game.time,planePos);
+  if(game.opening&&!game.paused&&!game.captureFreeze&&!game.contextLost){audio.setListener(getAimOrigin(),getAimDirection());audio.update(dt,visualTime,planePos);}
   for(const e of enemies)if(!e.rimmer)e.root.visible=!e.dead;
   for(const d of scenicDemons){d.marker.visible=!d.dead;if(d.assetVisual)d.assetVisual.visible=d.marker.position.distanceToSquared(planePos)<360*360;}
   for(const s of siege)s.root.visible=s.root.position.distanceToSquared(planePos)<600*600;
   if(hordeField)hordeField.update(game.time,planePos);
   // Simulation time drives presentation too, so pause/capture does not drift.
-  const time=game.time,visualTime=presentationClock();
   const riftFlicker=reducedMotion.matches?0:Math.sin(time*7.7)*.018;rift.visible=time>=68&&!endingFlight?.started&&(!queen||queen.cleared);rift.userData.surfaces.tear.material.opacity=.97+riftFlicker;rift.userData.surfaces.inner.material.opacity=.68-riftFlicker;rift.userData.surfaces.outer.material.opacity=.05+Math.abs(riftFlicker)*.45;rift.userData.shards.forEach(shard=>{shard.material.opacity=shard.userData.baseOpacity*(.87+Math.sin(time*5+shard.userData.phase)*.1);});
   lava.userData.lavaMaterial.uniforms.uTime.value=visualTime;heatMaterial.uniforms.uTime.value=visualTime;heatMaterial.uniforms.uStrength.value=reducedMotion.matches?0:.0018;atmosphereMaterials.forEach(m=>{m.uniforms.uTime.value=visualTime;m.uniforms.uReduced.value=0;});for(const b of atmosphereBatches){b.points.geometry.setDrawRange(0,b.count);b.points.visible=b.count>0;}
   for(const plume of ventPlumes){const rise=(visualTime*plume.speed+plume.phase)%20;plume.sprite.position.copy(plume.origin);plume.sprite.position.y+=rise;plume.sprite.position.x+=Math.sin(visualTime*.4+plume.phase)*2;const swell=1+rise*.045;plume.sprite.scale.setScalar((9+plume.phase*.22)*swell);plume.sprite.material.opacity=.075+Math.sin(Math.PI*rise/20)*.14;}
   if(!exteriorView){camera.position.x=reducedOpening()?0:Math.sin(time*101)*game.shake*.4;camera.position.y=reducedOpening()?0:Math.sin(time*137+1)*game.shake*.3;}camera.updateWorldMatrix(true,false);rimmers?.render();
   for(const b of bullets){if(!b.active||!b.mesh.visible)continue;const head=b.end.clone().project(camera),tail=b.start.clone().project(camera),angle=Math.atan2(head.y-tail.y,head.x-tail.x);b.mesh.material.rotation=angle-Math.PI/2;}
+  }
   emitHook('update',{time,dt:game.running&&!game.paused&&!game.ended&&!game.captureFreeze?dt:0,planePos,camera,paused:game.paused||game.captureFreeze});updateUI(now);
   if(!game.contextLost&&!graphicsPreparation&&loadingSnapshot().status!=='failed'){
     // Give collision timer slices room to run without competing title GPU work.
@@ -1225,11 +1230,12 @@ function render(now){
     const holdPresent=game.paused||document.hidden;
     const collisionHold=loading.status==='preparing'&&loading.active==='collision';
     frameMetrics.presented=false;
-    if(collisionHold||holdPresent){
+    if(collisionHold||holdPresent||titleHold){
       frameMetrics.frameMs=elapsed*1000;
     }else{
       renderer.info.reset();
       cinematic.render(scene,camera,{time:visualTime,reducedMotion:reducedOpening(),worldOnly:WORLD_ONLY,exterior:exteriorView});
+      if(game.title)titlePresented=true;
       frameMetrics.calls=renderer.info.render.calls;frameMetrics.triangles=renderer.info.render.triangles;frameMetrics.points=renderer.info.render.points;frameMetrics.frameMs=elapsed*1000;
       frameMetrics.presented=true;
     }
@@ -1244,7 +1250,7 @@ function reset(){
   gunHeat.reset();hitFeedback.reset();hellWorld.skyActivity.reset?.();
   Object.assign(runReview,{damage:[],shots:0,hits:0,interruptions:0,repair:0,queenReached:false,lastCue:'',cueUntil:0,killUntil:0,armorUntil:0});
   queen?.reset();game.flightDelay=0;audio.sceneAmbienceGain=1;endingFlight?.reset();highScores.reset();document.querySelector("#ending").hidden=true;
-  game.opening=false;game.openingTime=0;game.presentationOffset=0;game.flightStart=0;game.title=false;game.titleTime=0;openingPhase='';
+  game.opening=false;game.openingTime=0;game.presentationOffset=0;game.flightStart=0;game.title=false;game.titleTime=0;titlePresented=false;openingPhase='';
   openingCamera?.restore();camera.quaternion.identity();camera.fov=playerFov;camera.updateProjectionMatrix();
   dom.opening.hidden=true;dom.openingFade.style.opacity='0';dom.hud.classList.remove('visible');
   rankReveal.reset();

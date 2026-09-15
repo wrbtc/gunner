@@ -6,7 +6,7 @@ const render=main.slice(main.indexOf('function render(now){'),main.indexOf('\nfu
 const start=render.indexOf("if(!game.contextLost&&!graphicsPreparation&&loadingSnapshot().status!=='failed'){");
 assert.ok(start>0);
 const tail=render.slice(start,render.lastIndexOf('}'));
-const present=new Function('env',`const {game,graphicsPreparation,loadingSnapshot,renderer,cinematic,frameMetrics,requestAnimationFrame,render,document}=env;
+const present=new Function('env',`const {game,graphicsPreparation,loadingSnapshot,renderer,cinematic,frameMetrics,requestAnimationFrame,render,document,titleHold=false}=env;
 const scene={},camera={},visualTime=1,reducedOpening=()=>false,WORLD_ONLY=false,exteriorView=true,elapsed=.02;
 ${tail}`);
 let checks=0;
@@ -38,6 +38,7 @@ assert.doesNotMatch(main,/boundedPreparation\(\(\)=>eggNests\.prepareCollision\(
 checks++;
 assert.match(main,/const holdPresent=game\.paused\|\|document\.hidden/);
 assert.match(main,/const collisionHold=loading\.status==='preparing'&&loading\.active==='collision'/);
+assert.match(main,/collisionHold\|\|holdPresent\|\|titleHold/);
 assert.doesNotMatch(main,/skipReducedPresent/);
 assert.doesNotMatch(main,/navigator\.userAgent/);
 checks++;

@@ -101,7 +101,7 @@ await check('failed-preparation-stops-the-actual-render-loop-before-updates',()=
 await check('actual-gl-draw-gate-blocks-failure-after-preparation-owner-clears',()=>{
  const begin=main.indexOf('  if(!game.contextLost&&!graphicsPreparation'),end=main.indexOf('  requestAnimationFrame(render);',begin),source=main.slice(begin,end);
  let draws=0,resets=0;const renderer={info:{reset(){resets++;},render:{calls:1,triangles:2,points:3}}},cinematic={render(){draws++;}};
- const execute=new Function('game','graphicsPreparation','loadingSnapshot','renderer','cinematic','document',`const preferences={reduced:false},scene={},camera={},visualTime=0,reducedOpening=()=>false,WORLD_ONLY=false,exteriorView=true,frameMetrics={},elapsed=0;${source}`);
+ const execute=new Function('game','graphicsPreparation','loadingSnapshot','renderer','cinematic','document',`const preferences={reduced:false},scene={},camera={},visualTime=0,reducedOpening=()=>false,WORLD_ONLY=false,exteriorView=true,frameMetrics={},elapsed=0,titleHold=false;${source}`);
  execute({contextLost:false,paused:false},null,()=>({status:'failed'}),renderer,cinematic,{hidden:false});assert.equal(draws,0);assert.equal(resets,0);
  execute({contextLost:false,paused:false},{},()=>({status:'preparing'}),renderer,cinematic,{hidden:false});assert.equal(draws,0);
  execute({contextLost:false,paused:false},null,()=>({status:'ready'}),renderer,cinematic,{hidden:false});assert.equal(draws,1);assert.equal(resets,1);

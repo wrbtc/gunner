@@ -293,8 +293,8 @@
     },
     {
       "path": "game/main.js",
-      "bytes": 160283,
-      "sha256": "0c95c0f131bc6a1942cc2dca1f7e1bd5c55f7c3dab23c8ffcb476bf9271df544"
+      "bytes": 160557,
+      "sha256": "a57ebb20af22c600751814847773f39642a14a94522e363c792cbf99244ebedd"
     },
     {
       "path": "game/mobile-entry.js",
@@ -418,8 +418,8 @@
     },
     {
       "path": "game/src/egg-nests.js",
-      "bytes": 37918,
-      "sha256": "0ae7c94b062f3ca9fee7bc7c725e4bc2aa9d8fab648375f96c3fc54ddb5c2e4d"
+      "bytes": 38048,
+      "sha256": "d470e48d99d27cbd14003ded653032f13f61e2d40e2f29a0356edfa4e19dcc75"
     },
     {
       "path": "game/src/egg-solids.js",
@@ -463,8 +463,8 @@
     },
     {
       "path": "game/src/hell-world.js",
-      "bytes": 39367,
-      "sha256": "c1ce149c0cc524cc94177e7db15fac381cab2bd9d357c3f7c44bd2fee00a1ef1"
+      "bytes": 39415,
+      "sha256": "730df1ce48139f62a288f8f20cafde0a1c90cf2eacec5dc77f24a918fc5a0025"
     },
     {
       "path": "game/src/high-scores.js",

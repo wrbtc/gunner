@@ -450,7 +450,7 @@ export function createHellWorld({scene,route,centerAt,widthAt}) {
   });
   function collapseQuarry(){} // Compatibility hook for the parked siege actor.
   function reset(){}
-  const cullCenter=new THREE.Vector3();
+  const cullCenter=new THREE.Vector3(),hotSpillTargetOffset=new THREE.Vector3();
   function refreshGeologyVisibility(planePos){
     continuationGroup.visible=true;
     for(const m of continuations.meshes){const bounds=m.geometry.boundingSphere;cullCenter.copy(bounds.center).applyMatrix4(m.matrixWorld);m.visible=cullCenter.distanceTo(planePos)<2400+bounds.radius*m.matrixWorld.getMaxScaleOnAxis();}
@@ -460,7 +460,7 @@ export function createHellWorld({scene,route,centerAt,widthAt}) {
     return true;
   }
   function update(time,planePos,reduced=false){lavaUniforms.uTime.value=time;hellSky.update(time,planePos,reduced);skyActivity.update(time,planePos,reduced);
-    if(!reduced){for(const {side,light} of hotSpill){let nearest=null,distance=Infinity;for(const h of hotIntrusions){const d=Math.abs(h.position.z-planePos.z);if(h.side===side&&d<distance){nearest=h;distance=d;}}if(nearest){light.position.copy(nearest.position);if(light.isSpotLight)light.target.position.copy(nearest.position).add(new THREE.Vector3(side*20,-5,0));light.intensity=(light.isSpotLight?3900:2400)*Math.pow(Math.max(0,1-distance/240),2);}}
+    if(!reduced){for(const {side,light} of hotSpill){let nearest=null,distance=Infinity;for(const h of hotIntrusions){const d=Math.abs(h.position.z-planePos.z);if(h.side===side&&d<distance){nearest=h;distance=d;}}if(nearest){light.position.copy(nearest.position);if(light.isSpotLight)light.target.position.copy(nearest.position).add(hotSpillTargetOffset.set(side*20,-5,0));light.intensity=(light.isSpotLight?3900:2400)*Math.pow(Math.max(0,1-distance/240),2);}}
     }else for(const {light} of hotSpill)light.intensity=0;
     refreshGeologyVisibility(planePos);}
   // Approximate support query is for ballistic broad phase only; gun hits use triangles.

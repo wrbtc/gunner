@@ -308,6 +308,7 @@ let cursor={drop:0,flap:0,splat:0,tether:0},ruptures=0;
  function trace(origin,direction,maxDistance){root.updateMatrixWorld(true);ray.layers.enable(31);ray.set(origin,direction);ray.near=0;ray.far=maxDistance;const hits=ray.intersectObjects(eggs.filter(e=>!e.dead&&e.group.visible&&e.shell.visible).map(e=>e.shell),false),h=hits[0];if(!h)return null;const egg=eggs.find(e=>e.shell===h.object);return {kind:'egg',actor:egg,distance:h.distance,point:h.point.clone(),normal:hitNormal(h)};}
 
  let effectAccumulator=0;
+ const debrisPrev=new THREE.Vector3(),debrisLocal=new THREE.Vector3(),debrisLerp=new THREE.Vector3();
  function update(dt,time,plane){
   const simulationOnly=dt>0;
   // Scenery physics uses a deterministic 30Hz tick with interpolated display, independent of the
@@ -316,9 +317,9 @@ let cursor={drop:0,flap:0,splat:0,tether:0},ruptures=0;
   for(const e of eggs){if(dt>0)e.hitFlash=Math.max(0,(e.hitFlash||0)-dt);e.group.visible=(!e.queenEgg||e.laid)&&e.center.distanceToSquared(plane)<560*560;
    if(!e.dead){e.embryo.visible=e.center.distanceToSquared(plane)<(e.nursery?150*150:240*240);e.embryo.scale.setScalar((e.stage===2?1.12:1.1)*(1+Math.sin(time*.9+e.index*1.7)*.018));continue;}
    if(dt<=0)continue;e.releaseAge+=dt;if(e.landed)e.bodyPrev.copy(e.bodyWorld);
-   if(e.releaseAge>.16&&e.releaseAge<8&&!e.landed){const prev=e.bodyWorld.clone();e.bodyPrev.copy(prev);e.vel.y-=11*dt;e.vel.multiplyScalar(Math.exp(-.28*dt));e.bodyWorld.addScaledVector(e.vel,dt);const h=traceDebris(prev,e.bodyWorld,e.scale*.50);
+   if(e.releaseAge>.16&&e.releaseAge<8&&!e.landed){const prev=debrisPrev.copy(e.bodyWorld);e.bodyPrev.copy(prev);e.vel.y-=11*dt;e.vel.multiplyScalar(Math.exp(-.28*dt));e.bodyWorld.addScaledVector(e.vel,dt);const h=traceDebris(prev,e.bodyWorld,e.scale*.50);
     if(h&&e.releaseAge>.4){const normal=hitNormal(h);if(normal.dot(e.vel)>0)normal.negate();e.bodyWorld.copy(h.point).addScaledVector(normal,.65);e.landed=true;splat(h.point,normal,1+e.stage*.4);}
-    e.embryo.position.copy(e.group.worldToLocal(e.bodyWorld.clone()));e.embryo.rotation.x+=e.spin.x*dt;e.embryo.rotation.y+=e.spin.y*dt;e.embryo.rotation.z+=e.spin.z*dt;
+    e.embryo.position.copy(e.group.worldToLocal(debrisLocal.copy(e.bodyWorld)));e.embryo.rotation.x+=e.spin.x*dt;e.embryo.rotation.y+=e.spin.y*dt;e.embryo.rotation.z+=e.spin.z*dt;
    }
    e.embryo.visible=e.releaseAge<8&&(e.stage>0||e.index%3===0);if(e.releaseAge>6)e.embryo.scale.multiplyScalar(Math.exp(-dt*.4));
   }
@@ -329,7 +330,7 @@ let cursor={drop:0,flap:0,splat:0,tether:0},ruptures=0;
   for(const t of tethers)if(t.active){t.prev.copy(t.pos);t.life-=dt;t.vel.y-=9*dt;t.pos.addScaledVector(t.vel,dt);const start=t.owner.center.clone().addScaledVector(t.owner.normal,-1),d=t.pos.clone().sub(start);t.mesh.position.copy(start).addScaledVector(d,.5);t.mesh.quaternion.setFromUnitVectors(UP,d.clone().normalize());t.mesh.scale.set(Math.max(.1,t.life),d.length(),Math.max(.1,t.life));if(t.life<=0||d.length()>16){t.active=false;t.mesh.visible=false;}}
   // Instance uploads and interpolation run once in the render update(dt=0).
  }
- function present(){const alpha=clamp(effectAccumulator*30,0,1);for(const e of eggs)if(e.dead&&e.embryo.visible)e.embryo.position.copy(e.group.worldToLocal(e.bodyPrev.clone().lerp(e.bodyWorld,alpha)));for(const a of [...drops,...flaps])if(a.active)a.mesh.position.copy(a.prev).lerp(a.pos,alpha);for(const t of tethers)if(t.active){const start=t.owner.center.clone().addScaledVector(t.owner.normal,-1),end=t.prev.clone().lerp(t.pos,alpha),d=end.sub(start);t.mesh.position.copy(start).addScaledVector(d,.5);t.mesh.quaternion.setFromUnitVectors(UP,d.clone().normalize());t.mesh.scale.y=d.length();}
+ function present(){const alpha=clamp(effectAccumulator*30,0,1);for(const e of eggs)if(e.dead&&e.embryo.visible)e.embryo.position.copy(e.group.worldToLocal(debrisLerp.copy(e.bodyPrev).lerp(e.bodyWorld,alpha)));for(const a of [...drops,...flaps])if(a.active)a.mesh.position.copy(a.prev).lerp(a.pos,alpha);for(const t of tethers)if(t.active){const start=t.owner.center.clone().addScaledVector(t.owner.normal,-1),end=t.prev.clone().lerp(t.pos,alpha),d=end.sub(start);t.mesh.position.copy(start).addScaledVector(d,.5);t.mesh.quaternion.setFromUnitVectors(UP,d.clone().normalize());t.mesh.scale.y=d.length();}
  }
  function reset(){rootThreadBatch.count=0;effectAccumulator=0;seed=0xe6611;cursor={drop:0,flap:0,splat:0,tether:0};ruptures=0;for(const e of eggs){e.hp=65;e.hitFlash=0;e.dead=false;e.credited=false;e.shell.visible=true;e.shell.scale.set(e.radius,e.radius,e.length);e.socket.visible=false;e.cord.visible=true;e.embryo.visible=true;e.embryo.position.copy(e.bodyOrigin);e.embryo.rotation.copy(e.bodyRotation);e.embryo.scale.setScalar(e.stage===2?1.12:1.1);e.landed=false;e.releaseAge=0;e.ruptureAt=null;e.vel.set(0,0,0);e.group.visible=true;}for(const a of [...drops,...flaps,...splats,...tethers]){a.active=false;a.life=0;a.mesh.visible=false;}uniforms.uReveal.value=1;for(const {mesh}of [...nurseryBatches,...effectBatches])mesh.count=0;}
  function guideModel(){

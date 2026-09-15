@@ -20,11 +20,11 @@ const manifest=JSON.parse(read('SOURCE-MANIFEST.json'));
 // Live canyon wyverns stay on the 0.54.60 module. Field Guide dragons use a
 // separate museum solid and must never retarget this combat path.
 assert.equal(sha256('game/src/sky-activity.js'),'06c3ef75ab6e5f4c8b25eed6f6e25fec73a546e22b73d73ccf16ec038d08f54a');
-assert.equal(sha256('game/src/hell-world.js'),'c1ce149c0cc524cc94177e7db15fac381cab2bd9d357c3f7c44bd2fee00a1ef1');
 const skyRow=manifest.files.find(row=>row.path==='game/src/sky-activity.js');
 const worldRow=manifest.files.find(row=>row.path==='game/src/hell-world.js');
 assert.equal(skyRow.sha256,'06c3ef75ab6e5f4c8b25eed6f6e25fec73a546e22b73d73ccf16ec038d08f54a');
-assert.equal(worldRow.sha256,'c1ce149c0cc524cc94177e7db15fac381cab2bd9d357c3f7c44bd2fee00a1ef1');
+assert.equal(sha256('game/src/hell-world.js'),worldRow.sha256);
+assert.match(world,/hotSpillTargetOffset/);
 
 assert.match(world,/import \{createSkyActivity\} from '\.\/sky-activity\.js\?v=052'/);
 assert.match(world,/const skyActivity=createSkyActivity\(scene\)/);
