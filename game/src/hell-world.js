@@ -282,11 +282,47 @@ export function createHellWorld({scene,route,centerAt,widthAt}) {
       }`});
   const lavaPos=[],lavaIdx=[];for(let i=0;i<=280;i++){const p=i/280,c=centerAt(p),w=widthAt(p)-11;lavaPos.push(c.x-w,1.3,c.z,c.x+w,1.3,c.z);}for(let i=0;i<280;i++){const a=i*2;lavaIdx.push(a,a+2,a+1,a+1,a+2,a+3);}
   const lavaGeo=new THREE.BufferGeometry();lavaGeo.setAttribute('position',new THREE.Float32BufferAttribute(lavaPos,3));lavaGeo.setIndex(lavaIdx);lavaGeo.computeVertexNormals();const lava=new THREE.Mesh(lavaGeo,lavaMat);lava.name='Crusted molten river';lava.userData.lavaMaterial=lavaMat;lava.userData.surface='lava';root.add(lava);collisionMeshes.push(lava);
-  // Visual-only bank lip. Not a collider. Same stations as river edge (widthAt-11).
-  const lipMat=new THREE.ShaderMaterial({uniforms:lavaUniforms,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
-    vertexShader:`varying vec2 vUv;varying vec3 vW;void main(){vUv=uv;vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
-    fragmentShader:`varying vec2 vUv;varying vec3 vW;uniform float uTime;${noiseGLSL}
-      void main(){
+  // Falls, lips and splashes share one program. uMode changes the drawing path
+  // without adding shader variants to bounded cold-start preparation.
+  const lavaAccentVertex=`varying vec2 vUv;varying vec3 vW;uniform float uTime,uMode;
+    void main(){
+      vUv=uv;vec3 p=position;
+      if(uMode<.5){float across=uv.x-.5;float stream=1.-smoothstep(.06,.4,abs(across));p.y+=sin(uv.y*22.-uTime*2.4)*stream*.18;}
+      vec4 w=modelMatrix*vec4(p,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;
+    }`;
+  const lavaAccentFragment=`varying vec2 vUv;varying vec3 vW;uniform float uTime,uMode;${noiseGLSL}
+    void main(){
+      if(uMode<.5){
+        float x=vUv.x-.5,y=vUv.y,t=uTime;
+        float m1=(fb(vec2(y*1.55-t*.06,2.3))-.5)*.26;
+        float m2=(n2(vec2(y*4.6-t*.17,6.2))-.5)*.1;
+        float center=m1+m2;
+        float fat=mix(.4,.13,smoothstep(0.,.82,y));
+        fat*=.7+.5*n2(vec2(y*2.1,.8));
+        fat=clamp(fat,.06,.48);
+        float d=abs(x-center);
+        float b2=center+(n2(vec2(y*1.25,11.4))-.5)*.2;
+        float fat2=fat*.42*smoothstep(.22,.55,n2(vec2(y*1.05+3.,4.2)));
+        float d2=abs(x-b2);
+        float mask=1.-smoothstep(fat*.5,fat,d);
+        mask=max(mask,(1.-smoothstep(fat2*.45,fat2,d2))*.88);
+        float ragged=n2(vec2((x-center)*20.,y*8.2-t*.55));
+        mask*=smoothstep(.1,.46,ragged+mask*.32);
+        float dry=n2(vec2(y*3.1-t*.22,(x-center)*7.5));
+        mask*=mix(.28,1.,smoothstep(.16,.52,dry));
+        float coreD=min(d/max(fat,.001),d2/max(fat2,.001));
+        float flow=fb(vec2((x-center)*8.4,y*5.2-t*1.45));
+        float ropes=.5+.5*sin(y*28.-t*3.1+(x-center)*14.);ropes*=ropes;
+        float molten=mask*(1.-smoothstep(0.,.58,coreD));
+        molten*=.35+.65*flow;molten*=mix(.7,1.,ropes);
+        float crust=mask*(1.-molten*.82);
+        vec3 col=vec3(.03,.016,.01);
+        col=mix(col,vec3(.1,.04,.014),crust);
+        col+=molten*vec3(1.05,.14,.012);
+        col+=pow(molten*flow,2.1)*vec3(1.55,.42,.05);
+        col+=pow(molten,4.6)*vec3(1.35,.75,.18)*.4;
+        gl_FragColor=vec4(col,smoothstep(.015,.2,mask));
+      }else if(uMode<1.5){
         float n=fb(vec2(vW.z*.02+uTime*.18,vUv.y*4.));
         float climb=pow(1.-vUv.x,1.45);
         float along=.55+.45*n;
@@ -294,9 +330,22 @@ export function createHellWorld({scene,route,centerAt,widthAt}) {
         float a=climb*along*(1.-smoothstep(.7,1.,vUv.x));
         vec3 col=mix(vec3(1.55,.28,.03),vec3(2.1,.85,.12),n)*pulse;
         gl_FragColor=vec4(col,a*.55);
-        #include <tonemapping_fragment>
-        #include <colorspace_fragment>
-      }`});
+      }else{
+        vec2 p=vUv-.5;float r=length(p*vec2(1.,1.6));
+        float n=fb(vec2(p.x*6.+uTime*.7,p.y*4.-uTime*1.2));
+        float ring=(1.-smoothstep(.12,.55,r))*smoothstep(.02,.18,r);
+        gl_FragColor=vec4(vec3(1.4,.32,.04)*n,ring*n*.45);
+      }
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+    }`;
+  const lavaAccentMaterial=(mode,blending=THREE.NormalBlending)=>{
+    const material=new THREE.ShaderMaterial({uniforms:{...lavaUniforms,uMode:{value:mode}},transparent:true,depthWrite:false,blending,side:THREE.DoubleSide,vertexShader:lavaAccentVertex,fragmentShader:lavaAccentFragment});
+    material.customProgramCacheKey=()=> 'gunner-05477-lava-accent-r1';
+    return material;
+  };
+  // Visual-only bank lip. Not a collider. Same stations as river edge (widthAt-11).
+  const lipMat=lavaAccentMaterial(1,THREE.AdditiveBlending);
   const lipPos=[],lipUv=[],lipIdx=[];
   for(const side of [-1,1]){const start=lipPos.length/3;for(let i=0;i<=280;i++){const p=i/280,c=centerAt(p),edge=widthAt(p)-11;lipPos.push(c.x+side*edge,1.38,c.z,c.x+side*(edge+2.4),4.15,c.z);lipUv.push(0,p,1,p);}for(let i=0;i<280;i++){const a=start+i*2;if(side===1)lipIdx.push(a,a+2,a+1,a+1,a+2,a+3);else lipIdx.push(a,a+1,a+2,a+1,a+3,a+2);}}
   const lipGeo=new THREE.BufferGeometry();lipGeo.setAttribute('position',new THREE.Float32BufferAttribute(lipPos,3));lipGeo.setAttribute('uv',new THREE.Float32BufferAttribute(lipUv,2));lipGeo.setIndex(lipIdx);lipGeo.computeBoundingSphere();
@@ -338,59 +387,8 @@ export function createHellWorld({scene,route,centerAt,widthAt}) {
     }
   }
   // Falls carry streaked incandescent liquid from rim fractures into the river.
-  const fallMat=new THREE.ShaderMaterial({uniforms:lavaUniforms,side:THREE.DoubleSide,transparent:true,depthWrite:false,
-    vertexShader:`varying vec2 vUv;varying vec3 vW;uniform float uTime;
-      void main(){
-        vUv=uv;vec3 p=position;float across=uv.x-.5;float stream=1.-smoothstep(.06,.4,abs(across));
-        p.y+=sin(uv.y*22.-uTime*2.4)*stream*.18;
-        vec4 w=modelMatrix*vec4(p,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;
-      }`,
-    fragmentShader:`varying vec2 vUv;varying vec3 vW;uniform float uTime;${noiseGLSL}
-      void main(){
-        // vUv.y is 0..1 along the generated plane (river at 0). Crusted core,
-        // braid, and ragged edges replace the old painted ribbon.
-        float x=vUv.x-.5,y=vUv.y,t=uTime;
-        float m1=(fb(vec2(y*1.55-t*.06,2.3))-.5)*.26;
-        float m2=(n2(vec2(y*4.6-t*.17,6.2))-.5)*.1;
-        float center=m1+m2;
-        float fat=mix(.4,.13,smoothstep(0.,.82,y));
-        fat*=.7+.5*n2(vec2(y*2.1,.8));
-        fat=clamp(fat,.06,.48);
-        float d=abs(x-center);
-        float b2=center+(n2(vec2(y*1.25,11.4))-.5)*.2;
-        float fat2=fat*.42*smoothstep(.22,.55,n2(vec2(y*1.05+3.,4.2)));
-        float d2=abs(x-b2);
-        float mask=1.-smoothstep(fat*.5,fat,d);
-        mask=max(mask,(1.-smoothstep(fat2*.45,fat2,d2))*.88);
-        float ragged=n2(vec2((x-center)*20.,y*8.2-t*.55));
-        mask*=smoothstep(.1,.46,ragged+mask*.32);
-        float dry=n2(vec2(y*3.1-t*.22,(x-center)*7.5));
-        mask*=mix(.28,1.,smoothstep(.16,.52,dry));
-        float coreD=min(d/max(fat,.001),d2/max(fat2,.001));
-        float flow=fb(vec2((x-center)*8.4,y*5.2-t*1.45));
-        float ropes=.5+.5*sin(y*28.-t*3.1+(x-center)*14.); ropes*=ropes;
-        float molten=mask*(1.-smoothstep(0.,.58,coreD));
-        molten*=.35+.65*flow; molten*=mix(.7,1.,ropes);
-        float crust=mask*(1.-molten*.82);
-        vec3 col=vec3(.03,.016,.01);
-        col=mix(col,vec3(.1,.04,.014),crust);
-        col+=molten*vec3(1.05,.14,.012);
-        col+=pow(molten*flow,2.1)*vec3(1.55,.42,.05);
-        col+=pow(molten,4.6)*vec3(1.35,.75,.18)*.4;
-        float alpha=smoothstep(.015,.2,mask);
-        gl_FragColor=vec4(col,alpha);
-        #include <tonemapping_fragment>
-        #include <colorspace_fragment>
-      }`});
-  const splashMat=new THREE.ShaderMaterial({uniforms:lavaUniforms,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
-    vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader:`varying vec2 vUv;uniform float uTime;${noiseGLSL}
-      void main(){
-        vec2 p=vUv-.5;float r=length(p*vec2(1.,1.6));
-        float n=fb(vec2(p.x*6.+uTime*.7,p.y*4.-uTime*1.2));
-        float ring=(1.-smoothstep(.12,.55,r))*smoothstep(.02,.18,r);
-        gl_FragColor=vec4(vec3(1.4,.32,.04)*n,ring*n*.45);
-      }`});
+  const fallMat=lavaAccentMaterial(0);
+  const splashMat=lavaAccentMaterial(2,THREE.AdditiveBlending);
   const splashGeo=new THREE.PlaneGeometry(6.5,3.2);splashGeo.computeBoundingSphere();
   for(const [p,side] of [[.12,1],[.28,-1],[.43,1],[.60,-1],[.77,1],[.87,-1]]){
     const c=centerAt(p),w=widthAt(p),h=(strata(p,side)-20)*.81+17,geo=new THREE.PlaneGeometry(14,h,8,64),gp=geo.attributes.position,uv=geo.attributes.uv;
