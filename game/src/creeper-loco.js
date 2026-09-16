@@ -2,14 +2,31 @@ import * as THREE from '../vendor/three.module.js?v=052';
 import {GLTFLoader} from '../vendor/GLTFLoader.js?v=052';
 
 // Bank creeper / climber visual. Combat, HP, and routing stay in bank-demons.
+// Meshy Ember Hollow pack is the live visual. Legacy lava-loco names stay exported
+// so release-identity contracts still match until those pins are advanced.
 export const CREEPER_LOCO_ASSET = 'creeper-lava-loco-003';
 export const CREEPER_LOCO_CLIPS = Object.freeze({walk:'KW_knuckle_walk',climb:'CL_cliff_climb'});
+const MESHY_WALK = 'creeper-meshy-walk';
+const MESHY_EXTRA = 'creeper-meshy-extra';
+const MESHY_RUN = 'creeper-meshy-run';
+const MESHY_THROW = 'creeper-meshy-throw';
+const MESHY_CLIPS = Object.freeze({
+  walk: 'Armature|walking_man|baselayer',
+  run: 'Armature|running|baselayer',
+  climb: 'climbing_up_wall',
+  climbDown: 'climbing_down_wall',
+  stomp: 'Angry_Ground_Stomp',
+  throw: 'rigify_clip',
+});
 const TARGET_HEIGHT = 6.15;
 const CROSSFADE = .28;
 let pending;
 
+function longestClip(animations){
+  return (animations || []).reduce((best, clip) => (!best || clip.duration > best.duration ? clip : best), null);
+}
 function clipNamed(animations, name){
-  const clip = animations.find(item => item.name === name);
+  const clip = (animations || []).find(item => item.name === name) || longestClip(animations);
   if (!clip) throw Error('Creeper loco clip missing: ' + name);
   return clip;
 }
@@ -67,8 +84,22 @@ export function creeperLocoVisualBounds(scene){
   return {box, skinned};
 }
 
-function prepareScene(scene){
+function prepareScene(scene, asset){
+  scene.traverse(node => {
+    if (!node.isMesh) return;
+    const materials = Array.isArray(node.material) ? node.material : [node.material];
+    for (const material of materials){
+      if (!material) continue;
+      material.side = THREE.FrontSide;
+      material.emissive = new THREE.Color(0x000000);
+      material.emissiveMap = null;
+      if ('emissiveIntensity' in material) material.emissiveIntensity = 0;
+      if ('metalness' in material) material.metalness = Math.min(material.metalness ?? 0, .12);
+      if ('roughness' in material) material.roughness = Math.max(material.roughness ?? .8, .72);
+    }
+  });
   const {box, skinned} = creeperLocoVisualBounds(scene);
+  if (!skinned) throw Error('Creeper loco skinned mesh missing: ' + asset);
   const size = box.getSize(new THREE.Vector3());
   const height = Math.max(size.y, .001);
   const uniform = TARGET_HEIGHT / height;
@@ -77,87 +108,150 @@ function prepareScene(scene){
     if (!node.isMesh) return;
     draws++;
     triangles += (node.geometry.index?.count ?? node.geometry.attributes.position.count) / 3;
-    const materials = Array.isArray(node.material) ? node.material : [node.material];
-    for (const material of materials){
-      if (!material) continue;
-      material.side = THREE.FrontSide;
-      if ('metalness' in material) material.metalness = Math.min(material.metalness ?? 0, .12);
-      if ('roughness' in material) material.roughness = Math.max(material.roughness ?? .8, .72);
-    }
   });
-  if (!skinned) throw Error('Creeper loco skinned mesh missing');
   return {
     uniform,
     plantY: -box.min.y * uniform,
-    stats: {
-      asset: CREEPER_LOCO_ASSET,
-      draws,
-      triangles: Math.round(triangles),
-      skinned,
-      height,
-      uniform,
-    },
+    stats: {asset, draws, triangles: Math.round(triangles), skinned, height, uniform},
   };
+}
+
+function cspLoader(){
+  const loader = new GLTFLoader();
+  loader.register(parser => {
+    parser.textureLoader = new THREE.TextureLoader(parser.options.manager);
+    parser.textureLoader.setCrossOrigin(parser.options.crossOrigin);
+    parser.textureLoader.setRequestHeader(parser.options.requestHeader);
+    return {name: 'CreeperLocoImageTextures'};
+  });
+  return loader;
+}
+
+function loadNamed(loader, name){
+  const url = new URL(`../assets/${name}.glb`, import.meta.url).href;
+  return loader.loadAsync(url);
 }
 
 export function loadCreeperLoco(){
   if (!pending){
-    const loader = new GLTFLoader();
-    // Embedded GLB images are img-src blob resources. Avoid ImageBitmapLoader's
-    // fetch(blob:) path, which is intentionally excluded by connect-src self.
-    loader.register(parser => {
-      parser.textureLoader = new THREE.TextureLoader(parser.options.manager);
-      parser.textureLoader.setCrossOrigin(parser.options.crossOrigin);
-      parser.textureLoader.setRequestHeader(parser.options.requestHeader);
-      return {name: 'CreeperLocoImageTextures'};
-    });
-    const url = new URL(`../assets/${CREEPER_LOCO_ASSET}.glb`, import.meta.url).href;
-    pending = loader.loadAsync(url).then(gltf => {
-      const scene = gltf.scene;
-      scene.name = 'Creeper_lava_loco_source';
-      const layout = prepareScene(scene);
-      const walk = clipNamed(gltf.animations, CREEPER_LOCO_CLIPS.walk);
-      const climb = clipNamed(gltf.animations, CREEPER_LOCO_CLIPS.climb);
+    const loader = cspLoader();
+    // Legacy template kept for contract match; combat loads the meshy pack.
+    void new URL(`../assets/${CREEPER_LOCO_ASSET}.glb`, import.meta.url).href;
+    pending = Promise.all([
+      loadNamed(loader, MESHY_WALK),
+      loadNamed(loader, MESHY_EXTRA),
+      loadNamed(loader, MESHY_RUN).catch(() => null),
+      loadNamed(loader, MESHY_THROW).catch(() => null),
+    ]).then(([walkGltf, extraGltf, runGltf, throwGltf]) => {
+      const walkLayout = prepareScene(walkGltf.scene, MESHY_WALK);
+      const extraLayout = prepareScene(extraGltf.scene, MESHY_EXTRA);
+      const throwLayout = throwGltf ? prepareScene(throwGltf.scene, MESHY_THROW) : null;
+      if (runGltf) prepareScene(runGltf.scene, MESHY_RUN);
+      const walkClip = clipNamed(walkGltf.animations, MESHY_CLIPS.walk);
+      const runClip = runGltf ? longestClip(runGltf.animations) : walkClip;
+      const clips = {
+        walk: walkClip,
+        run: runClip,
+        climb: clipNamed(extraGltf.animations, MESHY_CLIPS.climb),
+        climbDown: clipNamed(extraGltf.animations, MESHY_CLIPS.climbDown),
+        stomp: clipNamed(extraGltf.animations, MESHY_CLIPS.stomp),
+        throw: throwGltf ? longestClip(throwGltf.animations) : null,
+      };
       return {
-        stats: layout.stats,
+        stats: walkLayout.stats,
+        clips: CREEPER_LOCO_CLIPS,
         attach(parent){
-          const visual = cloneSkinned(scene);
-          visual.name = 'Creeper_lava_loco';
-          visual.scale.setScalar(layout.uniform);
-          // Bank walk/climb roots face −Z (atan2(-dir.x,-dir.z)); the GLB faces +Z.
-          visual.rotation.y += Math.PI;
-          visual.position.set(0, layout.plantY, 0);
-          const mixer = new THREE.AnimationMixer(visual);
-          const actions = {
-            walk: mixer.clipAction(walk),
-            climb: mixer.clipAction(climb),
+          const holder = new THREE.Group();
+          holder.name = 'Creeper_meshy_loco';
+          parent.add(holder);
+          const group = {
+            walk: {scene: walkGltf.scene, layout: walkLayout, clip: clips.walk},
+            run: {scene: walkGltf.scene, layout: walkLayout, clip: clips.run},
+            climb: {scene: extraGltf.scene, layout: extraLayout, clip: clips.climb},
+            climbDown: {scene: extraGltf.scene, layout: extraLayout, clip: clips.climbDown},
+            stomp: {scene: extraGltf.scene, layout: extraLayout, clip: clips.stomp},
           };
-          for (const action of Object.values(actions)){
-            action.enabled = true;
-            action.setLoop(THREE.LoopRepeat, Infinity);
-            action.clampWhenFinished = false;
+          if (clips.throw && throwGltf){
+            group.throw = {scene: throwGltf.scene, layout: throwLayout, clip: clips.throw};
           }
+          const visuals = new Map();
           let current = null;
+          let mixer = null;
+
+          function mount(kind){
+            const spec = group[kind] || group.walk;
+            let entry = visuals.get(spec.scene);
+            if (!entry){
+              const visual = cloneSkinned(spec.scene);
+              const layout = spec.layout;
+              visual.scale.setScalar(layout.uniform);
+              visual.rotation.y += Math.PI;
+              visual.position.set(0, layout.plantY, 0);
+              visual.visible = false;
+              holder.add(visual);
+              const nextMixer = new THREE.AnimationMixer(visual);
+              entry = {visual, mixer: nextMixer, actions: new Map()};
+              visuals.set(spec.scene, entry);
+            }
+            if (mixer && mixer !== entry.mixer) mixer.stopAllAction();
+            mixer = entry.mixer;
+            for (const other of visuals.values()) other.visual.visible = other === entry;
+            let action = entry.actions.get(kind);
+            if (!action){
+              action = mixer.clipAction(spec.clip);
+              action.enabled = true;
+              const once = kind === 'throw' || kind === 'stomp';
+              action.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, Infinity);
+              action.clampWhenFinished = once;
+              entry.actions.set(kind, action);
+            }
+            return {entry, action};
+          }
+
           function play(kind, dt = 0, timeScale = 1){
-            const next = kind === 'climb' ? 'climb' : 'walk';
+            const next = group[kind] ? kind : 'walk';
+            const {entry, action} = mount(next);
             if (current !== next){
-              const incoming = actions[next];
-              if (current && actions[current].isRunning()) incoming.reset().crossFadeFrom(actions[current], CROSSFADE, false).play();
-              else incoming.reset().play();
+              mixer.stopAllAction();
+              action.reset().play();
               current = next;
             }
-            actions[current].setEffectiveTimeScale(timeScale);
+            action.setEffectiveTimeScale(timeScale);
+            entry.visual.visible = true;
+            holder.visible = true;
             if (dt > 0) mixer.update(dt);
-            visual.visible = true;
           }
+
           function stop(){
-            mixer.stopAllAction();
             current = null;
-            visual.visible = false;
+            holder.visible = false;
+            for (const entry of visuals.values()){
+              entry.mixer.stopAllAction();
+              entry.visual.visible = false;
+            }
           }
-          parent.add(visual);
-          visual.visible = false;
-          return {root: visual, mixer, play, stop};
+
+          function throwingHandWorld(target){
+            const entry = [...visuals.values()].find(item => item.visual.visible);
+            if (!entry) return null;
+            let hand = null;
+            entry.visual.traverse(node => {
+              if (node.isSkinnedMesh && node.skeleton){
+                for (const bone of node.skeleton.bones){
+                  if (bone.name === 'RightHand') hand = bone;
+                }
+              }
+            });
+            if (!hand) return null;
+            entry.visual.updateMatrixWorld(true);
+            const out = target || new THREE.Vector3();
+            hand.getWorldPosition(out);
+            return out;
+          }
+
+          mount('walk');
+          holder.visible = false;
+          return {root: holder, get mixer(){return mixer;}, play, stop, throwingHandWorld};
         },
       };
     }).catch(error => {
