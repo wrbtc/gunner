@@ -2,7 +2,7 @@ name: Gunner CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, "grok/**"]
   pull_request:
     branches: [main]
   workflow_dispatch:
