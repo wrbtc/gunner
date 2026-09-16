@@ -36,7 +36,7 @@ assert.doesNotMatch(eggNests,/e\.bodyPrev\.clone\(\)\.lerp\(e\.bodyWorld/);
 checks.push('scratch-vector-reuse-sites');
 
 assert.match(main,/titlePresented/);
-assert.match(main,/function titleIdleHold\(\)/);
+assert.match(main,/function titleIdleHold\(\)\{return game\.title&&titlePresented;\}/);
 assert.match(main,/titleHold=titleIdleHold\(\)/);
 assert.match(main,/if\(!titleHold\)/);
 assert.match(main,/collisionHold\|\|holdPresent\|\|titleHold/);
@@ -52,8 +52,8 @@ const evalTitleIdleHold=new Function('game','settingsOnly','fieldGuideOpen','tit
 const titleState={title:true};
 assert.equal(evalTitleIdleHold(titleState,false,false,false),false,'hold waits for first title present');
 assert.equal(evalTitleIdleHold(titleState,false,false,true),true,'idle ready title holds');
-assert.equal(evalTitleIdleHold(titleState,true,false,true),false,'settings open releases hold');
-assert.equal(evalTitleIdleHold(titleState,false,true,true),false,'field guide open releases hold');
+assert.equal(evalTitleIdleHold(titleState,true,false,true),true,'settings open keeps title hold');
+assert.equal(evalTitleIdleHold(titleState,false,true,true),true,'field guide open keeps title hold');
 assert.equal(evalTitleIdleHold({title:false},false,false,true),false,'deploy clears title');
 assert.match(main,/function reset\(\)\{[\s\S]*game\.title=false;[\s\S]*titlePresented=false/);
 assert.match(main,/function start\([\s\S]*reset\(\)/);
@@ -89,8 +89,8 @@ assert.deepEqual(runPresent({game:{title:false,opening:true,running:true},titleH
 for(const [label,titleHold,expected] of [
  ['first-title-present',false,1],
  ['idle-ready-title',true,0],
- ['settings-open',false,1],
- ['field-guide-open',false,1],
+ ['settings-open',true,0],
+ ['field-guide-open',true,0],
  ['deploy-start',false,1],
 ]){
  const calls=runPresent({game:{title:label!=='deploy-start'},titleHold});

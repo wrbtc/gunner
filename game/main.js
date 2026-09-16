@@ -52,7 +52,7 @@ let playerFov=66;
 const OPENING_SECONDS=14, APPROACH_START=.025, APPROACH_END=.065;
 const preferences={sensitivity:1,invert:false,master:false,volume:.65,music:.65,voice:.85,captions:true};
 let settingsOnly=false,settingsReady=false,sceneAssemblyComplete=false,firstStartMeasured=false,titlePresented=false;
-function titleIdleHold(){return game.title&&!settingsOnly&&!$('#fieldGuide')?.open&&titlePresented;}
+function titleIdleHold(){return game.title&&titlePresented;}
 let startupAssembly=null;
 let lastQueenPhase='dormant';
 const runReview={damage:[],shots:0,hits:0,interruptions:0,repair:0,queenReached:false,lastCue:'',cueUntil:0,killUntil:0,armorUntil:0};
@@ -1286,6 +1286,7 @@ addEventListener('pagehide',()=>playTracking.flush());
 document.addEventListener('visibilitychange',()=>{if(document.hidden)playTracking.flush();});
 let ratingBenchmark=0,rankResultWon=false;
 const rankReveal=createRankReveal({root:$('#rankReveal'),face:$('#rankFace'),title:$('#rankTitle'),percent:$('#rankPercent'),caption:$('#rankTaunt'),benchmarkLabel:$('#rankBenchmark'),button:$('#rankContinue'),reduced:reducedOpening,onContinue:()=>showResult(rankResultWon),onStartup:startupMark});
+void rankReveal.ready.catch(()=>{});
 function showRank(won){rankResultWon=won;audio.finishPresentation();pilot?.showResult();$('#ending').hidden=true;dom.result.hidden=true;rankReveal.show(missionRating(game.score,ratingBenchmark));menuMusic?.setOutcome(won,{restart:true});document.exitPointerLock?.();}
 const highScores=createHighScores({table:$('#scoreRows'),form:$('#scoreEntry'),input:$('#initials'),submit:$('#submitScore'),status:$('#scoreStatus'),scope:$('#scoreScope'),refreshButton:$('#retryScores'),onQualified:()=>pilot?.topTen()});
 function endRun(won){
@@ -1493,7 +1494,7 @@ function qaCoreChecks(){
   return {kind:'diagnostic-core-checks',passed:checks.filter(c=>c.pass).length,total:checks.length,checks};
 }
 const qaApi={
-  version:'0.54.74',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,masterMode:preferences.master,masterUsed:game.masterUsed,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:frameMetrics.counterScope||'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
+  version:'0.54.75',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,masterMode:preferences.master,masterUsed:game.masterUsed,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:frameMetrics.counterScope||'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
   start:()=>start({skipOpening:true,legacyRoute:true}),beginOpening:()=>start(),skipOpening:()=>finishOpening(true),openingState:()=>({active:game.opening,title:game.title,time:game.openingTime,phase:openingPhase,flightProgress:currentFlightProgress(),camera:camera.position.toArray(),quaternion:camera.quaternion.toArray(),fov:camera.fov,fade:Number(dom.openingFade.style.opacity)||0,exterior:bomberExterior?.stats(),cameraPath:openingCamera?.stats()}),seekOpening:(seconds)=>{game.openingTime=THREE.MathUtils.clamp(seconds,0,OPENING_SECONDS);game.captureFreeze=true;updatePlane(0);updateOpeningPresentation();return true;},reset:qaReset,pause,resume,setTime:(seconds)=>{game.time=THREE.MathUtils.clamp(seconds,0,RUN_SECONDS);updatePlane(0);creatureTracking?.seek(game.time);},setView:(yaw,pitch)=>{game.yaw=yaw;game.pitch=THREE.MathUtils.clamp(pitch,-1.38,.95);updatePlane(0);},turnAround,toggleRear:turnAround,fireCannon,fireRound,damage:(amount=6)=>damageHull(amount,planePos),masterMode:(enabled=true)=>setMasterMode(enabled,{persist:false}),explode:()=>explode(planePos.clone().addScaledVector(planeTangent,70),14),preview:setPreview,
   events:()=>game.eventLog.slice(),runtime:gunnerRuntime,trace:qaTrace,replay:qaReplay,checkCore:qaCoreChecks,
   aimAt:(target)=>{const actor=typeof target==='string'?enemies.concat(siege).find(e=>e.id===target):null;qaAimAt(actor?actorCenter(actor):new THREE.Vector3().fromArray(target));},
@@ -1506,11 +1507,10 @@ const qaApi={
 // it must never silently present the superseded insect model as a ready game.
 let cinderLoadFailed=false;
 async function requiredCinder(){
- try{const [model]=await boundedPreparation(()=>{
+ try{return await boundedPreparation(()=>{
   startupMark('cinder-assets','begin');
-  const cinder=loadCinderMaw().then(value=>{startupMark('cinder-assets','end','ready');return value;},error=>{startupMark('cinder-assets','end','rejected');throw error;});
-  return Promise.all([cinder,rankReveal.ready]);
- });return model;}
+  return loadCinderMaw().then(value=>{startupMark('cinder-assets','end','ready');return value;},error=>{startupMark('cinder-assets','end','rejected');throw error;});
+ });}
  catch(error){
   cinderLoadFailed=true;failFlightPreparation(error);throw error;
  }

@@ -78,8 +78,15 @@ await check('rank-observation-keeps-one-decode-per-image-and-all-five-readiness'
  f.images[4].work.resolve();await f.reveal.ready;assert.equal(ready,true);assert.deepEqual(marks.at(-1),['rank-assets','end','ready']);
 });
 await check('rank-decode-rejection-is-preserved-and-observer-errors-are-isolated',async()=>{
- const marks=[],f=rankFixture((...mark)=>{marks.push(mark);throw Error('observer');}),error=Error('decode failure');const rejected=assert.rejects(f.reveal.ready,e=>e===error&&e.rankArt===true);
- f.images[0].work.reject(error);for(const image of f.images.slice(1))image.work.resolve();await rejected;assert.deepEqual(f.images.map(image=>image.calls),[1,1,1,1,1]);assert.ok(marks.some(([name,state,outcome])=>name==='rank-assets'&&state==='end'&&outcome==='rejected'));
+ const marks=[],f=rankFixture((...mark)=>{marks.push(mark);throw Error('observer');}),error=Error('decode failure');
+ f.images[0].work.reject(error);for(const image of f.images.slice(1))image.work.resolve();
+ await f.reveal.ready;
+ assert.deepEqual(f.images.map(image=>image.calls),[1,1,1,1,1]);
+ assert.ok(marks.some(([name,state,outcome])=>name==='rank-decode:baby'&&state==='end'&&outcome==='rejected'));
+ assert.deepEqual(marks.at(-1),['rank-assets','end','degraded']);
+ assert.equal(f.reveal.stats().loaded,false);
+ assert.equal(f.reveal.stats().decoded,4);
+ assert.equal(f.reveal.stats().expected,5);
 });
 const optionalSource=main.slice(main.indexOf('const OPTIONAL_ASSET_DEADLINE_MS='),main.indexOf('\nconst $ ='));
 function optionalFixture(){const t=timers(),marks=[];return{t,marks,settle:new Function('setTimeout','clearTimeout','startupMark',`${optionalSource};return settleOptionalAsset;`)(t.setTimer,t.clearTimer,(...mark)=>marks.push(mark))};}
@@ -87,10 +94,55 @@ await check('actual-optional-branches-distinguish-ready-rejected-and-timeout-onc
  const f=optionalFixture(),value={asset:true};assert.equal((await f.settle(Promise.resolve(value),'world-assets')).value,value);assert.equal((await f.settle(Promise.reject(Error('network')),'kit-assets')).degraded,true);
  const late=deferred(),result=f.settle(late.promise,'world-assets');f.t.fire();assert.equal((await result).value,null);late.resolve(value);await tick();assert.deepEqual(f.marks,[['world-assets','end','ready'],['kit-assets','end','rejected'],['world-assets','end','timeout']]);assert.equal(f.t.tasks.size,0);
 });
-await check('actual-required-model-gate-still-waits-for-rank-after-cinder-readiness',async()=>{
- const source=main.slice(main.indexOf('let cinderLoadFailed=false;'),main.indexOf("startupMark('initial-actors-effects','end');")),cinder=deferred(),rank=deferred(),marks=[];
- const run=new Function('boundedPreparation','loadCinderMaw','rankReveal','startupMark','failFlightPreparation',`${source};return requiredCinder;`)(boundedPreparation,()=>cinder.promise,{ready:rank.promise},(...mark)=>marks.push(mark),()=>assert.fail('unexpected failure'));
- let ready=false;const result=run().then(value=>{ready=true;return value;});await tick();const model={model:true};cinder.resolve(model);await tick();assert.equal(ready,false);assert.deepEqual(marks,[['cinder-assets','begin'],['cinder-assets','end','ready']]);rank.resolve();assert.equal(await result,model);
+function requiredCinderHarness({timeoutMs=30000,fail=()=>assert.fail('unexpected failure')}={}){
+ const source=main.slice(main.indexOf('let cinderLoadFailed=false;'),main.indexOf("startupMark('initial-actors-effects','end');"));
+ const cinder=deferred(),rank=deferred(),marks=[];
+ const bound=(work,options={})=>boundedPreparation(work,{timeoutMs,...options});
+ const run=new Function('boundedPreparation','loadCinderMaw','rankReveal','startupMark','failFlightPreparation',`${source};return requiredCinder;`)(bound,()=>cinder.promise,{ready:rank.promise},(...mark)=>marks.push(mark),fail);
+ return {cinder,rank,marks,run};
+}
+await check('actual-required-model-gate-resolves-when-cinder-is-ready-while-rank-pending',async()=>{
+ const h=requiredCinderHarness();let ready=false;const result=h.run().then(value=>{ready=true;return value;});
+ await tick();const model={model:true};h.cinder.resolve(model);await tick();
+ assert.equal(ready,true);assert.deepEqual(h.marks,[['cinder-assets','begin'],['cinder-assets','end','ready']]);
+ assert.equal(await result,model);
+});
+await check('rank-decode-rejection-does-not-fail-flight-preparation',async()=>{
+ const failures=[];const h=requiredCinderHarness({fail:error=>failures.push(error)});
+ h.rank.promise.catch(()=>{});const result=h.run();h.rank.reject(Error('decode failure'));const model={model:true};h.cinder.resolve(model);
+ assert.equal(await result,model);assert.deepEqual(failures,[]);
+});
+await check('hanging-rank-decode-cannot-timeout-the-cinder-gate',async()=>{
+ const failures=[];const h=requiredCinderHarness({timeoutMs:20,fail:error=>failures.push(error)});
+ const result=h.run();const model={model:true};h.cinder.resolve(model);
+ assert.equal(await result,model);assert.deepEqual(failures,[]);
+});
+await check('show-leaves-face-empty-when-selected-portrait-undecoded',async()=>{
+ const attached=[];
+ const face={replaceChildren(...nodes){attached.splice(0,attached.length,...nodes);},dataset:{},setAttribute(){}};
+ const title={textContent:''},percent={textContent:''},caption={textContent:''},benchmarkLabel={textContent:''};
+ const root={hidden:true,classList:{toggle(){}}};
+ const button={addEventListener(){},focus(){}};
+ const previous=globalThis.Image;
+ const images=[];
+ globalThis.Image=class{constructor(){this.work=deferred();this.naturalWidth=this.naturalHeight=1254;images.push(this);}decode(){return this.work.promise;}};
+ try{
+  const reveal=createRankReveal({root,face,title,percent,caption,benchmarkLabel,button,reduced:()=>false,onContinue:()=>{}});
+  images[0].work.reject(Error('decode failure'));
+  for(const image of images.slice(1))image.work.resolve();
+  await reveal.ready;
+  reveal.show({rank:{id:'baby',name:'BABY',line:'x',description:'Baby face'},percent:0,benchmark:1000});
+  assert.deepEqual(attached,[]);
+  assert.equal(title.textContent,'BABY');
+  assert.equal(percent.textContent,'0.0%');
+  assert.equal(caption.textContent,'x');
+  assert.match(benchmarkLabel.textContent,/1,000 PTS/);
+  assert.equal(face.dataset.rank,'baby');
+  reveal.show({rank:{id:'hero',name:'HERO',line:'y',description:'Hero face'},percent:95,benchmark:1000});
+  assert.equal(attached[0],images[4]);
+ }finally{
+  if(previous===undefined)delete globalThis.Image;else globalThis.Image=previous;
+ }
 });
 await check('failed-preparation-stops-the-actual-render-loop-before-updates',()=>{
  const source=main.slice(main.indexOf('function render(now){'),main.indexOf('\nfunction reset(){',main.indexOf('function render(now){')));

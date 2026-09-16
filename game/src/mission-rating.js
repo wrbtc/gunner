@@ -19,11 +19,35 @@ export function missionRating(score,benchmark){
 }
 export function createRankReveal({root,face,title,percent,caption,benchmarkLabel,button,reduced,onContinue,onStartup=()=>{}}){
  let active=false,loaded=false;
- // Observation must not change the required art promise or its failure path.
+ // Rank portraits are cosmetic. Telemetry still records every decode attempt.
+ // `loaded` is true only when all five square portraits decoded; otherwise false.
  const report=(name,state,outcome)=>{try{onStartup(name,state,outcome);}catch{}};
  report('rank-assets','begin');
  const images=RANKS.map(rank=>{const image=new Image();image.alt='';image.draggable=false;image.src=new URL('../assets/ranks/'+rank.id+'.png',import.meta.url).href;return image;});
- const ready=Promise.all(images.map((image,index)=>{const name='rank-decode:'+RANKS[index].id;report(name,'begin');return image.decode().then(()=>{report(name,'end','decoded');if(!image.naturalWidth||image.naturalWidth!==image.naturalHeight)throw Error('Rank portrait is not a square sprite sheet');},error=>{report(name,'end','rejected');throw error;});})).then(()=>{loaded=true;report('rank-assets','end','ready');}).catch(error=>{report('rank-assets','end','rejected');error.rankArt=true;throw error;});
+ const decoded=RANKS.map(()=>false);
+ const ready=Promise.allSettled(images.map((image,index)=>{
+  const name='rank-decode:'+RANKS[index].id;report(name,'begin');
+  return image.decode().then(()=>{
+   if(!image.naturalWidth||image.naturalWidth!==image.naturalHeight){
+    report(name,'end','rejected');
+    throw Error('Rank portrait is not a square sprite sheet');
+   }
+   decoded[index]=true;report(name,'end','decoded');
+  },error=>{report(name,'end','rejected');throw error;});
+ })).then(results=>{
+  loaded=decoded.every(Boolean);
+  report('rank-assets','end',loaded?'ready':'degraded');
+  return results;
+ });
  button.addEventListener('click',()=>{if(!active)return;active=false;root.hidden=true;onContinue();});
- return {ready,show(rating){active=true;root.hidden=false;root.classList.toggle('reduced',reduced());face.replaceChildren(images[RANKS.findIndex(rank=>rank.id===rating.rank.id)]);face.dataset.rank=rating.rank.id;face.setAttribute('aria-label',rating.rank.description);title.textContent=rating.rank.name;percent.textContent=rating.percent.toFixed(1)+'%';caption.textContent=rating.rank.line;benchmarkLabel.textContent='100% BENCHMARK · '+rating.benchmark.toLocaleString('en-US')+' PTS';button.focus({preventScroll:true});},reset(){active=false;root.hidden=true;},stats:()=>({active,loaded,rank:face.dataset.rank,frames:4})};
+ return {ready,show(rating){
+  active=true;root.hidden=false;root.classList.toggle('reduced',reduced());
+  const index=RANKS.findIndex(rank=>rank.id===rating.rank.id);
+  const image=index>=0?images[index]:null;
+  if(image&&decoded[index])face.replaceChildren(image);else face.replaceChildren();
+  face.dataset.rank=rating.rank.id;face.setAttribute('aria-label',rating.rank.description);
+  title.textContent=rating.rank.name;percent.textContent=rating.percent.toFixed(1)+'%';
+  caption.textContent=rating.rank.line;benchmarkLabel.textContent='100% BENCHMARK · '+rating.benchmark.toLocaleString('en-US')+' PTS';
+  button.focus({preventScroll:true});
+ },reset(){active=false;root.hidden=true;},stats:()=>({active,loaded,decoded:decoded.filter(Boolean).length,expected:RANKS.length,rank:face?.dataset?.rank,frames:4})};
 }
