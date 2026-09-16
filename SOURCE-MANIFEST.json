@@ -1,5 +1,5 @@
 {
-  "version": "0.54.78",
+  "version": "0.54.79",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -19,12 +19,12 @@
     {
       "path": "game/assets/EGG-SOLIDS.md",
       "bytes": 1743,
-      "sha256": "c65bca43ee37d8c47145bc99f106127d9763aa90d22124bb7519612346793338"
+      "sha256": "34868ed11c9273145748381d5fbcc1ac14ad04a13f55f396cd212a745af6ab75"
     },
     {
       "path": "game/assets/SKINNED-SOLIDS.md",
       "bytes": 4457,
-      "sha256": "170fe59ecb189418d07ac96820b9355acd538c013b4c2872d11aaf918517c351"
+      "sha256": "50b8f0ccb262d6a93edb32ad8b29650b54943d7a26ac69ed7766e090d69e2d65"
     },
     {
       "path": "game/assets/audio/KOKORO-CODE-LICENSE.txt",
@@ -294,7 +294,7 @@
     {
       "path": "game/main.js",
       "bytes": 160479,
-      "sha256": "a4581fad6517618027a64e01a0905da690f142cd705a9106a2e19357f71fa430"
+      "sha256": "2c69be02acb445064215ad28f766644e7cbb4c02590e6527e82f0c9be8a6be1e"
     },
     {
       "path": "game/mobile-entry.js",
@@ -463,8 +463,8 @@
     },
     {
       "path": "game/src/hell-world.js",
-      "bytes": 41518,
-      "sha256": "7c6bb704c3fd2fe0d81a9702179bc1c3e88b0193db734a8988c7173fb7fd6b6c"
+      "bytes": 41873,
+      "sha256": "0e5ebe62aa252ab509ec2bfa9781a9868e6eae3f7f7cd7f6f0191998268c3f69"
     },
     {
       "path": "game/src/high-scores.js",
@@ -509,7 +509,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26940,
-      "sha256": "ca5f836bd28ffa1a1a6533b14421314b84f75f4cae7bb7da36b9065f5e596348"
+      "sha256": "50803845282ecd304559c8880850ba932beadb0f0e269e2a4eb38c6b220cb1fe"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -707,5 +707,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.78 is a Field Guide-first identity with VIEW 3D presentation solids. Card first paint withholds the prior identification stills and shows a branded preparing tile until the museum thumb lands. Every specimen uses a height-fit museum crop so the subject fills the card; thumbs and VIEW 3D share that framing. Cinder Maw is framed huge and close; Dragon A faces the camera for a front intimidation shot. Horizontal drag turns a specimen; vertical drag repositions it within bounded view space, and RESET VIEW restores position, rotation and 100% zoom. Rimmers use game/assets/rimmer-skinned-solid.glb (1153368 bytes, sha256 1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456). Plasma uses game/assets/plasma-bug-skinned-solid.glb (1135104 bytes, sha256 127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f). Ember Hollow uses game/assets/creeper-ember-hollow.glb (1091768 bytes, sha256 25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe; EmberArmature; ember_idle default and ember_walk available); reject the 4803580-byte SOLID pack sha256 085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f. Dragon A is included as a lazy static Field Guide specimen at game/assets/dragon-fg-a.glb (64020728 bytes, sha256 38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27); it has no rig or animation clips and does not retarget live sky dragons. Cinder Maw Field Notes uses the repaired game/assets/field-notes-v02/cinder-maw-fieldnotes-v02.glb (1483396 bytes, sha256 2a829abf1fbb8419c8f0081ecedeeeddc7a3d6adc922f6a21108148ba4f53c52; TankArmature; cinder_idle, cinder_jaw_inspect and cinder_weight_shift). Dancing Creepers use the approved Vein Anunnaki solid game/assets/vein-ascetic-skinned.glb (1908316 bytes, sha256 9d67a8c5fcdc4a5d8bbbdbae9f428e87a963a978682c0e572f62af28567e495e; VeinArmature; ritual_idle default and ritual_walk available); reject draft vein-ascetic-skinned-draft.glb sha256 3b3dc30a3ae7dafe87b82932f37c1c371fcbce7a0db4f6491dff494e6b05bce4 / 2502928. Field Notes Intact egg assembles game/assets/egg-shell-a.glb (817236 bytes, sha256 368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2) with the rigged larva game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb (1075680 bytes, sha256 344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96; MaggotArmature; maggot_wriggle) behind a leathery window, keeps an opaque sac base, and holds the maggot fully inside the membrane. The Shell specimen stays shell-only. The original static live-nest source remains identified for provenance as game/assets/egg-maggot-a.glb (732684 bytes, sha256 3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127); it is not replaced by the Field Notes larva. Gameplay and world meshes stay on the v0.54.60 path: lava loco game/assets/creeper-lava-loco-003.glb (9840676 bytes, sha256 e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5), procedural rimmers/plasma, live Cinder Maw tanks, live nests, orange-spirit dancers and sky dragons. Soft-GPU stays off and prefers-reduced-motion still quiets flash and camera motion. Performance T1 disables redundant browser-canvas MSAA while retaining the four-sample HDR world target, rests heavyweight world update/presentation work after the opaque title poster is first presented, resumes world presentation on deploy/reset/WebGL recovery while holding the title canvas under Field Guide and settings, uncouples cosmetic rank portraits from required Cinder, and reuses selected render-loop vectors. Do not land morph creeper hashes 75ddc18f / a2ac5ebb / 1c10edf7 / 45123f4c / 9cd194e6 / a9dcb2b6. Field Guide card first paint withholds the prior identification stills, shows a preparing tile, and waits for the VIEW 3D museum thumb. Do not treat 0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59, 0.54.60, 0.54.61, 0.54.62, 0.54.63, 0.54.64, 0.54.65, 0.54.66, 0.54.67, 0.54.68, 0.54.69 or 0.54.70 as this identity. Gunner v0.54.78 adds the brighter crusted lava river, braided wall falls, visual-only bank lips and fall splashes while keeping the established river collision and Poly Haven geology assets. Bank lips reuse the established river material and splash geometry reuses the fall material, so the look adds no new shader family during cold-start preparation. Physical Intel Safari combat acceptance remains pending."
+  "note": "Gunner v0.54.79 is a Field Guide-first identity with VIEW 3D presentation solids. Card first paint withholds the prior identification stills and shows a branded preparing tile until the museum thumb lands. Every specimen uses a height-fit museum crop so the subject fills the card; thumbs and VIEW 3D share that framing. Cinder Maw is framed huge and close; Dragon A faces the camera for a front intimidation shot. Horizontal drag turns a specimen; vertical drag repositions it within bounded view space, and RESET VIEW restores position, rotation and 100% zoom. Rimmers use game/assets/rimmer-skinned-solid.glb (1153368 bytes, sha256 1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456). Plasma uses game/assets/plasma-bug-skinned-solid.glb (1135104 bytes, sha256 127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f). Ember Hollow uses game/assets/creeper-ember-hollow.glb (1091768 bytes, sha256 25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe; EmberArmature; ember_idle default and ember_walk available); reject the 4803580-byte SOLID pack sha256 085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f. Dragon A is included as a lazy static Field Guide specimen at game/assets/dragon-fg-a.glb (64020728 bytes, sha256 38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27); it has no rig or animation clips and does not retarget live sky dragons. Cinder Maw Field Notes uses the repaired game/assets/field-notes-v02/cinder-maw-fieldnotes-v02.glb (1483396 bytes, sha256 2a829abf1fbb8419c8f0081ecedeeeddc7a3d6adc922f6a21108148ba4f53c52; TankArmature; cinder_idle, cinder_jaw_inspect and cinder_weight_shift). Dancing Creepers use the approved Vein Anunnaki solid game/assets/vein-ascetic-skinned.glb (1908316 bytes, sha256 9d67a8c5fcdc4a5d8bbbdbae9f428e87a963a978682c0e572f62af28567e495e; VeinArmature; ritual_idle default and ritual_walk available); reject draft vein-ascetic-skinned-draft.glb sha256 3b3dc30a3ae7dafe87b82932f37c1c371fcbce7a0db4f6491dff494e6b05bce4 / 2502928. Field Notes Intact egg assembles game/assets/egg-shell-a.glb (817236 bytes, sha256 368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2) with the rigged larva game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb (1075680 bytes, sha256 344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96; MaggotArmature; maggot_wriggle) behind a leathery window, keeps an opaque sac base, and holds the maggot fully inside the membrane. The Shell specimen stays shell-only. The original static live-nest source remains identified for provenance as game/assets/egg-maggot-a.glb (732684 bytes, sha256 3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127); it is not replaced by the Field Notes larva. Gameplay and world meshes stay on the v0.54.60 path: lava loco game/assets/creeper-lava-loco-003.glb (9840676 bytes, sha256 e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5), procedural rimmers/plasma, live Cinder Maw tanks, live nests, orange-spirit dancers and sky dragons. Soft-GPU stays off and prefers-reduced-motion still quiets flash and camera motion. Performance T1 disables redundant browser-canvas MSAA while retaining the four-sample HDR world target, rests heavyweight world update/presentation work after the opaque title poster is first presented, resumes world presentation on deploy/reset/WebGL recovery while holding the title canvas under Field Guide and settings, uncouples cosmetic rank portraits from required Cinder, and reuses selected render-loop vectors. Do not land morph creeper hashes 75ddc18f / a2ac5ebb / 1c10edf7 / 45123f4c / 9cd194e6 / a9dcb2b6. Field Guide card first paint withholds the prior identification stills, shows a preparing tile, and waits for the VIEW 3D museum thumb. Do not treat 0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59, 0.54.60, 0.54.61, 0.54.62, 0.54.63, 0.54.64, 0.54.65, 0.54.66, 0.54.67, 0.54.68, 0.54.69, 0.54.70 or 0.54.78 as this identity. Gunner v0.54.79 keeps the brighter crusted lava river, braided wall falls, visual-only bank lips and fall splashes, then darkens cooling-skin rafts with hairline interior cracks so peach plate interiors recede. River collision, Poly Haven geology, and shader family stay as in 0.54.78. Bank lips reuse the established river material and splash geometry reuses the fall material, so the look adds no new shader family during cold-start preparation. Physical Intel Safari combat acceptance remains pending."
 }
