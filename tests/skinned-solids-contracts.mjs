@@ -22,8 +22,8 @@ const forbidden=['75ddc18f','a2ac5ebb','1c10edf7','45123f4c','9cd194e6','a9dcb2b
 assert.match(attributes,/game\/assets\/vein-ascetic-skinned\.glb filter=lfs/);
 assert.doesNotMatch(attributes,/vein-ascetic-skinned-draft/);
 
-assert.equal(packageJson.version,'0.54.79');
-assert.equal(manifest.version,'0.54.79');
+assert.equal(packageJson.version,'0.54.80');
+assert.equal(manifest.version,'0.54.80');
 assert.match(manifest.note,/0\.54\.67/);
 assert.match(manifest.note,/Field Guide/);
 assert.match(manifest.note,/VIEW 3D/);
@@ -148,4 +148,4 @@ for(const row of expected){
  binaryStatus[row.path]=state;
 }
 
-console.log(JSON.stringify({passed:true,identity:'0.54.79',binaryStatus},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.80',binaryStatus},null,2));

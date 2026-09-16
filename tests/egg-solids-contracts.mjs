@@ -19,8 +19,8 @@ const expected=[
  {path:'game/assets/egg-maggot-a.glb',bytes:732684,sha256:'3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127'}
 ];
 
-assert.equal(packageJson.version,'0.54.79');
-assert.equal(manifest.version,'0.54.79');
+assert.equal(packageJson.version,'0.54.80');
+assert.equal(manifest.version,'0.54.80');
 assert.match(solids,/export function loadEggSolids/);
 assert.match(solids,/adaptEggShellMaterial/);
 assert.match(solids,/opacity=\.46/);
@@ -81,4 +81,4 @@ for(const row of expected){
  binaryStatus[row.path]=state;
 }
 
-console.log(JSON.stringify({passed:true,identity:'0.54.79',binaryStatus},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.80',binaryStatus},null,2));

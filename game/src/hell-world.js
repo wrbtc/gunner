@@ -245,10 +245,11 @@ export function createHellWorld({scene,route,centerAt,widthAt}) {
       float hair=n2(metres*vec2(.94,.42)+19.);
       float hair2=n2(metres*vec2(2.2,.9)+7.);
       float innerCrack=smoothstep(.54,.79,hair)*smoothstep(.46,.74,hair2);
-      float thickness=raft*(.32+plateId*.48);
-      float crustHeight=thickness+raft*((grain-.5)*.18+rope*.075-pits*pits*.045)*detail;
+      float plateKeep=smoothstep(.88,.98,plateId);
+      float thickness=raft*(.20+plateKeep*.22);
+      float crustHeight=thickness+raft*((grain-.5)*.10+rope*.04-pits*pits*.025)*detail;
       crustHeight+=opening*rope*.043*detail;
-      crustHeight-=innerCrack*raft*.05*detail;
+      crustHeight-=innerCrack*raft*plateKeep*.04*detail;
       // Recover the height gradient in world metres, then shade the crust's
       // relief against the cool sky. This changes shading only, not collision.
       vec2 dx=dFdx(metres),dy=dFdy(metres);
@@ -259,28 +260,29 @@ export function createHellWorld({scene,route,centerAt,widthAt}) {
       gradient=clamp(gradient,vec2(-2.4),vec2(2.4));
       vec3 normal=normalize(vec3(-gradient.x,1.,-gradient.y));
       float sky=max(dot(normal,normalize(vec3(-.32,.86,.37))),0.);
-      float ridgeLight=.43+.57*sky;
-      float cavity=mix(.43,1.,smoothstep(.012,.13,gap));
-      vec3 crust=mix(vec3(.012,.011,.010),vec3(.038,.032,.028),.20+grain*.26+plateId*.10);
-      crust*=ridgeLight*cavity*(.80+.20*detail*pits);
-      crust=mix(crust,crust*vec3(.07,.055,.045),innerCrack*raft*.92);
-      float coolSkin=raft*(.35+skinRafts*.65);
-      crust=mix(crust,vec3(.012,.011,.010)*ridgeLight,coolSkin*.82);
-      crust+=vec3(.55,.08,.01)*pow(1.-raft,2.)*parted*.08;
+      float ridgeLight=.52+.48*sky;
+      float cavity=mix(.82,1.,smoothstep(.012,.13,gap));
+      vec3 crust=mix(vec3(.009,.008,.007),vec3(.016,.014,.012),.08+grain*.10);
+      crust=mix(crust,vec3(.020,.016,.014),plateKeep*raft*.40);
+      crust*=ridgeLight*cavity*(.90+.10*detail*pits);
+      crust=mix(crust,crust*vec3(.05,.040,.034),innerCrack*raft*plateKeep*.90);
+      float coolSkin=raft*(.78+skinRafts*.22);
+      crust=mix(crust,vec3(.009,.008,.007)*ridgeLight,coolSkin*.96);
+      crust+=vec3(.22,.03,.005)*pow(1.-raft,2.)*parted*.025*plateKeep;
       // Dim warm plate undersides are distinct from exposed liquid. Peak
       // blackbody color is restricted to a minority of the hottest openings.
       float lip=(1.-smoothstep(.055,.145,gap))*parted*(1.-molten);
-      crust+=lip*vec3(.16,.03,.005);
+      crust+=lip*vec3(.08,.015,.003);
       float pulse=.94+.06*sin(uTime*2.4+metres.y*.04);
       float liquidRope=mix(1.,.48,rope*detail)*(1.-skinRafts*.18);
       vec3 liquid=mix(vec3(.32,.02,.002),vec3(1.45,.32,.025),clamp(molten*.88+core*.38,0.,1.));
       liquid*=liquidRope*pulse;
       float hottest=pow(clamp(core,0.,1.),2.4)*smoothstep(.42,.76,grain);
       liquid+=hottest*vec3(1.85,.7,.12);
-      float edge=smoothstep(.28,.78,molten);
+      float edge=smoothstep(.46,.90,molten);
       vec3 col=mix(crust,liquid,edge);
       float distanceDetail=1.-smoothstep(.35,1.30,max(length(dFdx(p)),length(dFdy(p))));
-      vec3 farColor=vec3(.02,.012,.008)+opening*vec3(.45,.08,.012);
+      vec3 farColor=vec3(.012,.009,.007)+opening*vec3(.22,.04,.008);
       col=mix(farColor,col,distanceDetail);
       gl_FragColor=vec4(col,1.);
       #include <tonemapping_fragment>
