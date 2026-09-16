@@ -138,7 +138,7 @@ assert.match(styles,/#intro\.mission-poster\{[\s\S]*overflow:auto/);
 assert.doesNotMatch(styles,/#intro\.mission-poster\{padding:0;overflow:hidden/);
 assert.match(styles,/\.ammo-progress\{display:grid;grid-template-columns:repeat\(12/);
 const briefing=read('src/mission-screen.js').toString('utf8');
-assert.match(briefing,/export const REPORT_BUILD='0\.54\.77'/);
+assert.match(briefing,/export const REPORT_BUILD='0\.54\.78'/);
 assert.match(briefing,/missionBuild\.textContent='v'\+REPORT_BUILD/);
 assert.match(briefing,/\$\('qaStuckLoad'\)\?\.addEventListener/);
 const loadingItems=briefing.match(/LOADING_ITEMS=Object\.freeze\(\[([^\]]+)\]/)?.[1].split(',').filter(Boolean)||[];
