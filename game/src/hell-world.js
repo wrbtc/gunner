@@ -69,13 +69,19 @@ export function createHellWorld({scene,route,centerAt,widthAt}) {
       roughnessFactor=clamp(.76+detail.a*.18+dryAsh*.12-damp*.30,.43,.98);
     `);
     shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
-      // Broad, steady reflected river radiance. Height falloff keeps the rim cool;
-      // upward ground and downward-facing ledges receive different amounts.
-      float bounce=exp(-max(vGeoWorld.y-3.,0.)*.056)*(.10+.20*(1.-abs(geoFacing.y))+.24*max(-geoFacing.y,0.));
-      totalEmissiveRadiance+=vec3(1.23,.245,.028)*bounce*clamp(diffuseColor.rgb*2.,vec3(.10),vec3(.8))*(.83+.17*deposit);
+      // Look-dev: lava bounce stays on the bank lip. Upper walls stay cold rock.
+      float h=max(vGeoWorld.y-1.3,0.);
+      float lip=1.-smoothstep(1.32,11.,wp.y);
+      float spark=exp(-h*.22)*lip;
+      float seam=smoothstep(.55,.92,n2(vec2(wp.z*.11+wp.y*.05,wp.y*.13)));
+      vec3 lavaBounce=vec3(3.4,.55,.07)*spark*(.35+.65*max(-geoFacing.y,0.));
+      lavaBounce+=vec3(4.2,1.05,.12)*pow(seam,1.35)*spark;
+      totalEmissiveRadiance+=lavaBounce;
+      totalEmissiveRadiance+=base*vec3(.05,.049,.052);
+      float bounce=0.; // anchor for hotCrust onBeforeCompile injection
     `);
   };
-  rockMaterial.customProgramCacheKey=()=> 'gunner-050-basalt-vesicles-physical-scale-r1';
+  rockMaterial.customProgramCacheKey=()=> 'gunner-lookdev-cold-wall-lip-r1';
   const charMaterial=rockMaterial.clone();charMaterial.color.setHex(0x676e74);charMaterial.onBeforeCompile=rockMaterial.onBeforeCompile;charMaterial.customProgramCacheKey=rockMaterial.customProgramCacheKey;
   // Protected lower banks keep their v0.4 support coordinates and tessellation.
   // Above the ledge, successive hard flow tops and recessed fracture bands
@@ -251,21 +257,24 @@ export function createHellWorld({scene,route,centerAt,widthAt}) {
       float sky=max(dot(normal,normalize(vec3(-.32,.86,.37))),0.);
       float ridgeLight=.43+.57*sky;
       float cavity=mix(.43,1.,smoothstep(.012,.13,gap));
-      vec3 crust=mix(vec3(.012,.016,.020),vec3(.046,.052,.055),.34+grain*.39+plateId*.19);
-      crust*=ridgeLight*cavity*(.87+.13*detail*pits);
+      vec3 crust=mix(vec3(.03,.026,.024),vec3(.11,.08,.06),.30+grain*.42+plateId*.16);
+      crust*=ridgeLight*cavity*(.85+.15*detail*pits);
+      crust+=vec3(.9,.14,.02)*pow(1.-raft,2.)*parted*.12;
       // Dim warm plate undersides are distinct from exposed liquid. Peak
       // blackbody color is restricted to a minority of the hottest openings.
       float lip=(1.-smoothstep(.055,.145,gap))*parted*(1.-molten);
-      crust+=lip*vec3(.078,.014,.003);
+      crust+=lip*vec3(.22,.04,.006);
+      float pulse=.94+.06*sin(uTime*2.4+metres.y*.04);
       float liquidRope=mix(1.,.48,rope*detail)*(1.-skinRafts*.18);
-      vec3 liquid=mix(vec3(.30,.021,.0015),vec3(2.15,.48,.025),clamp(molten*.83+core*.32,0.,1.));
-      liquid*=liquidRope;
-      float hottest=pow(clamp(core,0.,1.),3.)*smoothstep(.47,.78,grain);
-      liquid+=hottest*vec3(2.8,1.55,.32);
-      float edge=smoothstep(.025,.64,molten);
+      vec3 liquid=mix(vec3(.32,.02,.002),vec3(1.45,.32,.025),clamp(molten*.88+core*.38,0.,1.));
+      liquid*=liquidRope*pulse;
+      float hottest=pow(clamp(core,0.,1.),2.4)*smoothstep(.42,.76,grain);
+      liquid+=hottest*vec3(1.85,.7,.12);
+      float edge=smoothstep(.02,.58,molten);
       vec3 col=mix(crust,liquid,edge);
+      col+=liquid*edge*.1;
       float distanceDetail=1.-smoothstep(.35,1.30,max(length(dFdx(p)),length(dFdy(p))));
-      vec3 farColor=vec3(.023,.027,.030)+opening*vec3(.70,.15,.014);
+      vec3 farColor=vec3(.05,.022,.01)+opening*vec3(1.15,.22,.03)+molten*vec3(.35,.06,.01);
       col=mix(farColor,col,distanceDetail);
       gl_FragColor=vec4(col,1.);
       #include <tonemapping_fragment>
@@ -273,6 +282,26 @@ export function createHellWorld({scene,route,centerAt,widthAt}) {
       }`});
   const lavaPos=[],lavaIdx=[];for(let i=0;i<=280;i++){const p=i/280,c=centerAt(p),w=widthAt(p)-11;lavaPos.push(c.x-w,1.3,c.z,c.x+w,1.3,c.z);}for(let i=0;i<280;i++){const a=i*2;lavaIdx.push(a,a+2,a+1,a+1,a+2,a+3);}
   const lavaGeo=new THREE.BufferGeometry();lavaGeo.setAttribute('position',new THREE.Float32BufferAttribute(lavaPos,3));lavaGeo.setIndex(lavaIdx);lavaGeo.computeVertexNormals();const lava=new THREE.Mesh(lavaGeo,lavaMat);lava.name='Crusted molten river';lava.userData.lavaMaterial=lavaMat;lava.userData.surface='lava';root.add(lava);collisionMeshes.push(lava);
+  // Visual-only bank lip. Not a collider. Same stations as river edge (widthAt-11).
+  const lipMat=new THREE.ShaderMaterial({uniforms:lavaUniforms,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
+    vertexShader:`varying vec2 vUv;varying vec3 vW;void main(){vUv=uv;vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
+    fragmentShader:`varying vec2 vUv;varying vec3 vW;uniform float uTime;${noiseGLSL}
+      void main(){
+        float n=fb(vec2(vW.z*.02+uTime*.18,vUv.y*4.));
+        float climb=pow(1.-vUv.x,1.45);
+        float along=.55+.45*n;
+        float pulse=.88+.12*sin(uTime*2.6+vW.z*.07);
+        float a=climb*along*(1.-smoothstep(.7,1.,vUv.x));
+        vec3 col=mix(vec3(1.55,.28,.03),vec3(2.1,.85,.12),n)*pulse;
+        gl_FragColor=vec4(col,a*.55);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }`});
+  const lipPos=[],lipUv=[],lipIdx=[];
+  for(const side of [-1,1]){const start=lipPos.length/3;for(let i=0;i<=280;i++){const p=i/280,c=centerAt(p),edge=widthAt(p)-11;lipPos.push(c.x+side*edge,1.38,c.z,c.x+side*(edge+2.4),4.15,c.z);lipUv.push(0,p,1,p);}for(let i=0;i<280;i++){const a=start+i*2;if(side===1)lipIdx.push(a,a+2,a+1,a+1,a+2,a+3);else lipIdx.push(a,a+1,a+2,a+1,a+3,a+2);}}
+  const lipGeo=new THREE.BufferGeometry();lipGeo.setAttribute('position',new THREE.Float32BufferAttribute(lipPos,3));lipGeo.setAttribute('uv',new THREE.Float32BufferAttribute(lipUv,2));lipGeo.setIndex(lipIdx);lipGeo.computeBoundingSphere();
+  const bankLip=new THREE.Mesh(lipGeo,lipMat);bankLip.name='lava-bank-lip';bankLip.renderOrder=2;root.add(bankLip);chunks.push(bankLip);
+
   // Visual continuation only: gameplay ends remain inside a longer physical
   // canyon. Every old bank/lava vertex and collider stays in its original place.
   const continuations={length:1800,meshes:[],ends:[],maxTriangles:0};
@@ -310,29 +339,63 @@ export function createHellWorld({scene,route,centerAt,widthAt}) {
   }
   // Falls carry streaked incandescent liquid from rim fractures into the river.
   const fallMat=new THREE.ShaderMaterial({uniforms:lavaUniforms,side:THREE.DoubleSide,transparent:true,depthWrite:false,
-    vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader:`varying vec2 vUv;uniform float uTime;${noiseGLSL}
+    vertexShader:`varying vec2 vUv;varying vec3 vW;uniform float uTime;
       void main(){
-        // vUv.y is cumulative surface distance in metres, including sloping
-        // shelves. Texture motion therefore cannot freeze into rails at bends.
-        float bend=n2(vec2(vUv.y*.23-uTime*.10,11.))-.5;
-        float width=.30+.15*n2(vec2(vUv.y*.41,7.));
-        float edge=1.-smoothstep(width-.11,width,abs(vUv.x-.5+bend*.15));
-        float tears=n2(vec2(vUv.x*17.,vUv.y*.81-uTime*.8));
-        edge*=smoothstep(.07,.30,tears);
-        vec2 current=vec2(vUv.x*7.5+bend*.7,vUv.y*.31-uTime*.95);
-        float molten=fb(current),skin=n2(vec2(vUv.x*15.,vUv.y*.49-uTime*1.2));
-        float crust=smoothstep(.46,.67,n2(vec2(vUv.x*5.3+2.1,vUv.y*.17-uTime*.34)));
-        float heat=smoothstep(.29,.75,molten+.13*skin)*(1.-crust*.94),core=pow(heat,5.);
-        vec3 col=vec3(.025,.015,.010)+heat*vec3(1.14,.13,.004)+core*vec3(.92,.29,.015);
-        col*=.68+.32*skin;
-        gl_FragColor=vec4(col,edge*.98);
+        vUv=uv;vec3 p=position;float across=uv.x-.5;float stream=1.-smoothstep(.06,.4,abs(across));
+        p.y+=sin(uv.y*22.-uTime*2.4)*stream*.18;
+        vec4 w=modelMatrix*vec4(p,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;
+      }`,
+    fragmentShader:`varying vec2 vUv;varying vec3 vW;uniform float uTime;${noiseGLSL}
+      void main(){
+        // vUv.y is 0..1 along the generated plane (river at 0). Crusted core,
+        // braid, and ragged edges replace the old painted ribbon.
+        float x=vUv.x-.5,y=vUv.y,t=uTime;
+        float m1=(fb(vec2(y*1.55-t*.06,2.3))-.5)*.26;
+        float m2=(n2(vec2(y*4.6-t*.17,6.2))-.5)*.1;
+        float center=m1+m2;
+        float fat=mix(.4,.13,smoothstep(0.,.82,y));
+        fat*=.7+.5*n2(vec2(y*2.1,.8));
+        fat=clamp(fat,.06,.48);
+        float d=abs(x-center);
+        float b2=center+(n2(vec2(y*1.25,11.4))-.5)*.2;
+        float fat2=fat*.42*smoothstep(.22,.55,n2(vec2(y*1.05+3.,4.2)));
+        float d2=abs(x-b2);
+        float mask=1.-smoothstep(fat*.5,fat,d);
+        mask=max(mask,(1.-smoothstep(fat2*.45,fat2,d2))*.88);
+        float ragged=n2(vec2((x-center)*20.,y*8.2-t*.55));
+        mask*=smoothstep(.1,.46,ragged+mask*.32);
+        float dry=n2(vec2(y*3.1-t*.22,(x-center)*7.5));
+        mask*=mix(.28,1.,smoothstep(.16,.52,dry));
+        float coreD=min(d/max(fat,.001),d2/max(fat2,.001));
+        float flow=fb(vec2((x-center)*8.4,y*5.2-t*1.45));
+        float ropes=.5+.5*sin(y*28.-t*3.1+(x-center)*14.); ropes*=ropes;
+        float molten=mask*(1.-smoothstep(0.,.58,coreD));
+        molten*=.35+.65*flow; molten*=mix(.7,1.,ropes);
+        float crust=mask*(1.-molten*.82);
+        vec3 col=vec3(.03,.016,.01);
+        col=mix(col,vec3(.1,.04,.014),crust);
+        col+=molten*vec3(1.05,.14,.012);
+        col+=pow(molten*flow,2.1)*vec3(1.55,.42,.05);
+        col+=pow(molten,4.6)*vec3(1.35,.75,.18)*.4;
+        float alpha=smoothstep(.015,.2,mask);
+        gl_FragColor=vec4(col,alpha);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }`});
+  const splashMat=new THREE.ShaderMaterial({uniforms:lavaUniforms,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
+    vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+    fragmentShader:`varying vec2 vUv;uniform float uTime;${noiseGLSL}
+      void main(){
+        vec2 p=vUv-.5;float r=length(p*vec2(1.,1.6));
+        float n=fb(vec2(p.x*6.+uTime*.7,p.y*4.-uTime*1.2));
+        float ring=(1.-smoothstep(.12,.55,r))*smoothstep(.02,.18,r);
+        gl_FragColor=vec4(vec3(1.4,.32,.04)*n,ring*n*.45);
+      }`});
+  const splashGeo=new THREE.PlaneGeometry(6.5,3.2);splashGeo.computeBoundingSphere();
   for(const [p,side] of [[.12,1],[.28,-1],[.43,1],[.60,-1],[.77,1],[.87,-1]]){
     const c=centerAt(p),w=widthAt(p),h=(strata(p,side)-20)*.81+17,geo=new THREE.PlaneGeometry(14,h,8,64),gp=geo.attributes.position,uv=geo.attributes.uv;
     const fallFront=(profile,y)=>{let nearest=Infinity;for(let j=0;j<profile.length-1;j++){const a=profile[j],b=profile[j+1];if(y>=Math.min(a[1],b[1])&&y<=Math.max(a[1],b[1])&&Math.abs(b[1]-a[1])>.01)nearest=Math.min(nearest,THREE.MathUtils.lerp(a[0],b[0],(y-a[1])/(b[1]-a[1])));}return Number.isFinite(nearest)?nearest:profile[0][0];};
+    let baseX=c.x,baseZ=c.z;
     for(let i=0;i<gp.count;i++){
       const u=uv.getX(i),v=uv.getY(i),y=2+h*v,z=c.z+(u-.5)*14+Math.sin(v*6)*1.7;
       const localP=THREE.MathUtils.clamp(p+(c.z-z)/3050,0,1),localC=centerAt(localP);
@@ -343,17 +406,13 @@ export function createHellWorld({scene,route,centerAt,widthAt}) {
       let face=fallFront(profile,y);
       for(let above=y+1.5;above<=2+h;above+=1.5)face=Math.min(face,fallFront(profile,above));
       const fray=(n=>Math.sin(n*2.19)*Math.sin(n*.79))((1-v)*21+u*3)*.13;
-      gp.setXYZ(i,localC.x+side*(face-.85+fray),y,z);
+      const bulge=Math.pow(1-Math.abs(u-.5)*2,2)*1.05;
+      gp.setXYZ(i,localC.x+side*(face-.85+fray-bulge),y,z);
+      if(v<.02&&Math.abs(u-.5)<.08){baseX=localC.x+side*(face-1.4);baseZ=z;}
     }
-    // The generated plane is row-major from the high fissure to the river.
-    // Accumulate each strip's actual 3D distance so horizontal shelves receive
-    // the same material scale as vertical falls; UV x still spans the width.
-    for(let column=0;column<9;column++){
-      let distance=0;
-      for(let row=0;row<65;row++){const i=row*9+column;if(row){const prev=i-9;distance+=Math.hypot(gp.getX(i)-gp.getX(prev),gp.getY(i)-gp.getY(prev),gp.getZ(i)-gp.getZ(prev));}uv.setY(i,distance);}
-    }
-    uv.needsUpdate=true;
-    geo.computeVertexNormals();geo.computeBoundingSphere();const m=new THREE.Mesh(geo,fallMat);m.name=`Wall-seated molten cascade ${p}`;root.add(m);chunks.push(m);
+    geo.computeVertexNormals();geo.computeBoundingSphere();const m=new THREE.Mesh(geo,fallMat);m.name=`Wall-seated molten cascade ${p}`;m.renderOrder=2;root.add(m);chunks.push(m);
+    const splash=new THREE.Mesh(splashGeo,splashMat);splash.name=`Fall splash ${p}`;splash.position.set(baseX,1.48,baseZ);splash.rotation.x=-1.05;splash.renderOrder=3;splash.frustumCulled=false;root.add(splash);chunks.push(splash);
+    void w;
   }
   // Sparse scanned faces provide natural fracture silhouettes at the major
   // route reveals. Each open scan now has a full perimeter rock haunch and
