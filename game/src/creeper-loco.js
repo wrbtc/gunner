@@ -140,12 +140,12 @@ export function loadCreeperLoco(){
     pending = Promise.all([
       loadNamed(loader, MESHY_WALK),
       loadNamed(loader, MESHY_EXTRA),
+      loadNamed(loader, MESHY_THROW),
       loadNamed(loader, MESHY_RUN).catch(() => null),
-      loadNamed(loader, MESHY_THROW).catch(() => null),
-    ]).then(([walkGltf, extraGltf, runGltf, throwGltf]) => {
+    ]).then(([walkGltf, extraGltf, throwGltf, runGltf]) => {
       const walkLayout = prepareScene(walkGltf.scene, MESHY_WALK);
       const extraLayout = prepareScene(extraGltf.scene, MESHY_EXTRA);
-      const throwLayout = throwGltf ? prepareScene(throwGltf.scene, MESHY_THROW) : null;
+      const throwLayout = prepareScene(throwGltf.scene, MESHY_THROW);
       if (runGltf) prepareScene(runGltf.scene, MESHY_RUN);
       const walkClip = clipNamed(walkGltf.animations, MESHY_CLIPS.walk);
       const runClip = runGltf ? longestClip(runGltf.animations) : walkClip;
@@ -155,7 +155,7 @@ export function loadCreeperLoco(){
         climb: clipNamed(extraGltf.animations, MESHY_CLIPS.climb),
         climbDown: clipNamed(extraGltf.animations, MESHY_CLIPS.climbDown),
         stomp: clipNamed(extraGltf.animations, MESHY_CLIPS.stomp),
-        throw: throwGltf ? longestClip(throwGltf.animations) : null,
+        throw: longestClip(throwGltf.animations),
       };
       return {
         stats: walkLayout.stats,
@@ -170,10 +170,8 @@ export function loadCreeperLoco(){
             climb: {scene: extraGltf.scene, layout: extraLayout, clip: clips.climb},
             climbDown: {scene: extraGltf.scene, layout: extraLayout, clip: clips.climbDown},
             stomp: {scene: extraGltf.scene, layout: extraLayout, clip: clips.stomp},
+            throw: {scene: throwGltf.scene, layout: throwLayout, clip: clips.throw},
           };
-          if (clips.throw && throwGltf){
-            group.throw = {scene: throwGltf.scene, layout: throwLayout, clip: clips.throw};
-          }
           const visuals = new Map();
           let current = null;
           let mixer = null;

@@ -60,7 +60,7 @@ export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=nu
  for(let i=0;i<40;i++){
   const side=i%2?1:-1,p=.072+Math.floor(i/2)*.044,c=centerAt(p),root=new THREE.Group();scene.add(root);root.name=`Ashborn ${i}`;
   const chunk=Math.floor(p*18),banks=bankMeshes.filter(m=>m.name.startsWith(`bank-${side}-`)&&Math.abs(Number(m.name.split('-').at(-1))-chunk)<=1);
-  const climb=i%4<2,a={id:`ashborn-${i}`,role:'ashborn',temperament:i%5<2?'hunter':'roamer',attackStyle:i%5===0?'rapid':'expressive',moveRate:i%5===0?1.85:1,windupSeconds:i%5===0?.82:1.65,attention:0,root,p,side,centerX:c.x,z:c.z+(i%3-1)*5,banks,climb,initialPhase:i*2.399963,phase:i*2.399963,hp:585,radius:3.4,dead:false,credited:false,commitment:false,state:'idle',timer:1+(i%7)*.31,hitFlash:0,scale:.95+(i%5)*.055,throwOrigin:V(),throat:new THREE.Object3D(),track:[],climbTime:0,motionClock:0,gaitPhase:0,lastPoseTime:0,speed:0,bankPath:[],previousPosition:null};
+  const climb=i%4<2,a={id:`ashborn-${i}`,role:'ashborn',temperament:i%5<2?'hunter':'roamer',attackStyle:i%5===0?'rapid':'expressive',moveRate:i%5===0?1.85:1,windupSeconds:2.9,attention:0,root,p,side,centerX:c.x,z:c.z+(i%3-1)*5,banks,climb,initialPhase:i*2.399963,phase:i*2.399963,hp:585,radius:3.4,dead:false,credited:false,commitment:false,state:'idle',timer:1+(i%7)*.31,hitFlash:0,scale:.95+(i%5)*.055,throwOrigin:V(),throat:new THREE.Object3D(),track:[],climbTime:0,motionClock:0,gaitPhase:0,lastPoseTime:0,speed:0,bankPath:[],previousPosition:null};
 
   const x=c.x+side*(widthAt(p)-2);ray.set(V(x,170,a.z),V(0,-1,0));const ground=ray.intersectObjects(banks,false)[0];a.stand=V(x,ground?ground.point.y+.10:16,a.z);a.baseY=a.stand.y;
   if(!climb)for(let j=0;j<=64;j++){const z=a.z-18+j*36/64,x=a.stand.x+Math.sin(j/64*Math.PI*2+a.initialPhase)*1.6;ray.set(V(x,170,z),V(0,-1,0));const hit=ray.intersectObjects(banks,false)[0];a.bankPath.push(hit?hit.point.clone().add(V(0,.10,0)):a.stand.clone());}
@@ -198,7 +198,9 @@ export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=nu
   for(const a of locoNear){
    pose(a,time,-1);a.locoVisual.root.visible=true;
    const rate=a.climb?Math.min(1.35,.55+a.moveRate*.22):Math.min(1.45,.4+Math.min(a.speed||0,5)*.18);
-   a.locoVisual.play(a.climb?'climb':'walk',dt,rate);locoVisible++;
+   const kind=(a.state==='windup'||a.state==='cooldown')?'throw':a.climb?'climb':'walk';
+   a.locoVisual.play(kind,dt,kind==='throw'?1:rate);locoVisible++;
+   if(kind==='throw')a.locoVisual.throwingHandWorld(a.throwOrigin);
   }
   for(const p of Object.values(parts)){p.count=visible;p.instanceMatrix.needsUpdate=true;if(p.instanceColor)p.instanceColor.needsUpdate=true;p.geometry.attributes.emberAmount.needsUpdate=true;p.geometry.attributes.hitAmount.needsUpdate=true;}
  }

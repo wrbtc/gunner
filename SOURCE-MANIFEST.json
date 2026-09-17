@@ -1,5 +1,5 @@
 {
-  "version": "0.54.81",
+  "version": "0.54.82",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -18,8 +18,8 @@
     },
     {
       "path": "game/assets/CREEPER-MESHY-LOCO.md",
-      "bytes": 873,
-      "sha256": "70a2f19bc165b45c425410520126d4a7a6974e8484a9d13c9a0d0a14f0fcd770"
+      "bytes": 1135,
+      "sha256": "4619d361e7d75860e7dcd1452108de3c98b73135e19553808f5c35b3013cf1fb"
     },
     {
       "path": "game/assets/EGG-SOLIDS.md",
@@ -110,6 +110,11 @@
       "path": "game/assets/creeper-meshy-extra.glb",
       "bytes": 5834196,
       "sha256": "3865d85e1eaed7cc9564541c817627d9f7eec44a0a529866b273d0f418d6ff1d"
+    },
+    {
+      "path": "game/assets/creeper-meshy-throw.glb",
+      "bytes": 3484224,
+      "sha256": "73e2a6c1ee0e62dde0d51707e4757c43394b319d4fb6f049324fd9ff6d4a083f"
     },
     {
       "path": "game/assets/creeper-meshy-walk.glb",
@@ -309,7 +314,7 @@
     {
       "path": "game/main.js",
       "bytes": 160479,
-      "sha256": "6cefd3a6e90b7d612c6a7f9a89294578a9dd2a9d456e6e80f9b67af5c6829006"
+      "sha256": "5cb9d110d2d3971b45a4dc43b302356aafa5697615371183b09e175733496caa"
     },
     {
       "path": "game/mobile-entry.js",
@@ -353,8 +358,8 @@
     },
     {
       "path": "game/src/bank-demons.js",
-      "bytes": 26889,
-      "sha256": "50e06d49950b5c44061c2d05e946164615870361246669a88c3e9076f32fe52e"
+      "bytes": 27032,
+      "sha256": "3c366b76a8e1aeabb2e7b275d9a385c0fd1a0d82acba528a3f2b98992cf0c7fc"
     },
     {
       "path": "game/src/basalt-detail.js",
@@ -423,8 +428,8 @@
     },
     {
       "path": "game/src/creeper-loco.js",
-      "bytes": 10122,
-      "sha256": "a85084ae287c7854c8f5a2f2ffa140c6122989cfb6c328a224b39a95601fc050"
+      "bytes": 10006,
+      "sha256": "e86122c24d486ceb71ea9039fe55d05ff5efd2e5c971014ceabccd47b45926fd"
     },
     {
       "path": "game/src/dance-circle.js",
@@ -524,7 +529,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26940,
-      "sha256": "9420c3b5d61034adb0f6bea79460cd813babb8a3b42eca17d5605a52e90a5a14"
+      "sha256": "90ed81bdabea43ded28022497e527eacb99b2fe8298454eec219656b3ae0b1b0"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -722,5 +727,5 @@
       "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495"
     }
   ],
-  "note": "Gunner v0.54.81 is a Field Guide-first identity with VIEW 3D presentation solids. Card first paint withholds the prior identification stills and shows a branded preparing tile until the museum thumb lands. Every specimen uses a height-fit museum crop so the subject fills the card; thumbs and VIEW 3D share that framing. Cinder Maw is framed huge and close; Dragon A faces the camera for a front intimidation shot. Horizontal drag turns a specimen; vertical drag repositions it within bounded view space, and RESET VIEW restores position, rotation and 100% zoom. Rimmers use game/assets/rimmer-skinned-solid.glb (1153368 bytes, sha256 1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456). Plasma uses game/assets/plasma-bug-skinned-solid.glb (1135104 bytes, sha256 127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f). Ember Hollow uses game/assets/creeper-ember-hollow.glb (1091768 bytes, sha256 25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe; EmberArmature; ember_idle default and ember_walk available); reject the 4803580-byte SOLID pack sha256 085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f. Dragon A is included as a lazy static Field Guide specimen at game/assets/dragon-fg-a.glb (64020728 bytes, sha256 38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27); it has no rig or animation clips and does not retarget live sky dragons. Cinder Maw Field Notes uses the repaired game/assets/field-notes-v02/cinder-maw-fieldnotes-v02.glb (1483396 bytes, sha256 2a829abf1fbb8419c8f0081ecedeeeddc7a3d6adc922f6a21108148ba4f53c52; TankArmature; cinder_idle, cinder_jaw_inspect and cinder_weight_shift). Dancing Creepers use the approved Vein Anunnaki solid game/assets/vein-ascetic-skinned.glb (1908316 bytes, sha256 9d67a8c5fcdc4a5d8bbbdbae9f428e87a963a978682c0e572f62af28567e495e; VeinArmature; ritual_idle default and ritual_walk available); reject draft vein-ascetic-skinned-draft.glb sha256 3b3dc30a3ae7dafe87b82932f37c1c371fcbce7a0db4f6491dff494e6b05bce4 / 2502928. Field Notes Intact egg assembles game/assets/egg-shell-a.glb (817236 bytes, sha256 368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2) with the rigged larva game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb (1075680 bytes, sha256 344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96; MaggotArmature; maggot_wriggle) behind a leathery window, keeps an opaque sac base, and holds the maggot fully inside the membrane. The Shell specimen stays shell-only. The original static live-nest source remains identified for provenance as game/assets/egg-maggot-a.glb (732684 bytes, sha256 3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127); it is not replaced by the Field Notes larva. Gameplay and world meshes stay on the v0.54.60 path: lava loco game/assets/creeper-lava-loco-003.glb (9840676 bytes, sha256 e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5), procedural rimmers/plasma, live Cinder Maw tanks, live nests, orange-spirit dancers and sky dragons. Soft-GPU stays off and prefers-reduced-motion still quiets flash and camera motion. Performance T1 disables redundant browser-canvas MSAA while retaining the four-sample HDR world target, rests heavyweight world update/presentation work after the opaque title poster is first presented, resumes world presentation on deploy/reset/WebGL recovery while holding the title canvas under Field Guide and settings, uncouples cosmetic rank portraits from required Cinder, and reuses selected render-loop vectors. Do not land morph creeper hashes 75ddc18f / a2ac5ebb / 1c10edf7 / 45123f4c / 9cd194e6 / a9dcb2b6. Field Guide card first paint withholds the prior identification stills, shows a preparing tile, and waits for the VIEW 3D museum thumb. Do not treat 0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59, 0.54.60, 0.54.61, 0.54.62, 0.54.63, 0.54.64, 0.54.65, 0.54.66, 0.54.67, 0.54.68, 0.54.69, 0.54.70, 0.54.78 or 0.54.79 as this identity. Gunner v0.54.81 keeps the brighter crusted lava river, braided wall falls, visual-only bank lips and fall splashes, then collapses most cooling-skin rafts into one dark field so only a thin minority stay visible. River collision, Poly Haven geology, and shader family stay as in 0.54.78. Bank lips reuse the established river material and splash geometry reuses the fall material, so the look adds no new shader family during cold-start preparation. Physical Intel Safari combat acceptance remains pending. Combat bank walkers and climbers now load game/assets/creeper-meshy-walk.glb (3305960 bytes, sha256 2685d12783e4ae3afb055262fcc9beebf84b71033a7f127128e90d947293c840) and game/assets/creeper-meshy-extra.glb (5834196 bytes, sha256 3865d85e1eaed7cc9564541c817627d9f7eec44a0a529866b273d0f418d6ff1d); emissive is zeroed on load; TARGET_HEIGHT stays 6.15; collision hull unchanged. Dancing creepers and Field Notes museum solids are unchanged. creeper-lava-loco-003.glb remains in tree unused by the combat loader. Do not treat 0.54.80 as this identity."
+  "note": "Gunner v0.54.82 is a Field Guide-first identity with VIEW 3D presentation solids. Card first paint withholds the prior identification stills and shows a branded preparing tile until the museum thumb lands. Every specimen uses a height-fit museum crop so the subject fills the card; thumbs and VIEW 3D share that framing. Cinder Maw is framed huge and close; Dragon A faces the camera for a front intimidation shot. Horizontal drag turns a specimen; vertical drag repositions it within bounded view space, and RESET VIEW restores position, rotation and 100% zoom. Rimmers use game/assets/rimmer-skinned-solid.glb (1153368 bytes, sha256 1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456). Plasma uses game/assets/plasma-bug-skinned-solid.glb (1135104 bytes, sha256 127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f). Ember Hollow uses game/assets/creeper-ember-hollow.glb (1091768 bytes, sha256 25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe; EmberArmature; ember_idle default and ember_walk available); reject the 4803580-byte SOLID pack sha256 085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f. Dragon A is included as a lazy static Field Guide specimen at game/assets/dragon-fg-a.glb (64020728 bytes, sha256 38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27); it has no rig or animation clips and does not retarget live sky dragons. Cinder Maw Field Notes uses the repaired game/assets/field-notes-v02/cinder-maw-fieldnotes-v02.glb (1483396 bytes, sha256 2a829abf1fbb8419c8f0081ecedeeeddc7a3d6adc922f6a21108148ba4f53c52; TankArmature; cinder_idle, cinder_jaw_inspect and cinder_weight_shift). Dancing Creepers use the approved Vein Anunnaki solid game/assets/vein-ascetic-skinned.glb (1908316 bytes, sha256 9d67a8c5fcdc4a5d8bbbdbae9f428e87a963a978682c0e572f62af28567e495e; VeinArmature; ritual_idle default and ritual_walk available); reject draft vein-ascetic-skinned-draft.glb sha256 3b3dc30a3ae7dafe87b82932f37c1c371fcbce7a0db4f6491dff494e6b05bce4 / 2502928. Field Notes Intact egg assembles game/assets/egg-shell-a.glb (817236 bytes, sha256 368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2) with the rigged larva game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb (1075680 bytes, sha256 344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96; MaggotArmature; maggot_wriggle) behind a leathery window, keeps an opaque sac base, and holds the maggot fully inside the membrane. The Shell specimen stays shell-only. The original static live-nest source remains identified for provenance as game/assets/egg-maggot-a.glb (732684 bytes, sha256 3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127); it is not replaced by the Field Notes larva. Gameplay and world meshes stay on the v0.54.60 path: lava loco game/assets/creeper-lava-loco-003.glb (9840676 bytes, sha256 e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5), procedural rimmers/plasma, live Cinder Maw tanks, live nests, orange-spirit dancers and sky dragons. Soft-GPU stays off and prefers-reduced-motion still quiets flash and camera motion. Performance T1 disables redundant browser-canvas MSAA while retaining the four-sample HDR world target, rests heavyweight world update/presentation work after the opaque title poster is first presented, resumes world presentation on deploy/reset/WebGL recovery while holding the title canvas under Field Guide and settings, uncouples cosmetic rank portraits from required Cinder, and reuses selected render-loop vectors. Do not land morph creeper hashes 75ddc18f / a2ac5ebb / 1c10edf7 / 45123f4c / 9cd194e6 / a9dcb2b6. Field Guide card first paint withholds the prior identification stills, shows a preparing tile, and waits for the VIEW 3D museum thumb. Do not treat 0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59, 0.54.60, 0.54.61, 0.54.62, 0.54.63, 0.54.64, 0.54.65, 0.54.66, 0.54.67, 0.54.68, 0.54.69, 0.54.70, 0.54.78 or 0.54.79 as this identity. Gunner v0.54.81 keeps the brighter crusted lava river, braided wall falls, visual-only bank lips and fall splashes, then collapses most cooling-skin rafts into one dark field so only a thin minority stay visible. River collision, Poly Haven geology, and shader family stay as in 0.54.78. Bank lips reuse the established river material and splash geometry reuses the fall material, so the look adds no new shader family during cold-start preparation. Physical Intel Safari combat acceptance remains pending. Combat bank walkers and climbers now load game/assets/creeper-meshy-walk.glb (3305960 bytes, sha256 2685d12783e4ae3afb055262fcc9beebf84b71033a7f127128e90d947293c840) and game/assets/creeper-meshy-extra.glb (5834196 bytes, sha256 3865d85e1eaed7cc9564541c817627d9f7eec44a0a529866b273d0f418d6ff1d); emissive is zeroed on load; TARGET_HEIGHT stays 6.15; collision hull unchanged. Dancing creepers and Field Notes museum solids are unchanged. creeper-lava-loco-003.glb remains in tree unused by the combat loader.  Combat throw now loads game/assets/creeper-meshy-throw.glb (3484224 bytes, sha256 73e2a6c1ee0e62dde0d51707e4757c43394b319d4fb6f049324fd9ff6d4a083f); mud leaves RightHand at 2.90s and hunter windup is 2.9s. Run remains optional. Do not treat 0.54.80 or 0.54.81 as this identity."
 }
