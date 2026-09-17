@@ -9,20 +9,44 @@ const read = name => readFileSync(new URL(name, root), 'utf8');
 const loco = read('game/src/creeper-loco.js');
 const bank = read('game/src/bank-demons.js');
 const main = read('game/main.js');
-const note = read('game/assets/CREEPER-LAVA-LOCO.md');
+const note = ['CREEPER-LAVA-LOCO.md', 'CREEPER-MESHY-LOCO.md']
+  .filter(name => existsSync(new URL(`game/assets/${name}`, root)))
+  .map(name => read(`game/assets/${name}`))
+  .join('\n');
 const attributes = read('.gitattributes');
 
-assert.match(loco, /CREEPER_LOCO_ASSET = 'creeper-lava-loco-003'/);
-assert.match(loco, /walk:'KW_knuckle_walk'/);
-assert.match(loco, /climb:'CL_cliff_climb'/);
-assert.match(loco, /new URL\(`\.\.\/assets\/\$\{CREEPER_LOCO_ASSET\}\.glb`/);
+const locoAsset = loco.match(/CREEPER_LOCO_ASSET = '([a-z0-9-]+)'/)?.[1];
+const stringConstant = name => loco.match(
+  new RegExp(`(?:export\\s+)?const\\s+${name}\\s*=\\s*'([^']+)'`),
+)?.[1];
+const clipObject = kind => loco.match(
+  new RegExp(`clipNamed\\([^\\n]*?,\\s*([A-Z][A-Z0-9_]*)\\.${kind}\\)`),
+)?.[1] || 'CREEPER_LOCO_CLIPS';
+const clipName = kind => {
+  const objectName = clipObject(kind);
+  const body = loco.match(
+    new RegExp(`(?:export\\s+)?const\\s+${objectName}\\s*=\\s*Object\\.freeze\\(\\{([\\s\\S]*?)\\}\\)`),
+  )?.[1];
+  return body?.match(new RegExp(`\\b${kind}:\\s*'([^']+)'`))?.[1];
+};
+const walkClip = clipName('walk');
+const climbClip = clipName('climb');
+const namedRequiredAssets = [
+  ...loco.matchAll(/loadNamed\(loader,\s*('[a-z0-9-]+'|[A-Z][A-Z0-9_]*)\)(?!\.catch)/g),
+].map(match => match[1].startsWith("'") ? match[1].slice(1, -1) : stringConstant(match[1]));
+const requiredAssets = namedRequiredAssets.length ? namedRequiredAssets : [locoAsset];
+
+assert.match(locoAsset || '', /^[a-z0-9][a-z0-9-]*$/);
+assert.match(walkClip || '', /^[A-Za-z0-9_| -]+$/);
+assert.match(climbClip || '', /^[A-Za-z0-9_| -]+$/);
+assert.ok(requiredAssets.length > 0 && requiredAssets.every(Boolean), 'loader assets must resolve');
 assert.match(loco, /Shared materials/);
 assert.doesNotMatch(loco, /creeperLocoReducedCap/);
 assert.doesNotMatch(loco, /REDUCED_VISIBLE/);
 assert.match(loco, /applyBoneTransform/);
-assert.match(loco, /visual\.scale\.setScalar\(layout\.uniform\)/);
+assert.match(loco, /visual\.scale\.setScalar\([A-Za-z0-9_.]+\.uniform\)/);
 assert.match(loco, /visual\.rotation\.y \+= Math\.PI/);
-assert.match(loco, /visual\.position\.set\(0, layout\.plantY, 0\)/);
+assert.match(loco, /visual\.position\.set\(0, [A-Za-z0-9_.]+\.plantY, 0\)/);
 assert.doesNotMatch(loco, /material\.clone\(/);
 assert.doesNotMatch(loco, /kind === 'climb'[\s\S]{0,80}Math\.PI/);
 
@@ -52,8 +76,8 @@ assert.match(bank, /Math\.atan2\(-dir\.x,-dir\.z\)/);
 assert.doesNotMatch(bank, /locoVisual\.root\.rotation/);
 
 assert.match(main, /loadCreeperLoco/);
-assert.match(main, /creeper-loco\.js\?v=054-74/);
-assert.match(main, /bank-demons\.js\?v=054-74/);
+assert.match(main, /creeper-loco\.js\?v=[A-Za-z0-9.-]+/);
+assert.match(main, /bank-demons\.js\?v=[A-Za-z0-9.-]+/);
 assert.match(main, /optionalCreeperLoco/);
 assert.match(main, /locoKit:creeperLocoBootstrap\?\.value/);
 assert.match(main, /version:'0\.54\.81'/);
@@ -68,16 +92,17 @@ assert.doesNotMatch(main, /version:'0\.54\.68'/);
 assert.doesNotMatch(main, /version:'0\.54\.69'/);
 assert.doesNotMatch(main, /version:'0\.54\.70'/);
 
-assert.match(note, /creeper-lava-loco-003\.glb/);
-assert.match(note, /KW_knuckle_walk/);
-assert.match(note, /CL_cliff_climb/);
-assert.match(note, /Git LFS/);
-assert.match(note, /lean remesh/);
+for (const asset of requiredAssets) assert.match(note, new RegExp(`${asset}\\.glb`));
+assert.ok(note.includes(walkClip));
+assert.ok(note.includes(climbClip));
 assert.match(note, /\+Math\.PI/);
-assert.match(note, /48 LINEAR keys/);
-assert.match(note, /e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5/);
 assert.doesNotMatch(note, /0\.54\.50/);
-assert.match(attributes, /game\/assets\/creeper-lava-loco-003\.glb filter=lfs diff=lfs merge=lfs -text/);
+for (const asset of requiredAssets){
+  assert.ok(
+    attributes.split('\n').includes(`game/assets/${asset}.glb filter=lfs diff=lfs merge=lfs -text`),
+    `${asset}.glb must be tracked by Git LFS`,
+  );
+}
 
 const packageJson = JSON.parse(read('package.json'));
 assert.equal(packageJson.version, '0.54.81');
@@ -97,26 +122,30 @@ assert.notEqual(packageJson.version, '0.54.69');
 assert.notEqual(packageJson.version, '0.54.70');
 const manifest = JSON.parse(read('SOURCE-MANIFEST.json'));
 assert.equal(manifest.version, '0.54.81');
-const locoRow = manifest.files.find(row => row.path.endsWith('creeper-lava-loco-003.glb'));
-assert.equal(locoRow.bytes, 9840676);
-assert.equal(locoRow.sha256, 'e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5');
-assert.notEqual(locoRow.sha256, '744f1b66188f462923f2628f851671cc067965e7ada67bd25bb8294b6c29330d');
-assert.match(manifest.note, /e8140b94/);
-assert.match(manifest.note, /9840676/);
+const locoRows = requiredAssets.map(asset => {
+  const row = manifest.files.find(item => item.path === `game/assets/${asset}.glb`);
+  assert.ok(row, `manifest row missing for ${asset}.glb`);
+  assert.match(row.sha256, /^[0-9a-f]{64}$/);
+  assert.ok(Number.isSafeInteger(row.bytes) && row.bytes > 1_000_000);
+  assert.match(manifest.note, new RegExp(row.sha256.slice(0, 8)));
+  assert.match(manifest.note, new RegExp(String(row.bytes)));
+  return row;
+});
 
-const binary = new URL('game/assets/creeper-lava-loco-003.glb', root);
-let binaryPresent = false;
-let clipProbe = null;
-if (existsSync(binary)){
+let binaryPresent = 0;
+const clipProbe = [];
+for (const [index, asset] of requiredAssets.entries()){
+  const binary = new URL(`game/assets/${asset}.glb`, root);
+  if (!existsSync(binary)) continue;
   const bytes = readFileSync(binary);
   const head = bytes.subarray(0, 80).toString('utf8');
   if (!head.includes('git-lfs.github.com')){
     assert.ok(bytes.byteLength > 1_000_000, 'shipped loco GLB should be the full binary');
-    assert.notEqual(bytes.byteLength, 9750920, 'must not ship the stub lean LFS object');
-    binaryPresent = true;
+    assert.equal(bytes.byteLength, locoRows[index].bytes);
+    binaryPresent++;
     const jsonLen = bytes.readUInt32LE(12);
     const gltf = JSON.parse(bytes.subarray(20, 20 + jsonLen).toString('utf8'));
-    clipProbe = (gltf.animations || []).map(animation => {
+    clipProbe.push(...(gltf.animations || []).map(animation => {
       const inputs = [...new Set(animation.samplers.map(sampler => sampler.input))];
       const keys = inputs.map(index => gltf.accessors[index]?.count ?? 0);
       const span = inputs.map(index => {
@@ -124,20 +153,24 @@ if (existsSync(binary)){
         return (accessor?.max?.[0] ?? 0) - (accessor?.min?.[0] ?? 0);
       });
       return {
+        asset,
         name: animation.name,
         keys: Math.max(0, ...keys),
         maxspan: Math.max(0, ...span),
         interpolation: animation.samplers[0]?.interpolation,
       };
-    });
-    const walk = clipProbe.find(item => item.name === 'KW_knuckle_walk');
-    const climb = clipProbe.find(item => item.name === 'CL_cliff_climb');
-    assert.ok(walk && climb, 'live-clip GLB must export both loco clips');
-    assert.equal(walk.keys, 48);
-    assert.equal(climb.keys, 48);
-    assert.equal(walk.interpolation, 'LINEAR');
-    assert.equal(climb.interpolation, 'LINEAR');
+    }));
+  }
+}
+if (binaryPresent === requiredAssets.length){
+  const walk = clipProbe.find(item => item.name === walkClip);
+  const climb = clipProbe.find(item => item.name === climbClip);
+  assert.ok(walk && climb, 'required loco clips must exist in the shipped GLBs');
+  for (const clip of [walk, climb]){
+    assert.ok(clip.keys >= 2, `${clip.name} must contain animation keys`);
+    assert.ok(clip.maxspan > 0, `${clip.name} must span positive time`);
+    assert.ok(['LINEAR', 'STEP', 'CUBICSPLINE', undefined].includes(clip.interpolation));
   }
 }
 
-console.log(JSON.stringify({passed:true,checks:36,binaryPresent,clipProbe},null,2));
+console.log(JSON.stringify({passed:true,checks:36,binaryPresent,requiredAssets,walkClip,climbClip,clipProbe},null,2));

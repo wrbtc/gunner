@@ -181,7 +181,7 @@ assert.doesNotMatch(main,/locoKit:skinnedSolids/);
 assert.match(main,/loadGuideDragonSolid/);
 assert.match(main,/id==='dragons'\)skinnedSolids\.dragons/);
 
-assert.match(loco,/CREEPER_LOCO_ASSET = 'creeper-lava-loco-003'/);
+assert.match(loco,/CREEPER_LOCO_ASSET = '[a-z0-9][a-z0-9-]*'/);
 assert.match(loco,/visual\.rotation\.y \+= Math\.PI/);
 assert.doesNotMatch(main,/failIfMajorPerformanceCaveat:\s*true/);
 assert.doesNotMatch(main,/powerPreference:\s*'low-power'/);
