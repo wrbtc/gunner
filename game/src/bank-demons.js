@@ -199,8 +199,9 @@ export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=nu
    pose(a,time,-1);a.locoVisual.root.visible=true;
    const rate=a.climb?Math.min(1.35,.55+a.moveRate*.22):Math.min(1.45,.4+Math.min(a.speed||0,5)*.18);
    const kind=(a.state==='windup'||a.state==='cooldown')?'throw':a.climb?'climb':'walk';
-   a.locoVisual.play(kind,dt,kind==='throw'?1:rate);locoVisible++;
-   if(kind==='throw')a.locoVisual.throwingHandWorld(a.throwOrigin);
+   const loco=kind==='walk'&&((a.speed||0)>10||a.moveRate>1.2)?'run':kind;
+   a.locoVisual.play(loco,dt,loco==='throw'?1:rate);locoVisible++;
+   if(loco==='throw')a.locoVisual.throwingHandWorld(a.throwOrigin);
   }
   for(const p of Object.values(parts)){p.count=visible;p.instanceMatrix.needsUpdate=true;if(p.instanceColor)p.instanceColor.needsUpdate=true;p.geometry.attributes.emberAmount.needsUpdate=true;p.geometry.attributes.hitAmount.needsUpdate=true;}
  }

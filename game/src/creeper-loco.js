@@ -141,14 +141,14 @@ export function loadCreeperLoco(){
       loadNamed(loader, MESHY_WALK),
       loadNamed(loader, MESHY_EXTRA),
       loadNamed(loader, MESHY_THROW),
-      loadNamed(loader, MESHY_RUN).catch(() => null),
+      loadNamed(loader, MESHY_RUN),
     ]).then(([walkGltf, extraGltf, throwGltf, runGltf]) => {
       const walkLayout = prepareScene(walkGltf.scene, MESHY_WALK);
       const extraLayout = prepareScene(extraGltf.scene, MESHY_EXTRA);
       const throwLayout = prepareScene(throwGltf.scene, MESHY_THROW);
-      if (runGltf) prepareScene(runGltf.scene, MESHY_RUN);
+      prepareScene(runGltf.scene, MESHY_RUN);
       const walkClip = clipNamed(walkGltf.animations, MESHY_CLIPS.walk);
-      const runClip = runGltf ? longestClip(runGltf.animations) : walkClip;
+      const runClip = longestClip(runGltf.animations);
       const clips = {
         walk: walkClip,
         run: runClip,
