@@ -19,9 +19,9 @@ const plasmaProvenance=JSON.parse(read('game/assets/field-guide/PLASMA-PROVENANC
 const dragonProvenance=JSON.parse(read('game/assets/field-guide/DRAGON-PROVENANCE.json'));
 const dragonPortrait=readFileSync(new URL('game/assets/field-guide/dragons.png',root));
 
-assert.equal(packageJson.version,'0.54.83');
-assert.match(briefing,/export const REPORT_BUILD='0\.54\.83'/);
-assert.match(main,/version:'0\.54\.83'/);
+assert.equal(packageJson.version,'0.54.84');
+assert.match(briefing,/export const REPORT_BUILD='0\.54\.84'/);
+assert.match(main,/version:'0\.54\.84'/);
 assert.doesNotMatch(briefing,/0\.54\.52/);
 assert.doesNotMatch(briefing,/0\.54\.53/);
 assert.doesNotMatch(briefing,/0\.54\.57/);
@@ -66,7 +66,7 @@ assert.match(briefing,/\?v=054-74/);
 assert.match(briefing,/id==='queen'\)portrait\.dataset\.src='\.\/assets\/field-guide\/queen\.png\?v=054-74'/);
 assert.match(briefing,/dataset\.guidePending='true'/);
 assert.match(briefing,/mark\.setAttribute\('aria-busy','true'\)/);
-assert.match(briefing,/field-guide-viewer\.js\?v=054-74/);
+assert.match(briefing,/field-guide-viewer\.js\?v=054-84/);
 assert.match(briefing,/!img\.getAttribute\('src'\)&&img\.dataset\.src/);
 assert.doesNotMatch(briefing,/field-guide\/'\+id/);
 assert.doesNotMatch(briefing,/creepers\.png|dancers\.png|eggs\.png|rimmers\.png|plasma\.png|dragons\.png|tanks\.jpg/);
@@ -260,4 +260,4 @@ assert.match(read('game/styles.css'),/img\[data-model-ready=true\]\{filter:none;
 assert.doesNotMatch(main,/createTankerBugsAsync\([\s\S]{0,400}solid/);
 assert.doesNotMatch(main,/createBankDemons\([^)]*skinnedSolids/);
 
-console.log(JSON.stringify({passed:true,identity:'0.54.83',imageSHA256:imageHash},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.84',imageSHA256:imageHash},null,2));

@@ -1,5 +1,5 @@
 {
-  "version": "0.54.83",
+  "version": "0.54.84",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -314,17 +314,17 @@
     {
       "path": "game/index.html",
       "bytes": 13333,
-      "sha256": "135ebe062e7bd728d75e1e00549fa19e78d9824e2d0a91cfb676770beed96be2"
+      "sha256": "109367ce48a20ffd4577335e5386c824c6a1121e692c8b634f59b73b92896fdc"
     },
     {
       "path": "game/main.js",
       "bytes": 160479,
-      "sha256": "c0f712b23b5c6bbf74233d8b61c80c49fb74136680d8846dfea47685aa049055"
+      "sha256": "ff2d12eb129dd00f104c7bc7d94e31c6b63cbeb413fd3e56c36e9fc7ab27bb26"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "00281022056e9dc4c96d4485476bebdc92a1ea772c541ab49c6ad4487c874c36"
+      "sha256": "46f418ea56c85182684910ee33eae70854ef2fae284b37e4fdb3618abe18e6d0"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -468,8 +468,8 @@
     },
     {
       "path": "game/src/guide-models.js",
-      "bytes": 7070,
-      "sha256": "cdea2f458a2c92fcaa4cfdc7e5c0f4bd24afd6d1d8ca5a20ad0c6aabda39741b"
+      "bytes": 7073,
+      "sha256": "71124b005090f9a800dfb6da7ffea26550b73800d509420b7248513bc9373e34"
     },
     {
       "path": "game/src/gun-bubble.js",
@@ -534,7 +534,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26940,
-      "sha256": "96e89f017d120239d161e1aeb9a1b33dc7984f8ea087e51956e6bb86c0ea0753"
+      "sha256": "3f1d72edfdc2aa535bff8ac6a773cdb06b3d22e29413f3675f2a9c97c7545c81"
     },
     {
       "path": "game/src/opening-camera.js",

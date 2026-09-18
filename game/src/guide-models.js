@@ -1,5 +1,5 @@
 import * as THREE from '../vendor/three.module.js?v=052';
-import {createBankGuideModel} from './bank-demons.js?v=052';
+import {createBankGuideModel} from './bank-demons.js?v=054-84';
 import {createRimmerModel} from './rimmer-model.js?v=052';
 import {cloneSkinnedGuide} from './skinned-solids.js?v=054-74';
 import {loadGuideEggPart,loadGuideIntactEgg} from './field-guide-egg-parts.js?v=054-74';

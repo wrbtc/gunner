@@ -187,7 +187,7 @@ export const loadingSnapshot=()=>Object.freeze({...loading.snapshot(),trace:star
 export const loadingStage=id=>{const ok=loading.complete(id);if(ok)bootHeartbeat();return ok;};
 export const loadingProgress=(id,detail)=>{const ok=loading.begin(id,detail);if(ok)bootHeartbeat();return ok;};
 export const loadingReady=()=>loading.ready();
-export const REPORT_BUILD='0.54.83';
+export const REPORT_BUILD='0.54.84';
 const REPORT_ORIGINS=['https://gunner.satoshis.watch','http://127.0.0.1:8000'];
 const missionBuild=$('missionBuild');
 if(missionBuild)missionBuild.textContent='v'+REPORT_BUILD;
@@ -267,7 +267,7 @@ let guideModelProvider=null,guideViewer=null,guideViewerPromise=null;
 export function setGuideModelProvider(provider){guideModelProvider=provider;if($('fieldGuide')?.open)void openGuideViewer();}
 export const guideViewerStats=()=>guideViewer?.stats()||{models:[],contexts:0};
 async function openGuideViewer(button=null){
- if(!guideViewerPromise)guideViewerPromise=import('./field-guide-viewer.js?v=054-74').then(({createFieldGuideViewer})=>guideViewer=createFieldGuideViewer({dialog:$('fieldGuide'),provider:()=>guideModelProvider})).catch(error=>{guideViewerPromise=null;throw error;});
+ if(!guideViewerPromise)guideViewerPromise=import('./field-guide-viewer.js?v=054-84').then(({createFieldGuideViewer})=>guideViewer=createFieldGuideViewer({dialog:$('fieldGuide'),provider:()=>guideModelProvider})).catch(error=>{guideViewerPromise=null;throw error;});
  try{await guideViewerPromise;if($('fieldGuide')?.open){if(button)guideViewer.show(button);await guideViewer.prepare();}}catch{ /* Existing image identification remains available; retry on next open. */ }
 }
 export const FIELD_GUIDE=Object.freeze([
