@@ -31,6 +31,28 @@ function clipNamed(animations, name){
   return clip;
 }
 
+export function inPlaceCreeperClimb(clip, restPosition){
+  const copy = clip.clone();
+  const track = copy.tracks.find(item => item.name === 'Hips.position');
+  if (!track || track.getValueSize() !== 3 || !restPosition){
+    throw Error('Creeper climb root translation missing: ' + clip.name);
+  }
+  // The wall route owns travel. Remove only the clip's net translation, keeping
+  // its cyclic body sway/bob and every rotation/limb track. Both directions use
+  // the same rest anchor so changing direction cannot relocate the creature.
+  const values = track.values, times = track.times, last = times.length - 1;
+  const span = times[last] - times[0], anchor = restPosition.toArray();
+  const first = Array.from(values.subarray(0, 3));
+  const travel = first.map((value, axis) => values[last * 3 + axis] - value);
+  for (let key = 0; key <= last; key++){
+    const phase = span > 0 ? (times[key] - times[0]) / span : 0;
+    for (let axis = 0; axis < 3; axis++){
+      values[key * 3 + axis] += anchor[axis] - first[axis] - travel[axis] * phase;
+    }
+  }
+  return copy;
+}
+
 function cloneSkinned(source){
   const root = source.clone(true);
   const bySource = new Map();
@@ -149,11 +171,12 @@ export function loadCreeperLoco(){
       prepareScene(runGltf.scene, MESHY_RUN);
       const walkClip = clipNamed(walkGltf.animations, MESHY_CLIPS.walk);
       const runClip = longestClip(runGltf.animations);
+      const climbAnchor = extraGltf.scene.getObjectByName('Hips')?.position;
       const clips = {
         walk: walkClip,
         run: runClip,
-        climb: clipNamed(extraGltf.animations, MESHY_CLIPS.climb),
-        climbDown: clipNamed(extraGltf.animations, MESHY_CLIPS.climbDown),
+        climb: inPlaceCreeperClimb(clipNamed(extraGltf.animations, MESHY_CLIPS.climb), climbAnchor),
+        climbDown: inPlaceCreeperClimb(clipNamed(extraGltf.animations, MESHY_CLIPS.climbDown), climbAnchor),
         stomp: clipNamed(extraGltf.animations, MESHY_CLIPS.stomp),
         throw: longestClip(throwGltf.animations),
       };
@@ -210,8 +233,17 @@ export function loadCreeperLoco(){
             const next = group[kind] ? kind : 'walk';
             const {entry, action} = mount(next);
             if (current !== next){
-              mixer.stopAllAction();
-              action.reset().play();
+              const outgoing = entry.actions.get(current);
+              const reversesClimb = (current === 'climb' && next === 'climbDown') ||
+                (current === 'climbDown' && next === 'climb');
+              if (reversesClimb && outgoing?.isRunning()){
+                // Both directions share this rig. Keep its current limb pose
+                // while blending into the reversed gait; throw uses its own rig.
+                action.reset().setEffectiveWeight(1).play().crossFadeFrom(outgoing, CROSSFADE, false);
+              } else {
+                mixer.stopAllAction();
+                action.reset().setEffectiveWeight(1).play();
+              }
               current = next;
             }
             action.setEffectiveTimeScale(timeScale);
@@ -230,6 +262,7 @@ export function loadCreeperLoco(){
           }
 
           function throwingHandWorld(target){
+            if (current !== 'throw' || !holder.visible) return null;
             const entry = [...visuals.values()].find(item => item.visual.visible);
             if (!entry) return null;
             let hand = null;

@@ -140,7 +140,7 @@ export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=nu
     }
   }
   else{const f=.5+swing*.5,point=pathPoint(a,f),future=pathPoint(a,.5+Math.sin(travel+.025+.28*Math.sin((travel+.025)*2))*.5),dir=future.sub(point);a.root.position.copy(point);if(dir.lengthSq()>.00001){const target=Math.atan2(-dir.x,-dir.z);if(dt>0){const delta=Math.atan2(Math.sin(target-a.root.rotation.y),Math.cos(target-a.root.rotation.y));a.root.rotation.y+=delta*Math.min(1,dt*14);}}}
-  if(dt>0){const distance=old.distanceTo(a.root.position);a.speed=distance/dt;a.gaitPhase+=distance*2.3/a.scale;}const stride=a.gaitPhase+phase;
+  if(dt>0){const distance=old.distanceTo(a.root.position);a.speed=distance/dt;a.gaitPhase+=distance*2.3/a.scale;if(a.climb&&Math.abs(a.root.position.y-old.y)>.00001)a.climbDirection=Math.sign(a.root.position.y-old.y);}const stride=a.gaitPhase+phase;
   if(braced&&!a.climb&&!a.isEmber&&dt>0){const target=Math.atan2(a.root.position.x-viewer.x,a.root.position.z-viewer.z),delta=Math.atan2(Math.sin(target-a.root.rotation.y),Math.cos(target-a.root.rotation.y));a.root.rotation.y+=delta*Math.min(1,dt*7);}
   a.root.scale.setScalar(a.scale);a.root.updateMatrixWorld(true);
   const f=a.state==='windup'?1-clamp(a.timer/a.windupSeconds,0,1):0,release=clamp(sinceRelease/.40,0,1);
@@ -175,6 +175,9 @@ export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=nu
   }
   if(a.climb){a.gripDetails[1].planted=a.gripDetails[1].planted&&!(f>0||release<1||taunt);a.gripDetails[1].point.copy(hands[1]).applyMatrix4(a.root.matrixWorld);}
   a.throwOrigin.copy(hands[1]).applyMatrix4(a.root.matrixWorld);a.center=chest.clone().applyMatrix4(a.root.matrixWorld);
+  // Projectile release refreshes pose again after update(): retain the visible
+  // throwing hand instead of replacing it with the procedural fallback above.
+  if(a.state==='windup'||a.state==='cooldown')a.locoVisual?.throwingHandWorld(a.throwOrigin);
   if(index<0)return;
   const twist=new THREE.Quaternion().setFromEuler(new THREE.Euler(a.isEmber&&a.state==='dance'?-.10:a.climb?.24:lerp(-.70,.34,upright),a.climb?f*.8:f*-.25,Math.sin(stride)*.045*(braced?0:1)));
   const headQ=new THREE.Quaternion().setFromEuler(new THREE.Euler(-.10,a.climb?f*1.15:Math.sin(t*1.7+phase)*.20,0));
@@ -199,13 +202,13 @@ export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=nu
    pose(a,time,-1);a.locoVisual.root.visible=true;
    const rate=a.climb?Math.min(1.35,.55+a.moveRate*.22):Math.min(1.45,.4+Math.min(a.speed||0,5)*.18);
    const kind=(a.state==='windup'||a.state==='cooldown')?'throw':a.climb?'climb':'walk';
-   const loco=kind==='walk'&&((a.speed||0)>10||a.moveRate>1.2)?'run':kind;
+   const loco=kind==='climb'&&a.climbDirection<0?'climbDown':kind==='walk'&&((a.speed||0)>10||a.moveRate>1.2)?'run':kind;
    a.locoVisual.play(loco,dt,loco==='throw'?1:rate);locoVisible++;
    if(loco==='throw')a.locoVisual.throwingHandWorld(a.throwOrigin);
   }
   for(const p of Object.values(parts)){p.count=visible;p.instanceMatrix.needsUpdate=true;if(p.instanceColor)p.instanceColor.needsUpdate=true;p.geometry.attributes.emberAmount.needsUpdate=true;p.geometry.attributes.hitAmount.needsUpdate=true;}
  }
- function reset(){ritualAwake=false;awakenedAt=null;danceSeen=false;lastUpdateTime=0;locoVisible=0;for(const a of actors){a.agitatedAt=null;a.agitatedUntil=0;a.wallGrips=null;a.shotsFired=0;a.climbTime=0;a.motionClock=0;a.gaitPhase=0;a.lastPoseTime=0;a.attention=0;a.speed=0;a.releaseTime=null;a.jumpHeight=0;a.taunting=false;a.angry=false;if(a.locoVisual)a.locoVisual.stop();if(a.isEmber){a.state='dance';a.dancePose=null;a.emberBlend=1;a.noticed=false;a.noticeAt=null;a.archetype='ember-creeper';a.burstRemaining=0;a.burstNextAt=null;a.burstInterval=null;a.temperament='dancer';a.attackStyle='expressive';a.windupSeconds=1.65;a.moveRate=1;}}setDanceBudget(danceCount); }
+ function reset(){ritualAwake=false;awakenedAt=null;danceSeen=false;lastUpdateTime=0;locoVisible=0;for(const a of actors){a.agitatedAt=null;a.agitatedUntil=0;a.wallGrips=null;a.shotsFired=0;a.climbTime=0;a.climbDirection=1;a.motionClock=0;a.gaitPhase=0;a.lastPoseTime=0;a.attention=0;a.speed=0;a.releaseTime=null;a.jumpHeight=0;a.taunting=false;a.angry=false;if(a.locoVisual)a.locoVisual.stop();if(a.isEmber){a.state='dance';a.dancePose=null;a.emberBlend=1;a.noticed=false;a.noticeAt=null;a.archetype='ember-creeper';a.burstRemaining=0;a.burstNextAt=null;a.burstInterval=null;a.temperament='dancer';a.attackStyle='expressive';a.windupSeconds=1.65;a.moveRate=1;}}setDanceBudget(danceCount); }
  function setWallSurfaces(meshes){for(const a of actors.filter(a=>a.climb)){a.gripGeometry=[geos.hand,geos.hand,geos.foot,geos.foot].map(g=>{const p=g.attributes.position,unique=new Map();for(let i=0;i<p.count;i++){const v=V().fromBufferAttribute(p,i);unique.set(v.toArray().map(n=>n.toFixed(3)).join(','),v);}return [...unique.values()];});a.gripCache=new Map();a.wallSurface=createWallSurface(a,meshes);a.wallRoute=planWallRoute(a,a.wallSurface);a.wallGrips=null;}update(0,V());}
  assignStoneBudgets();update(0,V());return{agitate,setWallSurfaces,actors,group,update,pose,reset,setDanceBudget,awaken,disturbSegment,ritualAlerted:()=>ritualAwake,stats:()=>({count:actors.length,emberDancers:actors.filter(a=>a.isEmber&&!a.disabled).length,danceCount,danceSeen,ritualAwake,awakenedAt,stoneBudgets:actors.filter(a=>!a.disabled&&a.stoneBudget>0).reduce((counts,a)=>(counts[a.stoneBudget]=(counts[a.stoneBudget]||0)+1,counts),{}),orange:actors.filter(a=>a.isEmber&&!a.dead&&a.emberBlend>.99).length,cooling:actors.filter(a=>a.isEmber&&!a.dead&&a.emberBlend>0&&a.emberBlend<1).length,black:actors.filter(a=>a.isEmber&&!a.dead&&a.emberBlend===0).length,roamers:actors.filter(a=>a.temperament==='roamer').length,rapid:actors.filter(a=>a.temperament==='hunter'&&a.attackStyle==='rapid').length,expressive:actors.filter(a=>a.temperament==='hunter'&&a.attackStyle==='expressive').length,hunters:actors.filter(a=>a.temperament==='hunter').length,climbers:actors.filter(a=>a.climb).length,bankLurkers:actors.filter(a=>!a.climb).length,visible,locoVisible,locoAttached:actors.filter(a=>a.locoVisual).length,locoAsset:locoKit&&locoKit.stats||null,draws:Object.keys(parts).length,trianglesPerActor:Object.values(names).reduce((sum,n)=>sum+geos[n].attributes.position.count/3,0)})};
 }

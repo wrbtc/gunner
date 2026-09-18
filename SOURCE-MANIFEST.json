@@ -363,8 +363,8 @@
     },
     {
       "path": "game/src/bank-demons.js",
-      "bytes": 27107,
-      "sha256": "594d174b5e4c4e323913b2e88de62fc9f7e8699a7bf22f0c046e8b30b833f3e9"
+      "bytes": 27531,
+      "sha256": "d594c38698716134739753cfd5cd023efce3d70106669c04bd43126f8e50e5ef"
     },
     {
       "path": "game/src/basalt-detail.js",
@@ -433,8 +433,8 @@
     },
     {
       "path": "game/src/creeper-loco.js",
-      "bytes": 9954,
-      "sha256": "b9be7c733f6f5951b9741365bdc6ffdf2655aaa3d3197d4ca1bc6c05722c1bf9"
+      "bytes": 11837,
+      "sha256": "f6b7382aba7fcd4e5d977d003d432fa30ffd21d0cbb0c0787b013d8e1aef5c57"
     },
     {
       "path": "game/src/dance-circle.js",
@@ -463,8 +463,8 @@
     },
     {
       "path": "game/src/field-guide-viewer.js",
-      "bytes": 15003,
-      "sha256": "b597957b19509432726767ff572be51e279bb67be3544672fc8c1805e35092c3"
+      "bytes": 15748,
+      "sha256": "9622ccc8191fab4213348e1f14a30f7f0cc2b96c49e7cece6c1fe02b5bed9ae2"
     },
     {
       "path": "game/src/guide-models.js",
