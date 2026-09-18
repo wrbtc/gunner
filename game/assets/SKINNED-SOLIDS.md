@@ -1,9 +1,9 @@
-# Field Guide skinned solids (v0.54.86)
+# Field Guide skinned solids (v0.54.87)
 
-Alien Field Guide VIEW 3D meshes. The Meshy Rimmer v2 is shared with gameplay
-through independent skeleton instances. Combat and world visuals stay on the
-existing plasma, lava loco bank creeper, Cinder Maw tank, orange-spirit dancer
-and sky dragon paths. The earlier Rimmer asset below is retained only as history.
+Alien Field Guide VIEW 3D meshes. The Meshy Rimmer v2 and Cinder Maw Field
+Notes v02 are shared with gameplay through independent skeleton instances.
+Plasma, lava loco bank creeper, orange-spirit dancer, and sky dragon paths stay
+unchanged. The earlier Rimmer asset below is retained only as history.
 
 Expected binaries next to this note:
 
@@ -21,18 +21,20 @@ Ember Hollow is the slim pack: armature `EmberArmature`, clips `ember_idle` and
 `ember_walk`. VIEW 3D plays `ember_idle` only. Reject the 4.58MB SOLID pack
 (`4803580` bytes, sha256 `085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f`).
 
-Cinder Maw presentation rig: armature `TankArmature`, clips `cinder_idle`,
+Cinder Maw shared rig: armature `TankArmature`, clips `cinder_idle`,
 `cinder_jaw_inspect`, and `cinder_weight_shift`. VIEW 3D defaults to
-`cinder_idle`. Bones `body` / `jaw` / `cinder_mouth` must survive. This replaces
-the unbound source draft (`cinder-maw-skinned-draft.glb`, 1004440 bytes,
+`cinder_idle`; gameplay uses independent skeleton clones with authored-axis leg
+IK, jaw charge, and neck/tail secondary motion. Bones `body` / `jaw` /
+`cinder_mouth` must survive. This replaces the unbound source draft
+(`cinder-maw-skinned-draft.glb`, 1004440 bytes,
 sha256 `2af643fb2751ad128e6b06cf9a3244348220a4a58cb9884603e6cf9a6e13a1d4`)
-for Field Notes only; the source surface/material bytes are preserved and the
-live Cinder Maw gameplay model is untouched.
+for both Field Notes and the live Tank visual. The source surface/material bytes
+are preserved; game-owned collision and combat semantics remain independent.
 
 Egg larva presentation rig: armature `MaggotArmature`, clip `maggot_wriggle`.
-The Larva specimen stays independent. Field Notes Intact egg nests this
-larva inside `egg-shell-a.glb` for the museum only and does not replace the
-live nest embryo.
+The Larva specimen stays independent. Field Notes Intact egg nests this larva
+inside `egg-shell-a.glb`; live nests extract its bind geometry into the existing
+instanced embryo and rupture path without adding per-egg mixers.
 
 Vein Anunnaki museum solid: armature `VeinArmature`, clips `ritual_idle` and
 `ritual_walk`. VIEW 3D plays `ritual_idle` only. Reject the superseded draft

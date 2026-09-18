@@ -2,8 +2,9 @@ import * as THREE from '../vendor/three.module.js?v=052';
 import {GLTFLoader} from '../vendor/GLTFLoader.js?v=052';
 import {mergeGeometries} from '../vendor/BufferGeometryUtils.js?v=052';
 
-// Live nest + Field Guide egg meshes. Bank/climber, rimmers, plasma, dragons,
-// HERO, and Ember Hollow stay on their existing paths.
+// Live nest meshes use the accepted rigid shell and the bind geometry from the
+// accepted rigged larva. Field Notes owns clip playback; live nests retain the
+// established lightweight instancing and rupture path.
 export const EGG_SOLIDS=Object.freeze({
  shell:Object.freeze({
   id:'shell',
@@ -13,9 +14,9 @@ export const EGG_SOLIDS=Object.freeze({
  }),
  maggot:Object.freeze({
   id:'maggot',
-  asset:'egg-maggot-a',
-  sha256:'3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127',
-  bytes:732684
+  asset:'field-notes-v02/egg-maggot-fieldnotes-v02',
+  sha256:'344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96',
+  bytes:1075680
  })
 });
 

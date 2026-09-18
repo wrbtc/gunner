@@ -16,11 +16,11 @@ const provenance=JSON.parse(read('game/assets/field-guide/EGG-PROVENANCE.json'))
 
 const expected=[
  {path:'game/assets/egg-shell-a.glb',bytes:817236,sha256:'368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2'},
- {path:'game/assets/egg-maggot-a.glb',bytes:732684,sha256:'3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127'}
+ {path:'game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb',bytes:1075680,sha256:'344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96'}
 ];
 
-assert.equal(packageJson.version,'0.54.86');
-assert.equal(manifest.version,'0.54.86');
+assert.equal(packageJson.version,'0.54.87');
+assert.equal(manifest.version,'0.54.87');
 assert.match(solids,/export function loadEggSolids/);
 assert.match(solids,/adaptEggShellMaterial/);
 assert.match(solids,/opacity=\.46/);
@@ -47,9 +47,10 @@ assert.match(main,/powerPreference: 'high-performance'/);
 assert.doesNotMatch(sky,/egg-shell-a|egg-maggot-a/);
 assert.doesNotMatch(note,/Roland|Phil|Dee/);
 assert.match(note,/1075680-byte rigged larva/);
-assert.match(note,/does not replace the\s+live nest embryo/);
+assert.match(note,/live-nest bind geometry/);
 assert.equal(provenance.sourceShellSHA256,expected[0].sha256);
 assert.equal(provenance.sourceMaggotSHA256,'344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96');
+assert.equal(provenance.liveNestMaggot,expected[1].path);
 assert.equal(provenance.liveNestMaggotSHA256,expected[1].sha256);
 
 for(const row of expected){
@@ -81,4 +82,4 @@ for(const row of expected){
  binaryStatus[row.path]=state;
 }
 
-console.log(JSON.stringify({passed:true,identity:'0.54.86',binaryStatus},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.87',binaryStatus},null,2));

@@ -1,5 +1,5 @@
 {
-  "version": "0.54.86",
+  "version": "0.54.87",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -8,8 +8,8 @@
     },
     {
       "path": "game/assets/CINDER-MAW-PROVENANCE.json",
-      "bytes": 2518,
-      "sha256": "6a19a3fd17fd8d9d6226f11a23b07df052e1ec79576bfa198153abfada4d2591"
+      "bytes": 1395,
+      "sha256": "745d31f05d2bbc500e2c00c095a2b535557d9a71d7bec58b436d04e3646057bd"
     },
     {
       "path": "game/assets/CREEPER-LAVA-LOCO.md",
@@ -23,13 +23,13 @@
     },
     {
       "path": "game/assets/EGG-SOLIDS.md",
-      "bytes": 1743,
-      "sha256": "0b122ae7d087b0954e4264e244f61809fc1eae0dc0201679917f2e60488cdf10"
+      "bytes": 1782,
+      "sha256": "8dacdad8f0d8af8337ade870eb220bf7c8b7747983661992733ef2d485cbce1b"
     },
     {
       "path": "game/assets/SKINNED-SOLIDS.md",
-      "bytes": 6487,
-      "sha256": "296179057e22e831a9ef9b4e7e2fa9c7965d54ff525ba8e84cb1384c9f1968b3"
+      "bytes": 6672,
+      "sha256": "ff4074211bb6e70c39aedf67228f65cec0132c93caa5aad1965043be8e3f1813"
     },
     {
       "path": "game/assets/audio/KOKORO-CODE-LICENSE.txt",
@@ -158,8 +158,8 @@
     },
     {
       "path": "game/assets/field-guide/EGG-PROVENANCE.json",
-      "bytes": 1038,
-      "sha256": "ea317f53744d30f79b480c570af16b7d2ad5b23fb6720706785359e42a00b381"
+      "bytes": 1141,
+      "sha256": "aa2d05f919da4fcfea38f1c802a5d5e35b4f08390f60af42d220d2a4e340d6ca"
     },
     {
       "path": "game/assets/field-guide/PLASMA-PROVENANCE.json",
@@ -173,8 +173,8 @@
     },
     {
       "path": "game/assets/field-guide/TANKS-PROVENANCE.json",
-      "bytes": 605,
-      "sha256": "7c9ac246395423f92098f4cb97449d81c6a11e1f2c07bbd9ef4c566278716073"
+      "bytes": 717,
+      "sha256": "7116cdd827701804099ba04c4935befc6b479dcd3b7b7c1e3e524d0e36d5a27d"
     },
     {
       "path": "game/assets/field-guide/creepers.png",
@@ -319,17 +319,17 @@
     {
       "path": "game/index.html",
       "bytes": 13333,
-      "sha256": "ad07ede3952eaa6e8403bbb1a7c833e87e6d7910eeb0d41b4737763b072ea283"
+      "sha256": "e8664bcba7093c3b03b38f110a755dd0a35197b72c95100a79fb7644188bcb9a"
     },
     {
       "path": "game/main.js",
-      "bytes": 160524,
-      "sha256": "af98f387b75b2a412dcf4f589252c43b6f2848e8df6abd7c0b2d97bc8d77f892"
+      "bytes": 160621,
+      "sha256": "f78e6d9507c3fc50175de695deb997917818a2631d3b16f0db6e7e2fb2535ab4"
     },
     {
       "path": "game/mobile-entry.js",
       "bytes": 4132,
-      "sha256": "24ea9975a30f753084f743c89d03f8631a1f2cd42afe5d91d79ce1e157a86258"
+      "sha256": "2ec84390440ff862feab85aa7d9b8c875bbbb989a1a9fcfb9ea1221a67c42f0d"
     },
     {
       "path": "game/src/aircraft-surfaces.js",
@@ -398,8 +398,8 @@
     },
     {
       "path": "game/src/cinder-maw.js",
-      "bytes": 5709,
-      "sha256": "445a38603962632073f3a945133b4c92524adf073362f550f7e80fc834802cf7"
+      "bytes": 7904,
+      "sha256": "fee54431873e888441e0172c75af1a8f36fb8ee0306bfdcb1e2d583cda00f40d"
     },
     {
       "path": "game/src/cinematic-pass.js",
@@ -453,8 +453,8 @@
     },
     {
       "path": "game/src/egg-solids.js",
-      "bytes": 4390,
-      "sha256": "9ae4c0fd124d4dfb2e67f9de79fe0af16f2ff10808c031ab23b29a57cf2f9fa8"
+      "bytes": 4501,
+      "sha256": "c47fa45922089f37ee285383af4f36b6d8dd5f510d6e0f973be581b2d6aa261a"
     },
     {
       "path": "game/src/ending-flight.js",
@@ -539,7 +539,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26940,
-      "sha256": "a23610ddbd84ac810e201bb522d58caa4e078c8501d40cca5cb72fdad8b1a54a"
+      "sha256": "85b6a7ec3173ffddd17bbc8ab2da17e48ba47392e21a10ca6fe6fd19d2c748c1"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -693,8 +693,8 @@
     },
     {
       "path": "game/src/tanker-bug.js",
-      "bytes": 12136,
-      "sha256": "63b0424b623eafe537ac714ed19cfb5d039a47058c623b3386318ed0f1941b5f"
+      "bytes": 13900,
+      "sha256": "c6fdb0a86e6cde95799bc3981fb41a49be5ccc71f0137d0fdd6b21989eeb1570"
     },
     {
       "path": "game/src/tanker-spray.js",
@@ -743,4 +743,5 @@
     }
   ],
   "note": "Gunner v0.54.83 is a Field Guide-first identity with VIEW 3D presentation solids. Card first paint withholds the prior identification stills and shows a branded preparing tile until the museum thumb lands. Every specimen uses a height-fit museum crop so the subject fills the card; thumbs and VIEW 3D share that framing. Cinder Maw is framed huge and close; Dragon A faces the camera for a front intimidation shot. Horizontal drag turns a specimen; vertical drag repositions it within bounded view space, and RESET VIEW restores position, rotation and 100% zoom. Rimmers use game/assets/rimmer-skinned-solid.glb (1153368 bytes, sha256 1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456). Plasma uses game/assets/plasma-bug-skinned-solid.glb (1135104 bytes, sha256 127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f). Ember Hollow uses game/assets/creeper-ember-hollow.glb (1091768 bytes, sha256 25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe; EmberArmature; ember_idle default and ember_walk available); reject the 4803580-byte SOLID pack sha256 085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f. Dragon A is included as a lazy static Field Guide specimen at game/assets/dragon-fg-a.glb (64020728 bytes, sha256 38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27); it has no rig or animation clips and does not retarget live sky dragons. Cinder Maw Field Notes uses the repaired game/assets/field-notes-v02/cinder-maw-fieldnotes-v02.glb (1483396 bytes, sha256 2a829abf1fbb8419c8f0081ecedeeeddc7a3d6adc922f6a21108148ba4f53c52; TankArmature; cinder_idle, cinder_jaw_inspect and cinder_weight_shift). Dancing Creepers use the approved Vein Anunnaki solid game/assets/vein-ascetic-skinned.glb (1908316 bytes, sha256 9d67a8c5fcdc4a5d8bbbdbae9f428e87a963a978682c0e572f62af28567e495e; VeinArmature; ritual_idle default and ritual_walk available); reject draft vein-ascetic-skinned-draft.glb sha256 3b3dc30a3ae7dafe87b82932f37c1c371fcbce7a0db4f6491dff494e6b05bce4 / 2502928. Field Notes Intact egg assembles game/assets/egg-shell-a.glb (817236 bytes, sha256 368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2) with the rigged larva game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb (1075680 bytes, sha256 344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96; MaggotArmature; maggot_wriggle) behind a leathery window, keeps an opaque sac base, and holds the maggot fully inside the membrane. The Shell specimen stays shell-only. The original static live-nest source remains identified for provenance as game/assets/egg-maggot-a.glb (732684 bytes, sha256 3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127); it is not replaced by the Field Notes larva. Gameplay and world meshes stay on the v0.54.60 path: lava loco game/assets/creeper-lava-loco-003.glb (9840676 bytes, sha256 e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5), procedural rimmers/plasma, live Cinder Maw tanks, live nests, orange-spirit dancers and sky dragons. Soft-GPU stays off and prefers-reduced-motion still quiets flash and camera motion. Performance T1 disables redundant browser-canvas MSAA while retaining the four-sample HDR world target, rests heavyweight world update/presentation work after the opaque title poster is first presented, resumes world presentation on deploy/reset/WebGL recovery while holding the title canvas under Field Guide and settings, uncouples cosmetic rank portraits from required Cinder, and reuses selected render-loop vectors. Do not land morph creeper hashes 75ddc18f / a2ac5ebb / 1c10edf7 / 45123f4c / 9cd194e6 / a9dcb2b6. Field Guide card first paint withholds the prior identification stills, shows a preparing tile, and waits for the VIEW 3D museum thumb. Do not treat 0.54.52, 0.54.53, 0.54.56, 0.54.57, 0.54.58, 0.54.59, 0.54.60, 0.54.61, 0.54.62, 0.54.63, 0.54.64, 0.54.65, 0.54.66, 0.54.67, 0.54.68, 0.54.69, 0.54.70, 0.54.78 or 0.54.79 as this identity. Gunner v0.54.81 keeps the brighter crusted lava river, braided wall falls, visual-only bank lips and fall splashes, then collapses most cooling-skin rafts into one dark field so only a thin minority stay visible. River collision, Poly Haven geology, and shader family stay as in 0.54.78. Bank lips reuse the established river material and splash geometry reuses the fall material, so the look adds no new shader family during cold-start preparation. Physical Intel Safari combat acceptance remains pending. Combat bank walkers and climbers now load game/assets/creeper-meshy-walk.glb (3305960 bytes, sha256 2685d12783e4ae3afb055262fcc9beebf84b71033a7f127128e90d947293c840) and game/assets/creeper-meshy-extra.glb (5834196 bytes, sha256 3865d85e1eaed7cc9564541c817627d9f7eec44a0a529866b273d0f418d6ff1d); emissive is zeroed on load; TARGET_HEIGHT stays 6.15; collision hull unchanged. Dancing creepers and Field Notes museum solids are unchanged. creeper-lava-loco-003.glb remains in tree unused by the combat loader.  Combat throw now loads game/assets/creeper-meshy-throw.glb (3484224 bytes, sha256 73e2a6c1ee0e62dde0d51707e4757c43394b319d4fb6f049324fd9ff6d4a083f); mud leaves RightHand at 2.90s and hunter windup is 2.9s. Combat run now loads game/assets/creeper-meshy-run.glb (3301368 bytes, sha256 7e0d07346c3b42373936cd34276cee25e911bc4dc995517f678fa34dfca17b37) and plays on the walk bind pose when speed > 10 or moveRate > 1.2. Do not treat 0.54.80, 0.54.81 or 0.54.82 as this identity. Rimmer Meshy v2 replaces its Field Guide and gameplay visual: e39e0226358fad716a20d9ac744c47fe8b7f00cfe958e07fc510ecbe24c97927, 18054908 bytes; game-owned route and combat semantics retained."
+  ,"releaseNote": "Gunner v0.54.87 makes Cinder Maw Field Notes v02 the live Tank visual through independent TankArmature skeletons, authored-axis foot IK, jaw charge and restrained neck/tail motion. The game-owned route, HP, collision volumes, windup, suppression and fire behavior remain unchanged. Live brood nests now use the exact accepted Field Notes v02 larva bind geometry with the existing shell, instancing, HP, placement and rupture behavior; Field Notes alone plays maggot_wriggle."
 }

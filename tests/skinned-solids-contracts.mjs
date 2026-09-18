@@ -22,8 +22,8 @@ const forbidden=['75ddc18f','a2ac5ebb','1c10edf7','45123f4c','9cd194e6','a9dcb2b
 assert.match(attributes,/game\/assets\/vein-ascetic-skinned\.glb filter=lfs/);
 assert.doesNotMatch(attributes,/vein-ascetic-skinned-draft/);
 
-assert.equal(packageJson.version,'0.54.86');
-assert.equal(manifest.version,'0.54.86');
+assert.equal(packageJson.version,'0.54.87');
+assert.equal(manifest.version,'0.54.87');
 assert.match(manifest.note,/0\.54\.67/);
 assert.match(manifest.note,/Field Guide/);
 assert.match(manifest.note,/VIEW 3D/);
@@ -57,7 +57,8 @@ assert.match(note,/Museum pose/);
 assert.match(note,/ember_idle/);
 assert.match(note,/EmberArmature/);
 assert.match(note,/Reject the 4\.58MB SOLID/);
-assert.match(note,/Combat and world visuals stay/);
+assert.match(note,/Cinder Maw Field[\s\S]*shared with gameplay/);
+assert.match(note,/game-owned collision and combat semantics remain independent/);
 assert.match(note,/dragon-fg-a/);
 assert.match(note,/38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27/);
 assert.match(note,/64020728/);
@@ -148,4 +149,4 @@ for(const row of expected){
  binaryStatus[row.path]=state;
 }
 
-console.log(JSON.stringify({passed:true,identity:'0.54.86',binaryStatus},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.87',binaryStatus},null,2));

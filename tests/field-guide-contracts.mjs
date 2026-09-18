@@ -19,9 +19,9 @@ const plasmaProvenance=JSON.parse(read('game/assets/field-guide/PLASMA-PROVENANC
 const dragonProvenance=JSON.parse(read('game/assets/field-guide/DRAGON-PROVENANCE.json'));
 const dragonPortrait=readFileSync(new URL('game/assets/field-guide/dragons.png',root));
 
-assert.equal(packageJson.version,'0.54.86');
-assert.match(briefing,/export const REPORT_BUILD='0\.54\.86'/);
-assert.match(main,/version:'0\.54\.86'/);
+assert.equal(packageJson.version,'0.54.87');
+assert.match(briefing,/export const REPORT_BUILD='0\.54\.87'/);
+assert.match(main,/version:'0\.54\.87'/);
 assert.doesNotMatch(briefing,/0\.54\.52/);
 assert.doesNotMatch(briefing,/0\.54\.53/);
 assert.doesNotMatch(briefing,/0\.54\.57/);
@@ -114,7 +114,7 @@ assert.doesNotMatch(guide,/guideViewRadiusFor/);
 assert.match(read('game/src/guide-models.js'),/field-guide-egg-parts\.js\?v=054-74/);
 assert.match(read('game/src/egg-nests.js'),/useBakedShell\?source\.shell\.material\.clone\(\)/);
 assert.match(read('game/src/egg-solids.js'),/368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2/);
-assert.match(read('game/src/egg-solids.js'),/3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127/);
+assert.match(read('game/src/egg-solids.js'),/344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96/);
 assert.doesNotMatch(guide,/id==='creepers'\|\|id==='dancers'\)root=createBankGuideModel/);
 
 assert.match(solids,/asset:'rimmer-meshy-v2-rigged'/);
@@ -227,9 +227,9 @@ const tanksPortrait=readFileSync(new URL('game/assets/field-guide/tanks.jpg',roo
 const dancersPortrait=readFileSync(new URL('game/assets/field-guide/dancers.png',root));
 assert.equal(createHash('sha256').update(tanksPortrait).digest('hex'),'40cf7622952c15bed326d70d0d87b83be977290f68c0caa9bf8d2c3c37ea54c6');
 assert.equal(createHash('sha256').update(dancersPortrait).digest('hex'),'1e1dc9cc63bba3589abad71103c19064b3caeeaf93d7140cd0075810721638cb');
-assert.equal(tanksProvenance.sourceModel,'game/assets/cinder-maw-skinned-draft.glb');
-assert.equal(tanksProvenance.sourceModelSHA256,'2af643fb2751ad128e6b06cf9a3244348220a4a58cb9884603e6cf9a6e13a1d4');
-assert.equal(tanksProvenance.sourceModelBytes,1004440);
+assert.equal(tanksProvenance.sourceModel,'game/assets/field-notes-v02/cinder-maw-fieldnotes-v02.glb');
+assert.equal(tanksProvenance.sourceModelSHA256,'2a829abf1fbb8419c8f0081ecedeeeddc7a3d6adc922f6a21108148ba4f53c52');
+assert.equal(tanksProvenance.sourceModelBytes,1483396);
 assert.equal(tanksProvenance.imageSHA256,'40cf7622952c15bed326d70d0d87b83be977290f68c0caa9bf8d2c3c37ea54c6');
 assert.match(tanksProvenance.render,/idle/);
 assert.match(tanksProvenance.render,/cinder_mouth/);
@@ -260,4 +260,4 @@ assert.match(read('game/styles.css'),/img\[data-model-ready=true\]\{filter:none;
 assert.doesNotMatch(main,/createTankerBugsAsync\([\s\S]{0,400}solid/);
 assert.doesNotMatch(main,/createBankDemons\([^)]*skinnedSolids/);
 
-console.log(JSON.stringify({passed:true,identity:'0.54.86',imageSHA256:imageHash},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.87',imageSHA256:imageHash},null,2));
