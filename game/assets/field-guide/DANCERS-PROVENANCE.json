@@ -1,8 +1,8 @@
 {
-  "source": "Field Guide museum Vein Anunnaki solid. Combat still uses the procedural orange-spirit dancers until a later PASS of this 3D view.",
-  "sourceModel": "game/assets/vein-ascetic-skinned.glb",
-  "sourceModelSHA256": "9d67a8c5fcdc4a5d8bbbdbae9f428e87a963a978682c0e572f62af28567e495e",
-  "sourceModelBytes": 1908316,
-  "imageSHA256": "1e1dc9cc63bba3589abad71103c19064b3caeeaf93d7140cd0075810721638cb",
-  "render": "Card first paint withholds the prior orange-glow still. VIEW 3D uses the approved Vein Anunnaki solid (VeinArmature ritual_idle / ritual_walk). Reject draft 3b3dc30a / vein-ascetic-skinned-draft.glb / 2502928."
+  "source": "Ash's immutable Ember Priest handoff, consolidated in Blender from one shared accepted body/skin and its five supplied actions. Field Notes and the eight-actor ritual encounter clone this same derived rig independently.",
+  "sourceModel": "game/assets/field-notes-v02/ember-priest-v01.glb",
+  "sourceModelSHA256": "644687ad31207e5031baf1094fb795698c14624ad02374d2a61af2c451bcf6ea",
+  "sourceModelBytes": 8339884,
+  "imageSHA256": "d6490d4dfc74cd8c3acc741123739b1720a812c64491641fd48a0a5002a59f1f",
+  "render": "Studio M3 Pro render of three independent priest_dance phases from the same consolidated EmberPriestArmature. Card first paint withholds the identification still until the live VIEW 3D thumbnail lands. Motion choices are priest_idle, priest_walk, priest_run, priest_dance and priest_throw."
 }

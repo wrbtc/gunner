@@ -47,10 +47,10 @@ export function createBankGuideModel(ember=false){
  const hip=V(0,2.8,0),chest=V(0,4.15,-.2),head=V(0,5.55,-.7);
  part('hip',hip);part('torso',chest);part('neck',head.clone().add(V(0,-.6,.1)));part('head',head);part('eyes',head);
  for(const side of [-1,1]){const shoulder=chest.clone().add(V(side*.8,.55,0)),elbow=V(side*1.45,ember?5.2:3.15,-.15),hand=V(side*1.7,ember?6.4:1.9,-.55),knee=V(side*.75,1.4,-.25),foot=V(side*.75,.16,.15);segment('upper',shoulder,elbow);segment('lower',elbow,hand);part('hand',hand,V(side<0?-1:1,1,1));segment('thigh',hip.clone().add(V(side*.4,0,0)),knee);segment('shin',knee,foot);part('foot',foot);}
- root.name=ember?'Dancing Creeper — field guide':'Creeper — field guide';return root;
+ root.name=ember?'Ember Priest — legacy field guide':'Creeper — field guide';return root;
 }
-export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=null,locoKit=null}){
- const group=new THREE.Group();group.name='Forty bank Creepers and eight Ember dancers';scene.add(group);
+export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=null,locoKit=null,priestKit=null}){
+ const group=new THREE.Group();group.name='Forty bank Creepers and eight Ember Priests';scene.add(group);
  const geos=anatomy(),mat=skinMaterial(),parts={};
  const eyeMat=new THREE.MeshBasicMaterial({color:new THREE.Color(4.5,.012,.004),toneMapped:false});
  geos.eyes=merge([-1,1].map(s=>ellipsoid(s*.17,.10,-.31,.080,.070,.050,0xffffff))); 
@@ -67,10 +67,11 @@ export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=nu
   actors.push(a);
  }
  if(danceSite)for(let i=0;i<8;i++){
-   const angle=i/8*Math.PI*2,home=danceSite.center.clone().add(V(Math.cos(angle)*danceSite.ringRadius,0,Math.sin(angle)*danceSite.ringRadius)),root=new THREE.Group();scene.add(root);root.name=`Ember dancer ${i}`;
-   actors.push({id:`ember-${i}`,role:'ashborn',archetype:'ember-creeper',isEmber:true,emberBlend:1,noticed:false,noticeAt:null,temperament:'dancer',attackStyle:'expressive',moveRate:1,windupSeconds:1.65,attention:0,root,p:danceSite.p,side:danceSite.side,climb:false,home,stand:home.clone(),baseY:home.y,initialPhase:i*2.399963,phase:i*2.399963,hp:585,radius:3.4,dead:false,credited:false,commitment:false,state:'dance',timer:0,hitFlash:0,scale:1.08+(i%3)*.025,throwOrigin:V(),throat:new THREE.Object3D(),motionClock:0,climbTime:0,gaitPhase:0,lastPoseTime:0,speed:0,releaseTime:null,angle});
+   const angle=i/8*Math.PI*2,home=danceSite.center.clone().add(V(Math.cos(angle)*danceSite.ringRadius,0,Math.sin(angle)*danceSite.ringRadius)),root=new THREE.Group();scene.add(root);root.name=`Ember Priest ${i}`;
+   actors.push({id:`ember-${i}`,role:'ashborn',archetype:'ember-priest',isEmber:true,emberBlend:1,noticed:false,noticeAt:null,temperament:'dancer',attackStyle:'expressive',moveRate:1,windupSeconds:1.65,attention:0,root,p:danceSite.p,side:danceSite.side,climb:false,home,stand:home.clone(),baseY:home.y,initialPhase:i*2.399963,phase:i*2.399963,hp:585,radius:3.4,dead:false,credited:false,commitment:false,state:'dance',timer:0,hitFlash:0,scale:1.08+(i%3)*.025,throwOrigin:V(),throat:new THREE.Object3D(),motionClock:0,climbTime:0,gaitPhase:0,lastPoseTime:0,speed:0,releaseTime:null,angle});
  }
  if(locoKit)for(const a of actors)if(!a.isEmber)a.locoVisual=locoKit.attach(a.root);
+ if(priestKit)for(const [i,a]of actors.filter(a=>a.isEmber).entries())a.priestVisual=priestKit.attach(a.root,i);
  let ritualAwake=false,awakenedAt=null,danceCount=8,danceSeen=false;
  function assignStoneBudgets(){
    // Fixed per-flyover allowances; independent of combat randomness and frame rate.
@@ -102,7 +103,7 @@ export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=nu
  }
  function updateRitual(time){
    for(const a of actors.filter(a=>a.isEmber&&!a.dead)){
-     if(ritualAwake&&time>=a.noticeAt&&!a.noticed){const i=Number(a.id.split('-')[1]);a.noticed=true;a.archetype='creeper';a.temperament='hunter';a.attackStyle='rapid';a.windupSeconds=.55;a.moveRate=1.85;a.burstRemaining=Math.max(0,a.stoneBudget-(a.shotsFired||0));a.burstInterval=.85+(i*7%9)*.05;a.burstNextAt=a.noticeAt+.55;a.state='windup';a.timer=.55;a.attention=1;}
+     if(ritualAwake&&time>=a.noticeAt&&!a.noticed){const i=Number(a.id.split('-')[1]);a.noticed=true;a.archetype='ember-priest';a.temperament='hunter';a.attackStyle='rapid';a.windupSeconds=.55;a.moveRate=1.85;a.burstRemaining=Math.max(0,a.stoneBudget-(a.shotsFired||0));a.burstInterval=.85+(i*7%9)*.05;a.burstNextAt=a.noticeAt+.55;a.state='windup';a.timer=.55;a.attention=1;}
      a.emberBlend=a.noticed?clamp(1-(time-a.noticeAt)/.55,0,1):1;
    }
  }
@@ -175,6 +176,10 @@ export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=nu
   }
   if(a.climb){a.gripDetails[1].planted=a.gripDetails[1].planted&&!(f>0||release<1||taunt);a.gripDetails[1].point.copy(hands[1]).applyMatrix4(a.root.matrixWorld);}
   a.throwOrigin.copy(hands[1]).applyMatrix4(a.root.matrixWorld);a.center=chest.clone().applyMatrix4(a.root.matrixWorld);
+  if(a.priestVisual&&(a.state==='windup'||a.state==='cooldown')){
+   const at=a.state==='windup'?(1-clamp(a.timer/Math.max(a.windupSeconds,.001),0,1))*2.9:2.9+clamp(sinceRelease,0,2.1);
+   a.priestVisual.syncThrow(at);a.root.updateMatrixWorld(true);a.priestVisual.throwingHandWorld(a.throwOrigin);
+  }
   // Projectile release refreshes pose again after update(): retain the visible
   // throwing hand instead of replacing it with the procedural fallback above.
   if(a.state==='windup'||a.state==='cooldown')a.locoVisual?.throwingHandWorld(a.throwOrigin);
@@ -185,15 +190,26 @@ export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=nu
   for(const s of [-1,1]){const n=s<0?0:1;limb(index,a,s,chest.clone().add(V(s*.93,.76,0).applyQuaternion(twist)),hands[n]);limb(index,a,s,hip.clone().add(V(s*.42,-.2,0)),feet[n],true);}
   put('rock',index,a,hands[1].clone().add(V(0,-.40,-.08)),f>0?V(.72,.72,.72):V(0,0,0));
  }
- let lastUpdateTime=0,locoVisible=0;
+ let lastUpdateTime=0,locoVisible=0,priestVisible=0;
  function update(time,plane,reviewPosition=plane){
   viewer.copy(plane);updateRitual(time);if(danceSite&&danceSite.center.distanceTo(plane)<470)danceSeen=true;
-  const dt=Math.max(0,time-lastUpdateTime);lastUpdateTime=time;visible=0;locoVisible=0;
+  const dt=Math.max(0,time-lastUpdateTime);lastUpdateTime=time;visible=0;locoVisible=0;priestVisible=0;
   const locoNear=[];
   for(const a of actors){
    a.root.visible=!a.dead;
-   if(a.dead){if(a.locoVisual)a.locoVisual.stop();continue;}
+   if(a.dead){if(a.locoVisual)a.locoVisual.stop();if(a.priestVisual)a.priestVisual.stop();continue;}
    const near=a.stand.distanceToSquared(reviewPosition)<470*470;
+   if(a.priestVisual){
+    pose(a,time,-1);a.priestVisual.setWarmth(a.emberBlend,Math.min(1,(a.hitFlash||0)/.12)*(a.reducedHit?.32:1));a.priestVisual.root.visible=near;
+    if(near){
+     if(a.state==='dance')a.priestVisual.play('dance',dt,1);
+     else if(a.state==='windup')a.priestVisual.syncThrow((1-clamp(a.timer/Math.max(a.windupSeconds,.001),0,1))*2.9);
+     else if(a.state==='cooldown')a.priestVisual.syncThrow(2.9+clamp(time-(a.releaseTime??time),0,2.1));
+     else a.priestVisual.play((a.speed||0)>10||a.moveRate>1.2?'run':'walk',dt,Math.min(1.45,.4+Math.min(a.speed||0,5)*.18));
+     priestVisible++;
+    }
+    continue;
+   }
    if(near&&a.locoVisual&&!a.isEmber)locoNear.push(a);
    else{if(a.locoVisual)a.locoVisual.root.visible=false;pose(a,time,near?visible++:-1);}
   }
@@ -208,7 +224,7 @@ export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=nu
   }
   for(const p of Object.values(parts)){p.count=visible;p.instanceMatrix.needsUpdate=true;if(p.instanceColor)p.instanceColor.needsUpdate=true;p.geometry.attributes.emberAmount.needsUpdate=true;p.geometry.attributes.hitAmount.needsUpdate=true;}
  }
- function reset(){ritualAwake=false;awakenedAt=null;danceSeen=false;lastUpdateTime=0;locoVisible=0;for(const a of actors){a.agitatedAt=null;a.agitatedUntil=0;a.wallGrips=null;a.shotsFired=0;a.climbTime=0;a.climbDirection=1;a.motionClock=0;a.gaitPhase=0;a.lastPoseTime=0;a.attention=0;a.speed=0;a.releaseTime=null;a.jumpHeight=0;a.taunting=false;a.angry=false;if(a.locoVisual)a.locoVisual.stop();if(a.isEmber){a.state='dance';a.dancePose=null;a.emberBlend=1;a.noticed=false;a.noticeAt=null;a.archetype='ember-creeper';a.burstRemaining=0;a.burstNextAt=null;a.burstInterval=null;a.temperament='dancer';a.attackStyle='expressive';a.windupSeconds=1.65;a.moveRate=1;}}setDanceBudget(danceCount); }
+ function reset(){ritualAwake=false;awakenedAt=null;danceSeen=false;lastUpdateTime=0;locoVisible=0;priestVisible=0;for(const a of actors){a.agitatedAt=null;a.agitatedUntil=0;a.wallGrips=null;a.shotsFired=0;a.climbTime=0;a.climbDirection=1;a.motionClock=0;a.gaitPhase=0;a.lastPoseTime=0;a.attention=0;a.speed=0;a.releaseTime=null;a.jumpHeight=0;a.taunting=false;a.angry=false;if(a.locoVisual)a.locoVisual.stop();if(a.isEmber){a.state='dance';a.dancePose=null;a.emberBlend=1;a.noticed=false;a.noticeAt=null;a.archetype='ember-priest';a.burstRemaining=0;a.burstNextAt=null;a.burstInterval=null;a.temperament='dancer';a.attackStyle='expressive';a.windupSeconds=1.65;a.moveRate=1;a.priestVisual?.reset();}}setDanceBudget(danceCount); }
  function setWallSurfaces(meshes){for(const a of actors.filter(a=>a.climb)){a.gripGeometry=[geos.hand,geos.hand,geos.foot,geos.foot].map(g=>{const p=g.attributes.position,unique=new Map();for(let i=0;i<p.count;i++){const v=V().fromBufferAttribute(p,i);unique.set(v.toArray().map(n=>n.toFixed(3)).join(','),v);}return [...unique.values()];});a.gripCache=new Map();a.wallSurface=createWallSurface(a,meshes);a.wallRoute=planWallRoute(a,a.wallSurface);a.wallGrips=null;}update(0,V());}
- assignStoneBudgets();update(0,V());return{agitate,setWallSurfaces,actors,group,update,pose,reset,setDanceBudget,awaken,disturbSegment,ritualAlerted:()=>ritualAwake,stats:()=>({count:actors.length,emberDancers:actors.filter(a=>a.isEmber&&!a.disabled).length,danceCount,danceSeen,ritualAwake,awakenedAt,stoneBudgets:actors.filter(a=>!a.disabled&&a.stoneBudget>0).reduce((counts,a)=>(counts[a.stoneBudget]=(counts[a.stoneBudget]||0)+1,counts),{}),orange:actors.filter(a=>a.isEmber&&!a.dead&&a.emberBlend>.99).length,cooling:actors.filter(a=>a.isEmber&&!a.dead&&a.emberBlend>0&&a.emberBlend<1).length,black:actors.filter(a=>a.isEmber&&!a.dead&&a.emberBlend===0).length,roamers:actors.filter(a=>a.temperament==='roamer').length,rapid:actors.filter(a=>a.temperament==='hunter'&&a.attackStyle==='rapid').length,expressive:actors.filter(a=>a.temperament==='hunter'&&a.attackStyle==='expressive').length,hunters:actors.filter(a=>a.temperament==='hunter').length,climbers:actors.filter(a=>a.climb).length,bankLurkers:actors.filter(a=>!a.climb).length,visible,locoVisible,locoAttached:actors.filter(a=>a.locoVisual).length,locoAsset:locoKit&&locoKit.stats||null,draws:Object.keys(parts).length,trianglesPerActor:Object.values(names).reduce((sum,n)=>sum+geos[n].attributes.position.count/3,0)})};
+ assignStoneBudgets();update(0,V());return{agitate,setWallSurfaces,actors,group,update,pose,reset,setDanceBudget,awaken,disturbSegment,ritualAlerted:()=>ritualAwake,stats:()=>({count:actors.length,emberPriests:actors.filter(a=>a.isEmber&&!a.disabled).length,danceCount,danceSeen,ritualAwake,awakenedAt,stoneBudgets:actors.filter(a=>!a.disabled&&a.stoneBudget>0).reduce((counts,a)=>(counts[a.stoneBudget]=(counts[a.stoneBudget]||0)+1,counts),{}),orange:actors.filter(a=>a.isEmber&&!a.dead&&a.emberBlend>.99).length,cooling:actors.filter(a=>a.isEmber&&!a.dead&&a.emberBlend>0&&a.emberBlend<1).length,grey:actors.filter(a=>a.isEmber&&!a.dead&&a.emberBlend===0).length,roamers:actors.filter(a=>a.temperament==='roamer').length,rapid:actors.filter(a=>a.temperament==='hunter'&&a.attackStyle==='rapid').length,expressive:actors.filter(a=>a.temperament==='hunter'&&a.attackStyle==='expressive').length,hunters:actors.filter(a=>a.temperament==='hunter').length,climbers:actors.filter(a=>a.climb).length,bankLurkers:actors.filter(a=>!a.climb).length,visible,priestVisible,locoVisible,priestAttached:actors.filter(a=>a.priestVisual).length,priestAsset:priestKit&&priestKit.stats||null,locoAttached:actors.filter(a=>a.locoVisual).length,locoAsset:locoKit&&locoKit.stats||null,draws:Object.keys(parts).length+(priestKit?.stats.draws||0),trianglesPerActor:Object.values(names).reduce((sum,n)=>sum+geos[n].attributes.position.count/3,0)})};
 }

@@ -24,9 +24,10 @@ import {createRomanRuinsAsync} from './src/roman-ruins.js?v=054-6';
 import {createStaticRaycast} from './src/static-raycast.js?v=052';
 import * as THREE from './vendor/three.module.js?v=052';
 import {createEggNests} from './src/egg-nests.js?v=054-74';
-import {createBankDemons} from './src/bank-demons.js?v=054-84';
+import {createBankDemons} from './src/bank-demons.js?v=054-88';
 import {loadCreeperLoco} from './src/creeper-loco.js?v=054-84';
-import {loadSkinnedSolids,loadGuideDragonSolid} from './src/skinned-solids.js?v=054-86';
+import {loadSkinnedSolids,loadGuideDragonSolid} from './src/skinned-solids.js?v=054-88';
+import {createEmberPriestKit} from './src/ember-priest.js?v=054-88';
 import {loadEggSolids} from './src/egg-solids.js?v=054-87';
 import {createBlastWorld} from './src/blast-world.js?v=054-74';
 import {createHellWorld} from './src/hell-world.js?v=054-80';
@@ -831,7 +832,7 @@ function actorWindup(e){return e.tanker||e.role==='ashborn'?e.windupSeconds:role
 function roleWindup(role){if(role==='ashborn')return 2.5;return role==='hurler'?2.7:role==='maw'?2.35:1.8;}
 function clearEnemyTell(e){e.attackJawOpen=0;e.throat.scale.setScalar(.01);if(e.throatGlow){e.throatGlow.material.opacity=0;e.throatGlow.scale.setScalar(.01);}if(e.jaw)e.jaw.rotation.x=e.jawBase||0;}
 function hitEnemy(e,pos,damage=25){
-  if(e.dead)return;if(e.isEmber&&bankDemons.awaken(game.time,pos))logEvent('ritual-provoked',{by:'dancer-hit',source:e.id});e.hp-=damage;if(e.role==='ashborn')bankDemons.agitate(game.time,e.root.position,0,e);hitFeedback.hit(e);game.hitMarker=.1;particles.burst(pos,7,new THREE.Color(0xb84526),11,.65);audio.creature(enemyKind(e),pos,false);audio.confirmHit();
+  if(e.dead)return;if(e.isEmber&&bankDemons.awaken(game.time,pos))logEvent('ritual-provoked',{by:'priest-hit',source:e.id});e.hp-=damage;if(e.role==='ashborn')bankDemons.agitate(game.time,e.root.position,0,e);hitFeedback.hit(e);game.hitMarker=.1;particles.burst(pos,7,new THREE.Color(0xb84526),11,.65);audio.creature(enemyKind(e),pos,false);audio.confirmHit();
   if(e.commitment&&(e.state==='windup'||e.tanker&&e.state==='spraying')){if(e.tanker)tankerSpray?.cancel(e);e.commitment=false;e.state='suppressed';e.timer=1.65;clearEnemyTell(e);logEvent('attack-cancelled',{source:e.id});runReview.interruptions++;runReview.lastCue='ATTACK INTERRUPTED';runReview.cueUntil=game.time+1.1;}
   emitHook('onEnemyHit',{enemy:e,position:pos.clone(),damage,killed:e.hp<=0});
   if(e.hp<=0){if(e.tanker)tankerSpray?.cancel(e);e.dead=true;e.state='dead';e.commitment=false;clearEnemyTell(e);creditEnemy(e);const deathPos=e.rimmer?actorCenter(e):e.root.position.clone().add(new THREE.Vector3(0,1.5,0));e.root.visible=false;const large=e.role==='hurler'||e.role==='maw';const burstSize=e.rimmer?18:large?9:5;explode(deathPos,burstSize);emitDebris(deathPos,e.rimmer?18:large?14:9,'demon');particles.burst(deathPos,e.rimmer?30:16,new THREE.Color(0x3d1720),e.rimmer?29:16,1.4);logEvent('enemy-destroyed',{source:e.id,position:deathPos.toArray(),burstSize});audio.creature(enemyKind(e),deathPos,true);audio.cue('kill');runReview.killUntil=game.time+(e.rimmer?.7:.4);}
@@ -1005,7 +1006,7 @@ function updateDirector(dt){
     if(e.isEmber&&!e.noticed)continue;
     if(!galleryAllowsAttack(e)){e.commitment=false;e.state='idle';e.timer=0;clearEnemyTell(e);continue;}
     if(e.role==='ashborn'&&(e.shotsFired||0)>=e.stoneBudget){e.commitment=false;e.state=e.isEmber&&e.noticed?'angry':'idle';e.timer=0;clearEnemyTell(e);continue;}
-    // Each surviving dancer throws twice, with an individually timed second windup.
+    // Each surviving Ember Priest throws twice, with an individually timed second windup.
     // This one-off response keeps the existing finite pool and staggered timing.
     if(e.isEmber&&e.burstRemaining>0){
       if(e.state==='suppressed'&&e.timer>0)continue;
@@ -1494,7 +1495,7 @@ function qaCoreChecks(){
   return {kind:'diagnostic-core-checks',passed:checks.filter(c=>c.pass).length,total:checks.length,checks};
 }
 const qaApi={
-  version:'0.54.87',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,masterMode:preferences.master,masterUsed:game.masterUsed,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:frameMetrics.counterScope||'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
+  version:'0.54.88',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,masterMode:preferences.master,masterUsed:game.masterUsed,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:frameMetrics.counterScope||'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
   start:()=>start({skipOpening:true,legacyRoute:true}),beginOpening:()=>start(),skipOpening:()=>finishOpening(true),openingState:()=>({active:game.opening,title:game.title,time:game.openingTime,phase:openingPhase,flightProgress:currentFlightProgress(),camera:camera.position.toArray(),quaternion:camera.quaternion.toArray(),fov:camera.fov,fade:Number(dom.openingFade.style.opacity)||0,exterior:bomberExterior?.stats(),cameraPath:openingCamera?.stats()}),seekOpening:(seconds)=>{game.openingTime=THREE.MathUtils.clamp(seconds,0,OPENING_SECONDS);game.captureFreeze=true;updatePlane(0);updateOpeningPresentation();return true;},reset:qaReset,pause,resume,setTime:(seconds)=>{game.time=THREE.MathUtils.clamp(seconds,0,RUN_SECONDS);updatePlane(0);creatureTracking?.seek(game.time);},setView:(yaw,pitch)=>{game.yaw=yaw;game.pitch=THREE.MathUtils.clamp(pitch,-1.38,.95);updatePlane(0);},turnAround,toggleRear:turnAround,fireCannon,fireRound,damage:(amount=6)=>damageHull(amount,planePos),masterMode:(enabled=true)=>setMasterMode(enabled,{persist:false}),explode:()=>explode(planePos.clone().addScaledVector(planeTangent,70),14),preview:setPreview,
   events:()=>game.eventLog.slice(),runtime:gunnerRuntime,trace:qaTrace,replay:qaReplay,checkCore:qaCoreChecks,
   aimAt:(target)=>{const actor=typeof target==='string'?enemies.concat(siege).find(e=>e.id===target):null;qaAimAt(actor?actorCenter(actor):new THREE.Vector3().fromArray(target));},
@@ -1610,8 +1611,8 @@ danceSite=createDanceTerrace({scene,world:hellWorld,centerAt,widthAt,eggNests,ro
 for(let i=hellWorld.collisionMeshes.length-1;i>=0;i--)if(hellWorld.collisionMeshes[i].userData.dancePocketCleared)hellWorld.collisionMeshes.splice(i,1);
 });
 await assembly.step('bank',()=>{
-bankDemons=createBankDemons({scene,centerAt,widthAt,bankMeshes:hellWorld.collisionMeshes,danceSite,locoKit:creeperLocoBootstrap?.value||null});enemies.push(...bankDemons.actors);
-for(const creeper of bankDemons.actors)creeper.archetype=creeper.isEmber?'ember-creeper':'creeper';
+bankDemons=createBankDemons({scene,centerAt,widthAt,bankMeshes:hellWorld.collisionMeshes,danceSite,locoKit:creeperLocoBootstrap?.value||null,priestKit:createEmberPriestKit(skinnedSolidsBootstrap?.value?.dancers)});enemies.push(...bankDemons.actors);
+for(const creeper of bankDemons.actors)creeper.archetype=creeper.isEmber?'ember-priest':'creeper';
 gunnerRuntime.setWorldCollision([...hellWorld.collisionMeshes,...shelves.map(s=>s.mesh),...romanRuins.collisionMeshes,...danceSite.collisionMeshes],hellWorld.groundAt);
 });
 await assembly.step('spray',()=>{
@@ -1725,7 +1726,7 @@ await prepareFlightGraphics();
 startupMark('graphics','end');
 if(!loadingStage('shaders'))throw preparationError('Flight preparation already failed');
 startupMark('startup','ready');
-setGuideModelProvider(async id=>{const {buildGuideModel}=await import('./src/guide-models.js?v=054-86');const skinnedSolids={...(skinnedSolidsBootstrap?.value||{})};if(id==='dragons')skinnedSolids.dragons=await loadGuideDragonSolid();return buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco:creeperLocoBootstrap?.value,skinnedSolids});});
+setGuideModelProvider(async id=>{const {buildGuideModel}=await import('./src/guide-models.js?v=054-88');const skinnedSolids={...(skinnedSolidsBootstrap?.value||{})};if(id==='dragons')skinnedSolids.dragons=await loadGuideDragonSolid();return buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco:creeperLocoBootstrap?.value,skinnedSolids});});
 bootCompleted=true;graphicsReady=true;dom.start.disabled=false;dom.start.textContent='DEPLOY GUNNER';
 if(query.has('preview'))setPreview(query.get('preview'));
 else if(QA_MODE){qaReset();if(CAPTURE){dom.intro.hidden=true;dom.hud.classList.add('visible');}}

@@ -8,8 +8,8 @@ const cinder=read('game/src/cinder-maw.js'),tanker=read('game/src/tanker-bug.js'
 const packageJson=JSON.parse(read('package.json')),manifest=JSON.parse(read('SOURCE-MANIFEST.json'));
 const assetPath='game/assets/field-notes-v02/cinder-maw-fieldnotes-v02.glb',asset=readFileSync(new URL(assetPath,root));
 
-assert.equal(packageJson.version,'0.54.87');
-assert.equal(manifest.version,'0.54.87');
+assert.equal(packageJson.version,'0.54.88');
+assert.equal(manifest.version,'0.54.88');
 assert.equal(CINDER_GAMEPLAY_SOLID.asset,'field-notes-v02/cinder-maw-fieldnotes-v02');
 assert.equal(CINDER_GAMEPLAY_SOLID.bytes,1483396);
 assert.equal(CINDER_GAMEPLAY_SOLID.sha256,'2a829abf1fbb8419c8f0081ecedeeeddc7a3d6adc922f6a21108148ba4f53c52');
@@ -38,7 +38,7 @@ assert.match(main,/cinder-maw\.js\?v=054-87/);
 
 const row=manifest.files.find(item=>item.path===assetPath);
 assert.deepEqual(row,{path:assetPath,bytes:CINDER_GAMEPLAY_SOLID.bytes,sha256:CINDER_GAMEPLAY_SOLID.sha256});
-assert.match(manifest.releaseNote,/Cinder Maw Field Notes v02 the live Tank visual/);
-assert.match(manifest.releaseNote,/game-owned route, HP, collision volumes, windup, suppression and fire behavior remain unchanged/);
+assert.match(manifest.releaseNote,/Ember Priests/);
+assert.match(manifest.releaseNote,/Encounter count, routing, HP, collision, attack cadence, mud behavior, scoring and timing remain unchanged/);
 
-console.log(JSON.stringify({passed:true,identity:'0.54.87',asset:CINDER_GAMEPLAY_SOLID.sha256,bones:CINDER_GAMEPLAY_SOLID.bones.length},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.88',asset:CINDER_GAMEPLAY_SOLID.sha256,bones:CINDER_GAMEPLAY_SOLID.bones.length},null,2));
