@@ -19,8 +19,8 @@ const expected=[
  {path:'game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb',bytes:1075680,sha256:'344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96'}
 ];
 
-assert.equal(packageJson.version,'0.54.87');
-assert.equal(manifest.version,'0.54.87');
+assert.equal(packageJson.version,'0.54.88');
+assert.equal(manifest.version,'0.54.88');
 assert.match(solids,/export function loadEggSolids/);
 assert.match(solids,/adaptEggShellMaterial/);
 assert.match(solids,/opacity=\.46/);
@@ -82,4 +82,4 @@ for(const row of expected){
  binaryStatus[row.path]=state;
 }
 
-console.log(JSON.stringify({passed:true,identity:'0.54.87',binaryStatus},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.88',binaryStatus},null,2));

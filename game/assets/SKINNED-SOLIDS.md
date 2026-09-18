@@ -1,9 +1,9 @@
-# Field Guide skinned solids (v0.54.87)
+# Field Guide skinned solids (v0.54.88)
 
 Alien Field Guide VIEW 3D meshes. The Meshy Rimmer v2 and Cinder Maw Field
-Notes v02 are shared with gameplay through independent skeleton instances.
-Plasma, lava loco bank creeper, orange-spirit dancer, and sky dragon paths stay
-unchanged. The earlier Rimmer asset below is retained only as history.
+Notes v02 and Ember Priest v01 are shared with gameplay through independent
+skeleton instances. Plasma, lava loco bank creeper, and sky dragon paths stay
+unchanged. The earlier Rimmer and Vein Ascetic assets are retained as history.
 
 Expected binaries next to this note:
 
@@ -15,6 +15,7 @@ Expected binaries next to this note:
 | `game/assets/dragon-fg-a.glb` | 64020728 | `38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27` |
 | `game/assets/field-notes-v02/cinder-maw-fieldnotes-v02.glb` | 1483396 | `2a829abf1fbb8419c8f0081ecedeeeddc7a3d6adc922f6a21108148ba4f53c52` |
 | `game/assets/vein-ascetic-skinned.glb` | 1908316 | `9d67a8c5fcdc4a5d8bbbdbae9f428e87a963a978682c0e572f62af28567e495e` |
+| `game/assets/field-notes-v02/ember-priest-v01.glb` | 8339884 | `644687ad31207e5031baf1094fb795698c14624ad02374d2a61af2c451bcf6ea` |
 | `game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb` | 1075680 | `344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96` |
 
 Ember Hollow is the slim pack: armature `EmberArmature`, clips `ember_idle` and
@@ -36,8 +37,19 @@ The Larva specimen stays independent. Field Notes Intact egg nests this larva
 inside `egg-shell-a.glb`; live nests extract its bind geometry into the existing
 instanced embryo and rupture path without adding per-egg mixers.
 
-Vein Anunnaki museum solid: armature `VeinArmature`, clips `ritual_idle` and
-`ritual_walk`. VIEW 3D plays `ritual_idle` only. Reject the superseded draft
+Ember Priest shared rig: armature `EmberPriestArmature`, clips `priest_idle`,
+`priest_walk`, `priest_run`, `priest_dance`, and `priest_throw`. Field Notes
+defaults to `priest_idle` and exposes every meaningful motion. Gameplay makes
+eight independent skeleton/mixer/material clones, cycles three deterministic
+dance phases, removes authored root travel while retaining local body motion,
+and samples `RightHand` at the existing 2.90-second release pose. Warm orange
+drains to neutral ash-grey over the existing notice interval. Spawn count,
+routes, HP, collision, cadence, mud, scoring, and encounter timing stay game
+owned and unchanged.
+
+The former Vein Anunnaki museum solid remains historical: armature
+`VeinArmature`, clips `ritual_idle` and `ritual_walk`. It is no longer loaded.
+Reject the superseded draft
 `vein-ascetic-skinned-draft.glb` (`2502928` bytes, sha256
 `3b3dc30a3ae7dafe87b82932f37c1c371fcbce7a0db4f6491dff494e6b05bce4`).
 
@@ -58,8 +70,8 @@ SOLID Hollow pack, and the blocked morph prefixes `75ddc18f` / `a2ac5ebb` /
 the Field Guide asks for that card, not during boot.
 
 Museum pose: Rimmer defaults to `rimmer_idle`; plasma stays in rest pose. Ember Hollow VIEW 3D defaults
-to `ember_idle`; Cinder Maw defaults to `cinder_idle`; Vein Ascetic defaults to
-`ritual_idle`; the larva defaults to `maggot_wriggle`; the shell and Dragon A
+to `ember_idle`; Cinder Maw defaults to `cinder_idle`; Ember Priests default to
+`priest_idle`; the larva defaults to `maggot_wriggle`; the shell and Dragon A
 stay rigid. Motion selection and pause remain inside Field Notes. Cloned
 materials, no combat mixers, no live-actor mutation. The Queen stays ENLARGE.
 HERO is unchanged. Soft-GPU stays off.

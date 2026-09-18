@@ -187,7 +187,7 @@ export const loadingSnapshot=()=>Object.freeze({...loading.snapshot(),trace:star
 export const loadingStage=id=>{const ok=loading.complete(id);if(ok)bootHeartbeat();return ok;};
 export const loadingProgress=(id,detail)=>{const ok=loading.begin(id,detail);if(ok)bootHeartbeat();return ok;};
 export const loadingReady=()=>loading.ready();
-export const REPORT_BUILD='0.54.87';
+export const REPORT_BUILD='0.54.88';
 const REPORT_ORIGINS=['https://gunner.satoshis.watch','http://127.0.0.1:8000'];
 const missionBuild=$('missionBuild');
 if(missionBuild)missionBuild.textContent='v'+REPORT_BUILD;
@@ -273,7 +273,7 @@ async function openGuideViewer(button=null){
 export const FIELD_GUIDE=Object.freeze([
  ['eggs','Brood eggs','THE OBJECTIVE','Membranous eggs cluster in nests and in the ruins.','Shoot the eggs directly. Each rupture adds to your score; clear clusters with the heavy cannon.'],
  ['creepers','Creepers','MUD THROWERS','Ember Hollow, the shipped skinned creeper. They walk the banks and climb the cliffs. Their mud coats the glass.','Hit them during the throwing windup to interrupt. Keep the guns on one while tracking the next threat.'],
- ['dancers','Dancing Creepers','THE RITUAL','Orange spirits dance around the altar. Disturbing their gathering wakes the group.','They become hostile when disturbed. Shoot through their windup to interrupt their throws.'],
+ ['dancers','Ember Priests','THE RITUAL','Orange Ember Priests dance around the altar. Disturbing their gathering drains them to ash-grey and wakes the group.','They become hostile when disturbed. Shoot through their windup to interrupt their mud throws.'],
  ['rimmers','Rimmers','LASER / FLASHBANG','A red targeting laser precedes the incoming spike. A hit leaves a blinding afterimage.','Trace the laser back to the creature and interrupt its charge, or shoot down the incoming spike.'],
  ['tanks','Tank · Cinder Maw','FIRE BREATHER','A low volcanic beast with layered rock armour and a furnace mouth.','Sustain fire into the charging creature to interrupt it. Shoot incoming fireballs; use the cannon for heavy damage.'],
  ['plasma','Plasma bugs','VOLATILE','Small armoured scarabs climb the canyon walls. Their red sacs burst with a dangerous pressure wave.','Detonate them while the plane is still distant. Their blast can catch nearby creatures.'],

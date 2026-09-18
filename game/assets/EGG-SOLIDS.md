@@ -1,4 +1,4 @@
-# Brood egg solids (v0.54.87)
+# Brood egg solids (v0.54.88)
 
 Live nests and Field Notes now share the accepted rigid shell and reworked
 larva identity. Field Notes Intact egg (`id=eggs`) plays the independently

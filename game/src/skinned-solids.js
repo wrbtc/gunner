@@ -52,11 +52,12 @@ export const SKINNED_SOLIDS=Object.freeze({
  }),
  dancers:Object.freeze({
   id:'dancers',
-  asset:'vein-ascetic-skinned',
-  sha256:'9d67a8c5fcdc4a5d8bbbdbae9f428e87a963a978682c0e572f62af28567e495e',
-  bytes:1908316,
-  armature:'VeinArmature',
-  clips:Object.freeze({idle:'ritual_idle',walk:'ritual_walk'})
+  asset:'field-notes-v02/ember-priest-v01',
+  sha256:'644687ad31207e5031baf1094fb795698c14624ad02374d2a61af2c451bcf6ea',
+  bytes:8339884,
+  armature:'EmberPriestArmature',
+  clips:Object.freeze({idle:'priest_idle',walk:'priest_walk',run:'priest_run',dance:'priest_dance',throw:'priest_throw'}),
+  bones:Object.freeze(['Hips','RightHand','LeftHand','RightFoot','LeftFoot'])
  })
 });
 const BOOT_SOLIDS=Object.freeze(['rimmers','plasma','creepers','tanks','dancers']);

@@ -16,14 +16,14 @@ const expected=[
  {path:'game/assets/plasma-bug-skinned-solid.glb',bytes:1135104,sha256:'127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f'},
  {path:'game/assets/creeper-ember-hollow.glb',bytes:1091768,sha256:'25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe'},
  {path:'game/assets/dragon-fg-a.glb',bytes:64020728,sha256:'38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27'},
- {path:'game/assets/vein-ascetic-skinned.glb',bytes:1908316,sha256:'9d67a8c5fcdc4a5d8bbbdbae9f428e87a963a978682c0e572f62af28567e495e'},
+ {path:'game/assets/field-notes-v02/ember-priest-v01.glb',bytes:8339884,sha256:'644687ad31207e5031baf1094fb795698c14624ad02374d2a61af2c451bcf6ea'},
 ];
 const forbidden=['75ddc18f','a2ac5ebb','1c10edf7','45123f4c','9cd194e6','a9dcb2b6'];
 assert.match(attributes,/game\/assets\/vein-ascetic-skinned\.glb filter=lfs/);
 assert.doesNotMatch(attributes,/vein-ascetic-skinned-draft/);
 
-assert.equal(packageJson.version,'0.54.87');
-assert.equal(manifest.version,'0.54.87');
+assert.equal(packageJson.version,'0.54.88');
+assert.equal(manifest.version,'0.54.88');
 assert.match(manifest.note,/0\.54\.67/);
 assert.match(manifest.note,/Field Guide/);
 assert.match(manifest.note,/VIEW 3D/);
@@ -39,17 +39,21 @@ assert.match(guide,/skinnedSolids\?\.dancers/);
 assert.match(guide,/solidGuideRoot\(skinnedSolids\?\.dancers\)/);
 assert.doesNotMatch(guide,/createBankGuideModel\(true\)/);
 assert.match(solids,/TankArmature/);
-assert.match(solids,/VeinArmature/);
+assert.match(solids,/EmberPriestArmature/);
 assert.match(solids,/cinder_idle/);
 assert.match(solids,/cinder_jaw_inspect/);
 assert.match(solids,/cinder_weight_shift/);
-assert.match(solids,/ritual_idle/);
-assert.match(solids,/ritual_walk/);
+assert.match(solids,/priest_idle/);
+assert.match(solids,/priest_walk/);
+assert.match(solids,/priest_run/);
+assert.match(solids,/priest_dance/);
+assert.match(solids,/priest_throw/);
 assert.match(solids,/cinder_mouth/);
 assert.match(solids,/\['rimmers','plasma','creepers','tanks','dancers'\]/);
 assert.match(main,/settleOptionalAsset\(loadSkinnedSolids\(\),'guide-solids'\)/);
 assert.match(main,/skinnedSolidsBootstrap\?\.value/);
 assert.match(main,/createRimmers\(\{solid:skinnedSolidsBootstrap\?\.value\?\.rimmers/);
+assert.match(main,/priestKit:createEmberPriestKit\(skinnedSolidsBootstrap\?\.value\?\.dancers\)/);
 assert.doesNotMatch(main,/createPlasmaBugs\([\s\S]{0,400}solid/);
 assert.match(main,/createEggNests\([\s\S]{0,240}eggSolids:eggSolidsBootstrap\?\.value/);
 assert.doesNotMatch(main,/createRimmers\([\s\S]{0,200}eggSolids/);
@@ -73,6 +77,8 @@ assert.match(note,/9d67a8c5fcdc4a5d8bbbdbae9f428e87a963a978682c0e572f62af28567e4
 assert.match(note,/3b3dc30a3ae7dafe87b82932f37c1c371fcbce7a0db4f6491dff494e6b05bce4/);
 assert.match(note,/1483396/);
 assert.match(note,/1908316/);
+assert.match(note,/644687ad31207e5031baf1094fb795698c14624ad02374d2a61af2c451bcf6ea/);
+assert.match(note,/8339884/);
 assert.match(note,/2502928/);
 assert.doesNotMatch(note,/Roland|Phil|Dee/);
 assert.match(solids,/REJECTED_EMBER_SOLID/);
@@ -145,8 +151,8 @@ for(const row of expected){
    assert.equal(createHash('sha256').update(bytes).digest('hex'),row.sha256);
   }
  }
- if(row.path==='game/assets/vein-ascetic-skinned.glb')assert.equal(state,'binary','Vein Anunnaki must be a real hydrated GLB');
+ if(row.path==='game/assets/field-notes-v02/ember-priest-v01.glb')assert.equal(state,'binary','Ember Priest must be a real hydrated GLB');
  binaryStatus[row.path]=state;
 }
 
-console.log(JSON.stringify({passed:true,identity:'0.54.87',binaryStatus},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.88',binaryStatus},null,2));

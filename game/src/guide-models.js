@@ -1,8 +1,9 @@
 import * as THREE from '../vendor/three.module.js?v=052';
-import {createBankGuideModel} from './bank-demons.js?v=054-84';
+import {createBankGuideModel} from './bank-demons.js?v=054-88';
 import {createRimmerModel} from './rimmer-model.js?v=052';
-import {cloneSkinnedGuide} from './skinned-solids.js?v=054-86';
+import {cloneSkinnedGuide} from './skinned-solids.js?v=054-88';
 import {loadGuideEggPart,loadGuideIntactEgg} from './field-guide-egg-parts.js?v=054-74';
+import {styleEmberPriest} from './ember-priest.js?v=054-88';
 const GUIDE_FRONT_YAW=.35,GUIDE_DRAGON_YAW=.18;
 export const GUIDE_FRONT_IDS=Object.freeze(['creepers','rimmers','plasma','tanks','dancers','eggs','egg-maggot','egg-shell']);
 export function guideYawFor(id){
@@ -34,7 +35,7 @@ function isolateGuideMeshes(root){
 function solidGuideRoot(solid){
  if(!solid)return null;
  const root=solid.museumRoot();
- // Isolation copies keep combat actors untouched. Hollow ember_idle, tank idle, dancer ritual_idle may play.
+ // Isolation copies keep combat actors untouched. Museum idle clips may play.
  root.rotation.y=0;
  return isolateGuideMeshes(root);
 }
@@ -73,7 +74,7 @@ export async function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creepe
  if(id==='egg-maggot'||id==='egg-shell')root=solidGuideRoot(await loadGuideEggPart(id));
  else if(id==='eggs')root=solidGuideRoot(skinnedSolids?.eggs||await loadGuideIntactEgg());
  else if(id==='creepers')root=creeperGuideRoot(creeperLoco,skinnedSolids?.creepers);
- else if(id==='dancers')root=solidGuideRoot(skinnedSolids?.dancers);
+ else if(id==='dancers'){root=solidGuideRoot(skinnedSolids?.dancers);if(root)styleEmberPriest(root,1);}
  else if(id==='rimmers')root=solidGuideRoot(skinnedSolids?.rimmers)||cloneGuideTree(createRimmerModel().root);
  else if(id==='tanks'){
   root=solidGuideRoot(skinnedSolids?.tanks);
@@ -101,7 +102,7 @@ export async function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creepe
  const viewBounds=new THREE.Box3(bounds.min.clone().sub(center).multiplyScalar(scale),bounds.max.clone().sub(center).multiplyScalar(scale));
  const result={root:frame,dispose,viewBounds,viewBoxes};
  if(mixers.length){
-  result.clips=clips.map(c=>({name:c.name,label:c.name.replace(/^(ember|rimmer|plasma|ritual|cinder|maggot)_/,'').replaceAll('_',' ')}));
+  result.clips=clips.map(c=>({name:c.name,label:c.name.replace(/^(ember|rimmer|plasma|ritual|cinder|maggot|priest)_/,'').replaceAll('_',' ')}));
   result.activeClip=clips.find(c=>/idle|wriggle/.test(c.name))?.name||clips[0]?.name;
   result.tick=dt=>{if(!disposed)mixers.forEach(m=>m.update(dt));};
   result.playClip=name=>{const clip=clips.find(c=>c.name===name);if(!clip||disposed)return;result.activeClip=name;for(const mixer of mixers){mixer.stopAllAction();mixer.clipAction(clip).reset().play();mixer.update(0);}};
