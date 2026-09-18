@@ -19,9 +19,9 @@ const plasmaProvenance=JSON.parse(read('game/assets/field-guide/PLASMA-PROVENANC
 const dragonProvenance=JSON.parse(read('game/assets/field-guide/DRAGON-PROVENANCE.json'));
 const dragonPortrait=readFileSync(new URL('game/assets/field-guide/dragons.png',root));
 
-assert.equal(packageJson.version,'0.54.84');
-assert.match(briefing,/export const REPORT_BUILD='0\.54\.84'/);
-assert.match(main,/version:'0\.54\.84'/);
+assert.equal(packageJson.version,'0.54.85');
+assert.match(briefing,/export const REPORT_BUILD='0\.54\.85'/);
+assert.match(main,/version:'0\.54\.85'/);
 assert.doesNotMatch(briefing,/0\.54\.52/);
 assert.doesNotMatch(briefing,/0\.54\.53/);
 assert.doesNotMatch(briefing,/0\.54\.57/);
@@ -117,7 +117,7 @@ assert.match(read('game/src/egg-solids.js'),/368d9e85c7a710b2edc02d2d5b212d590e4
 assert.match(read('game/src/egg-solids.js'),/3b9e16e23d55689a12db03edf8a9f658df878501486a34af12b8a79c9daa1127/);
 assert.doesNotMatch(guide,/id==='creepers'\|\|id==='dancers'\)root=createBankGuideModel/);
 
-assert.match(solids,/asset:'rimmer-skinned-solid'/);
+assert.match(solids,/asset:'rimmer-meshy-v2-rigged'/);
 assert.match(solids,/asset:'plasma-bug-skinned-solid'/);
 assert.match(solids,/asset:'creeper-ember-hollow'/);
 assert.match(solids,/asset:'field-notes-v02\/cinder-maw-fieldnotes-v02'/);
@@ -139,10 +139,10 @@ assert.match(solids,/ritual_walk/);
 assert.match(solids,/cinder_mouth/);
 assert.match(solids,/Field-guide solid bone missing/);
 assert.match(solids,/\['rimmers','plasma','creepers','tanks','dancers'\]/);
-assert.match(solids,/1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456/);
+assert.match(solids,/01231fad8bfc8c6bde904e8c46eba6c667f21440f1074ad6877b99c80ca500ff/);
 assert.match(solids,/127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f/);
 assert.match(solids,/25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe/);
-assert.match(solids,/bytes:1153368/);
+assert.match(solids,/bytes:18054908/);
 assert.match(solids,/bytes:1135104/);
 assert.match(solids,/bytes:1091768/);
 assert.match(solids,/REJECTED_EMBER_SOLID/);
@@ -173,7 +173,7 @@ assert.match(main,/loadSkinnedSolids/);
 assert.match(main,/guide-solids/);
 assert.match(main,/skinnedSolidsBootstrap\?\.value/);
 assert.match(main,/creeperLoco:creeperLocoBootstrap\?\.value/);
-assert.doesNotMatch(main,/createRimmers\([^)]*skinnedSolids/);
+assert.match(main,/createRimmers\([^)]*skinnedSolids/);
 assert.doesNotMatch(main,/createPlasmaBugs\([^)]*skinnedSolids/);
 assert.doesNotMatch(main,/createBankDemons\([^)]*skinnedSolids/);
 assert.doesNotMatch(main,/createTankerBugsAsync\([\s\S]{0,400}skinnedSolids/);
@@ -188,7 +188,7 @@ assert.doesNotMatch(main,/powerPreference:\s*'low-power'/);
 assert.match(main,/failIfMajorPerformanceCaveat: false/);
 assert.match(main,/powerPreference: 'high-performance'/);
 
-assert.doesNotMatch(sky,/rimmer-skinned-solid/);
+assert.doesNotMatch(sky,/rimmer-meshy-v2-rigged/);
 assert.doesNotMatch(sky,/plasma-bug-skinned-solid/);
 assert.doesNotMatch(sky,/creeper-ember-hollow/);
 assert.doesNotMatch(sky,/dragon-fg-a/);
@@ -207,8 +207,8 @@ assert.equal(provenance.sourceModelSHA256,'25a1be82fe3b2ec6784547682e78fe4f64e61
 assert.match(provenance.render,/ember_idle/);
 assert.match(provenance.render,/085943e9/);
 assert.match(provenance.render,/first paint withholds/);
-assert.equal(rimmerProvenance.sourceModel,'game/assets/rimmer-skinned-solid.glb');
-assert.equal(rimmerProvenance.sourceModelSHA256,'1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456');
+assert.equal(rimmerProvenance.sourceModel,'game/assets/rimmer-meshy-v2-rigged.glb');
+assert.equal(rimmerProvenance.sourceModelSHA256,'01231fad8bfc8c6bde904e8c46eba6c667f21440f1074ad6877b99c80ca500ff');
 assert.equal(plasmaProvenance.sourceModel,'game/assets/plasma-bug-skinned-solid.glb');
 assert.equal(plasmaProvenance.sourceModelSHA256,'127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f');
 assert.equal(dragonPortrait.readUInt32BE(16),512);
@@ -260,4 +260,4 @@ assert.match(read('game/styles.css'),/img\[data-model-ready=true\]\{filter:none;
 assert.doesNotMatch(main,/createTankerBugsAsync\([\s\S]{0,400}solid/);
 assert.doesNotMatch(main,/createBankDemons\([^)]*skinnedSolids/);
 
-console.log(JSON.stringify({passed:true,identity:'0.54.84',imageSHA256:imageHash},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.85',imageSHA256:imageHash},null,2));

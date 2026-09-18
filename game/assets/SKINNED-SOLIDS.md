@@ -1,9 +1,9 @@
-# Field Guide skinned solids (v0.54.80)
+# Field Guide skinned solids (v0.54.85)
 
-Alien Field Guide VIEW 3D museum meshes. Combat and world visuals stay on the
-live procedural rimmer / plasma paths, the lava loco bank creeper, live Cinder
-Maw tanks, orange-spirit dancers, and the live sky dragons. Do not treat this
-identity as a combat mesh swap.
+Alien Field Guide VIEW 3D meshes. The Meshy Rimmer v2 is shared with gameplay
+through independent skeleton instances. Combat and world visuals stay on the
+existing plasma, lava loco bank creeper, Cinder Maw tank, orange-spirit dancer
+and sky dragon paths. The earlier Rimmer asset below is retained only as history.
 
 Expected binaries next to this note:
 
@@ -55,7 +55,7 @@ SOLID Hollow pack, and the blocked morph prefixes `75ddc18f` / `a2ac5ebb` /
 `1c10edf7` / `45123f4c` / `9cd194e6` / `a9dcb2b6`. Dragon A loads only when
 the Field Guide asks for that card, not during boot.
 
-Museum pose: rimmers and plasma stay rest pose. Ember Hollow VIEW 3D defaults
+Museum pose: Rimmer defaults to `rimmer_idle`; plasma stays in rest pose. Ember Hollow VIEW 3D defaults
 to `ember_idle`; Cinder Maw defaults to `cinder_idle`; Vein Ascetic defaults to
 `ritual_idle`; the larva defaults to `maggot_wriggle`; the shell and Dragon A
 stay rigid. Motion selection and pause remain inside Field Notes. Cloned
@@ -72,3 +72,11 @@ Every VIEW 3D specimen supports bounded camera zoom by wheel/trackpad, − / +
 buttons, or keyboard − / +. Horizontal drag turns the specimen; vertical drag
 repositions it within bounded view space. RESET VIEW restores position,
 rotation, and 100% zoom.
+
+## Meshy Rimmer v2 gameplay exception
+
+The Rimmer now uses `rimmer-meshy-v2-rigged.glb` for both Field Guide and gameplay, with independent skeleton instances. Source GLB SHA-256 `1cb5086983d89f8d310d2f71f7cca26a4f87234a6abf57c12d51b47b0ccedc75`; rigged output `01231fad8bfc8c6bde904e8c46eba6c667f21440f1074ad6877b99c80ca500ff`, 18054908 bytes. Original position, normal, UV, index and embedded texture buffers are preserved; tangents, a 30-joint deform rig and three clips are additive. `rimmer_idle`, `rimmer_walk` and `rimmer_warning` are showroom clips; gameplay uses grounded skeletal articulation and game-owned route translation. Other species keep their existing combat paths.
+
+Gameplay fits the new articulated legs with a neutral stance inset of 0.12 source units and an 8.7-world-unit visual gait cycle; swing feet return to neutral while stance feet remain anchored. These visual gait choices retain the original route, speed, timing, HP, damage, scoring and hit proxies. The three rigid leg segments deform the original joined surface through skin weights.
+
+The gameplay thorax is raised 0.1875 source units (4.5 world units) before and during warning so the real mouth can see over its terrace. Line of sight, laser and spikes share that actual mouth. Original collision proxy positions and their 17.4-world-unit bob phase remain unchanged. Terrain support checks the entire weighted low-foot surface, including secondary claws, and freezes each planted foot’s world position and orientation. Swing paths clear terrain and avoid the unequal upper links’ inner reach limit. Hidden actors defer foot planning until admission.

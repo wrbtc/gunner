@@ -1,7 +1,7 @@
 {
-  "source": "Field Guide museum solid. Combat still uses the authored procedural rimmer until a later PASS of this 3D view.",
-  "sourceModel": "game/assets/rimmer-skinned-solid.glb",
-  "sourceModelSHA256": "1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456",
-  "imageSHA256": "76e50ccdc5ad169eef638743efc69f478ac082704f5eb20104f5bed63b3387d7",
-  "render": "Card first paint withholds this prior identification still and waits for the VIEW 3D museum thumb (skinned solid rest pose)."
+  "source": "Meshy Rimmer v2 with an additive deform skeleton, shared by Field Guide and gameplay.",
+  "sourceModel": "game/assets/rimmer-meshy-v2-rigged.glb",
+  "sourceModelSHA256": "01231fad8bfc8c6bde904e8c46eba6c667f21440f1074ad6877b99c80ca500ff",
+  "imageSHA256": "402bf8057f67217ea0d299058f2315bbf8966d18bc5b89923772f964bce8287b",
+  "render": "Supplied Meshy source preview; card first paint withholds this identification still and waits for the independently animated VIEW 3D thumbnail. Original source geometry and texture bytes are preserved in the rigged asset."
 }

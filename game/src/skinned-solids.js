@@ -1,8 +1,8 @@
 import * as THREE from '../vendor/three.module.js?v=052';
 import {GLTFLoader} from '../vendor/GLTFLoader.js?v=052';
 
-// Field Guide museum solids only. Combat / world meshes stay on the live
-// procedural and lava-loco paths until a later PASS of these 3D views.
+// Field Guide solids; the approved Meshy Rimmer is also independently cloned
+// for gameplay. Other species retain their existing combat/world paths.
 export const FORBIDDEN_MORPH_PREFIXES=Object.freeze([
  '75ddc18f','a2ac5ebb','1c10edf7','45123f4c','9cd194e6','a9dcb2b6'
 ]);
@@ -13,10 +13,11 @@ export const REJECTED_EMBER_SOLID=Object.freeze({
 export const SKINNED_SOLIDS=Object.freeze({
  rimmers:Object.freeze({
   id:'rimmers',
-  asset:'rimmer-skinned-solid',
-  sha256:'1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456',
-  bytes:1153368,
-  clips:Object.freeze({idle:'rimmer_idle',walk:'rimmer_walk'})
+  asset:'rimmer-meshy-v2-rigged',
+  sha256:'01231fad8bfc8c6bde904e8c46eba6c667f21440f1074ad6877b99c80ca500ff',
+  bytes:18054908,
+  clips:Object.freeze({idle:'rimmer_idle',walk:'rimmer_walk',warning:'rimmer_warning'}),
+  bones:Object.freeze(['rimmer_body','rimmer_head','rimmer_mouth','front_L_upper','hind_R_foot'])
  }),
  plasma:Object.freeze({
   id:'plasma',
