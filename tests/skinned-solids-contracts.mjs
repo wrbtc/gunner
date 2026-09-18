@@ -12,7 +12,7 @@ const packageJson=JSON.parse(read('package.json'));
 const manifest=JSON.parse(read('SOURCE-MANIFEST.json'));
 
 const expected=[
- {path:'game/assets/rimmer-meshy-v2-rigged.glb',bytes:18054908,sha256:'01231fad8bfc8c6bde904e8c46eba6c667f21440f1074ad6877b99c80ca500ff'},
+ {path:'game/assets/rimmer-meshy-v2-rigged.glb',bytes:18054908,sha256:'e39e0226358fad716a20d9ac744c47fe8b7f00cfe958e07fc510ecbe24c97927'},
  {path:'game/assets/plasma-bug-skinned-solid.glb',bytes:1135104,sha256:'127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f'},
  {path:'game/assets/creeper-ember-hollow.glb',bytes:1091768,sha256:'25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe'},
  {path:'game/assets/dragon-fg-a.glb',bytes:64020728,sha256:'38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27'},
@@ -22,8 +22,8 @@ const forbidden=['75ddc18f','a2ac5ebb','1c10edf7','45123f4c','9cd194e6','a9dcb2b
 assert.match(attributes,/game\/assets\/vein-ascetic-skinned\.glb filter=lfs/);
 assert.doesNotMatch(attributes,/vein-ascetic-skinned-draft/);
 
-assert.equal(packageJson.version,'0.54.85');
-assert.equal(manifest.version,'0.54.85');
+assert.equal(packageJson.version,'0.54.86');
+assert.equal(manifest.version,'0.54.86');
 assert.match(manifest.note,/0\.54\.67/);
 assert.match(manifest.note,/Field Guide/);
 assert.match(manifest.note,/VIEW 3D/);
@@ -148,4 +148,4 @@ for(const row of expected){
  binaryStatus[row.path]=state;
 }
 
-console.log(JSON.stringify({passed:true,identity:'0.54.85',binaryStatus},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.86',binaryStatus},null,2));

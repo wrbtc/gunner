@@ -1,7 +1,7 @@
 import * as THREE from '../vendor/three.module.js?v=052';
 import {createBankGuideModel} from './bank-demons.js?v=054-84';
 import {createRimmerModel} from './rimmer-model.js?v=052';
-import {cloneSkinnedGuide} from './skinned-solids.js?v=054-85';
+import {cloneSkinnedGuide} from './skinned-solids.js?v=054-86';
 import {loadGuideEggPart,loadGuideIntactEgg} from './field-guide-egg-parts.js?v=054-74';
 const GUIDE_FRONT_YAW=.35,GUIDE_DRAGON_YAW=.18;
 export const GUIDE_FRONT_IDS=Object.freeze(['creepers','rimmers','plasma','tanks','dancers','eggs','egg-maggot','egg-shell']);

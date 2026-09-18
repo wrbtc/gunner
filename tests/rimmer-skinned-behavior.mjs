@@ -54,13 +54,58 @@ console.log('PASS: independently skinned Rimmer clones, unchanged collision prox
  // The whole rigid foot must choose the upper terrace; its unsupported toe may
  // not be stretched down to the adjacent forty-unit-lower triangle.
  const cliffModel=createRimmerSkinnedModel(actual),cliff={at:x=>x>9?-40:0};cliffModel.root.scale.setScalar(3);
+ // Visible upper-shell vertices from the founder-reported stiff-leg regression.
+ // Source positions prevent a different part from silently replacing the cap.
+ const capCases=[
+  {index:31097,leg:'front_L',position:[-.380641,-.099765,.224214]},
+  {index:15467,leg:'front_R',position:[.361673,-.080055,.215789]},
+  {index:10808,leg:'front_R',position:[.369391,-.056120,.146623]},
+  {index:37811,leg:'hind_R',position:[.370442,-.086852,-.515661]},
+  {index:42519,leg:'hind_L',position:[-.348214,-.118470,-.460468]}
+ ];
+ let capMesh;cliffModel.skin.traverse(n=>{if(n.isSkinnedMesh)capMesh=n;});
+ const capBody=cliffModel.skin.getObjectByName('rimmer_body'),capPosition=new T.Vector3();
+ for(const c of capCases){
+  const attributes=capMesh.geometry.attributes;capPosition.fromBufferAttribute(attributes.position,c.index);
+  close(capPosition,V(c.position),'known upper-shell surface identity '+c.index);
+  let ownWeight=0,upperWeight=0;
+  for(let slot=0;slot<4;slot++){
+   const weight=attributes.skinWeight.array[c.index*4+slot],bone=capMesh.skeleton.bones[attributes.skinIndex.array[c.index*4+slot]];
+   if(bone.name===c.leg+'_upper'||bone.name===c.leg+'_lower')ownWeight+=weight;
+   if(bone.name===c.leg+'_upper')upperWeight+=weight;
+  }
+  assert.ok(ownWeight>1-1e-6,'upper shell must follow its own walking leg, never torso/scythe: '+c.index);
+  assert.ok(upperWeight>.55,'upper shell must retain upper-segment ownership: '+c.index);
+  c.bone=cliffModel.skin.getObjectByName(c.leg+'_upper');c.maxBodyRelativeTravel=0;c.maxUpperJointAngle=0;
+ }
+ // Raised scythes must not drag walking caps, even where silhouettes overlap.
+ cliffModel.root.updateMatrixWorld(true);capMesh.skeleton.update();
+ const capBeforeScythes=capCases.map(c=>capMesh.getVertexPosition(c.index,new T.Vector3()).applyMatrix4(capMesh.matrixWorld));
+ const movedScythes=[];cliffModel.skin.traverse(n=>{if(n.isBone&&n.name.startsWith('scythe_')){movedScythes.push([n,n.quaternion.clone()]);n.rotateX(.35);}});
+ cliffModel.root.updateMatrixWorld(true);capMesh.skeleton.update();
+ for(const [i,c]of capCases.entries())close(capMesh.getVertexPosition(c.index,new T.Vector3()).applyMatrix4(capMesh.matrixWorld),capBeforeScythes[i],'walking cap isolated from raised scythes '+c.index);
+ for(const [bone,quaternion]of movedScythes)bone.quaternion.copy(quaternion);
  let previousFeet=null,maxCliffDrift=0;
  for(let frame=0;frame<240;frame++){
   const t=frame/60;cliffModel.root.position.set(0,0,-t*12.6);cliffModel.root.rotation.y=.2*Math.sin(t);cliffModel.body.position.y=5.2+Math.sin(t)*.13;cliffModel.syncPose();cliffModel.stepFeet({gait:t*12.6/8.7,ground:cliff,dt:1/60});
   assert.ok(cliffModel.stats().maxContactError<1e-4,'cliff targets must be reachable without stretching');
+  // Body-relative skin positions exclude root travel and thorax bob. These
+  // upper-joint poses come from the actual terrain solver above.
+  capMesh.skeleton.update();
+  for(const c of capCases){
+   const point=capBody.worldToLocal(capMesh.getVertexPosition(c.index,new T.Vector3()).applyMatrix4(capMesh.matrixWorld));
+   if(!c.firstPoint){c.firstPoint=point.clone();c.firstUpperQuaternion=c.bone.quaternion.clone();}
+   c.maxBodyRelativeTravel=Math.max(c.maxBodyRelativeTravel,point.distanceTo(c.firstPoint));
+   c.maxUpperJointAngle=Math.max(c.maxUpperJointAngle,c.bone.quaternion.angleTo(c.firstUpperQuaternion));
+  }
   const feet=cliffModel.supportStats(cliff);for(const [i,foot]of feet.entries()){assert.ok(foot.minClearance>-.02,'all rigid claw vertices clear the cliff');if(foot.planted&&previousFeet?.[i].planted)maxCliffDrift=Math.max(maxCliffDrift,...foot.footMatrix.map((n,j)=>Math.abs(n-previousFeet[i].footMatrix[j])));}previousFeet=feet;
  }
  assert.ok(maxCliffDrift<1e-4,'whole planted rigid foot transform is fixed in world space');
+ for(const c of capCases){
+  assert.ok(c.maxUpperJointAngle>.08,'terrain solver must articulate the upper leg '+c.leg);
+  assert.ok(c.maxBodyRelativeTravel>.025,'visible upper shell must move with the articulated leg '+c.index);
+ }
+ console.log('PASS actual upper-shell ownership, scythe isolation and terrain-driven surface motion:',JSON.stringify(capCases.map(({index,leg,maxBodyRelativeTravel,maxUpperJointAngle})=>({index,leg,maxBodyRelativeTravel,maxUpperJointAngle}))));
  const summaries=[];
  for(const slope of [[0,0],[.15,.08],[-.15,-.08]]){
   const geometry=new T.PlaneGeometry(1000,5000).rotateX(-Math.PI/2).translate(0,0,-1500),positions=geometry.attributes.position;

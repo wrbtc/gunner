@@ -1,6 +1,6 @@
 import * as T from '../vendor/three.module.js?v=052';
 import {createRimmerModel} from './rimmer-model.js?v=052';
-import {cloneSkinnedGuide} from './skinned-solids.js?v=054-85';
+import {cloneSkinnedGuide} from './skinned-solids.js?v=054-86';
 const V=a=>new T.Vector3().fromArray(a),Y=new T.Vector3(0,1,0);
 
 // Collision groups and encounter state retain their authored positions. The

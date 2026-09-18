@@ -1,6 +1,6 @@
 import {HP} from './combat-balance.js?v=052';
 import * as T from '../vendor/three.module.js?v=052';
-import {createRimmerSkinnedModel} from './rimmer-skinned-model.js?v=054-85';
+import {createRimmerSkinnedModel} from './rimmer-skinned-model.js?v=054-86';
 import {createStingFeedback,trackingBuffer,STING_SECONDS,QUEEN_STING_SECONDS} from './rimmer-sting.js?v=052';
 const V=(x=0,y=0,z=0)=>new T.Vector3(x,y,z),clamp=T.MathUtils.clamp,mix=T.MathUtils.lerp,up=V(0,1,0);
 // Final anchor/acquisition move six percent upstream (~5.65 flight seconds):

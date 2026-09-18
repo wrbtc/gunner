@@ -14,7 +14,7 @@ export const SKINNED_SOLIDS=Object.freeze({
  rimmers:Object.freeze({
   id:'rimmers',
   asset:'rimmer-meshy-v2-rigged',
-  sha256:'01231fad8bfc8c6bde904e8c46eba6c667f21440f1074ad6877b99c80ca500ff',
+  sha256:'e39e0226358fad716a20d9ac744c47fe8b7f00cfe958e07fc510ecbe24c97927',
   bytes:18054908,
   clips:Object.freeze({idle:'rimmer_idle',walk:'rimmer_walk',warning:'rimmer_warning'}),
   bones:Object.freeze(['rimmer_body','rimmer_head','rimmer_mouth','front_L_upper','hind_R_foot'])

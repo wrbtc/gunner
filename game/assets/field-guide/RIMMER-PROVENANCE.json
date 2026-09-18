@@ -1,7 +1,7 @@
 {
   "source": "Meshy Rimmer v2 with an additive deform skeleton, shared by Field Guide and gameplay.",
   "sourceModel": "game/assets/rimmer-meshy-v2-rigged.glb",
-  "sourceModelSHA256": "01231fad8bfc8c6bde904e8c46eba6c667f21440f1074ad6877b99c80ca500ff",
+  "sourceModelSHA256": "e39e0226358fad716a20d9ac744c47fe8b7f00cfe958e07fc510ecbe24c97927",
   "imageSHA256": "402bf8057f67217ea0d299058f2315bbf8966d18bc5b89923772f964bce8287b",
   "render": "Supplied Meshy source preview; card first paint withholds this identification still and waits for the independently animated VIEW 3D thumbnail. Original source geometry and texture bytes are preserved in the rigged asset."
 }

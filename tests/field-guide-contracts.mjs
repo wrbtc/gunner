@@ -19,9 +19,9 @@ const plasmaProvenance=JSON.parse(read('game/assets/field-guide/PLASMA-PROVENANC
 const dragonProvenance=JSON.parse(read('game/assets/field-guide/DRAGON-PROVENANCE.json'));
 const dragonPortrait=readFileSync(new URL('game/assets/field-guide/dragons.png',root));
 
-assert.equal(packageJson.version,'0.54.85');
-assert.match(briefing,/export const REPORT_BUILD='0\.54\.85'/);
-assert.match(main,/version:'0\.54\.85'/);
+assert.equal(packageJson.version,'0.54.86');
+assert.match(briefing,/export const REPORT_BUILD='0\.54\.86'/);
+assert.match(main,/version:'0\.54\.86'/);
 assert.doesNotMatch(briefing,/0\.54\.52/);
 assert.doesNotMatch(briefing,/0\.54\.53/);
 assert.doesNotMatch(briefing,/0\.54\.57/);
@@ -139,7 +139,7 @@ assert.match(solids,/ritual_walk/);
 assert.match(solids,/cinder_mouth/);
 assert.match(solids,/Field-guide solid bone missing/);
 assert.match(solids,/\['rimmers','plasma','creepers','tanks','dancers'\]/);
-assert.match(solids,/01231fad8bfc8c6bde904e8c46eba6c667f21440f1074ad6877b99c80ca500ff/);
+assert.match(solids,/e39e0226358fad716a20d9ac744c47fe8b7f00cfe958e07fc510ecbe24c97927/);
 assert.match(solids,/127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f/);
 assert.match(solids,/25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe/);
 assert.match(solids,/bytes:18054908/);
@@ -208,7 +208,7 @@ assert.match(provenance.render,/ember_idle/);
 assert.match(provenance.render,/085943e9/);
 assert.match(provenance.render,/first paint withholds/);
 assert.equal(rimmerProvenance.sourceModel,'game/assets/rimmer-meshy-v2-rigged.glb');
-assert.equal(rimmerProvenance.sourceModelSHA256,'01231fad8bfc8c6bde904e8c46eba6c667f21440f1074ad6877b99c80ca500ff');
+assert.equal(rimmerProvenance.sourceModelSHA256,'e39e0226358fad716a20d9ac744c47fe8b7f00cfe958e07fc510ecbe24c97927');
 assert.equal(plasmaProvenance.sourceModel,'game/assets/plasma-bug-skinned-solid.glb');
 assert.equal(plasmaProvenance.sourceModelSHA256,'127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f');
 assert.equal(dragonPortrait.readUInt32BE(16),512);
@@ -260,4 +260,4 @@ assert.match(read('game/styles.css'),/img\[data-model-ready=true\]\{filter:none;
 assert.doesNotMatch(main,/createTankerBugsAsync\([\s\S]{0,400}solid/);
 assert.doesNotMatch(main,/createBankDemons\([^)]*skinnedSolids/);
 
-console.log(JSON.stringify({passed:true,identity:'0.54.85',imageSHA256:imageHash},null,2));
+console.log(JSON.stringify({passed:true,identity:'0.54.86',imageSHA256:imageHash},null,2));
