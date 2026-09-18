@@ -708,8 +708,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 58181,
-      "sha256": "683510b24e28fc136ef8a509e3dde83224a2d49dab5e907695cfa4956f004ac3"
+      "bytes": 58245,
+      "sha256": "d7f36046c0aebf318695968a2ba09b39b910108e6e26456dfdc2c2c6a25d2530"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",

@@ -274,6 +274,7 @@ kbd { color: #f6dfb9; background: rgba(0,0,0,.55); border: 1px solid #594a3c; pa
 .pilot-caption{position:fixed;z-index:35;bottom:clamp(100px,17vh,180px);left:50%;transform:translateX(-50%);width:min(600px,86vw);padding:10px 15px;background:rgba(8,13,15,.88);border-left:2px solid #d8b36b;color:#fff1d6;font:600 clamp(12px,1.2vw,15px)/1.5 system-ui,sans-serif;text-align:center;pointer-events:none;text-shadow:0 1px 2px #000;}
 .pilot-caption[hidden]{display:none;}
 @media(max-width:600px){.pilot-caption{bottom:24vh;width:88vw;padding:8px 10px;font-size:12px;}}
+body:has(#queenHUD:not([hidden])) .pilot-caption{bottom:250px;}
 
 /* Mobile gate: no game runtime is imported on phones or tablets. */
 html[data-device="checking"] body > :not(script):not(noscript):not(#device-notice),
