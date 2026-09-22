@@ -33,7 +33,8 @@ assert.match(tanker,/e\.hp=2340/);
 assert.match(tanker,/radius=r\*HIT_SCALE/);
 assert.match(tanker,/radius=\.85\*HIT_SCALE/);
 assert.doesNotMatch(cinder,/cinder-maw-v02\.glb/);
-assert.match(main,/tanker-bug\.js\?v=054-87/);
+assert.match(main,/tanker-bug\.js\?v=054-87b/);
+assert.match(tanker,/if\(!seek&&time===clock\)return/);
 assert.match(main,/cinder-maw\.js\?v=054-87/);
 
 const row=manifest.files.find(item=>item.path===assetPath);

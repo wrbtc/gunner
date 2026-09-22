@@ -1,5 +1,5 @@
 import {menuMusic} from './src/menu-music.js?v=054-22';
-import {missionBenchmark,missionRating,createRankReveal} from './src/mission-rating.js?v=054-6';
+import {missionBenchmark,missionRating,createRankReveal} from './src/mission-rating.js?v=054-87b';
 import {setGuideModelProvider,guideViewerStats,loadingStage,loadingProgress,loadingReady,loadingFailure,loadingSnapshot,boundedPreparation,yieldLoadingPaint,startupMark,createPreparationSequence} from './src/mission-screen.js?v=054-87';
 import {createPlayTracking} from './src/play-tracking.js?v=052';
 import {createPilotRadio} from './src/pilot-radio.js?v=054-16';
@@ -9,7 +9,7 @@ import {createPlasmaBursts} from './src/plasma-burst.js?v=054-42';
 import {createPlasmaBugs} from './src/plasma-bugs.js?v=054-74';
 import {riverWidthAt,NESTING_POOLS} from './src/river-profile.js?v=052';
 import {createRimmers} from './src/rimmers.js?v=054-86';
-import {createTankerBugsAsync} from './src/tanker-bug.js?v=054-87';
+import {createTankerBugsAsync} from './src/tanker-bug.js?v=054-87b';
 import {loadCinderMaw} from './src/cinder-maw.js?v=054-87';
 import {createTankerSpray} from './src/tanker-spray.js?v=054-87a';
 import {createEndingFlight} from './src/ending-flight.js?v=052';
@@ -23,7 +23,7 @@ import {CANNON,createCannonRounds} from './src/cannon-round.js?v=052';
 import {createRomanRuinsAsync} from './src/roman-ruins.js?v=054-6';
 import {createStaticRaycast} from './src/static-raycast.js?v=052';
 import * as THREE from './vendor/three.module.js?v=052';
-import {createEggNests} from './src/egg-nests.js?v=054-74';
+import {createEggNests} from './src/egg-nests.js?v=054-87b';
 import {createBankDemons} from './src/bank-demons.js?v=054-84';
 import {loadCreeperLoco} from './src/creeper-loco.js?v=054-84';
 import {loadSkinnedSolids,loadGuideDragonSolid} from './src/skinned-solids.js?v=054-86';
@@ -1072,7 +1072,7 @@ function fixedUpdate(dt){
    else if(queen.phase==='death')audio.cue('queen-defeated');
    else if(queen.phase==='cleared')audio.setScene('canyon');
   }
-  const cannonWasCooling=game.cannonCooldown>0;game.cannonCooldown=Math.max(0,game.cannonCooldown-dt);if(cannonWasCooling&&game.cannonCooldown===0)audio.cue('cannon-ready');applyQuickTurn(dt);updatePlane(dt);creatureTracking?.update(game.time,planePos);bankDemons?.update(game.time,planePos);tankerBugs?.update(game.time,planePos);
+  const cannonWasCooling=game.cannonCooldown>0;game.cannonCooldown=Math.max(0,game.cannonCooldown-dt);if(cannonWasCooling&&game.cannonCooldown===0)audio.cue('cannon-ready');applyQuickTurn(dt);updatePlane(dt);creatureTracking?.update(game.time,planePos);bankDemons?.update(game.time,planePos);
   const exitSide=planePos.clone().sub(rift.position).dot(rift.userData.normal);if((!queen||queen.cleared)&&game.exitSide<0&&exitSide>=0&&game.hull>0){game.exitSide=exitSide;endRun(true);return;}game.exitSide=exitSide;
   if(gunHeat.update(dt,game.gunHeld&&!queen?.locked)){audio.cue('gun-cooled');logEvent('gatling-cooled');}
   game.shotClock-=dt;if(game.gunHeld&&!gunHeat.overheated){while(game.shotClock<=0){fireRound();game.shotClock+=1/GUN.roundsPerSecond;}}else game.shotClock=Math.max(game.shotClock,0);
