@@ -79,6 +79,8 @@ assert.equal(guideYawFor('dragons'),.18);
 assert.ok(guideYawFor('dragons')<1,'dragon must face the camera, not fly away');
 assert.equal(guideYawFor('tanks'),.35);
 assert.equal(guideYawFor('eggs'),.35);
+assert.equal(guideYawFor('egg-shell'),.35);
+assert.equal(guideYawFor('egg-maggot'),.35);
 assert.equal(guideYawFor('creepers'),.35);
 assert.equal(guideYawFor('dancers'),.35);
 assert.equal(guideYawFor('rimmers'),.35);

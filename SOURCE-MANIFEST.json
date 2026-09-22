@@ -318,13 +318,13 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 13333,
-      "sha256": "e8664bcba7093c3b03b38f110a755dd0a35197b72c95100a79fb7644188bcb9a"
+      "bytes": 13334,
+      "sha256": "fea1b27ad59bb7c5beb27de2c3401e83d945607a1f47d9aeeb17b4685a63c67a"
     },
     {
       "path": "game/main.js",
-      "bytes": 160623,
-      "sha256": "c7646a80dbd3fede2c0b53a3e3eda0247f45aa9fe3a4bf6a7e44390d0528fa13"
+      "bytes": 160588,
+      "sha256": "15f73f6a66b6712c453455bd5a5c0e9b344dce21bc32006c9a25c4e18e035138"
     },
     {
       "path": "game/mobile-entry.js",
@@ -448,8 +448,8 @@
     },
     {
       "path": "game/src/egg-nests.js",
-      "bytes": 38048,
-      "sha256": "d470e48d99d27cbd14003ded653032f13f61e2d40e2f29a0356edfa4e19dcc75"
+      "bytes": 39106,
+      "sha256": "669d7aba161c197669895bd3d2aa0fc632973131ec6cbefc4d5986706d25a3a9"
     },
     {
       "path": "game/src/egg-solids.js",
@@ -693,8 +693,8 @@
     },
     {
       "path": "game/src/tanker-bug.js",
-      "bytes": 13900,
-      "sha256": "c6fdb0a86e6cde95799bc3981fb41a49be5ccc71f0137d0fdd6b21989eeb1570"
+      "bytes": 13946,
+      "sha256": "a1bd4426f153d113ad567c6e11c68782d1b5ffddf1dab925bcb5cc9e15b3b555"
     },
     {
       "path": "game/src/tanker-spray.js",

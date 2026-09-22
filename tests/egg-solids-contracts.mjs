@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
+import * as THREE from '../game/vendor/three.module.js?v=052';
 
 const root=new URL('../',import.meta.url);
 const read=name=>readFileSync(new URL(name,root),'utf8');
@@ -32,7 +33,10 @@ assert.match(nests,/function makeEgg/);
 assert.match(nests,/egg\.shell\.visible=false/);
 assert.match(nests,/egg\.socket\.visible=true/);
 assert.match(nests,/embryo\.position\.z=\.15/);
-assert.match(nests,/useBakedShell\?source\.shell\.material\.clone\(\)/);
+assert.match(nests,/if\(useBakedShell\)shell\.rotation\.y=Math\.PI/);
+assert.match(nests,/baked-egg-hit-rim-054-87b/);
+assert.match(nests,/material\.userData\.eggHit\.value/);
+assert.doesNotMatch(nests,/function guideModel\(/);
 assert.match(guide,/else if\(id==='eggs'\)root=solidGuideRoot\(skinnedSolids\?\.eggs\|\|await loadGuideIntactEgg\(\)\)/);
 assert.doesNotMatch(guide,/eggNests\.guideModel\(\)/);
 assert.match(read('game/src/field-guide-egg-parts.js'),/export function assembleIntactEgg/);
@@ -82,4 +86,11 @@ for(const row of expected){
  binaryStatus[row.path]=state;
 }
 
-console.log(JSON.stringify({passed:true,identity:'0.54.87',binaryStatus},null,2));
+const normal=new THREE.Vector3(1,0,0),group=new THREE.Group(),shell=new THREE.Object3D();
+group.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),normal);
+shell.rotation.y=Math.PI;group.add(shell);group.updateMatrixWorld(true);
+const crownPoint=new THREE.Vector3(0,0,1).applyMatrix4(shell.matrixWorld);
+const sacPoint=new THREE.Vector3(0,0,-1).applyMatrix4(shell.matrixWorld);
+assert.ok(crownPoint.dot(normal)<0,'baked root crown plants into the wall');
+assert.ok(sacPoint.dot(normal)>0,'baked sac faces out of the wall');
+console.log(JSON.stringify({passed:true,identity:'0.54.87',binaryStatus,planted:{crown:crownPoint.toArray(),sac:sacPoint.toArray()}},null,2));

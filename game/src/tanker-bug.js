@@ -140,7 +140,7 @@ function* buildTankerBugs({actors,scene,centerAt,widthAt,bankMeshes,glowTexture,
   e.root.updateMatrixWorld(true);e.sampleHitSpheres();
   e.tankerStats={model:'Cinder Maw Field Notes v02 / gameplay v03',asset:cinderModel.stats.sha256,length:11,legCount:4,travel:e.travel,rear:e.rear,pressure,alert:e.alert,mouth:e.hitSpheres[4].center.toArray(),planted:e.legs.filter(l=>l.planted).length,maxFootError:Math.max(...e.legs.map(l=>l.ik.error)),drawParts:1,triangles:cinderModel.stats.triangles};
  }
- function update(time,target){if(time<clock||time-clock>.12){for(const e of actors){e.travel=Math.min(51,time*.58);e.rear=0;e.alert=0;for(const l of e.legs){l.hold=null;l.step=null;}}clock=time;}const dt=clamp(time-clock,0,.1);for(const e of actors)pose(e,time,target,dt);clock=time;}
+ function update(time,target){const seek=time<clock||time-clock>.12;if(seek){for(const e of actors){e.travel=Math.min(51,time*.58);e.rear=0;e.alert=0;for(const l of e.legs){l.hold=null;l.step=null;}}clock=time;}if(!seek&&time===clock)return;const dt=clamp(time-clock,0,.1);for(const e of actors)pose(e,time,target,dt);clock=time;}
  function resetActor(e){e.aimHeading=undefined;e.travel=0;e.rear=0;e.alert=0;e.releaseTime=null;for(const l of e.legs){l.previousSwing=false;l.hold=null;l.step=null;}pose(e,0,V(0,45,130),0);}
  function reset(){clock=0;for(const e of actors)resetActor(e);}
  clock=0;let actorsReset=0;for(const e of actors){resetActor(e);yield{stage:'reset',completed:++actorsReset,total:actors.length,actorId:e.id};}

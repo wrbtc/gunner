@@ -115,7 +115,9 @@ assert.match(read('game/src/guide-models.js'),/field-guide-egg-parts\.js\?v=054-
 assert.match(read('game/src/field-guide-egg-parts.js'),/skinned-solids\.js\?v=054-86/);
 assert.doesNotMatch(read('game/src/field-guide-egg-parts.js'),/skinned-solids\.js\?v=054-68/);
 assert.match(main,/guide-models\.js\?v=054-87a/);
-assert.match(read('game/src/egg-nests.js'),/useBakedShell\?source\.shell\.material\.clone\(\)/);
+assert.match(read('game/src/egg-nests.js'),/if\(useBakedShell\)shell\.rotation\.y=Math\.PI/);
+assert.match(read('game/src/egg-nests.js'),/baked-egg-hit-rim-054-87b/);
+assert.doesNotMatch(read('game/src/egg-nests.js'),/function guideModel\(/);
 assert.match(read('game/src/egg-solids.js'),/368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2/);
 assert.match(read('game/src/egg-solids.js'),/344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96/);
 assert.doesNotMatch(guide,/id==='creepers'\|\|id==='dancers'\)root=createBankGuideModel/);
