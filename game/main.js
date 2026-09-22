@@ -11,7 +11,7 @@ import {riverWidthAt,NESTING_POOLS} from './src/river-profile.js?v=052';
 import {createRimmers} from './src/rimmers.js?v=054-86';
 import {createTankerBugsAsync} from './src/tanker-bug.js?v=054-87';
 import {loadCinderMaw} from './src/cinder-maw.js?v=054-87';
-import {createTankerSpray} from './src/tanker-spray.js?v=054-74';
+import {createTankerSpray} from './src/tanker-spray.js?v=054-87a';
 import {createEndingFlight} from './src/ending-flight.js?v=052';
 import {GUN,HP,POINTS,enemyKind,createHitFeedback} from './src/combat-balance.js?v=052';
 startupMark('main-evaluation','begin');
@@ -1725,7 +1725,7 @@ await prepareFlightGraphics();
 startupMark('graphics','end');
 if(!loadingStage('shaders'))throw preparationError('Flight preparation already failed');
 startupMark('startup','ready');
-setGuideModelProvider(async id=>{const {buildGuideModel}=await import('./src/guide-models.js?v=054-86');const skinnedSolids={...(skinnedSolidsBootstrap?.value||{})};if(id==='dragons')skinnedSolids.dragons=await loadGuideDragonSolid();return buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco:creeperLocoBootstrap?.value,skinnedSolids});});
+setGuideModelProvider(async id=>{const {buildGuideModel}=await import('./src/guide-models.js?v=054-87a');const skinnedSolids={...(skinnedSolidsBootstrap?.value||{})};if(id==='dragons')skinnedSolids.dragons=await loadGuideDragonSolid();return buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creeperLoco:creeperLocoBootstrap?.value,skinnedSolids});});
 bootCompleted=true;graphicsReady=true;dom.start.disabled=false;dom.start.textContent='DEPLOY GUNNER';
 if(query.has('preview'))setPreview(query.get('preview'));
 else if(QA_MODE){qaReset();if(CAPTURE){dom.intro.hidden=true;dom.hud.classList.add('visible');}}

@@ -111,9 +111,13 @@ export function createTankerSpray({scene,actors,traceTerrain,hitHull,damageHull,
    if(b.active&&b.emitted<3&&time+1e-6>=b.nextAt){
     const p=packets.find(p=>!p.active);if(p){
      e.poseTanker(time,planePos);const origin=e.mouthAnchor.getWorldPosition(V());
-     // Velocity follows the physical nozzle. Tracking includes aircraft lead,
-     // and small uneven lobes keep the liquid stream from reading as a laser.
-     const q=e.mouthAnchor.getWorldQuaternion(new THREE.Quaternion()),dir=V(0,0,-1).applyQuaternion(q).normalize();
+     // Velocity follows the physical nozzle. The live Cinder Maw export points
+     // its furnace along local +Z; the previous insect muzzle was local -Z.
+     // Tracking includes aircraft lead, and small uneven lobes keep the stream
+     // from reading as a laser.
+     const q=e.mouthAnchor.getWorldQuaternion(new THREE.Quaternion());
+     const localForward=e.cinderRig?.forwardLocal?.clone()||V(0,0,-1);
+     const dir=localForward.applyQuaternion(q).normalize();
      p.active=true;p.owner=e;p.burst=b;p.index=b.emitted;p.pos.copy(origin);p.prev.copy(origin);p.vel.copy(dir).multiplyScalar(150);p.life=3.0;
      e.releaseTime=time;audio.tanker('ignition',origin);logEvent('tanker-fireball',{source:e.id,burst:b.id,shot:b.emitted+1,origin:origin.toArray(),velocity:p.vel.toArray()});
      b.emitted++;b.nextAt+=.6;
