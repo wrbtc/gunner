@@ -323,8 +323,8 @@
     },
     {
       "path": "game/main.js",
-      "bytes": 160621,
-      "sha256": "f78e6d9507c3fc50175de695deb997917818a2631d3b16f0db6e7e2fb2535ab4"
+      "bytes": 160623,
+      "sha256": "c7646a80dbd3fede2c0b53a3e3eda0247f45aa9fe3a4bf6a7e44390d0528fa13"
     },
     {
       "path": "game/mobile-entry.js",
@@ -464,7 +464,7 @@
     {
       "path": "game/src/field-guide-egg-parts.js",
       "bytes": 5805,
-      "sha256": "423a108b6c7e67955ed6d93168f3e1a9bda4587892a50204be86dac70409b8a8"
+      "sha256": "7d441c3cc8a1bb398f1b80eea293989f659436837b2b3ca83164f3e887b2aab6"
     },
     {
       "path": "game/src/field-guide-viewer.js",
@@ -473,8 +473,8 @@
     },
     {
       "path": "game/src/guide-models.js",
-      "bytes": 7073,
-      "sha256": "d4ab8465719ebac7ae8c4eee6a0d0e22e4a8ea85636c234fe480019d5fac9170"
+      "bytes": 7074,
+      "sha256": "7da63211c89008e823a1ead9a91f6b2f86eea40a3e48ec1a00b67119c265ec1b"
     },
     {
       "path": "game/src/gun-bubble.js",
@@ -698,8 +698,8 @@
     },
     {
       "path": "game/src/tanker-spray.js",
-      "bytes": 13558,
-      "sha256": "fd1226fce89786b4d0be76d869446d8f90bc5d280fe220e9165e8dbd826473fe"
+      "bytes": 13756,
+      "sha256": "b6caf90733f25a163fda8fbfa72dc688cf14b0cc8a4db95e355a10ae2a37f676"
     },
     {
       "path": "game/src/wall-climb.js",
