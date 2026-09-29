@@ -1,5 +1,6 @@
 import * as THREE from '../vendor/three.module.js?v=052';
 import {GLTFLoader} from '../vendor/GLTFLoader.js?v=052';
+import {CINDER_GAMEPLAY_SOLID,fetchCinderMawBytes} from './cinder-maw.js?v=054-87';
 
 // Field Guide solids; the approved Meshy Rimmer is also independently cloned
 // for gameplay. Other species retain their existing combat/world paths.
@@ -105,11 +106,16 @@ function makeLoader(){
  });
  return loader;
 }
-export async function loadGuideSolid(spec){
+async function guideSolidBuffer(spec){
+ // The Tank card shares the gameplay tank's bytes instead of a second concurrent download.
+ if(spec.asset===CINDER_GAMEPLAY_SOLID.asset)return fetchCinderMawBytes();
  const url=new URL(`../assets/${spec.asset}.glb`,import.meta.url).href;
  const response=await fetch(url);
  if(!response.ok)throw Error('Field-guide solid missing: '+spec.asset);
- const buffer=await response.arrayBuffer();
+ return response.arrayBuffer();
+}
+export async function loadGuideSolid(spec){
+ const buffer=await guideSolidBuffer(spec);
  const bytes=new Uint8Array(buffer);
  if(isLfsPointer(bytes))throw Error('Field-guide solid is an LFS pointer: '+spec.asset);
  const sha256=await hexSha256(bytes);

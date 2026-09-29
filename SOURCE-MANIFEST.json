@@ -1,5 +1,5 @@
 {
-  "version": "0.54.91",
+  "version": "0.54.92",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -328,8 +328,8 @@
     },
     {
       "path": "game/main.js",
-      "bytes": 161710,
-      "sha256": "12d89cb30adaa4c8e92dcf72d8f6e004837bc153f997a594f62d9caf94ee5ac2"
+      "bytes": 162176,
+      "sha256": "a20881dbe5da9107fdb2b6cddcbbf5f0138e0c6710afda371993d10b553828b3"
     },
     {
       "path": "game/mobile-entry.js",
@@ -403,8 +403,8 @@
     },
     {
       "path": "game/src/cinder-maw.js",
-      "bytes": 7904,
-      "sha256": "fee54431873e888441e0172c75af1a8f36fb8ee0306bfdcb1e2d583cda00f40d"
+      "bytes": 8202,
+      "sha256": "f7f9446ec1bce5838a672ca75c0e65532c8c179552162deb91449f1ab5c0b812"
     },
     {
       "path": "game/src/cinematic-pass.js",
@@ -544,7 +544,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 26940,
-      "sha256": "96b3fd36b1fec1299ebddaef36d9e05ac3f77e9991ca60c7f5c85b190a7443d9"
+      "sha256": "4d9c65d3289494bb2b1cda206c3f926a50294b5c03af95448669d8e57e1ecaf7"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -663,8 +663,8 @@
     },
     {
       "path": "game/src/skinned-solids.js",
-      "bytes": 7691,
-      "sha256": "966cb306b80f023ef5f895a52ab42ca9c6561549d1de95f7e71073009df78454"
+      "bytes": 8015,
+      "sha256": "e9cdf37d67908bf79d35962b6de26d27e6d2e2b3c397c9c7fa925c2b7ed8fc67"
     },
     {
       "path": "game/src/sky-activity.js",

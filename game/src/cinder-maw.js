@@ -46,12 +46,21 @@ function cloneSkinnedTree(source){
  });
  return root;
 }
+// One network read serves the gameplay tank and the Field Guide Tank card.
+let cinderBytes=null;
+export function fetchCinderMawBytes(){
+ if(!cinderBytes){
+  const url=new URL(`../assets/${CINDER_GAMEPLAY_SOLID.asset}.glb`,import.meta.url).href;
+  cinderBytes=fetch(url).then(response=>{if(!response.ok)throw Error('Cinder Maw gameplay solid missing');return response.arrayBuffer();});
+  cinderBytes.catch(()=>{cinderBytes=null;});
+ }
+ return cinderBytes;
+}
 export function loadCinderMaw(){
  if(!pending){
-  const spec=CINDER_GAMEPLAY_SOLID,url=new URL(`../assets/${spec.asset}.glb`,import.meta.url).href;
-  pending=fetch(url).then(async response=>{
-   if(!response.ok)throw Error('Cinder Maw gameplay solid missing');
-   const buffer=await response.arrayBuffer(),bytes=new Uint8Array(buffer);
+  const spec=CINDER_GAMEPLAY_SOLID;
+  pending=fetchCinderMawBytes().then(async buffer=>{
+   const bytes=new Uint8Array(buffer);
    if(isLfsPointer(bytes))throw Error('Cinder Maw gameplay solid is an LFS pointer');
    if(bytes.byteLength!==spec.bytes)throw Error('Cinder Maw gameplay solid size mismatch');
    if(await hexSha256(bytes)!==spec.sha256)throw Error('Cinder Maw gameplay solid hash mismatch');
