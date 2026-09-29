@@ -12,8 +12,8 @@ Expected binaries next to this note:
 
 | Path | Bytes | sha256 |
 | --- | ---: | --- |
-| `game/assets/egg-shell-a.glb` | 817236 | `368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2` |
-| `game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb` | 1075680 | `344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96` |
+| `game/assets/egg-shell-a.glb` | 323500 | `516613a95b3eba0fff77e2e78197cab6becebec7bcb91124517bb963ad6f994c` |
+| `game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb` | 240068 | `dce9f57242857ebcf84a567a25932278ea1e6454cb3e6aeb2c26bc83a1402d7d` |
 
 `.gitattributes` routes both paths through Git LFS. Exact byte length and hash
 are checked before either source is accepted. If either optional source fails,
@@ -23,8 +23,8 @@ An opaque shell bake is adapted to a leathery window (alpha / roughness) so a
 careful look shows a vague maggot silhouette. No glow, slit, or extra limbs.
 
 Field Notes Intact egg, the Larva specimen, and live-nest bind geometry use the
-1075680-byte rigged larva with SHA-256
-`344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96`
+240068-byte rigged larva with SHA-256
+`dce9f57242857ebcf84a567a25932278ea1e6454cb3e6aeb2c26bc83a1402d7d`
 and clip `maggot_wriggle` through `field-guide-egg-parts.js`. Only the guide
 plays that clip; the live-nest batching remains deterministic. The Shell
 specimen stays shell-only.

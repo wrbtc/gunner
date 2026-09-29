@@ -161,7 +161,9 @@ export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hit
   for(let k=Math.floor(sweptBox.min.z/64);k<=Math.floor(sweptBox.max.z/64);k++)for(const entry of collisionBins.get(k)||[]){if(seen.has(entry)||!entry.box.intersectsBox(sweptBox))continue;seen.add(entry);const h=ray.intersectObject(entry.collider,false)[0];if(h&&(!nearest||h.distance<nearest.distance)){nearest=h;ray.far=h.distance;}}return nearest;
  }
  const uniforms={uReveal:{value:1}},kitShell=eggSolids?.shell,kitMaggot=eggSolids?.maggot,useBakedShell=!!(kitShell?.geometry&&kitShell?.material);
- const shellMat=useBakedShell?kitShell.material:shellMaterial(uniforms),shellGeo=kitShell?.geometry||eggGeometry(24,18);
+ // The baked shell's root tangle sits at its +Z pole, but nests face +Z out of the wall:
+ // turn it half round so the roots grip the rock and the rounded end faces the canyon.
+ const shellMat=useBakedShell?kitShell.material:shellMaterial(uniforms),shellGeo=kitShell?.geometry?kitShell.geometry.clone().rotateY(Math.PI):eggGeometry(24,18);
  const bodyGeos=kitMaggot?.geometry?[0,1,2].map(()=>kitMaggot.geometry):[0,1,2].map(embryoGeometry);
  const bodyMats=kitMaggot?.material?[0,1,2].map(()=>kitMaggot.material):[0x594137,0x735345,0x514036].map(color=>new THREE.MeshStandardMaterial({color,roughness:.56,metalness:0}));
  const glueMat=new THREE.MeshStandardMaterial({color:0x554b3c,roughness:.58,transparent:false,opacity:1,side:THREE.DoubleSide});
@@ -180,7 +182,7 @@ export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hit
  const nursery=[],nurseryBatches=[];let gallery=null;
  function buildNurseryBatches(){
    const definitions=[['shell',nurseryShellGeo,shellMat],['collar',collarGeo,glueMat],['pad',padGeo,glueMat],['socket',socketGeo,flapMat],...nurseryBodies.map((g,i)=>['body'+i,g,bodyMats[i]])];
-   for(const [name,geo,mat]of definitions){const mesh=new THREE.InstancedMesh(geo,mat,nursery.length);if(name==='shell')geo.setAttribute('eggHit',new THREE.InstancedBufferAttribute(new Float32Array(nursery.length),1));mesh.name='Egg gallery '+name;mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);mesh.frustumCulled=false;mesh.count=0;mesh.receiveShadow=true;mesh.castShadow=name==='shell';mesh.renderOrder=name==='shell'?2:0;root.add(mesh);nurseryBatches.push({name,mesh});}
+   for(const [name,geo,mat]of definitions){const mesh=new THREE.InstancedMesh(geo,mat,nursery.length);if(name==='shell')geo.setAttribute('eggHit',new THREE.InstancedBufferAttribute(new Float32Array(nursery.length),1));mesh.name='Egg gallery '+name;mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);mesh.frustumCulled=false;mesh.count=0;mesh.receiveShadow=true;mesh.castShadow=false;mesh.renderOrder=name==='shell'?2:0;root.add(mesh);nurseryBatches.push({name,mesh});}
  }
  function presentNursery(view){
    if(!nursery.length)return;root.updateMatrixWorld(true);
@@ -265,7 +267,7 @@ export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hit
  function addQueenBrood(sites){const cluster={id:clusters.length,eggs:[],p:.965,side:0,queen:true};clusters.push(cluster);return sites.map((a,i)=>{const e=makeEgg({...a,queenEgg:true,laid:false},cluster,i+20);e.group.visible=false;return e;});}
  function makeEgg(a,cluster,site,dense=false){
    const id=eggs.length,stage=(id*7+site)%3,group=new THREE.Group();group.name=`Egg ${id}`;group.position.copy(a.center);group.quaternion.setFromUnitVectors(Z,a.normal);root.add(group);
-   const shell=new THREE.Mesh(dense?nurseryShellGeo:shellGeo,shellMat);shell.name='Wet pallid larval egg membrane';shell.scale.set(a.radius,a.radius,a.length);shell.receiveShadow=true;shell.castShadow=true;shell.renderOrder=2;group.add(shell);
+   const shell=new THREE.Mesh(dense?nurseryShellGeo:shellGeo,shellMat);shell.name='Wet pallid larval egg membrane';shell.scale.set(a.radius,a.radius,a.length);shell.receiveShadow=true;shell.castShadow=!dense;shell.renderOrder=2;group.add(shell);
    const embryo=new THREE.Mesh(dense?nurseryBodies[stage]:bodyGeos[stage],bodyMats[stage]);embryo.name=`Curled maggot embryo stage ${stage}`;embryo.scale.setScalar(stage===2?1.12:1.1);embryo.position.z=.15;embryo.rotation.z=(id%5-2)*.16;group.add(embryo);
    const collar=new THREE.Mesh(collarGeo,glueMat);collar.position.z=-a.length+.55;collar.scale.set(a.scale*1.22,a.scale*1.04,.42);group.add(collar);
    const pad=new THREE.Mesh(padGeo,glueMat);pad.position.z=-a.length+.34;pad.scale.set(a.radius*1.26,a.radius*1.10,.34);group.add(pad);

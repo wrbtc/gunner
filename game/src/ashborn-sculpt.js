@@ -16,9 +16,9 @@ export function sculpt(field,min,max,step=.07,color=0x96866f){
  }
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));g.computeBoundingSphere();return g;
 }
-export function sculptTrunk(){
+export function sculptTrunk(step=.070){
  const masses=[ell(0,.4,0,.80,.97,.47),ell(0,-.5,.02,.44,.73,.32),ell(0,-1.12,.02,.46,.49,.32),ell(0,1.1,.13,.46,.49,.34),ell(0,.52,.38,.12,.85,.16)];
  for(const s of [-1,1]){masses.push(ell(s*.51,.73,.29,.34,.50,.23));masses.push(ell(s*.70,.93,-.03,.32,.27,.28));}
- const f=union(...masses);return sculpt(p=>{let d=f(p);if(p[2]<-.18&&p[1]>-.35&&p[1]<.90){const r=Math.sin(p[1]*23+Math.abs(p[0])*2.4);d-=Math.pow(Math.max(0,r),5)*.025;}d+=.009*Math.sin(p[0]*37+p[1]*12)*Math.sin(p[2]*29);return d;},[-1.13,-1.7,-.70],[1.13,1.72,.74],.070);
+ const f=union(...masses);return sculpt(p=>{let d=f(p);if(p[2]<-.18&&p[1]>-.35&&p[1]<.90){const r=Math.sin(p[1]*23+Math.abs(p[0])*2.4);d-=Math.pow(Math.max(0,r),5)*.025;}d+=.009*Math.sin(p[0]*37+p[1]*12)*Math.sin(p[2]*29);return d;},[-1.13,-1.7,-.70],[1.13,1.72,.74],step);
 }
-export function sculptSkull(){const f=union(ell(0,.14,.04,.40,.47,.33),ell(0,-.28,-.035,.27,.27,.27),ell(-.24,-.07,-.18,.16,.22,.15),ell(.24,-.07,-.18,.16,.22,.15),ell(0,-.02,-.31,.072,.17,.09));const eyes=[ell(-.17,.1,-.285,.14,.15,.14),ell(.17,.1,-.285,.14,.15,.14)],mouth=ell(0,-.29,-.27,.19,.095,.12);return sculpt(p=>Math.max(f(p),-eyes[0](p),-eyes[1](p),-mouth(p),p[1]-(.34+.03*Math.sin(p[0]*28))),[-.6,-.63,-.5],[.6,.58,.5],.035,0x92806a);}
+export function sculptSkull(step=.035){const f=union(ell(0,.14,.04,.40,.47,.33),ell(0,-.28,-.035,.27,.27,.27),ell(-.24,-.07,-.18,.16,.22,.15),ell(.24,-.07,-.18,.16,.22,.15),ell(0,-.02,-.31,.072,.17,.09));const eyes=[ell(-.17,.1,-.285,.14,.15,.14),ell(.17,.1,-.285,.14,.15,.14)],mouth=ell(0,-.29,-.27,.19,.095,.12);return sculpt(p=>Math.max(f(p),-eyes[0](p),-eyes[1](p),-mouth(p),p[1]-(.34+.03*Math.sin(p[0]*28))),[-.6,-.63,-.5],[.6,.58,.5],step,0x92806a);}

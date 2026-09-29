@@ -1,4 +1,4 @@
-import {addSatoshiMarkings} from './satoshi-markings.js';
+import {addSatoshiMarkings} from './satoshi-markings.js?v=054-88';
 import {agedAircraftMaterial} from './aircraft-surfaces.js?v=052';
 import * as THREE from '../vendor/three.module.js?v=052';
 import { mergeGeometries } from '../vendor/BufferGeometryUtils.js?v=052';

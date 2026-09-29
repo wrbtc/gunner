@@ -72,11 +72,14 @@ export function createFieldGuideViewer({dialog,provider,modelIds=MODEL_IDS}){
     renderModel(model,420,b?.width&&b?.height?Math.max(1,Math.round(420*b.height/b.width)):420);
     const url=renderer.domElement.toDataURL('image/png');
     models.set(id,model);thumbs.set(id,url);modelErrors.delete(id);
-    if(img){img.src=url;img.removeAttribute('data-guide-pending');img.dataset.modelReady='true';img.alt=id+' — 3D model preview';img.closest('.guide-portrait')?.removeAttribute('aria-busy');}
+    if(img){img.src=url;img.removeAttribute('data-guide-pending');img.removeAttribute('data-guide-failed');img.dataset.modelReady='true';img.alt=id+' — 3D model preview';img.closest('.guide-portrait')?.removeAttribute('aria-busy');}
    }catch(e){
     model?.dispose();if(!dialog.open||token!==generation)break;
     models.delete(id);thumbs.delete(id);
     modelErrors.set(id,String(e.message||e));
+    // Settle the card now; a busy tile must not wait for a click to admit failure.
+    const failed=dialog.querySelector(`[data-creature="${id}"] img`);
+    if(failed){failed.removeAttribute('data-guide-pending');failed.dataset.guideFailed='true';failed.closest('.guide-portrait')?.removeAttribute('aria-busy');}
    }
    refreshSelected(id);
    // Thumbnails share the detail canvas: restore its selected model before yielding.

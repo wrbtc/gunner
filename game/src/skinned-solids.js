@@ -14,8 +14,8 @@ export const SKINNED_SOLIDS=Object.freeze({
  rimmers:Object.freeze({
   id:'rimmers',
   asset:'rimmer-meshy-v2-rigged',
-  sha256:'e39e0226358fad716a20d9ac744c47fe8b7f00cfe958e07fc510ecbe24c97927',
-  bytes:18054908,
+  sha256:'1250e767ff6c24e4e932a0ac75236b32434626b0862e67e2a11ef685e8bcb6e1',
+  bytes:2473592,
   clips:Object.freeze({idle:'rimmer_idle',walk:'rimmer_walk',warning:'rimmer_warning'}),
   bones:Object.freeze(['rimmer_body','rimmer_head','rimmer_mouth','front_L_upper','hind_R_foot'])
  }),
@@ -37,8 +37,8 @@ export const SKINNED_SOLIDS=Object.freeze({
  dragons:Object.freeze({
   id:'dragons',
   asset:'dragon-fg-a',
-  sha256:'38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27',
-  bytes:64020728,
+  sha256:'147cd4e06246c023242d89416f8a684a6bb7b7a31f98964bef43fa7527000e0f',
+  bytes:3507348,
   static:true
  }),
  tanks:Object.freeze({

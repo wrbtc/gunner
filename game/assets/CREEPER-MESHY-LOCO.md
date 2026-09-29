@@ -5,10 +5,10 @@ Museum / Field Notes stay on `creeper-ember-hollow.glb` until a later pass.
 
 Required:
 
-- `game/assets/creeper-meshy-walk.glb` (3305960, sha256 2685d12783e4ae3afb055262fcc9beebf84b71033a7f127128e90d947293c840)
-- `game/assets/creeper-meshy-extra.glb` (5834196, sha256 3865d85e1eaed7cc9564541c817627d9f7eec44a0a529866b273d0f418d6ff1d)
-- `game/assets/creeper-meshy-throw.glb` (3484224, sha256 73e2a6c1ee0e62dde0d51707e4757c43394b319d4fb6f049324fd9ff6d4a083f)
-- `game/assets/creeper-meshy-run.glb` (3301368, sha256 7e0d07346c3b42373936cd34276cee25e911bc4dc995517f678fa34dfca17b37)
+- `game/assets/creeper-meshy-walk.glb` (547064, sha256 d026e20c8e305eb4dd119078610e11bb07fe80864e9daf5c519f8822ddb81b76)
+- `game/assets/creeper-meshy-extra.glb` (639828, sha256 3961ada1fe32d7b3b4bf69c6ad3ae368d25bf1e0084e7fc3ec662ade38ac55c6)
+- `game/assets/creeper-meshy-throw.glb` (678732, sha256 306247b72028f84224c7eac60f42fd604e50bd7f550d028fec489b097f0409ee)
+- `game/assets/creeper-meshy-run.glb` (542444, sha256 456e51f9bfaecfe7987e4a140c6f148b4a0ab1749df12a54565177fd94b49337)
 
 Clips: `Armature|walking_man|baselayer`, longest `Armature|running|baselayer` on
 run, `climbing_up_wall`, `climbing_down_wall`, `Angry_Ground_Stomp`, longest

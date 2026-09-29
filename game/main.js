@@ -52,6 +52,8 @@ let playerFov=66;
 const OPENING_SECONDS=14, APPROACH_START=.025, APPROACH_END=.065;
 const preferences={sensitivity:1,invert:false,master:false,volume:.65,music:.65,voice:.85,captions:true};
 let settingsOnly=false,settingsReady=false,sceneAssemblyComplete=false,firstStartMeasured=false,titlePresented=false;
+// Game time of the last fixed-step creature pose; the render frame skips an identical repose.
+let actorPoseTime=-1;
 function titleIdleHold(){return game.title&&titlePresented;}
 let startupAssembly=null;
 let lastQueenPhase='dormant';
@@ -1076,7 +1078,7 @@ function fixedUpdate(dt){
   const exitSide=planePos.clone().sub(rift.position).dot(rift.userData.normal);if((!queen||queen.cleared)&&game.exitSide<0&&exitSide>=0&&game.hull>0){game.exitSide=exitSide;endRun(true);return;}game.exitSide=exitSide;
   if(gunHeat.update(dt,game.gunHeld&&!queen?.locked)){audio.cue('gun-cooled');logEvent('gatling-cooled');}
   game.shotClock-=dt;if(game.gunHeld&&!gunHeat.overheated){while(game.shotClock<=0){fireRound();game.shotClock+=1/GUN.roundsPerSecond;}}else game.shotClock=Math.max(game.shotClock,0);
-  hitFeedback.update(dt,false);updateGunMechanisms(dt);updateBullets(dt);updateHostiles(dt);if(game.ended)return;updateCannons(dt);rimmers?.update(game.time,dt);updateDirector(dt);tankerBugs?.update(game.time,planePos);tankerSpray?.update(dt,game.time);updateEffects(dt);
+  hitFeedback.update(dt,false);updateGunMechanisms(dt);updateBullets(dt);updateHostiles(dt);if(game.ended)return;updateCannons(dt);rimmers?.update(game.time,dt);updateDirector(dt);tankerBugs?.update(game.time,planePos);actorPoseTime=game.time;tankerSpray?.update(dt,game.time);updateEffects(dt);
   for(const e of eggNests?.eggs||[])e.reducedHit=false;eggNests?.update(dt,game.time,planePos);plasmaBugs?.update(dt,game.time);plasmaBursts?.update(dt);
   mayhemFX.update(dt,game.time,planePos,!!queen?.quiet);
   if(assetKit)assetKit.update(dt,game.time,camera);
@@ -1207,7 +1209,7 @@ function render(now){
   const titleHold=titleIdleHold();
   if(!titleHold){
   const presentationView=endingFlight?.started||queenView?camera.getWorldPosition(scratchPresentationView):planePos;
-  hellWorld.update(visualTime,presentationView,reducedOpening());hellWorld.skyActivity.root.visible=true;hellWorld.skyActivity.update(visualTime,planePos,reducedOpening());blastWorld?.update(visualTime,presentationView,reducedOpening());bankDemons?.update(game.time,planePos);eggNests?.update(0,game.time,presentationView);plasmaBugs?.update(0,game.time);if(assetKit)assetKit.update(0,game.time,camera);tankerBugs?.update(game.time,planePos);
+  hellWorld.update(visualTime,presentationView,reducedOpening());hellWorld.skyActivity.root.visible=true;hellWorld.skyActivity.update(visualTime,planePos,reducedOpening());blastWorld?.update(visualTime,presentationView,reducedOpening());if(actorPoseTime!==game.time)bankDemons?.update(game.time,planePos);eggNests?.update(0,game.time,presentationView);plasmaBugs?.update(0,game.time);if(assetKit)assetKit.update(0,game.time,camera);if(actorPoseTime!==game.time)tankerBugs?.update(game.time,planePos);
   if(game.opening&&!game.paused&&!game.captureFreeze&&!game.contextLost){audio.setListener(getAimOrigin(),getAimDirection());audio.update(dt,visualTime,planePos);}
   for(const e of enemies)if(!e.rimmer)e.root.visible=!e.dead;
   for(const d of scenicDemons){d.marker.visible=!d.dead;if(d.assetVisual)d.assetVisual.visible=d.marker.position.distanceToSquared(planePos)<360*360;}
@@ -1244,6 +1246,7 @@ function render(now){
 }
 
 function reset(){
+  actorPoseTime=-1;
   pilot?.reset();
   queenSampleCues.stop();
   lastQueenPhase='dormant';
@@ -1268,6 +1271,20 @@ function reset(){
   camera.position.set(0,0,0);rift.visible=false;rift.scale.setScalar(1);rift.userData.shards.forEach(shard=>{shard.material.opacity=shard.userData.baseOpacity;});dom.result.hidden=true;dom.pause.hidden=true;dom.whiteout.classList.remove('open');dom.result.classList.remove('lost');updatePlane(0);creatureTracking?.reset();bankDemons?.reset();tankerSpray?.reset();tankerBugs?.reset();rimmers?.reset();plasmaBugs?.reset();plasmaBursts?.reset();eggNests?.reset();mayhemFX.reset();hellWorld.reset();audio.reset();for(const state of rotorAudioStates){state.speed=0;state.held=false;}gunBubble?.reset();windowDamage?.reset();if(assetKit)assetKit.update(0,0,camera);for(const e of enemies)e.throat.rotation.set(0,0,0);emitHook('onReset',{});
 }
 
+// A throw inside render() ends the frame chain and freezes the last frame with
+// no message. After an uncaught error, two frames without a render tick mean
+// the loop is dead: show the loading failure panel (RETRY, REPORT) instead.
+let runtimeFaultCheck=false;
+addEventListener('error',event=>{
+  if(runtimeFaultCheck||!sceneAssemblyComplete||loadingSnapshot().status==='failed')return;
+  runtimeFaultCheck=true;const tick=game.lastFrame;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    runtimeFaultCheck=false;
+    if(game.lastFrame!==tick||loadingSnapshot().status==='failed')return;
+    const error=event.error instanceof Error?event.error:Error(String(event.message||'Runtime fault'));error.code='RUNTIME_FAULT';
+    document.exitPointerLock?.();audio.pause();dom.intro.hidden=false;failFlightPreparation(error);
+  }));
+});
 function start({skipOpening=false,legacyRoute=false}={}){
   if(!bootCompleted||!graphicsReady||loadingSnapshot().status==='failed')return;
   if(dom.start.disabled||game.contextLost)return;
@@ -1317,7 +1334,7 @@ function showResult(won){
   $('#finalCompletion').textContent=(won?100:Math.floor(currentFlightProgress()*100))+'%';
   dom.finalHull.textContent=Math.ceil(game.hull);dom.finalScore.textContent=game.score.toLocaleString('en-US');const destroyed=eggNests.rupturedCount(),total=eggNests.eggs.length;$('#finalEggs').textContent=destroyed+' / '+total;$('#finalEggFill').style.width=(total?destroyed/total*100:0)+'%';
   document.exitPointerLock?.();
-  if(game.masterUsed){highScores.reset();$('#scoreScope').textContent='DEBUG FLIGHT';$('#scoreStatus').textContent='MASTER MODE · DEBUG FLIGHT NOT SUBMITTED.';$('#scoreEntry').hidden=true;}
+  if(game.masterUsed){highScores.reset();$('#scoreScope').textContent='DEBUG FLIGHT';$('#scoreStatus').textContent='MASTER MODE · DEBUG FLIGHT NOT SUBMITTED.';const entry=$('#scoreEntry');if(entry)entry.hidden=true;}
   else highScores.offer(game.score);
   if(!$('#scoreEntry')||$('#scoreEntry').hidden)dom.replay.focus({preventScroll:true});
 }
@@ -1494,7 +1511,7 @@ function qaCoreChecks(){
   return {kind:'diagnostic-core-checks',passed:checks.filter(c=>c.pass).length,total:checks.length,checks};
 }
 const qaApi={
-  version:'0.54.87',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,masterMode:preferences.master,masterUsed:game.masterUsed,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:frameMetrics.counterScope||'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
+  version:'0.54.90',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,masterMode:preferences.master,masterUsed:game.masterUsed,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:frameMetrics.counterScope||'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
   start:()=>start({skipOpening:true,legacyRoute:true}),beginOpening:()=>start(),skipOpening:()=>finishOpening(true),openingState:()=>({active:game.opening,title:game.title,time:game.openingTime,phase:openingPhase,flightProgress:currentFlightProgress(),camera:camera.position.toArray(),quaternion:camera.quaternion.toArray(),fov:camera.fov,fade:Number(dom.openingFade.style.opacity)||0,exterior:bomberExterior?.stats(),cameraPath:openingCamera?.stats()}),seekOpening:(seconds)=>{game.openingTime=THREE.MathUtils.clamp(seconds,0,OPENING_SECONDS);game.captureFreeze=true;updatePlane(0);updateOpeningPresentation();return true;},reset:qaReset,pause,resume,setTime:(seconds)=>{game.time=THREE.MathUtils.clamp(seconds,0,RUN_SECONDS);updatePlane(0);creatureTracking?.seek(game.time);},setView:(yaw,pitch)=>{game.yaw=yaw;game.pitch=THREE.MathUtils.clamp(pitch,-1.38,.95);updatePlane(0);},turnAround,toggleRear:turnAround,fireCannon,fireRound,damage:(amount=6)=>damageHull(amount,planePos),masterMode:(enabled=true)=>setMasterMode(enabled,{persist:false}),explode:()=>explode(planePos.clone().addScaledVector(planeTangent,70),14),preview:setPreview,
   events:()=>game.eventLog.slice(),runtime:gunnerRuntime,trace:qaTrace,replay:qaReplay,checkCore:qaCoreChecks,
   aimAt:(target)=>{const actor=typeof target==='string'?enemies.concat(siege).find(e=>e.id===target):null;qaAimAt(actor?actorCenter(actor):new THREE.Vector3().fromArray(target));},

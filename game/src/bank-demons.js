@@ -8,7 +8,7 @@ function colored(g,color){if(g.index)g=g.toNonIndexed();const c=new THREE.Color(
 function ellipsoid(x,y,z,sx,sy,sz,color=0xa49c87){return colored(new THREE.SphereGeometry(1,16,12).scale(sx,sy,sz).translate(x,y,z),color);}
 function tendon(a,b,r,color=0x8c816b){const d=b.clone().sub(a),g=new THREE.CylinderGeometry(r*.68,r,d.length(),9,3);g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(UP,d.normalize()));g.translate(...a.clone().add(b).multiplyScalar(.5).toArray());return colored(g,color);}
 function merge(gs){const g=mergeGeometries(gs);g.computeBoundingSphere();return g;}
-function anatomy(){
+function anatomy(coarse=false){
  const torso=new THREE.LatheGeometry([[.50,-1.05],[.55,-.85],[.40,-.53],[.49,-.1],[.76,.35],[.91,.67],[.86,.96],[.64,1.18],[.24,1.33]].map(p=>new THREE.Vector2(...p)),28,0,Math.PI*2).scale(1,1,.60);
  const p=torso.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);const rib=(Math.sin(y*18+x*x*2)*.035)*clamp((y+.2)*2,0,1);p.setXYZ(i,x*(1+rib),y,z*(1+rib*2));}torso.computeVertexNormals();
  const chest=[colored(torso,0xa39b86),ellipsoid(0,.7,.48,.23,.85,.13,0x827662)];
@@ -28,7 +28,7 @@ function anatomy(){
  const lower=bone([[.02,-.08],[.15,0],[.19,.14],[.20,.27],[.16,.45],[.11,.78],[.105,.95],[.03,1.06]]);
  const thigh=bone([[.01,-.06],[.24,0],[.30,.15],[.29,.35],[.235,.65],[.20,.88],[.19,1.02],[.03,1.09]]);
  const shin=bone([[.02,-.06],[.19,0],[.21,.14],[.215,.30],[.16,.48],[.115,.73],[.10,.97],[.025,1.06]]);
- return {torso:sculptTrunk(),hip:merge([ellipsoid(0,0,.04,.59,.49,.35),ellipsoid(-.39,.08,-.10,.22,.33,.21),ellipsoid(.39,.08,-.10,.22,.33,.21)]),head:sculptSkull(),neck:merge([ellipsoid(0,0,0,.19,.37,.19),tendon(V(-.13,.21,-.10),V(-.23,-.3,-.16),.057),tendon(V(.13,.21,-.10),V(.23,-.3,-.16),.057)]),upper,lower,hand:merge(hand),thigh,shin,foot:merge([ellipsoid(0,0,-.22,.23,.16,.40),ellipsoid(0,.10,.03,.18,.23,.19)]),rock:colored(new THREE.IcosahedronGeometry(.59,1).scale(1.2,.8,1),0x5c4d38)};
+ return {torso:coarse?sculptTrunk(.10):sculptTrunk(),hip:merge([ellipsoid(0,0,.04,.59,.49,.35),ellipsoid(-.39,.08,-.10,.22,.33,.21),ellipsoid(.39,.08,-.10,.22,.33,.21)]),head:coarse?sculptSkull(.06):sculptSkull(),neck:merge([ellipsoid(0,0,0,.19,.37,.19),tendon(V(-.13,.21,-.10),V(-.23,-.3,-.16),.057),tendon(V(.13,.21,-.10),V(.23,-.3,-.16),.057)]),upper,lower,hand:merge(hand),thigh,shin,foot:merge([ellipsoid(0,0,-.22,.23,.16,.40),ellipsoid(0,.10,.03,.18,.23,.19)]),rock:colored(new THREE.IcosahedronGeometry(.59,1).scale(1.2,.8,1),0x5c4d38)};
 }
 function skinMaterial(){const m=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.86,metalness:.035});m.onBeforeCompile=s=>{s.vertexShader='attribute float hitAmount;varying float vHitAmount;attribute float emberAmount;varying float vEmber;varying vec3 vFlesh;\n'+s.vertexShader;s.vertexShader=s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvFlesh=position;vEmber=emberAmount;vHitAmount=hitAmount;');s.fragmentShader='varying float vHitAmount;varying float vEmber;varying vec3 vFlesh;\nfloat fleshHash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}\nfloat fleshNoise(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(mix(fleshHash(i),fleshHash(i+vec3(1,0,0)),f.x),mix(fleshHash(i+vec3(0,1,0)),fleshHash(i+vec3(1,1,0)),f.x),f.y),mix(mix(fleshHash(i+vec3(0,0,1)),fleshHash(i+vec3(1,0,1)),f.x),mix(fleshHash(i+vec3(0,1,1)),fleshHash(i+vec3(1,1,1)),f.x),f.y),f.z);}\n'+s.fragmentShader;s.fragmentShader=s.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
 float ember=vEmber;
@@ -51,7 +51,9 @@ export function createBankGuideModel(ember=false){
 }
 export function createBankDemons({scene,centerAt,widthAt,bankMeshes,danceSite=null,locoKit=null}){
  const group=new THREE.Group();group.name='Forty bank Creepers and eight Ember dancers';scene.add(group);
- const geos=anatomy(),mat=skinMaterial(),parts={};
+ // Live creepers are seen from tens of metres: half-density sculpts, same field and
+ // analytic normals. The Field Guide specimen keeps the fine sculpt.
+ const geos=anatomy(true),mat=skinMaterial(),parts={};
  const eyeMat=new THREE.MeshBasicMaterial({color:new THREE.Color(4.5,.012,.004),toneMapped:false});
  geos.eyes=merge([-1,1].map(s=>ellipsoid(s*.17,.10,-.31,.080,.070,.050,0xffffff))); 
  const names={torso:'torso',hip:'hip',head:'head',neck:'neck',upperL:'upper',upperR:'upper',lowerL:'lower',lowerR:'lower',handL:'hand',handR:'hand',thighL:'thigh',thighR:'thigh',shinL:'shin',shinR:'shin',footL:'foot',footR:'foot',rock:'rock',eyes:'eyes'};

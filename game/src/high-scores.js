@@ -9,6 +9,8 @@ function readRows(value){
   return value.map(r=>({initials:r.initials,score:r.score}));
 }
 export function createHighScores({table,form,input,submit,status,scope,refreshButton,onQualified}){
+  // paint() moves the form into a table cell; this is where it lives otherwise.
+  const home=form.parentNode,anchor=form.nextSibling;
   let rows=[],finishedScore=null,submitted=false,saving=false,epoch=0,submissionId=null,payload=null,loadController=null,saveController=null,rank=null,loadState='loading',qualificationNotified=false;
   async function request(options,controller){
     const timeout=setTimeout(()=>controller.abort(),8000);
@@ -40,7 +42,7 @@ export function createHighScores({table,form,input,submit,status,scope,refreshBu
       if(row?.current){name.append(form);form.hidden=false;}else name.textContent=row?.initials??'---';tr.append(name);
       const score=document.createElement('td');score.textContent=row?String(row.score).padStart(6,'0'):'------';tr.append(score);table.append(tr);
     }
-    if(!qualifies)form.hidden=true;
+    if(!qualifies){form.hidden=true;if(home&&form.parentNode!==home)home.insertBefore(form,anchor?.parentNode===home?anchor:null);}
     scope.textContent=loadState==='loading'?'SHARED · LOADING':loadState==='unavailable'?'SHARED · UNAVAILABLE':'SHARED';
     table.closest('table').setAttribute('aria-busy',String(loadState==='loading'));qualification();
   }

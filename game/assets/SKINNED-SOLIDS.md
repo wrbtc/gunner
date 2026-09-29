@@ -12,10 +12,10 @@ Expected binaries next to this note:
 | `game/assets/rimmer-skinned-solid.glb` | 1153368 | `1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456` |
 | `game/assets/plasma-bug-skinned-solid.glb` | 1135104 | `127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f` |
 | `game/assets/creeper-ember-hollow.glb` | 1091768 | `25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe` |
-| `game/assets/dragon-fg-a.glb` | 64020728 | `38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27` |
+| `game/assets/dragon-fg-a.glb` | 3507348 | `147cd4e06246c023242d89416f8a684a6bb7b7a31f98964bef43fa7527000e0f` |
 | `game/assets/field-notes-v02/cinder-maw-fieldnotes-v02.glb` | 1483396 | `2a829abf1fbb8419c8f0081ecedeeeddc7a3d6adc922f6a21108148ba4f53c52` |
 | `game/assets/vein-ascetic-skinned.glb` | 1908316 | `9d67a8c5fcdc4a5d8bbbdbae9f428e87a963a978682c0e572f62af28567e495e` |
-| `game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb` | 1075680 | `344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96` |
+| `game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb` | 240068 | `dce9f57242857ebcf84a567a25932278ea1e6454cb3e6aeb2c26bc83a1402d7d` |
 
 Ember Hollow is the slim pack: armature `EmberArmature`, clips `ember_idle` and
 `ember_walk`. VIEW 3D plays `ember_idle` only. Reject the 4.58MB SOLID pack
@@ -77,7 +77,7 @@ rotation, and 100% zoom.
 
 ## Meshy Rimmer v2 gameplay exception
 
-The Rimmer now uses `rimmer-meshy-v2-rigged.glb` for both Field Guide and gameplay, with independent skeleton instances. Source GLB SHA-256 `1cb5086983d89f8d310d2f71f7cca26a4f87234a6abf57c12d51b47b0ccedc75`; rigged output `e39e0226358fad716a20d9ac744c47fe8b7f00cfe958e07fc510ecbe24c97927`, 18054908 bytes. Original position, normal, UV, index and embedded texture buffers are preserved; tangents, a 30-joint deform rig and three clips are additive. `rimmer_idle`, `rimmer_walk` and `rimmer_warning` are showroom clips; gameplay uses grounded skeletal articulation and game-owned route translation. Other species keep their existing combat paths.
+The Rimmer now uses `rimmer-meshy-v2-rigged.glb` for both Field Guide and gameplay, with independent skeleton instances. Source GLB SHA-256 `1cb5086983d89f8d310d2f71f7cca26a4f87234a6abf57c12d51b47b0ccedc75`; rigged output `1250e767ff6c24e4e932a0ac75236b32434626b0862e67e2a11ef685e8bcb6e1`, 2473592 bytes. Original position, normal, UV, index and embedded texture buffers are preserved; tangents, a 30-joint deform rig and three clips are additive. `rimmer_idle`, `rimmer_walk` and `rimmer_warning` are showroom clips; gameplay uses grounded skeletal articulation and game-owned route translation. Other species keep their existing combat paths.
 
 Gameplay fits the new articulated legs with a neutral stance inset of 0.12 source units and an 8.7-world-unit visual gait cycle; swing feet return to neutral while stance feet remain anchored. These visual gait choices retain the original route, speed, timing, HP, damage, scoring and hit proxies. The three rigid leg segments deform the original joined surface through skin weights.
 
