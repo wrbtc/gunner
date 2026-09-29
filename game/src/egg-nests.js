@@ -1,6 +1,6 @@
 import {EGG_SITES,isNestingWidth} from './river-profile.js?v=052';
 import * as THREE from '../vendor/three.module.js?v=052';
-import {mergeGeometries} from '../vendor/BufferGeometryUtils.js?v=052';
+import {mergeGeometries,toCreasedNormals} from '../vendor/BufferGeometryUtils.js?v=052';
 import {createSlicedIteratorPreparation} from './sliced-iterator-preparation.js?v=054-26';
 const V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z),UP=V(0,1,0),Z=V(0,0,1),clamp=THREE.MathUtils.clamp;
 function solid(g){const h=g.index?g.toNonIndexed():g.clone();h.deleteAttribute('uv');h.deleteAttribute('color');return h;}
@@ -163,7 +163,23 @@ export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hit
  const uniforms={uReveal:{value:1}},kitShell=eggSolids?.shell,kitMaggot=eggSolids?.maggot,useBakedShell=!!(kitShell?.geometry&&kitShell?.material);
  // The baked shell's root tangle sits at its +Z pole, but nests face +Z out of the wall:
  // turn it half round so the roots grip the rock and the rounded end faces the canyon.
- const shellMat=useBakedShell?kitShell.material:shellMaterial(uniforms),shellGeo=kitShell?.geometry?kitShell.geometry.clone().rotateY(Math.PI):eggGeometry(24,18);
+ // The baked shell is a slim pod (0.43 and 0.56 of the radius across): widen it to a round
+ // egg, 0.88 of the radius each way, which still clears the nest spacing of one radius.
+ const EGG_GIRTH=useBakedShell?V(2.05,1.56,1):V(1,1,1);
+ const shellMat=useBakedShell?kitShell.material.clone():shellMaterial(uniforms),shellGeo=kitShell?.geometry?toCreasedNormals(kitShell.geometry.clone().rotateY(Math.PI).scale(EGG_GIRTH.x,EGG_GIRTH.y,1),Math.PI/3):eggGeometry(24,18);
+ // The loader's flat per-face normals facet an opaque shell; creased normals smooth the body, keep root edges.
+ // A thicker, milkier membrane: the larva reads as a shadow inside, not a pod of glass.
+ // The decimated atlas smears its painted cracks across large triangles once the shell
+ // is this opaque, so live shells use smooth vertex colour: pale membrane, brown roots.
+ if(useBakedShell){
+  shellMat.opacity=.86;shellMat.depthWrite=true;
+  for(const map of ['map','roughnessMap','metalnessMap','emissiveMap'])shellMat[map]=null;
+  shellMat.vertexColors=true;shellMat.color.set(0xffffff);shellMat.roughness=.42;shellMat.metalness=0;
+  const pos=shellGeo.attributes.position,colors=new Float32Array(pos.count*3),membrane=new THREE.Color(0xcbc3b0),root=new THREE.Color(0x4a3a2a),mix=new THREE.Color();
+  // Roots sit below z -0.45 after the half turn; the neck blends over a short band.
+  for(let i=0;i<pos.count;i++){mix.copy(root).lerp(membrane,THREE.MathUtils.smoothstep(pos.getZ(i),-.5,-.3));colors.set([mix.r,mix.g,mix.b],i*3);}
+  shellGeo.setAttribute('color',new THREE.BufferAttribute(colors,3));
+ }
  const bodyGeos=kitMaggot?.geometry?[0,1,2].map(()=>kitMaggot.geometry):[0,1,2].map(embryoGeometry);
  const bodyMats=kitMaggot?.material?[0,1,2].map(()=>kitMaggot.material):[0x594137,0x735345,0x514036].map(color=>new THREE.MeshStandardMaterial({color,roughness:.56,metalness:0}));
  const glueMat=new THREE.MeshStandardMaterial({color:0x554b3c,roughness:.58,transparent:false,opacity:1,side:THREE.DoubleSide});
@@ -271,7 +287,7 @@ export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hit
    const embryo=new THREE.Mesh(dense?nurseryBodies[stage]:bodyGeos[stage],bodyMats[stage]);embryo.name=`Curled maggot embryo stage ${stage}`;embryo.scale.setScalar(stage===2?1.12:1.1);embryo.position.z=.15;embryo.rotation.z=(id%5-2)*.16;group.add(embryo);
    const collar=new THREE.Mesh(collarGeo,glueMat);collar.position.z=-a.length+.55;collar.scale.set(a.scale*1.22,a.scale*1.04,.42);group.add(collar);
    const pad=new THREE.Mesh(padGeo,glueMat);pad.position.z=-a.length+.34;pad.scale.set(a.radius*1.26,a.radius*1.10,.34);group.add(pad);
-   const socket=new THREE.Mesh(socketGeo,flapMat);socket.scale.copy(shell.scale);socket.visible=false;group.add(socket);
+   const socket=new THREE.Mesh(socketGeo,flapMat);socket.scale.copy(shell.scale).multiply(EGG_GIRTH);socket.visible=false;group.add(socket);
    // Umbilical thread and adhering glue strands give each sac a wet fixed pole.
    const cordCurve=new THREE.CatmullRomCurve3([V(0,-.9,.1),V(.65,-1.3,-1.2),V(.55,-.3,-a.length+1.3),V(0,0,-a.length+.5)]),cord=new THREE.Mesh(dense?nurseryCordGeo:new THREE.TubeGeometry(cordCurve,18,.065,6,false),glueMat);group.add(cord);
    group.updateMatrixWorld(true);const rootFilaments=makeRootFilaments(a,group,id);const egg={...a,rootFilaments,id:`egg-${id}`,index:id,cluster:cluster.id,stage,group,shell,embryo,collar,socket,cord,hp:65,dead:false,credited:false,releaseAge:0,vel:V(),spin:V(),landed:false,bodyOrigin:embryo.position.clone(),bodyRotation:embryo.rotation.clone(),bodyWorld:V(),bodyPrev:V(),ruptureAt:null};if(!dense&&!useBakedShell){const material=shellMaterial(uniforms);shell.material=material;shell.onBeforeRender=()=>{if(material.userData.shader)material.userData.shader.uniforms.uEggHit.value=Math.min(1,(egg.hitFlash||0)/.12)*(egg.reducedHit?.32:1);};}eggs.push(egg);cluster.eggs.push(egg);
