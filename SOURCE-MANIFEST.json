@@ -1,5 +1,5 @@
 {
-  "version": "0.54.96",
+  "version": "0.54.97",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -328,8 +328,8 @@
     },
     {
       "path": "game/main.js",
-      "bytes": 163589,
-      "sha256": "fbaf12d62f53f6519b6a67f53f263f8ce8e4a728f912ff0265c070a18757b8de"
+      "bytes": 164172,
+      "sha256": "a84b13bbfa6c7f1e3fd631157b1be0b4ac31f17d9dfa93bb4576738b123dcda5"
     },
     {
       "path": "game/mobile-entry.js",
@@ -544,7 +544,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 27246,
-      "sha256": "e25e0badb6af65e747a1fcce401bfdac2a4f063fcfa2b2952241bec89dc2a77b"
+      "sha256": "364fba8a4f1b124d7899ff7b0a80e4a0efd37da247ed2823d979a328413b2ef0"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -638,8 +638,8 @@
     },
     {
       "path": "game/src/rimmers.js",
-      "bytes": 14309,
-      "sha256": "d86ad22c40183ea03400dbd84b3a8be2e1bf673d2e08cb251805f3bc7b78c778"
+      "bytes": 14596,
+      "sha256": "a8f3b8bbf8b2f340b57bd08a50e36e3458a18f213e82ff9f0045c52aacc2f64f"
     },
     {
       "path": "game/src/river-profile.js",
