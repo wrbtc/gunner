@@ -16,7 +16,10 @@ export function createStartupTrace({now=()=>performance.now(),limit=96}={}){
 }
 const startupTrace=createStartupTrace();let onStartupChange=()=>{},bootHeartbeat=()=>{};
 export function bindBootHeartbeat(fn){bootHeartbeat=typeof fn==='function'?fn:()=>{};}
-export const startupMark=(name,state,outcome)=>{startupTrace.mark(name,state,outcome);onStartupChange();if(state!=='failed')bootHeartbeat();};
+// Completed assembly steps are kept apart from the bounded trace, so a full trace
+// can never stop later preparation bullets from lighting.
+const assemblyEnds=[];
+export const startupMark=(name,state,outcome)=>{if(state==='end'&&String(name).startsWith('assembly:')&&!assemblyEnds.some(e=>e.name===name))assemblyEnds.push(Object.freeze({name:String(name),state:'end'}));startupTrace.mark(name,state,outcome);onStartupChange();if(state!=='failed')bootHeartbeat();};
 export const LOADING_ITEMS=Object.freeze(['world','models','aircraft','creatures','grounding','tracking','support-index','tanks','blast','nests','ruins','gallery','dance','bank','spray','rimmers','plasma','collision-map','climbers','queen','atmosphere','audio','collision','shaders']);
 export function completedLoadingItems(state,events){
  const done=new Set(state.completed);
@@ -172,7 +175,7 @@ export function createPreparationSequence({canceled=()=>false,now=()=>performanc
 function renderLoading(state){
  const row=globalThis.document?.querySelector?.('.ammo-progress');
  if(row&&!row.children.length)for(const id of LOADING_ITEMS){const bullet=document.createElement('i');bullet.id='prep-'+id;row.append(bullet);}
- const done=completedLoadingItems(state,startupTrace.snapshot().events);
+ const done=completedLoadingItems(state,assemblyEnds);
  for(const id of LOADING_ITEMS){const bullet=$('prep-'+id);if(bullet)bullet.dataset.complete=String(done.includes(id));}
  const node=$('loadStatus');if(!node)return;
  const text=state.status==='failed'?'Flight preparation could not finish. Please retry.':state.status==='ready'?'Ready for deployment':`${done.length} of ${LOADING_ITEMS.length} preparation items complete`;
@@ -187,7 +190,7 @@ export const loadingSnapshot=()=>Object.freeze({...loading.snapshot(),trace:star
 export const loadingStage=id=>{const ok=loading.complete(id);if(ok)bootHeartbeat();return ok;};
 export const loadingProgress=(id,detail)=>{const ok=loading.begin(id,detail);if(ok)bootHeartbeat();return ok;};
 export const loadingReady=()=>loading.ready();
-export const REPORT_BUILD='0.54.92';
+export const REPORT_BUILD='0.54.93';
 const REPORT_ORIGINS=['https://gunner.satoshis.watch','http://127.0.0.1:8000'];
 const missionBuild=$('missionBuild');
 if(missionBuild)missionBuild.textContent='v'+REPORT_BUILD;
