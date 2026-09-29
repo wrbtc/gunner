@@ -60,7 +60,10 @@ export const SKINNED_SOLIDS=Object.freeze({
   clips:Object.freeze({idle:'ritual_idle',walk:'ritual_walk'})
  })
 });
-const BOOT_SOLIDS=Object.freeze(['rimmers','plasma','creepers','tanks','dancers']);
+// Rimmer clones and the shared tank bytes are needed during game startup.
+const BOOT_SOLIDS=Object.freeze(['rimmers','tanks']);
+// These models are only used by the Field Guide, so fetch them when it opens.
+const MUSEUM_SOLIDS=Object.freeze(['plasma','creepers','dancers']);
 
 let pending;
 
@@ -183,12 +186,19 @@ export function loadSkinnedSolids(){
   pending=Promise.all(BOOT_SOLIDS.map(id=>loadGuideSolid(SKINNED_SOLIDS[id]).then(value=>[id,value],()=>[id,null])))
    .then(entries=>{
     const kit=Object.fromEntries(entries);
-    if(!kit.rimmers&&!kit.plasma&&!kit.creepers&&!kit.tanks&&!kit.dancers)throw Error('No field-guide skinned solids');
+    if(!kit.rimmers&&!kit.tanks)throw Error('No field-guide skinned solids');
     return kit;
    })
    .catch(error=>{pending=null;throw error;});
  }
  return pending;
+}
+
+const museumPending=new Map();
+export function loadGuideMuseumSolid(id){
+ if(!MUSEUM_SOLIDS.includes(id))return Promise.resolve(null);
+ if(!museumPending.has(id))museumPending.set(id,loadGuideSolid(SKINNED_SOLIDS[id]).catch(()=>{museumPending.delete(id);return null;}));
+ return museumPending.get(id);
 }
 
 let dragonPending;

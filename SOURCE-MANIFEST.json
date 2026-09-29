@@ -328,8 +328,8 @@
     },
     {
       "path": "game/main.js",
-      "bytes": 162176,
-      "sha256": "a20881dbe5da9107fdb2b6cddcbbf5f0138e0c6710afda371993d10b553828b3"
+      "bytes": 162273,
+      "sha256": "077c7e3c6d8bd3e084d8227cb83af87316cb8d849f10922f9fdddc13f25c13e9"
     },
     {
       "path": "game/mobile-entry.js",
@@ -663,8 +663,8 @@
     },
     {
       "path": "game/src/skinned-solids.js",
-      "bytes": 8015,
-      "sha256": "e9cdf37d67908bf79d35962b6de26d27e6d2e2b3c397c9c7fa925c2b7ed8fc67"
+      "bytes": 8470,
+      "sha256": "1e126b3a69265d3d4f7a3364456f4c38f54b42d60644fcdfa4edd2afd0756a82"
     },
     {
       "path": "game/src/sky-activity.js",
