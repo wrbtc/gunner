@@ -139,7 +139,13 @@ export function createCinematicPass(renderer) {
       for(const listener of entry.listeners)try{listener({...preparationStatus});}catch{}
     };
     async function run(){
-      const started=performance.now(),deadline=started+timeoutMs,roots=lightVariants?.roots||[],maximum=lightVariants?.maxVisible??0;
+      const started=performance.now(),roots=lightVariants?.roots||[],maximum=lightVariants?.maxVisible??0;
+      // The 30 s wall counts visible time only, like construction and collision: a
+      // background tab is throttled and must not fail a load that would finish visible.
+      const doc=globalThis.document;let hiddenMs=0,hiddenSince=doc?.visibilityState==='hidden'?started:null;
+      const onVisibility=()=>{const t=performance.now();if(doc.visibilityState==='hidden'){if(hiddenSince===null)hiddenSince=t;}else if(hiddenSince!==null){hiddenMs+=t-hiddenSince;hiddenSince=null;}};
+      doc?.addEventListener?.('visibilitychange',onVisibility);
+      const visibleElapsed=()=>{const t=performance.now();return t-started-hiddenMs-(hiddenSince===null?0:t-hiddenSince);};
       const programs=new Set(),finished=new Set(),pointLightCounts=new Set();
       // Keep the hot path to counters and clock reads. The bounded program list,
       // context query and report object are created once, only if preparation fails.
@@ -166,7 +172,7 @@ export function createCinematicPass(renderer) {
         batchIndex:diag.batchIndex,jobBatchCount:diag.jobBatchCount,
         submittedObjects:diag.submittedObjects,totalObjects:diag.totalObjects,
         discoveredPrograms:programs.size,finishedPrograms:finished.size,pendingProgramIds:pendingIds(),
-        elapsedMs:Math.round(performance.now()-started),
+        elapsedMs:Math.round(visibleElapsed()),
         maxCompileMs:Math.round(diag.maxCompileMs),recentCompileMs:Math.round(diag.recentCompileMs),
         maxReadyPollMs:Math.round(diag.maxReadyPollMs),recentReadyPollMs:Math.round(diag.recentReadyPollMs),
         maxUniformsMs:Math.round(diag.maxUniformsMs),recentUniformsMs:Math.round(diag.recentUniformsMs),
@@ -179,7 +185,7 @@ export function createCinematicPass(renderer) {
       const canceled=()=>generation!==contextGeneration||gl.isContextLost();
       const timeoutError=()=>Object.assign(new Error('Graphics preparation timed out'),{code:'PREPARATION_TIMEOUT'});
       function assertTime(){
-        if(performance.now()-started>=timeoutMs)throw timeoutError();
+        if(visibleElapsed()>=timeoutMs)throw timeoutError();
       }
       // Serial getUniforms/getAttributes can cost ~200ms each on weak integrated
       // GL. Yield before another introspect once this slice is spent, and skip
@@ -188,7 +194,7 @@ export function createCinematicPass(renderer) {
       let skipIntrospect=false,introspectTotalMs=0,remainingJobs=[];
       const batchesFor=job=>Math.ceil(Math.max(1,job.objects.length)/16);
       const estimatedIntrospectMs=()=>Math.max(8,diag.recentUniformsMs+diag.recentAttributesMs);
-      const remainingMs=()=>deadline-performance.now();
+      const remainingMs=()=>timeoutMs-visibleElapsed();
       const queuedCompileMs=()=>remainingJobs.reduce((sum,queued)=>sum+batchesFor(queued),0)*Math.max(1,diag.recentCompileMs);
       const noteDeferredUniforms=()=>{if(diag.compilerNote!=='conserved-light-variants')diag.compilerNote='deferred-uniforms';};
       function canAffordIntrospect(){
@@ -196,7 +202,7 @@ export function createCinematicPass(renderer) {
         return remaining>Math.max(timeoutMs*0.1,estimate)&&introspectTotalMs<timeoutMs*0.5;
       }
       function throwIfBlockingCallExceeded(ms){
-        if(performance.now()-started>=timeoutMs&&ms>=timeoutMs)throw timeoutError();
+        if(visibleElapsed()>=timeoutMs&&ms>=timeoutMs)throw timeoutError();
       }
       function considerSkipIntrospect(){
         if(skipIntrospect)return true;
@@ -316,7 +322,7 @@ export function createCinematicPass(renderer) {
               const compileLooksSerial=diag.parallelCompile===false||compileMs>=16;
               const currentLeft=Math.max(0,job.objects.length-(offset+objects.length));
               const remainingWork=(Math.ceil(currentLeft/16)+remainingJobs.reduce((sum,queued)=>sum+batchesFor(queued),0))*Math.max(1,compileMs);
-              if(compileLooksSerial&&remainingWork>Math.max(0,deadline-performance.now())*0.8){
+              if(compileLooksSerial&&remainingWork>Math.max(0,timeoutMs-visibleElapsed())*0.8){
                 conserved=true;
                 const keep=[],lastWorld=[...remainingJobs].reverse().find(queued=>!queued.capture&&queued.layer===0);
                 const lastCockpit=[...remainingJobs].reverse().find(queued=>!queued.capture&&queued.layer===1);
@@ -347,7 +353,7 @@ export function createCinematicPass(renderer) {
                   try{
                     timed('uniforms','Uniforms',()=>program.getUniforms());
                     throwIfBlockingCallExceeded(diag.recentUniformsMs);
-                    if(performance.now()-started>=timeoutMs||!canAffordIntrospect()){
+                    if(visibleElapsed()>=timeoutMs||!canAffordIntrospect()){
                       finished.add(program);skipIntrospect=true;noteDeferredUniforms();
                     }else{
                       diag.lastCompletedPhase='uniforms';
@@ -357,7 +363,7 @@ export function createCinematicPass(renderer) {
                       const details=program?.diagnostics;
                       if(details){const note=[details.runnable===false?'not-runnable':'',details.programLog,details.vertexShader?.log,details.fragmentShader?.log].filter(Boolean).join(' | ');if(note&&diag.compilerNote!=='conserved-light-variants'&&diag.compilerNote!=='deferred-uniforms')diag.compilerNote=String(note).slice(0,160);}
                       finished.add(program);
-                      if(performance.now()-started>=timeoutMs){skipIntrospect=true;noteDeferredUniforms();}
+                      if(visibleElapsed()>=timeoutMs){skipIntrospect=true;noteDeferredUniforms();}
                     }
                   }finally{const spent=performance.now()-introspectStarted;recordTiming('Introspect',spent);introspectTotalMs+=spent;}
                 }
@@ -392,6 +398,7 @@ export function createCinematicPass(renderer) {
         const frozen=snapshot(error);
         report(error.code==='PREPARATION_TIMEOUT'?'timed-out':'failed',finished.size,programs.size,{preTimeoutSnapshot:frozen});throw error;
       }finally{
+        doc?.removeEventListener?.('visibilitychange',onVisibility);
         yieldChannel?.port1.close();yieldChannel?.port2.close();resumeYield=null;
         if(preparation===entry)preparation=null;
       }
