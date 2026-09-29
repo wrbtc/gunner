@@ -3,7 +3,11 @@
 Bank creeper and climber combat visual. The Alien Field Guide prefers
 `creeper-ember-hollow.glb` when that museum solid is present; combat stays here.
 
-Expected binary next to this note:
+Retired: the live creeper is the Meshy pack (CREEPER-MESHY-LOCO.md). The unused binary
+below was removed from the release in v0.54.97; the asset name stays for the loader
+contract. It remains in git history.
+
+Former binary:
 
 `game/assets/creeper-lava-loco-003.glb` (lean remesh + live clips, 9840676 bytes)
 

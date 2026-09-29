@@ -503,9 +503,11 @@ export function createHellWorld({scene,route,centerAt,widthAt}) {
     }
     return true;
   }
-  function update(time,planePos,reduced=false){lavaUniforms.uTime.value=time;hellSky.update(time,planePos,reduced);skyActivity.update(time,planePos,reduced);
-    if(!reduced){for(const {side,light} of hotSpill){let nearest=null,distance=Infinity;for(const h of hotIntrusions){const d=Math.abs(h.position.z-planePos.z);if(h.side===side&&d<distance){nearest=h;distance=d;}}if(nearest){light.position.copy(nearest.position);if(light.isSpotLight)light.target.position.copy(nearest.position).add(hotSpillTargetOffset.set(side*20,-5,0));light.intensity=(light.isSpotLight?3900:2400)*Math.pow(Math.max(0,1-distance/240),2);}}
-    }else for(const {light} of hotSpill)light.intensity=0;
+  function update(time,planePos,reduced=false){lavaUniforms.uTime.value=time;
+    // Reduced motion freezes the sky's drift but keeps the dome; meteors and ash still
+    // stop (skyActivity). Static bank lighting is not motion, so hot spill stays lit.
+    hellSky.update(reduced?0:time,planePos,false);skyActivity.update(time,planePos,reduced);
+    for(const {side,light} of hotSpill){let nearest=null,distance=Infinity;for(const h of hotIntrusions){const d=Math.abs(h.position.z-planePos.z);if(h.side===side&&d<distance){nearest=h;distance=d;}}if(nearest){light.position.copy(nearest.position);if(light.isSpotLight)light.target.position.copy(nearest.position).add(hotSpillTargetOffset.set(side*20,-5,0));light.intensity=(light.isSpotLight?3900:2400)*Math.pow(Math.max(0,1-distance/240),2);}}
     // A dark spill light keeps its shadow slot (no shader relink) but skips its
     // 1024 depth pass until it lights again.
     for(const {light} of hotSpill)if(light.castShadow)light.shadow.autoUpdate=light.intensity>0;
