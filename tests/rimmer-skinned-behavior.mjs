@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import * as T from '../game/vendor/three.module.js?v=052';
 import {createRimmerSkinnedModel} from '../game/src/rimmer-skinned-model.js';
 import {createRimmerModel} from '../game/src/rimmer-model.js?v=052';
+import {isRemeshed} from './remesh-asset-identities.js';
 const V=a=>new T.Vector3().fromArray(a),close=(a,b,note)=>assert.ok(a.distanceTo(b)<1e-6,note+' '+a.distanceTo(b));
+const remeshed=isRemeshed(JSON.parse(readFileSync(new URL('../package.json',import.meta.url))).version);
 function fixture(){
  const scene=new T.Group(),bones=[],rig={scale:8,floorY:-.62,body:[0,-.12,0],head:[0,-.12,.32],mouth:[0,-.235,.56],legs:[],scythes:[]};
  function bone(name,point,parent,parentPoint){const b=new T.Bone();b.name=name;b.position.copy(V(point).sub(V(parentPoint)));parent.add(b);bones.push(b);return b;}
@@ -57,11 +60,11 @@ console.log('PASS: independently skinned Rimmer clones, unchanged collision prox
  // Visible upper-shell vertices from the founder-reported stiff-leg regression.
  // Source positions prevent a different part from silently replacing the cap.
  const capCases=[
-  {index:31097,leg:'front_L',position:[-.380641,-.099765,.224214]},
-  {index:15467,leg:'front_R',position:[.361673,-.080055,.215789]},
-  {index:10808,leg:'front_R',position:[.369391,-.056120,.146623]},
-  {index:37811,leg:'hind_R',position:[.370442,-.086852,-.515661]},
-  {index:42519,leg:'hind_L',position:[-.348214,-.118470,-.460468]}
+  {index:remeshed?4571:31097,leg:'front_L',position:[-.380641,-.099765,.224214]},
+  {index:remeshed?22745:15467,leg:'front_R',position:remeshed?[.368171,-.072158,.218318]:[.361673,-.080055,.215789]},
+  {index:remeshed?22677:10808,leg:'front_R',position:[.369391,-.056120,.146623]},
+  {index:remeshed?22097:37811,leg:'hind_R',position:remeshed?[.379290,-.097665,-.511751]:[.370442,-.086852,-.515661]},
+  {index:remeshed?4563:42519,leg:'hind_L',position:[-.348214,-.118470,-.460468]}
  ];
  let capMesh;cliffModel.skin.traverse(n=>{if(n.isSkinnedMesh)capMesh=n;});
  const capBody=cliffModel.skin.getObjectByName('rimmer_body'),capPosition=new T.Vector3();

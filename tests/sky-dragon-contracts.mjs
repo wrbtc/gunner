@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
+import {assetIdentity} from './remesh-asset-identities.js';
 
 const root=new URL('../',import.meta.url);
 const read=name=>readFileSync(new URL(name,root),'utf8');
@@ -16,6 +17,7 @@ const briefing=read('game/src/mission-screen.js');
 const main=read('game/main.js');
 const note=read('game/assets/SKINNED-SOLIDS.md');
 const manifest=JSON.parse(read('SOURCE-MANIFEST.json'));
+const dragonAsset=assetIdentity(manifest.version,'dragon-fg-a');
 
 // Live canyon wyverns stay on the 0.54.60 module. Field Guide dragons use a
 // separate museum solid and must never retarget this combat path.
@@ -47,8 +49,8 @@ for(const source of [guide,solids,viewer,briefing]){
 }
 assert.match(guide,/id==='dragons'/);
 assert.match(solids,/dragon-fg-a/);
-assert.match(solids,/38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27/);
-assert.match(solids,/64020728/);
+assert.match(solids,new RegExp(dragonAsset.sha256));
+assert.match(solids,new RegExp(dragonAsset.bytes));
 assert.doesNotMatch(solids,/sky-activity|skyActivity|createSkyActivity/);
 assert.match(note,/must not\nretarget live sky dragons/);
 assert.match(note,/sky-activity\.js/);

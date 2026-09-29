@@ -14,6 +14,7 @@ const note = ['CREEPER-LAVA-LOCO.md', 'CREEPER-MESHY-LOCO.md']
   .map(name => read(`game/assets/${name}`))
   .join('\n');
 const attributes = read('.gitattributes');
+const minimumBinaryGlbBytes = 100_000;
 
 const locoAsset = loco.match(/CREEPER_LOCO_ASSET = '([a-z0-9-]+)'/)?.[1];
 const stringConstant = name => loco.match(
@@ -126,7 +127,7 @@ const locoRows = requiredAssets.map(asset => {
   const row = manifest.files.find(item => item.path === `game/assets/${asset}.glb`);
   assert.ok(row, `manifest row missing for ${asset}.glb`);
   assert.match(row.sha256, /^[0-9a-f]{64}$/);
-  assert.ok(Number.isSafeInteger(row.bytes) && row.bytes > 1_000_000);
+  assert.ok(Number.isSafeInteger(row.bytes) && row.bytes > minimumBinaryGlbBytes);
   assert.match(manifest.note, new RegExp(row.sha256.slice(0, 8)));
   assert.match(manifest.note, new RegExp(String(row.bytes)));
   return row;
@@ -140,7 +141,7 @@ for (const [index, asset] of requiredAssets.entries()){
   const bytes = readFileSync(binary);
   const head = bytes.subarray(0, 80).toString('utf8');
   if (!head.includes('git-lfs.github.com')){
-    assert.ok(bytes.byteLength > 1_000_000, 'shipped loco GLB should be the full binary');
+    assert.ok(bytes.byteLength > minimumBinaryGlbBytes, 'shipped loco GLB should be the full binary');
     assert.equal(bytes.byteLength, locoRows[index].bytes);
     binaryPresent++;
     const jsonLen = bytes.readUInt32LE(12);

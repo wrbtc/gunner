@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
+import {assetIdentity} from './remesh-asset-identities.js';
 
 const root=new URL('../',import.meta.url);
 const read=name=>readFileSync(new URL(name,root),'utf8');
@@ -15,8 +16,8 @@ const manifest=JSON.parse(read('SOURCE-MANIFEST.json'));
 const provenance=JSON.parse(read('game/assets/field-guide/EGG-PROVENANCE.json'));
 
 const expected=[
- {path:'game/assets/egg-shell-a.glb',bytes:817236,sha256:'368d9e85c7a710b2edc02d2d5b212d590e4910e2b9cfec50d313a2b6ac85acc2'},
- {path:'game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb',bytes:1075680,sha256:'344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96'}
+ {path:'game/assets/egg-shell-a.glb',...assetIdentity(packageJson.version,'egg-shell-a')},
+ {path:'game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb',...assetIdentity(packageJson.version,'egg-maggot-fieldnotes-v02')}
 ];
 
 assert.equal(packageJson.version,'0.54.87');
@@ -36,7 +37,7 @@ assert.match(nests,/useBakedShell\?source\.shell\.material\.clone\(\)/);
 assert.match(guide,/else if\(id==='eggs'\)root=solidGuideRoot\(skinnedSolids\?\.eggs\|\|await loadGuideIntactEgg\(\)\)/);
 assert.doesNotMatch(guide,/eggNests\.guideModel\(\)/);
 assert.match(read('game/src/field-guide-egg-parts.js'),/export function assembleIntactEgg/);
-assert.match(read('game/src/field-guide-egg-parts.js'),/344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96/);
+assert.match(read('game/src/field-guide-egg-parts.js'),new RegExp(expected[1].sha256));
 assert.match(read('game/src/field-guide-egg-parts.js'),/Intact egg roots/);
 assert.doesNotMatch(read('game/src/field-guide-egg-parts.js'),/opacity=Math\.min\(material\.opacity,\.32\)/);
 assert.match(main,/settleOptionalAsset\(loadEggSolids\(\),'egg-solids'\)/);
@@ -46,10 +47,10 @@ assert.match(main,/failIfMajorPerformanceCaveat: false/);
 assert.match(main,/powerPreference: 'high-performance'/);
 assert.doesNotMatch(sky,/egg-shell-a|egg-maggot-a/);
 assert.doesNotMatch(note,/Roland|Phil|Dee/);
-assert.match(note,/1075680-byte rigged larva/);
+assert.match(note,new RegExp(`${expected[1].bytes}-byte rigged larva`));
 assert.match(note,/live-nest bind geometry/);
 assert.equal(provenance.sourceShellSHA256,expected[0].sha256);
-assert.equal(provenance.sourceMaggotSHA256,'344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96');
+assert.equal(provenance.sourceMaggotSHA256,expected[1].sha256);
 assert.equal(provenance.liveNestMaggot,expected[1].path);
 assert.equal(provenance.liveNestMaggotSHA256,expected[1].sha256);
 

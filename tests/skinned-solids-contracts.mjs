@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
+import {assetIdentity} from './remesh-asset-identities.js';
 
 const root=new URL('../',import.meta.url);
 const read=name=>readFileSync(new URL(name,root),'utf8');
@@ -10,12 +11,15 @@ const note=read('game/assets/SKINNED-SOLIDS.md');
 const attributes=read('.gitattributes');
 const packageJson=JSON.parse(read('package.json'));
 const manifest=JSON.parse(read('SOURCE-MANIFEST.json'));
+const rimmerAsset=assetIdentity(packageJson.version,'rimmer-meshy-v2-rigged');
+const dragonAsset=assetIdentity(packageJson.version,'dragon-fg-a');
+const maggotAsset=assetIdentity(packageJson.version,'egg-maggot-fieldnotes-v02');
 
 const expected=[
- {path:'game/assets/rimmer-meshy-v2-rigged.glb',bytes:18054908,sha256:'e39e0226358fad716a20d9ac744c47fe8b7f00cfe958e07fc510ecbe24c97927'},
+ {path:'game/assets/rimmer-meshy-v2-rigged.glb',...rimmerAsset},
  {path:'game/assets/plasma-bug-skinned-solid.glb',bytes:1135104,sha256:'127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f'},
  {path:'game/assets/creeper-ember-hollow.glb',bytes:1091768,sha256:'25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe'},
- {path:'game/assets/dragon-fg-a.glb',bytes:64020728,sha256:'38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27'},
+ {path:'game/assets/dragon-fg-a.glb',...dragonAsset},
  {path:'game/assets/vein-ascetic-skinned.glb',bytes:1908316,sha256:'9d67a8c5fcdc4a5d8bbbdbae9f428e87a963a978682c0e572f62af28567e495e'},
 ];
 const forbidden=['75ddc18f','a2ac5ebb','1c10edf7','45123f4c','9cd194e6','a9dcb2b6'];
@@ -60,8 +64,8 @@ assert.match(note,/Reject the 4\.58MB SOLID/);
 assert.match(note,/Cinder Maw Field[\s\S]*shared with gameplay/);
 assert.match(note,/game-owned collision and combat semantics remain independent/);
 assert.match(note,/dragon-fg-a/);
-assert.match(note,/38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27/);
-assert.match(note,/64020728/);
+assert.match(note,new RegExp(dragonAsset.sha256));
+assert.match(note,new RegExp(dragonAsset.bytes));
 assert.match(note,/field-notes-v02\/cinder-maw-fieldnotes-v02/);
 assert.match(note,/vein-ascetic-skinned/);
 assert.doesNotMatch(solids,/vein-ascetic-skinned-draft/);
@@ -84,8 +88,8 @@ assert.match(manifest.note,/25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd
 assert.match(manifest.note,/1091768/);
 assert.match(manifest.note,/085943e9185cc17ad314d26d900a7a970a54aeb8ecba76b495743baf1fa2c46f/);
 assert.match(manifest.note,/reject/);
-assert.match(manifest.note,/38fdb98e6c774ced70feb26041d3d142db292c1a45b160132bc4d0c356b28a27/);
-assert.match(manifest.note,/64020728/);
+assert.match(manifest.note,new RegExp(dragonAsset.sha256));
+assert.match(manifest.note,new RegExp(dragonAsset.bytes));
 assert.match(solids,/loadGuideDragonSolid/);
 assert.match(solids,/BOOT_SOLIDS/);
 assert.match(solids,/static:true/);
@@ -109,7 +113,7 @@ for(const prefix of forbidden){
 
 const candidateRows=[
  {path:'game/assets/field-notes-v02/cinder-maw-fieldnotes-v02.glb',bytes:1483396,sha256:'2a829abf1fbb8419c8f0081ecedeeeddc7a3d6adc922f6a21108148ba4f53c52'},
- {path:'game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb',bytes:1075680,sha256:'344d213134c8fbea68ee9e2f0b24c3031a7bf30c1aee5cde7ee4ca38317bae96'}
+ {path:'game/assets/field-notes-v02/egg-maggot-fieldnotes-v02.glb',...maggotAsset}
 ];
 const eggParts=read('game/src/field-guide-egg-parts.js');
 for(const row of candidateRows){
