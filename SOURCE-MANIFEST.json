@@ -1,5 +1,5 @@
 {
-  "version": "0.54.95",
+  "version": "0.54.96",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -328,8 +328,8 @@
     },
     {
       "path": "game/main.js",
-      "bytes": 163075,
-      "sha256": "461da24eca29b80b24f7a3e0eedbee0b6963ed4cf32871d342e25d68b59dc06d"
+      "bytes": 163589,
+      "sha256": "fbaf12d62f53f6519b6a67f53f263f8ce8e4a728f912ff0265c070a18757b8de"
     },
     {
       "path": "game/mobile-entry.js",
@@ -544,7 +544,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 27246,
-      "sha256": "5654d5caf4320308d75938ad20d951a29c654be4e68ee947f0a7ede002c70d4a"
+      "sha256": "e25e0badb6af65e747a1fcce401bfdac2a4f063fcfa2b2952241bec89dc2a77b"
     },
     {
       "path": "game/src/opening-camera.js",
