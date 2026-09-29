@@ -200,10 +200,17 @@ export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hit
    const definitions=[['shell',nurseryShellGeo,shellMat],['collar',collarGeo,glueMat],['pad',padGeo,glueMat],['socket',socketGeo,flapMat],...nurseryBodies.map((g,i)=>['body'+i,g,bodyMats[i]])];
    for(const [name,geo,mat]of definitions){const mesh=new THREE.InstancedMesh(geo,mat,nursery.length);if(name==='shell')geo.setAttribute('eggHit',new THREE.InstancedBufferAttribute(new Float32Array(nursery.length),1));mesh.name='Egg gallery '+name;mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);mesh.frustumCulled=false;mesh.count=0;mesh.receiveShadow=true;mesh.castShadow=false;mesh.renderOrder=name==='shell'?2:0;root.add(mesh);nurseryBatches.push({name,mesh});}
  }
+ let nurseryMatricesStale=true,nurseryOrder=[];const nurseryOrderView=V(Infinity,0,0);
  function presentNursery(view){
-   if(!nursery.length)return;root.updateMatrixWorld(true);
-   const ordered=nursery.filter(e=>e.group.visible).sort((a,b)=>b.center.distanceToSquared(view)-a.center.distanceToSquared(view));
-   for(const {name,mesh}of nurseryBatches){let n=0;for(const e of ordered){const body=name.startsWith('body');if(body&&e.stage!==Number(name.slice(4)))continue;const source=body?e.embryo:e[name];if(!source.visible)continue;if(name==='shell')mesh.geometry.attributes.eggHit.setX(n,Math.min(1,(e.hitFlash||0)/.12)*(e.reducedHit?.32:1));mesh.setMatrixAt(n++,source.matrixWorld);}mesh.count=n;mesh.instanceMatrix.needsUpdate=true;if(name==='shell')mesh.geometry.attributes.eggHit.needsUpdate=true;}
+   if(!nursery.length)return;
+   // Gallery eggs are static until hit or ruptured: refresh only those, plus a full pass
+   // after build or reset. The renderer's own matrix pass covers everything else.
+   if(nurseryMatricesStale){root.updateMatrixWorld(true);nurseryMatricesStale=false;}
+   else for(const e of nursery)if(e.dead||e.hitFlash>0)e.group.updateMatrixWorld(true);
+   // Far to near order for the translucent shells; re-sort only after 4 m of travel.
+   if(nurseryOrder.length!==nursery.length||nurseryOrderView.distanceToSquared(view)>16){nurseryOrder=nursery.slice().sort((a,b)=>b.center.distanceToSquared(view)-a.center.distanceToSquared(view));nurseryOrderView.copy(view);}
+   const ordered=nurseryOrder;
+   for(const {name,mesh}of nurseryBatches){let n=0;for(const e of ordered){if(!e.group.visible)continue;const body=name.startsWith('body');if(body&&e.stage!==Number(name.slice(4)))continue;const source=body?e.embryo:e[name];if(!source.visible)continue;if(name==='shell')mesh.geometry.attributes.eggHit.setX(n,Math.min(1,(e.hitFlash||0)/.12)*(e.reducedHit?.32:1));mesh.setMatrixAt(n++,source.matrixWorld);}mesh.count=n;mesh.instanceMatrix.needsUpdate=true;if(name==='shell')mesh.geometry.attributes.eggHit.needsUpdate=true;}
  }
  function addGallery({routeLength,ruins}){
    if(gallery)return gallery;
@@ -287,7 +294,7 @@ export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hit
    const embryo=new THREE.Mesh(dense?nurseryBodies[stage]:bodyGeos[stage],bodyMats[stage]);embryo.name=`Curled maggot embryo stage ${stage}`;embryo.scale.setScalar(stage===2?1.12:1.1);embryo.position.z=.15;embryo.rotation.z=(id%5-2)*.16;group.add(embryo);
    const collar=new THREE.Mesh(collarGeo,glueMat);collar.position.z=-a.length+.55;collar.scale.set(a.scale*1.22,a.scale*1.04,.42);group.add(collar);
    const pad=new THREE.Mesh(padGeo,glueMat);pad.position.z=-a.length+.34;pad.scale.set(a.radius*1.26,a.radius*1.10,.34);group.add(pad);
-   const socket=new THREE.Mesh(socketGeo,flapMat);socket.scale.copy(shell.scale).multiply(EGG_GIRTH);socket.visible=false;group.add(socket);
+   const socket=new THREE.Mesh(socketGeo,flapMat);socket.scale.copy(shell.scale);socket.visible=false;group.add(socket);
    // Umbilical thread and adhering glue strands give each sac a wet fixed pole.
    const cordCurve=new THREE.CatmullRomCurve3([V(0,-.9,.1),V(.65,-1.3,-1.2),V(.55,-.3,-a.length+1.3),V(0,0,-a.length+.5)]),cord=new THREE.Mesh(dense?nurseryCordGeo:new THREE.TubeGeometry(cordCurve,18,.065,6,false),glueMat);group.add(cord);
    group.updateMatrixWorld(true);const rootFilaments=makeRootFilaments(a,group,id);const egg={...a,rootFilaments,id:`egg-${id}`,index:id,cluster:cluster.id,stage,group,shell,embryo,collar,socket,cord,hp:65,dead:false,credited:false,releaseAge:0,vel:V(),spin:V(),landed:false,bodyOrigin:embryo.position.clone(),bodyRotation:embryo.rotation.clone(),bodyWorld:V(),bodyPrev:V(),ruptureAt:null};if(!dense&&!useBakedShell){const material=shellMaterial(uniforms);shell.material=material;shell.onBeforeRender=()=>{if(material.userData.shader)material.userData.shader.uniforms.uEggHit.value=Math.min(1,(egg.hitFlash||0)/.12)*(egg.reducedHit?.32:1);};}eggs.push(egg);cluster.eggs.push(egg);
@@ -350,7 +357,7 @@ let cursor={drop:0,flap:0,splat:0,tether:0},ruptures=0;
  }
  function present(){const alpha=clamp(effectAccumulator*30,0,1);for(const e of eggs)if(e.dead&&e.embryo.visible)e.embryo.position.copy(e.group.worldToLocal(debrisLerp.copy(e.bodyPrev).lerp(e.bodyWorld,alpha)));for(const a of [...drops,...flaps])if(a.active)a.mesh.position.copy(a.prev).lerp(a.pos,alpha);for(const t of tethers)if(t.active){const start=t.owner.center.clone().addScaledVector(t.owner.normal,-1),end=t.prev.clone().lerp(t.pos,alpha),d=end.sub(start);t.mesh.position.copy(start).addScaledVector(d,.5);t.mesh.quaternion.setFromUnitVectors(UP,d.clone().normalize());t.mesh.scale.y=d.length();}
  }
- function reset(){rootThreadBatch.count=0;effectAccumulator=0;seed=0xe6611;cursor={drop:0,flap:0,splat:0,tether:0};ruptures=0;for(const e of eggs){e.hp=65;e.hitFlash=0;e.dead=false;e.credited=false;e.shell.visible=true;e.shell.scale.set(e.radius,e.radius,e.length);e.socket.visible=false;e.cord.visible=true;e.embryo.visible=true;e.embryo.position.copy(e.bodyOrigin);e.embryo.rotation.copy(e.bodyRotation);e.embryo.scale.setScalar(e.stage===2?1.12:1.1);e.landed=false;e.releaseAge=0;e.ruptureAt=null;e.vel.set(0,0,0);e.group.visible=true;}for(const a of [...drops,...flaps,...splats,...tethers]){a.active=false;a.life=0;a.mesh.visible=false;}uniforms.uReveal.value=1;for(const {mesh}of [...nurseryBatches,...effectBatches])mesh.count=0;}
+ function reset(){nurseryMatricesStale=true;nurseryOrder=[];rootThreadBatch.count=0;effectAccumulator=0;seed=0xe6611;cursor={drop:0,flap:0,splat:0,tether:0};ruptures=0;for(const e of eggs){e.hp=65;e.hitFlash=0;e.dead=false;e.credited=false;e.shell.visible=true;e.shell.scale.set(e.radius,e.radius,e.length);e.socket.visible=false;e.cord.visible=true;e.embryo.visible=true;e.embryo.position.copy(e.bodyOrigin);e.embryo.rotation.copy(e.bodyRotation);e.embryo.scale.setScalar(e.stage===2?1.12:1.1);e.landed=false;e.releaseAge=0;e.ruptureAt=null;e.vel.set(0,0,0);e.group.visible=true;}for(const a of [...drops,...flaps,...splats,...tethers]){a.active=false;a.life=0;a.mesh.visible=false;}uniforms.uReveal.value=1;for(const {mesh}of [...nurseryBatches,...effectBatches])mesh.count=0;}
  function guideModel(){
   const source=eggs.find(e=>!e.nursery&&!e.queenEgg),display=new THREE.Group();
   // Same live shell + inner maggot paths. Independent materials; maggot stays inside.

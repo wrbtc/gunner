@@ -1,5 +1,5 @@
 {
-  "version": "0.54.94",
+  "version": "0.54.95",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -329,7 +329,7 @@
     {
       "path": "game/main.js",
       "bytes": 163075,
-      "sha256": "49312f1e4e6cd3ea11d285d0f9d77d9ee93e747f300ce8db566da51e4f430583"
+      "sha256": "461da24eca29b80b24f7a3e0eedbee0b6963ed4cf32871d342e25d68b59dc06d"
     },
     {
       "path": "game/mobile-entry.js",
@@ -453,8 +453,8 @@
     },
     {
       "path": "game/src/egg-nests.js",
-      "bytes": 39717,
-      "sha256": "97bd33e303451d5c548f677ed6e6a1833483c66709a299153d2e942fc531aca6"
+      "bytes": 40385,
+      "sha256": "0ce80c3b93fabec60a266b59861145c8ed8009740dd43f5240a317c644045869"
     },
     {
       "path": "game/src/egg-solids.js",
@@ -498,8 +498,8 @@
     },
     {
       "path": "game/src/hell-world.js",
-      "bytes": 42011,
-      "sha256": "6b0fe9f8ce7c534123b0ec275de43c41f41d5c67fdb24d1b2a9ac29268637cff"
+      "bytes": 42235,
+      "sha256": "d66770fa6a000668226f789240bcbc2f54c9ee6799ffca63cdf49319b4c1b4c8"
     },
     {
       "path": "game/src/high-scores.js",
@@ -544,7 +544,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 27246,
-      "sha256": "111bf5d759ecee9aba49aa0712096adaa0f153977628f903f7da614fb908e703"
+      "sha256": "5654d5caf4320308d75938ad20d951a29c654be4e68ee947f0a7ede002c70d4a"
     },
     {
       "path": "game/src/opening-camera.js",

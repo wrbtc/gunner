@@ -506,6 +506,9 @@ export function createHellWorld({scene,route,centerAt,widthAt}) {
   function update(time,planePos,reduced=false){lavaUniforms.uTime.value=time;hellSky.update(time,planePos,reduced);skyActivity.update(time,planePos,reduced);
     if(!reduced){for(const {side,light} of hotSpill){let nearest=null,distance=Infinity;for(const h of hotIntrusions){const d=Math.abs(h.position.z-planePos.z);if(h.side===side&&d<distance){nearest=h;distance=d;}}if(nearest){light.position.copy(nearest.position);if(light.isSpotLight)light.target.position.copy(nearest.position).add(hotSpillTargetOffset.set(side*20,-5,0));light.intensity=(light.isSpotLight?3900:2400)*Math.pow(Math.max(0,1-distance/240),2);}}
     }else for(const {light} of hotSpill)light.intensity=0;
+    // A dark spill light keeps its shadow slot (no shader relink) but skips its
+    // 1024 depth pass until it lights again.
+    for(const {light} of hotSpill)if(light.castShadow)light.shadow.autoUpdate=light.intensity>0;
     refreshGeologyVisibility(planePos);}
   // Approximate support query is for ballistic broad phase only; gun hits use triangles.
   function groundAt(x,z){const p=THREE.MathUtils.clamp((130-z)/3050,0,1),c=centerAt(p),a=Math.abs(x-c.x),w=widthAt(p);if(a<w-19)return 1.5;return a<w-12?THREE.MathUtils.lerp(2.3,12.8,(a-w+19)/7):a<w-4?15.0:a<w+5?18:strata(p,x<c.x?-1:1);}
