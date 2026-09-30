@@ -169,7 +169,8 @@
       <label for="sensitivity">AIM SPEED <input id="sensitivity" type="range" min="30" max="170" value="100"></label>
       <label for="fov">FIELD OF VIEW <input id="fov" type="range" min="58" max="82" value="66"></label>
       <label class="check"><input id="invertAim" type="checkbox"> INVERT VERTICAL AIM</label>
-      <label class="check"><input id="masterMode" type="checkbox" title="Debug flight: enemies and attacks stay active, but hits cannot damage you or obstruct the view."> MASTER MODE</label>
+      <label class="check"><input id="masterMode" type="checkbox" aria-describedby="masterModeNote" title="Debug flight: enemies and attacks stay active, but hits cannot damage you or obstruct the view."> MASTER MODE</label>
+      <p id="masterModeNote" class="setting-note">Practice flight. Hits cannot hurt you, and the score is not sent to the top ten.</p>
     </div>
     <button id="pauseMusicButton" type="button" class="quietButton" aria-pressed="false">PLAY MUSIC</button>
     <button id="resumeButton" type="button">RETURN TO THE GUN</button>

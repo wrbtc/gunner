@@ -1,5 +1,5 @@
 {
-  "version": "0.54.97",
+  "version": "0.54.98",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -308,13 +308,13 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 13439,
-      "sha256": "1a88129ed74773e71b6b9cf6029a7e316bc0037b807c4d641559a0e0a3bd4b2f"
+      "bytes": 13608,
+      "sha256": "a5f919915109f875ad29e5fcea70e57b3251dbce7728559d87931b9f6800be86"
     },
     {
       "path": "game/main.js",
-      "bytes": 165682,
-      "sha256": "aecab9f85f1957ca833956e06392f576459efca0d47dea21c9c4a6b9720d9bb0"
+      "bytes": 165800,
+      "sha256": "d43eb1f9a9d3e35025edc85f456b4b02d3ee52b3943d9a3c1b930194ec3ae1cd"
     },
     {
       "path": "game/mobile-entry.js",
@@ -529,7 +529,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 27220,
-      "sha256": "0445142c92587e047dd5df4110070c578933a0e7a6023684ed5956fa47fcfee7"
+      "sha256": "e7653cdb107a7ad07186fc91cc587766bfe491afd08590c70ef3189cc0d0f7df"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -647,6 +647,11 @@
       "sha256": "b19c3ab5cb9871c6455c321513e8c04b54b6a045768bee70a2a1f97c327b2b26"
     },
     {
+      "path": "game/src/setting-readouts.js",
+      "bytes": 1054,
+      "sha256": "efc244180fe8208faedc9f2602efd7afc2962f1a596fd60d7c3d50c8dc8d74b7"
+    },
+    {
       "path": "game/src/skinned-solids.js",
       "bytes": 8470,
       "sha256": "1e126b3a69265d3d4f7a3364456f4c38f54b42d60644fcdfa4edd2afd0756a82"
@@ -703,8 +708,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 70652,
-      "sha256": "0d847bc33d05c6dbc7a42d4d2641f7101af0c6d1f0ed5c2016a145dc81a428a9"
+      "bytes": 69176,
+      "sha256": "75989570ee04bbe18e2d401158d522b03bfbe56f9d867f2a6e1548afc5b192ea"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",
