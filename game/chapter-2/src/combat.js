@@ -120,7 +120,7 @@ export const WEAPONS=Object.freeze([
  {id:'lance',label:'Lance',key:'3'}
 ]);
 export function createArsenal(combat,craft,enemies){
- const s={weapon:0,heat:0,overheated:false,gatlingClock:0,cannonCooldown:0,lances:4,lanceReload:0,hits:0};
+ const s={weapon:0,heat:0,overheated:false,gatlingClock:0,cannonCooldown:0,lances:4,lanceReload:0,hits:0,shots:0};
  const muzzle=new THREE.Vector3(),dir=new THREE.Vector3(),end=new THREE.Vector3();
  function update(dt,firing,aimPoint){
   s.gatlingClock-=dt;s.cannonCooldown=Math.max(0,s.cannonCooldown-dt);
@@ -144,10 +144,10 @@ export function createArsenal(combat,craft,enemies){
    dir.subVectors(aimPoint,muzzle).normalize();
    // A little loft so the shell lands where the reticle points at mid range.
    const dist=muzzle.distanceTo(aimPoint),t=dist/420;dir.multiplyScalar(420);dir.y+=.5*9.8*t;
-   if(combat.fireShell(muzzle,dir))s.cannonCooldown=2.2;
+   if(combat.fireShell(muzzle,dir)){s.cannonCooldown=2.2;s.shots++;}
   }else if(s.weapon===2&&s.lances>0&&s.cannonCooldown<=0){
    dir.subVectors(aimPoint,muzzle).normalize().multiplyScalar(90);
-   if(combat.fireLance(muzzle,dir)){s.lances--;s.cannonCooldown=.6;}
+   if(combat.fireLance(muzzle,dir)){s.lances--;s.cannonCooldown=.6;s.shots++;}
   }
  }
  return {state:s,update,select(i){s.weapon=(i+WEAPONS.length)%WEAPONS.length;},reset(){Object.assign(s,{weapon:0,heat:0,overheated:false,gatlingClock:0,cannonCooldown:0,lances:4,lanceReload:0,hits:0});}};

@@ -5,9 +5,11 @@ import {BOWL_RADIUS,CEILING,pointInBox,rayBox} from './world.js?v=ch2-01';
 // The Satoshi refitted to hover. Keys push it around; it drifts and settles instead of
 // stopping dead. The mouse aims, and the nose swings round to follow the aim with a lag,
 // so you go where the guns point but can still slide sideways out of incoming fire.
+// As in Chapter 1 you sit in the ball turret under the belly: the seat view is the default,
+// right click is the zoomed gun camera, and V swaps to an outside view.
 export const CRAFT=Object.freeze({
  radius:8,accel:46,maxSpeed:64,climb:30,drag:1.35,turnRate:2.2,
- pitchMin:-1.35,pitchMax:.6,chaseBack:44,chaseUp:13,gunFov:18,chaseFov:62
+ pitchMin:-1.35,pitchMax:.6,chaseBack:44,chaseUp:13,gunFovs:[18,7],chaseFov:62,seatFov:70,seatY:-3.1
 });
 
 function greyboxSatoshi(){
@@ -33,7 +35,7 @@ export function createCraft(scene,world){
  const model=greyboxSatoshi();scene.add(model.group);
  const state={
   pos:new THREE.Vector3(0,70,560),vel:new THREE.Vector3(),heading:0,
-  aimYaw:0,aimPitch:-.02,bank:0,tilt:0,hull:100,gunCam:false
+  aimYaw:0,aimPitch:-.02,bank:0,tilt:0,hull:100,gunCam:false,view:'seat',barrel:0,zoom:0
  };
  const tmp=new THREE.Vector3(),fwd=new THREE.Vector3(),right=new THREE.Vector3(),push=new THREE.Vector3();
  const aimDir=()=>tmp.set(-Math.sin(state.aimYaw)*Math.cos(state.aimPitch),Math.sin(state.aimPitch),-Math.cos(state.aimYaw)*Math.cos(state.aimPitch));
@@ -75,10 +77,15 @@ export function createCraft(scene,world){
  }
  const camTarget=new THREE.Vector3(),camWant=new THREE.Vector3(),camDir=new THREE.Vector3();
  function placeCamera(camera,dt){
-  const dir=aimDir().clone();
-  if(state.gunCam){
-   camera.position.copy(state.pos).add(tmp.set(0,-3.2,0));
-   camera.fov+=(CRAFT.gunFov-camera.fov)*(1-Math.exp(-14*dt));
+  const dir=aimDir().clone(),seat=state.gunCam||state.view==='seat';
+  camera.near=seat?.12:1;
+  if(seat){
+   // The turret hangs on a short pylon under the belly, so the fuselage only shows when you
+   // look up. The view turns with the guns, and the airframe's
+   // bank rocks it a little so the hover is felt from inside.
+   camera.position.copy(state.pos).add(tmp.set(0,CRAFT.seatY,0));
+   const fov=state.gunCam?CRAFT.gunFovs[state.zoom]:CRAFT.seatFov;
+   camera.fov+=(fov-camera.fov)*(dt>0?1-Math.exp(-14*dt):1);
   }else{
    camWant.copy(state.pos).addScaledVector(dir,-CRAFT.chaseBack).add(tmp.set(0,CRAFT.chaseUp,0));
    // Keep the chase camera out of towers: pull it in along the line to the craft.
@@ -93,14 +100,21 @@ export function createCraft(scene,world){
   camera.updateProjectionMatrix();
   camTarget.copy(camera.position).addScaledVector(dir,100);
   camera.lookAt(camTarget);
+  if(seat&&!state.gunCam)camera.rotateZ(state.bank*.35);
  }
  function syncModel(time){
   model.group.position.copy(state.pos);
   model.group.rotation.set(state.tilt,state.heading,state.bank,'YXZ');
   model.fans.forEach((f,i)=>f.rotation.y=time*(i?31:-29));
+  // From the seat the belly, wings and fans hang overhead; the optics hide them.
   model.group.visible=!state.gunCam;
  }
  return {state,model,step,placeCamera,syncModel,aimDir:()=>aimDir().clone(),
-  muzzle(out){return out.copy(state.pos).add(tmp.set(0,-3.2,0));},
+  // Gun tips in the turret, left and right in turn, so tracers leave the barrels you see.
+  muzzle(out){
+   const dir=aimDir(),side=(state.barrel=1-state.barrel)?1:-1;
+   right.set(-dir.z,0,dir.x).normalize();
+   return out.copy(state.pos).add(push.set(0,CRAFT.seatY-.38,0)).addScaledVector(dir,1.7).addScaledVector(right,side*.5);
+  },
   reset(){state.pos.set(0,70,560);state.vel.set(0,0,0);state.heading=state.aimYaw=0;state.aimPitch=-.02;state.hull=100;state.gunCam=false;}};
 }
