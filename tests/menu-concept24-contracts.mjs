@@ -1,15 +1,14 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
-import {existsSync,readFileSync} from 'node:fs';
+import {readFileSync} from 'node:fs';
 
 const root=new URL('../game/',import.meta.url);
 const read=name=>readFileSync(new URL(name,root));
 const index=read('index.html').toString('utf8');
 const styles=read('styles.css').toString('utf8');
-const refitHero=existsSync(new URL('assets/gunner-hero.jpg',root));
 
 assert.match(index,/class="modal mission-screen mission-poster"/);
-assert.match(index,refitHero?/gunner-hero\.jpg\?v=054-98/:/gunner-chapter\.jpg\?v=054-20-c24/);
+assert.match(index,/gunner-hero\.jpg\?v=054-98/);
 assert.match(index,/class="mission-frame"/);
 assert.match(index,/class="poster-body"/);
 assert.match(index,/id="fpsValue"/);
@@ -31,12 +30,12 @@ assert.doesNotMatch(index,/id="qaStuckLoad"/);
 assert.match(index,/id="reportFailedLoad"[^>]*class="report-load-button"/);
 assert.match(index,/id="copyLoadingReport" class="report-load-button"/);
 assert.ok(index.indexOf('class="poster-right"')<index.indexOf('class="poster-soon"'));
-assert.match(index,refitHero?/<span class="chapter-number">CHAPTER 02 · COMING SOON<\/span>/:/<span class="chapter-number">CHAPTER 02 - COMING SOON<\/span>/);
+assert.match(index,/<span class="chapter-number">CHAPTER 02 · COMING SOON<\/span>/);
 assert.match(index,/<span class="chapter-number">CHAPTER 01 · AVAILABLE<\/span>/);
 assert.doesNotMatch(index,/<span class="chapter-number">COMING SOON<\/span>/);
 assert.doesNotMatch(index,/<span class="chapter-number">Chapter 02 coming soon<\/span>/);
 assert.doesNotMatch(index,/<span class="chapter-number">CHAPTER 02 COMING SOON<\/span>/);
-assert.doesNotMatch(index,refitHero?/<span class="chapter-number">CHAPTER 02 - COMING SOON<\/span>/:/<span class="chapter-number">CHAPTER 02 · COMING SOON<\/span>/);
+assert.doesNotMatch(index,/<span class="chapter-number">CHAPTER 02 - COMING SOON<\/span>/);
 assert.ok(index.indexOf('id="nextChapter"')<index.indexOf('class="deployment-action"'),'Coming Soon must precede ammo + DEPLOY');
 assert.ok(index.indexOf('class="deployment-action"')<index.indexOf('id="startButton"'));
 assert.ok(index.indexOf('id="startButton"')<index.indexOf('id="reportFailedLoad"'));
@@ -144,6 +143,6 @@ assert.match(briefing,/missionBuild\.textContent='v'\+REPORT_BUILD/);
 assert.match(briefing,/\$\('qaStuckLoad'\)\?\.addEventListener/);
 const loadingItems=briefing.match(/LOADING_ITEMS=Object\.freeze\(\[([^\]]+)\]/)?.[1].split(',').filter(Boolean)||[];
 assert.equal(loadingItems.length,24,'24-stage ammo loader must remain');
-assert.equal(createHash('sha256').update(read(refitHero?'assets/gunner-hero.jpg':'assets/gunner-chapter.jpg')).digest('hex'),refitHero?'fe0aadf65d6d9005d75f0524cfbfd9fca2d812842edf2ddbf6d38a5bd0c7dbb9':'eac79b6993bbe6a32f77cf0c61ae3e9bf5f9dd431607c0a5b333cc7768644b52');
+assert.equal(createHash('sha256').update(read('assets/gunner-hero.jpg')).digest('hex'),'fe0aadf65d6d9005d75f0524cfbfd9fca2d812842edf2ddbf6d38a5bd0c7dbb9');
 
 console.log('PASS menu-concept24-contracts');
