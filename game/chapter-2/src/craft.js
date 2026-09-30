@@ -62,7 +62,7 @@ function refit(materials){
  // behind the wing root, the 105 aft. The sensor ball sits just ahead of them.
  const guns=new THREE.Mesh(mergeGeometries(AIRFRAME.guns.map(([x,y,z,r,len])=>
   new THREE.CylinderGeometry(r*.8,r,len,12).rotateZ(Math.PI/2).rotateZ(.12).translate(x-len/2,y,z))),materials.metal);
- const sensor=new THREE.Mesh(new THREE.SphereGeometry(.42,16,10).translate(...AIRFRAME.sensor),materials.glass);
+ const sensor=new THREE.Mesh(new THREE.SphereGeometry(.36,16,10).translate(...AIRFRAME.sensor),materials.glass);
  parts.add(guns,sensor);
  return {parts,rotors,glows,nozzles,props};
 }
