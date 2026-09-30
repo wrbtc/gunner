@@ -167,6 +167,8 @@ let lastHits=0,lastShots=0;
 function pulseHit(){dom.hit.classList.remove('show');void dom.hit.offsetWidth;dom.hit.classList.add('show');}
 combat.onImpact=(pos,weapon,struck)=>{
  if(struck)pulseHit();
+ // Rounds landing close send the creatures running: wide for the 105, a few metres for the 25.
+ enemies.scare(pos,(weapon.radius||4)*2.5+8);
  if(weapon.id==='105'&&world.pit.contains(pos)&&game.running&&!game.over)finish();
 };
 function frame(dt){

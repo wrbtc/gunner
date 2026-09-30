@@ -2,6 +2,7 @@ import * as THREE from '../../vendor/three.module.js?v=052';
 import {rng,colliderRay,LEVELS} from './world.js?v=ch2-06';
 import {FX_LAYER} from './combat.js?v=ch2-06';
 import {loadCreeperLoco} from '../../src/creeper-loco.js?v=054-84';
+import {loadLamplighters,LAMPLIGHTER_SOLID} from './lamplighter.js?v=ch2-06';
 
 export const ENEMY_LAYER=2;
 // Only a few attack at once, and never on the same beat, so the fire coming up stays readable.
@@ -9,8 +10,9 @@ const MAX_ATTACKERS=3,ATTACK_GAP=.45;
 // Creatures per Warden level, feet to crown, and on city rooftops.
 const PER_LEVEL=[10,7,7,8,5],ROOFTOPS=8;
 // Hurlers (5 m) are the sculpted creepers: they hide behind a column, step out, and throw a
-// rock that glows in the hand through the wind-up. Lamplighters (6.5 m, still stand-ins) glow
-// at the head for a second, then fire a fast bolt. Through thermal both tells flash white.
+// rock that glows in the hand through the wind-up. Lamplighters (6.5 m) are the vein ascetic:
+// the lamp on the head glows for a second, then fires a fast bolt. Through thermal both tells
+// flash white. A burst close by sends them running for the next column along the ledge.
 const TYPES={
  hurler:{hp:55,radius:2.2,height:5,range:700,windup:1.8,cover:[2.4,4.6]},
  lamplighter:{hp:40,radius:1.9,height:6.5,range:1000,windup:1.0,cover:[2.2,3.8]}
@@ -20,7 +22,7 @@ const HEAD_HOT={hurler:new THREE.Color(0xff6a1a),lamplighter:new THREE.Color(0xf
 
 export function createEnemies(scene,world,combat){
  const random=rng(77),list=[];
- const add=(type,home,anchor,level)=>list.push({index:list.length,type,...TYPES[type],home:home.clone(),pos:home.clone(),anchor,level,
+ const add=(type,home,anchor,level)=>list.push({index:list.length,type,...TYPES[type],home:home.clone(),pos:home.clone(),anchor,level,spawn:{home:home.clone(),anchor},
   hp:TYPES[type].hp,alive:true,state:'cover',timer:.5+random()*3,glow:0,lean:0,out:new THREE.Vector3(),hide:new THREE.Vector3(),hitFlash:0});
  // A fixed number of pillars on each level get a creature: Hurlers mostly low, Lamplighters higher up.
  PER_LEVEL.forEach((count,level)=>{
@@ -66,6 +68,26 @@ export function createEnemies(scene,world,combat){
   }
   creepers=made;sync(lastCraft,.9);return true;
  }).catch(()=>false);
+ let lamps=null;
+ const lampReady=loadLamplighters().then(kit=>{
+  const made=new Map();
+  for(const e of list){
+   if(e.type!=='lamplighter')continue;
+   const holder=new THREE.Group();holder.name='Lamplighter';holder.scale.setScalar(e.height/LAMPLIGHTER_SOLID.height);scene.add(holder);
+   const actor=kit.make(holder);actor.play('idle');
+   holder.traverse(o=>o.layers.set(ENEMY_LAYER));
+   made.set(e.index,{holder,actor,last:e.pos.clone()});
+  }
+  lamps=made;sync(lastCraft,.9);return true;
+ }).catch(()=>false);
+ // A slow ritual walk when moving, the idle sway at rest; the lamp rides on the head bone.
+ function driveLamp(e,c,face,dt){
+  c.holder.visible=true;c.holder.position.copy(e.pos);c.holder.rotation.y=face;
+  const speed=dt>0?c.last.distanceTo(e.pos)/dt:0;c.last.copy(e.pos);
+  if(speed>.4)c.actor.play('walk',dt,THREE.MathUtils.clamp(speed/1.3,.6,2.6));else c.actor.play('idle',dt,1);
+  if(!c.actor.headWorld(head))headPos(e,head);else head.y+=.35;
+  heads.setMatrixAt(e.index,m4.compose(head,q.identity(),s3.setScalar(.55+e.glow*.6)));
+ }
  // Walk while moving, run when fast, barely sway at rest; the throw runs through wind-up and recovery.
  function driveCreeper(e,c,face,dt){
   c.holder.visible=true;c.holder.position.copy(e.pos);c.holder.rotation.y=face+Math.PI;
@@ -103,6 +125,7 @@ export function createEnemies(scene,world,combat){
    dir.subVectors(tmp,head).divideScalar(flight);dir.y+=.5*30*flight;
    combat.throwRock(head,dir);
   }else{
+   const lamp=lamps?.get(e.index);if(lamp?.actor.headWorld(hand))head.copy(hand);
    // Half the lead: a gunship holding its orbit gets grazed, one that moves gets missed.
    tmp.copy(target).addScaledVector(craft.state.vel,head.distanceTo(target)/320*.5);
    dir.subVectors(tmp,head).normalize().multiplyScalar(320);
@@ -116,6 +139,13 @@ export function createEnemies(scene,world,combat){
   for(const e of list){
    if(!e.alive)continue;
    e.timer-=dt;e.hitFlash=Math.max(0,e.hitFlash-dt*5);
+   if(e.state==='flee'){
+    // Running for the new column; cover again on arrival.
+    dir.subVectors(e.home,e.pos).setY(0);const gap=dir.length();
+    if(gap<.6){e.state='cover';e.timer=2+random()*2.5;}
+    else e.pos.addScaledVector(dir,Math.min(gap,(e.type==='hurler'?8:5.5)*dt)/gap);
+    continue;
+   }
    const inRange=e.home.distanceTo(craftPos)<e.range;
    if(e.state==='cover'){
     plan(e,craftPos);e.pos.lerp(e.hide,1-Math.exp(-5*dt));e.glow=Math.max(0,e.glow-dt*3);
@@ -141,12 +171,16 @@ export function createEnemies(scene,world,combat){
   for(const e of list){
    const body=bodies[e.type],other=bodies[e.type==='hurler'?'lamplighter':'hurler'],creeper=creepers?.get(e.index);
    other.setMatrixAt(e.index,zero);hotRocks.setMatrixAt(e.index,zero);
-   if(!e.alive){body.setMatrixAt(e.index,zero);heads.setMatrixAt(e.index,zero);if(creeper)creeper.holder.visible=false;continue;}
+   if(!e.alive){body.setMatrixAt(e.index,zero);heads.setMatrixAt(e.index,zero);if(creeper)creeper.holder.visible=false;const lamp=lamps?.get(e.index);if(lamp)lamp.holder.visible=false;continue;}
    const face=craftPos?Math.atan2(craftPos.x-e.pos.x,craftPos.z-e.pos.z):0;
    if(creeper){body.setMatrixAt(e.index,zero);heads.setMatrixAt(e.index,zero);driveCreeper(e,creeper,face,dt);continue;}
-   e3.set(-e.lean*.35,face,0);q.setFromEuler(e3);
-   body.setMatrixAt(e.index,m4.compose(e.pos,q,s3.setScalar(1)));
-   headPos(e,head);heads.setMatrixAt(e.index,m4.compose(head,q,s3.setScalar(e.type==='hurler'?.8:1+e.glow*.5)));
+   const lamp=lamps?.get(e.index);
+   if(lamp){body.setMatrixAt(e.index,zero);driveLamp(e,lamp,face,dt);}
+   else{
+    e3.set(-e.lean*.35,face,0);q.setFromEuler(e3);
+    body.setMatrixAt(e.index,m4.compose(e.pos,q,s3.setScalar(1)));
+    headPos(e,head);heads.setMatrixAt(e.index,m4.compose(head,q,s3.setScalar(e.type==='hurler'?.8:1+e.glow*.5)));
+   }
    color.copy(HEAD_IDLE[e.type]).lerp(HEAD_HOT[e.type],e.glow);if(e.hitFlash)color.lerp(new THREE.Color(1,1,1),e.hitFlash);
    heads.setColorAt(e.index,color);
   }
@@ -155,13 +189,32 @@ export function createEnemies(scene,world,combat){
  }
  function damage(e,amount){
   if(!e||!e.alive)return;e.hp-=amount;e.hitFlash=1;
-  if(e.hp<=0){e.alive=false;kills[e.type]++;combat.blast(center(e,tmp),5,.55);}
+  if(e.hp<=0){e.alive=false;kills[e.type]++;taken.delete(e.anchor);combat.blast(center(e,tmp),5,.55);}
+ }
+ // Columns in use, so two creatures never run for the same one.
+ const taken=new Set();
+ const claimSpawns=()=>{taken.clear();for(const e of list)if(e.anchor>=0)taken.add(e.anchor);};claimSpawns();
+ // A burst sends everything close by running for the next free column along its ledge, the
+ // one furthest from the blast, if that is any safer than where it stands.
+ function scare(pos,radius){
+  for(const e of list){
+   if(!e.alive||e.anchor<0||e.state==='flee'||e.pos.distanceTo(pos)>radius)continue;
+   const from=world.pillars[e.anchor];let best=-1,far=e.pos.distanceTo(pos);
+   world.pillars.forEach((pl,i)=>{
+    if(i===e.anchor||pl.level!==from.level||pl.hp<=0||taken.has(i))return;
+    const hop=pl.pos.distanceTo(from.pos);if(hop<8||hop>34)return;
+    const d=pl.pos.distanceTo(pos);if(d>far){far=d;best=i;}
+   });
+   if(best<0)continue;
+   taken.delete(e.anchor);taken.add(best);
+   e.anchor=best;e.home.copy(world.pillars[best].pos);e.state='flee';e.glow=0;e.lean=0;
+  }
  }
  sync(null);
- return {list,center,update,damage,ready,
+ return {list,center,update,damage,scare,ready:Promise.all([ready,lampReady]),
   kills:()=>({...kills}),totals:()=>({hurler:list.filter(e=>e.type==='hurler').length,lamplighter:list.filter(e=>e.type==='lamplighter').length}),
   // Alive and total per Warden level, feet to crown.
   levels:()=>LEVELS.map((_,level)=>{const on=list.filter(e=>e.level===level);return {alive:on.filter(e=>e.alive).length,total:on.length};}),
   exposeAll(craftPos,glow=0){for(const e of list){plan(e,craftPos);e.pos.copy(e.out);e.state='windup';e.timer=9;e.glow=glow*(e.type==='lamplighter'?1:.6);}sync(craftPos);},
-  reset(){list.forEach(e=>Object.assign(e,{alive:true,hp:TYPES[e.type].hp,state:'cover',timer:.5+random()*3,glow:0,lean:0,hitFlash:0,pos:e.home.clone()}));kills={hurler:0,lamplighter:0};sync(null);}};
+  reset(){list.forEach(e=>Object.assign(e,{alive:true,hp:TYPES[e.type].hp,state:'cover',timer:.5+random()*3,glow:0,lean:0,hitFlash:0,anchor:e.spawn.anchor,home:e.spawn.home.clone(),pos:e.spawn.home.clone()}));claimSpawns();kills={hurler:0,lamplighter:0};sync(null);}};
 }

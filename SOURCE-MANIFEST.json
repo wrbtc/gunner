@@ -1,5 +1,5 @@
 {
-  "version": "0.54.109",
+  "version": "0.54.110",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -323,8 +323,8 @@
     },
     {
       "path": "game/chapter-2/src/combat.js",
-      "bytes": 8847,
-      "sha256": "1a68d8c7b138ac5e12d5fcefc761372ce2167a79c44662f9cd31ddadba297eb3"
+      "bytes": 8900,
+      "sha256": "5bafc8d1dd8e816897cddc6ea1399ceb686c9b87560651875fa353b8051cbe2e"
     },
     {
       "path": "game/chapter-2/src/craft.js",
@@ -333,13 +333,18 @@
     },
     {
       "path": "game/chapter-2/src/enemies.js",
-      "bytes": 10529,
-      "sha256": "df6c86c7b418f8f8c57e5d1212ec288cf5cda2bf4bf6cdfa3a91c0ee3141456d"
+      "bytes": 13483,
+      "sha256": "74176db00716174b7c47b177d1bbc859c7c8c4d992da29fecb58beebb9a506ca"
+    },
+    {
+      "path": "game/chapter-2/src/lamplighter.js",
+      "bytes": 3470,
+      "sha256": "f51c2d8fbab2baca7335702f355a6ac0c14cd98b6d60f581afad24c7b55d70f0"
     },
     {
       "path": "game/chapter-2/src/main.js",
-      "bytes": 17259,
-      "sha256": "bf204b21ec44870d590cdae3e7cbd9d04eaac9197cc959a782591cd24e54f15d"
+      "bytes": 17401,
+      "sha256": "f2952ad16df1543e132983a1070bfd8ef1432671f2fdf323e323b1ea535801ca"
     },
     {
       "path": "game/chapter-2/src/world.js",
@@ -359,7 +364,7 @@
     {
       "path": "game/main.js",
       "bytes": 166979,
-      "sha256": "b1aaa9e97f8b885178019c148151171591f7799b69eb8cbf48d726a29cb32078"
+      "sha256": "38a451411ae2b1fda7c9341b0976470ed9587a22c23b13be74c35c00385830b7"
     },
     {
       "path": "game/mobile-entry.js",
@@ -574,7 +579,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 27221,
-      "sha256": "a0fb60a50c730b53c8a88bd7fb88a6019161abc195fb9896b8a4dec76e0a588d"
+      "sha256": "c0290a5f4a732e3b2a77ebf024d61b317bb2ecdc32002bbf409de26bd0761158"
     },
     {
       "path": "game/src/opening-camera.js",

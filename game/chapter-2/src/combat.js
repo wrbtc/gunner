@@ -136,6 +136,7 @@ export function createArsenal(combat,craft,enemies){
     combat.tracer(muzzle,end);
     if(hit.kind==='enemy'){enemies.damage(enemies.list[hit.index],w.damage);s.hits++;combat.blast(end,1.6,.12);}
     else if(hit.kind!=='none')combat.blast(end,1.4,.12);
+    if(hit.kind!=='none')combat.onImpact?.(end,w,0);
    }
    if(s.gunClock<0)s.gunClock=0;
   }else if(s.cooldown[s.weapon]<=0){
