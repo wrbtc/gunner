@@ -18,3 +18,4 @@ game/assets/ch2-brute.glb filter=lfs diff=lfs merge=lfs -text
 game/assets/ch2-leaper.glb filter=lfs diff=lfs merge=lfs -text
 game/assets/ch2-runner.glb filter=lfs diff=lfs merge=lfs -text
 game/assets/ch2-survivor.glb filter=lfs diff=lfs merge=lfs -text
+game/assets/ch2-heli.glb filter=lfs diff=lfs merge=lfs -text

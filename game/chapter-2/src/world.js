@@ -7,7 +7,7 @@ import {createCity} from './city.js?v=ch2-08';
 // stone at full size, standing free on the rock it rose with, and the crater it climbed out of
 // opens behind it. The creatures' own works (bridges, towers, balconies) are timber brown so
 // they read apart from the carving. Units are metres at real scale: columns 11 m, creatures 2 to
-// 6.5 m, the Satoshi a 15 m span. North is -Z, and the Warden faces south down the avenue.
+// 6.5 m, the Satoshi a 15 m helicopter. North is -Z, and the Warden faces south down the avenue.
 export const BOWL_RADIUS=1100,CEILING=900,WARDEN=Object.freeze({x:0,z:0});
 export const LEVELS=Object.freeze([
  {name:'Feet galleries',y:80},{name:'Knee bridges',y:308},{name:'Chest halls',y:400},

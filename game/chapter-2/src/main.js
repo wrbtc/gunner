@@ -152,7 +152,7 @@ const LADDER_TOP=900,rungs=LEVELS.map(l=>{
 // Subtitles, as on the gunship's radio: the pilot's calls, then the standing order.
 function say(speaker,text,time=4){game.speaker=speaker;game.callout=text;game.calloutTime=time;}
 function climb(dt){
- if(game.hintAt&&game.time>game.hintAt){game.hintAt=0;say('Pilot','Your plane. W A S D fly where you look, Space and C for height. Press O and I will circle your target.',7);}
+ if(game.hintAt&&game.time>game.hintAt){game.hintAt=0;say('Pilot','You have control. W A S D fly where you look, Space and C for height, let go to hover. Press O and I will circle your target.',8);}
  const levels=enemies.levels();
  levels.forEach((l,i)=>{
   const r=rungs[i];
@@ -227,7 +227,7 @@ function optics(){
  const el=Math.round(s.aimPitch*180/Math.PI);
  dom.opticsAngles.textContent=`AZ ${String(Math.round(heading)%360).padStart(3,'0')} · EL ${el>=0?'+':'-'}${String(Math.abs(el)).padStart(2,'0')}`;
 }
-// The ORBIT diamond: while the pilot has the plane, the point it circles, on the ground.
+// The ORBIT diamond: while the pilot has the stick, the point it circles, on the ground.
 const orbitMark=new THREE.Vector3();
 function orbitMarker(){
  const o=craft.state.orbit;orbitMark.copy(o.center).project(camera);
@@ -270,7 +270,7 @@ function frame(dt){
   if(slewed){craft.slew(slew.x,slew.y);slew.x=slew.y=0;}
   const hit=updateAimPoint();
   // The lock moves only with the mouse: a building passing in front doesn't steal it, the
-  // sensor keeps pointing at your spot until the plane comes round and it clears.
+  // sensor keeps pointing at your spot until the helicopter comes round and it clears.
   if(slewed||!craft.state.track)craft.state.track=hit.t<2600?trackPoint.copy(aimPoint):null;
   arsenal.update(dt,game.firing&&sensorView(),aimPoint);
   enemies.update(dt,craft);survivors.update(dt,horde);horde.update(dt);mission(dt);
@@ -278,7 +278,7 @@ function frame(dt){
   dom.optics.classList.toggle('on-target',hit.kind==='enemy');
   lastRange=hit.t;
  }
- craft.placeCamera(camera,dt,sensorFov());craft.syncModel(game.time);
+ craft.placeCamera(camera,dt,sensorFov());if(shotCam)shotCam();craft.syncModel(game.time);
  const a=arsenal.state;
  if(a.shots!==lastShots){lastShots=a.shots;game.kick=a.weapon===0?1:.4;}
  // The guns shake the sensor: a thump for each shell, a buzz while the 25 runs, a jolt when hit.
@@ -328,7 +328,7 @@ document.addEventListener('pointerlockchange',()=>{
  if(document.pointerLockElement!==dom.canvas&&game.running&&!game.over){game.paused=true;game.firing=false;keys.clear();dom.pause.hidden=false;}
 });
 // The sensor slews slower the tighter the zoom, so a small hand move is a small move on screen.
-// Mouse moves are gathered and applied once a frame, after the plane has moved and the sensor
+// Mouse moves are gathered and applied once a frame, after the helicopter has moved and the sensor
 // has re-locked on its spot, so the hand always has the last word.
 const slew={x:0,y:0};
 addEventListener('mousemove',e=>{
@@ -350,7 +350,7 @@ addEventListener('keydown',e=>{
  if(e.code==='KeyT'&&!e.repeat)game.sensor=SENSOR_MODES[(SENSOR_MODES.indexOf(game.sensor)+1)%SENSOR_MODES.length];
  if(e.code==='KeyV'&&!e.repeat)craft.state.view=sensorView()?'chase':'sensor';
  if(e.code==='KeyO'&&!e.repeat&&game.running&&!game.over){
-  if(craft.state.orbiting){craft.state.orbiting=false;say('Pilot','Your plane.',2);}
+  if(craft.state.orbiting){craft.state.orbiting=false;say('Pilot','You have control.',2);}
   else{craft.orbitAt(aimPoint);say('Pilot','Circling your target. Touch the controls and she is yours.',3);}
  }
  if(e.code==='KeyR'&&game.over)restart();
@@ -382,12 +382,24 @@ const SHOTS={
  plazatv:{center:[0,440],angle:.35,look:[0,1,292],weapon:2,zoom:true,mode:'tv',team:[0,268],wave:30,run:7},
  plazawht:{center:[0,440],angle:.35,look:[0,1,292],weapon:2,mode:'wht',team:[0,268],wave:30,run:7},
  // One of each, standing on the open plaza, for checking the models.
- lineup:{center:[0,560],angle:1.35,alt:260,look:[0,2,262],weapon:2,zoom:true,mode:'tv',team:[-12,256],lineup:true}
+ lineup:{center:[0,560],angle:1.35,alt:260,look:[0,2,262],weapon:2,zoom:true,mode:'tv',team:[-12,256],lineup:true},
+ // The helicopter itself, hovering low over the avenue: a camera off its nose, off its side,
+ // and the ordinary outside view over the team. cam is [right, up, ahead] of the aircraft.
+ heli:{center:[0,900],angle:1.35,alt:150,outside:true,tilt:-.1,cam:[14,4,18]},
+ heliside:{center:[0,900],angle:1.35,alt:150,outside:true,cam:[26,3,-2]},
+ helichase:{center:[0,1180],angle:1.45,alt:140,outside:true,tilt:-.12,look:[0,1,985],team:[0,985],wave:22,run:4}
 };
+let shotCam=null;
 function applyShot(name){
  const cfg=SHOTS[name];if(!cfg)return false;
  craft.setOrbit({center:cfg.center,angle:cfg.angle,alt:cfg.alt});
  const s=craft.state;s.view=cfg.outside?'chase':'sensor';s.zoom=!!cfg.zoom;
+ s.tilt=cfg.tilt||0;
+ if(cfg.cam){
+  const [r,u,f]=cfg.cam;
+  shotCam=()=>{const h=s.heading,sin=Math.sin(h),cos=Math.cos(h);
+   camera.position.set(s.pos.x+cos*r-sin*f,s.pos.y+u,s.pos.z-sin*r-cos*f);camera.lookAt(s.pos);};
+ }
  if(cfg.look)craft.lookAt(new THREE.Vector3(...cfg.look));
  arsenal.select(cfg.weapon||0);game.sensor=cfg.mode||'wht';
  if(cfg.pit)world.pit.setOpen(true);
