@@ -1,5 +1,5 @@
 {
-  "version": "0.54.113",
+  "version": "0.54.114",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -338,8 +338,8 @@
     },
     {
       "path": "game/chapter-2/index.html",
-      "bytes": 5076,
-      "sha256": "c368a398c4d55a2768c51928c72122e8d46a3169ff627c8408fa092bb70b66ed"
+      "bytes": 5061,
+      "sha256": "5a201dc2c69e61ba6eafd48634359dd12c2f7aef2d02547710a97f2921ef4bb4"
     },
     {
       "path": "game/chapter-2/src/airframe.js",
@@ -398,8 +398,8 @@
     },
     {
       "path": "game/chapter-2/styles.css",
-      "bytes": 13723,
-      "sha256": "273cd7f2973515b32808b5b5a82a20daee7698f3babd65dee1072342632bbffb"
+      "bytes": 13720,
+      "sha256": "df88014f907cd438b93ac68662d91df383b6d838dbbe7a311374e2198b06c7cd"
     },
     {
       "path": "game/index.html",
@@ -409,7 +409,7 @@
     {
       "path": "game/main.js",
       "bytes": 166979,
-      "sha256": "64a856e07609aaeae76f828959668e4f5d0d406f085df7b2053ea15025ba91c4"
+      "sha256": "12f2a8570e173e7321da1689ac6c1b7ddb03937442e629fa66eca6ae5dc839d4"
     },
     {
       "path": "game/mobile-entry.js",
@@ -624,7 +624,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 27221,
-      "sha256": "7035c76799ff1d0676196e01e89b2fa653aabc6591089095b10cfdfd0c03890a"
+      "sha256": "8312b1fc6f5136644c17af79bfb7d1d0a42247ec403cff271d9844136f3e4476"
     },
     {
       "path": "game/src/opening-camera.js",
