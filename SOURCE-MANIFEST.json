@@ -1,5 +1,5 @@
 {
-  "version": "0.54.100",
+  "version": "0.54.101",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -314,7 +314,7 @@
     {
       "path": "game/main.js",
       "bytes": 166979,
-      "sha256": "def02fe059b99e34033d21147186dd1849ea5de28c6c83775df1178e2ee812ae"
+      "sha256": "064402e9a7541b210f4be65131d5049bfd170c01894b20a23c594a22d684a0a6"
     },
     {
       "path": "game/mobile-entry.js",
@@ -438,8 +438,8 @@
     },
     {
       "path": "game/src/egg-nests.js",
-      "bytes": 41276,
-      "sha256": "f54c15f3133d4aaf4b3910a0be91235258eb3a34cc92deb734d36b44eadca6f7"
+      "bytes": 46550,
+      "sha256": "ea70f86c5134af0c72e41a14efe3cb24b5404a5cafd083cd2e32a20f741a62cf"
     },
     {
       "path": "game/src/egg-solids.js",
@@ -529,7 +529,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 27221,
-      "sha256": "8f66edc6fd925caa5433eb5f629f79a693da5e559c5446a1e508d84e1059bdd1"
+      "sha256": "1fec4cbc6193e715c11f70d6e636e3b885ef0a7fbed15937aae54f335a89b71a"
     },
     {
       "path": "game/src/opening-camera.js",

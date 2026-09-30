@@ -1,6 +1,6 @@
 import {EGG_SITES,isNestingWidth} from './river-profile.js?v=052';
 import * as THREE from '../vendor/three.module.js?v=052';
-import {mergeGeometries,toCreasedNormals} from '../vendor/BufferGeometryUtils.js?v=052';
+import {mergeGeometries,mergeVertices} from '../vendor/BufferGeometryUtils.js?v=052';
 import {createSlicedIteratorPreparation} from './sliced-iterator-preparation.js?v=054-26';
 const V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z),UP=V(0,1,0),Z=V(0,0,1),clamp=THREE.MathUtils.clamp;
 function solid(g){const h=g.index?g.toNonIndexed():g.clone();h.deleteAttribute('uv');h.deleteAttribute('color');return h;}
@@ -74,6 +74,91 @@ diffuseColor.a=mix(.92,.28,broodReveal);
 diffuseColor.a=mix(diffuseColor.a,.96,broodRim*.76+broodRoot*.20);
 #include <opaque_fragment>`);
  };m.customProgramCacheKey=()=> 'cliff-egg-vascular-membrane-v050';return m;
+}
+// The live brood should be hard to look at: clustered wet pits (some with something
+// pale inside) behind swollen rims, dark veins over a bruised, bile-mottled membrane,
+// a slimy sheen and lumpy uneven bodies. Object space, so every instance gets its own
+// pattern from its position, and the costly pits fade out past about 300 m.
+// The decimated shell arrives with split vertices, so even creased normals left
+// visible facets. Weld by position alone (the atlas UVs are unused once the shell
+// takes vertex colour) and let the whole body shade smooth.
+function smoothShell(geometry){
+ for(const name of Object.keys(geometry.attributes))if(name!=='position')geometry.deleteAttribute(name);
+ const welded=mergeVertices(geometry,1e-4);welded.computeVertexNormals();return welded;
+}
+function infestShell(material){
+ // GLTFLoader turns flat shading on for a mesh that arrives without normals.
+ material.flatShading=false;material.needsUpdate=true;
+ material.onBeforeCompile=s=>{
+  const noise=`float shH(vec3 p){p=fract(p*.1031);p+=dot(p,p.yzx+33.33);return fract((p.x+p.y)*p.z);}
+float shN(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(mix(shH(i),shH(i+vec3(1,0,0)),f.x),mix(shH(i+vec3(0,1,0)),shH(i+vec3(1,1,0)),f.x),f.y),mix(mix(shH(i+vec3(0,0,1)),shH(i+vec3(1,0,1)),f.x),mix(shH(i+vec3(0,1,1)),shH(i+vec3(1,1,1)),f.x),f.y),f.z);}`;
+  s.vertexShader=s.vertexShader.replace('#include <common>',`#include <common>
+varying vec3 vShP;varying float vShSeed;varying float vShHit;
+#ifdef USE_INSTANCING
+attribute float eggHit;
+#endif
+${noise}`);
+  s.vertexShader=s.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
+#ifdef USE_INSTANCING
+vec3 shOrigin=(modelMatrix*instanceMatrix*vec4(0.,0.,0.,1.)).xyz;vShHit=eggHit;
+#else
+vec3 shOrigin=modelMatrix[3].xyz;vShHit=0.;
+#endif
+vShSeed=fract(dot(shOrigin,vec3(.131,.077,.019)));
+vShP=position;
+float shBody=smoothstep(-.35,-.1,position.z);
+transformed+=objectNormal*(shN(position*3.1+vShSeed*17.)-.5)*.12*shBody;`);
+  s.fragmentShader=s.fragmentShader.replace('#include <common>',`#include <common>
+varying vec3 vShP;varying float vShSeed;varying float vShHit;
+${noise}
+vec3 shWorley(vec3 p){vec3 i=floor(p),f=fract(p);float f1=8.,f2=8.,id=0.;
+ for(int z=-1;z<=1;z++)for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++){vec3 g=vec3(float(x),float(y),float(z));vec3 c=i+g;vec3 r=g+vec3(shH(c),shH(c+17.1),shH(c+31.7))-f;float d=dot(r,r);
+  if(d<f1){f2=f1;f1=d;id=shH(c+5.3);}else if(d<f2)f2=d;}
+ return vec3(sqrt(f1),sqrt(f2),id);}
+float shPit=0.,shRim=0.,shSpeck=0.,shVein=0.,shMottle=0.,shRoot=0.;`);
+  s.fragmentShader=s.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+shRoot=1.-smoothstep(-.5,-.3,vShP.z);
+vec3 shP=vShP+vShSeed*vec3(9.7,3.1,5.3);
+shMottle=shN(shP*3.4);
+vec3 shSkin=mix(vec3(.46,.41,.28),vec3(.40,.41,.24),smoothstep(.3,.8,shMottle));
+shSkin=mix(shSkin,vec3(.36,.24,.28),smoothstep(.5,.85,shN(shP*5.3))*.75);
+shSkin*=mix(.78,1.,shN(shP*14.));
+// Detail fades by how big a pit is on screen, so it holds under a zoomed camera and
+// costs nothing once the pits would be smaller than a couple of pixels.
+float shNear=1.-smoothstep(.26,.6,length(fwidth(shP*9.)));
+// Patches of packed holes with clean skin between: the clustering is the trigger.
+float shCluster=smoothstep(.48,.62,shN(shP*1.7+2.3)+.18*shN(shP*4.1));
+// From afar the holes are sub pixel, so a patch reads as the dark blotch it averages to.
+shSkin=mix(shSkin,vec3(.20,.12,.09),shCluster*.5*(1.-shNear));
+if(shNear>0.){
+ // Holes nearly touch, so the skin between them is a thin raised wall (lotus pod).
+ vec3 w=shWorley(shP*9.);float r=mix(.36,.62,fract(w.z*7.1))*mix(.7,1.1,shCluster);
+ float shWall=w.y-w.x;
+ shPit=(1.-smoothstep(r*.55,r,w.x))*smoothstep(.02,.09,shWall)*shCluster*shNear;
+ shRim=(1.-smoothstep(.0,.16,shWall))*shCluster*shNear;
+ shSpeck=step(.6,w.z)*(1.-smoothstep(r*.22,r*.44,w.x))*shCluster*shNear;
+ // Ridged noise veins: branching lines for 8 samples instead of a second cell search.
+ shVein=(1.-smoothstep(0.,.045,abs(shN(shP*3.1+7.)-.5)))*smoothstep(.5,.72,shN(shP*2.1+11.))*shNear;
+}
+vec3 shCol=mix(shSkin,vec3(.74,.63,.36),shRim*.75);
+shCol=mix(shCol,vec3(.30,.07,.10),shVein*.7*(1.-shPit));
+shCol=mix(shCol,mix(vec3(.16,.05,.04),vec3(.03,.01,.01),shPit),shPit);
+shCol=mix(shCol,vec3(.93,.88,.70),shSpeck*.9);
+diffuseColor.rgb=mix(shCol,diffuseColor.rgb,shRoot);
+diffuseColor.a=mix(diffuseColor.a,1.,max(shPit,shRim*.5)*(1.-shRoot));`);
+  s.fragmentShader=s.fragmentShader.replace('#include <roughnessmap_fragment>',`#include <roughnessmap_fragment>
+roughnessFactor=mix(roughnessFactor*mix(.62,.95,shMottle),.12,max(shPit,shRim*.6)*(1.-shRoot));`);
+  s.fragmentShader=s.fragmentShader.replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
+{float shHt=(-shPit*1.3+shRim*.55-shVein*.14)*(1.-shRoot);
+ vec3 sx=normalize(dFdx(-vViewPosition)),sy=normalize(dFdy(-vViewPosition));
+ vec3 r1=cross(sy,normal),r2=cross(normal,sx);float det=dot(sx,r1);
+ vec3 grad=sign(det)*(dFdx(shHt)*r1+dFdy(shHt)*r2)*.7;
+ normal=normalize(abs(det)*normal-grad);}`);
+  s.fragmentShader=s.fragmentShader.replace('#include <opaque_fragment>',`outgoingLight+=vec3(.8,.4,.12)*vShHit*(.055+.20*pow(1.-abs(dot(normal,normalize(vViewPosition))),2.));
+#include <opaque_fragment>`);
+ };
+ material.customProgramCacheKey=()=> 'baked-egg-infested-v6';
+ return material;
 }
 export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hitFeedback,onHit,eggSolids=null}){
  const root=new THREE.Group();root.name='Cool cliff egg colonies';scene.add(root);
@@ -163,11 +248,10 @@ export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hit
  const uniforms={uReveal:{value:1}},kitShell=eggSolids?.shell,kitMaggot=eggSolids?.maggot,useBakedShell=!!(kitShell?.geometry&&kitShell?.material);
  // The baked shell's root tangle sits at its +Z pole, but nests face +Z out of the wall:
  // turn it half round so the roots grip the rock and the rounded end faces the canyon.
- // The baked shell is a slim pod (0.43 and 0.56 of the radius across): widen it to a round
- // egg, 0.88 of the radius each way, which still clears the nest spacing of one radius.
- const EGG_GIRTH=useBakedShell?V(2.05,1.56,1):V(1,1,1);
- const shellMat=useBakedShell?kitShell.material.clone():shellMaterial(uniforms),shellGeo=kitShell?.geometry?toCreasedNormals(kitShell.geometry.clone().rotateY(Math.PI).scale(EGG_GIRTH.x,EGG_GIRTH.y,1),Math.PI/3):eggGeometry(24,18);
- // The loader's flat per-face normals facet an opaque shell; creased normals smooth the body, keep root edges.
+ // The baked shell is a slim pod (0.43 and 0.56 of the radius across): widen it to a fat
+ // egg, about one radius each way, so neighbours in a crowded clutch press into each other.
+ const EGG_GIRTH=useBakedShell?V(2.35,1.85,1):V(1,1,1);
+ const shellMat=useBakedShell?kitShell.material.clone():shellMaterial(uniforms),shellGeo=kitShell?.geometry?smoothShell(kitShell.geometry.clone().rotateY(Math.PI).scale(EGG_GIRTH.x,EGG_GIRTH.y,1)):eggGeometry(24,18);
  // A thicker, milkier membrane: the larva reads as a shadow inside, not a pod of glass.
  // The decimated atlas smears its painted cracks across large triangles once the shell
  // is this opaque, so live shells use smooth vertex colour: pale membrane, brown roots.
@@ -179,6 +263,7 @@ export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hit
   // Roots sit below z -0.45 after the half turn; the neck blends over a short band.
   for(let i=0;i<pos.count;i++){mix.copy(root).lerp(membrane,THREE.MathUtils.smoothstep(pos.getZ(i),-.5,-.3));colors.set([mix.r,mix.g,mix.b],i*3);}
   shellGeo.setAttribute('color',new THREE.BufferAttribute(colors,3));
+  infestShell(shellMat);
  }
  const bodyGeos=kitMaggot?.geometry?[0,1,2].map(()=>kitMaggot.geometry):[0,1,2].map(embryoGeometry);
  const bodyMats=kitMaggot?.material?[0,1,2].map(()=>kitMaggot.material):[0x594137,0x735345,0x514036].map(color=>new THREE.MeshStandardMaterial({color,roughness:.56,metalness:0}));
