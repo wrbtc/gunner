@@ -1,5 +1,5 @@
 {
-  "version": "0.54.102",
+  "version": "0.54.103",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -297,6 +297,11 @@
       "sha256": "1250e767ff6c24e4e932a0ac75236b32434626b0862e67e2a11ef685e8bcb6e1"
     },
     {
+      "path": "game/assets/satoshi-airframe-001.glb",
+      "bytes": 1471996,
+      "sha256": "08faa1cf839ff2380c3786ae74600fcb4964124c86c102845afd28434ef0e3df"
+    },
+    {
       "path": "game/assets/siege-002.glb",
       "bytes": 396688,
       "sha256": "88d7904d6dd869aa225dc83ca86a8f59dbe81ada83f08469aaf0dcb2a5defbd0"
@@ -307,6 +312,41 @@
       "sha256": "9d67a8c5fcdc4a5d8bbbdbae9f428e87a963a978682c0e572f62af28567e495e"
     },
     {
+      "path": "game/chapter-2/index.html",
+      "bytes": 3132,
+      "sha256": "f3bc4456eb0917b4cd2bfcd239806ab1797a7f1574cf36d5757e42ce3bb9ef87"
+    },
+    {
+      "path": "game/chapter-2/src/combat.js",
+      "bytes": 9478,
+      "sha256": "24750ef248a2c9cfa97f9488e1dd6a0275ccef8a3c649812d1c648d8942a9ac5"
+    },
+    {
+      "path": "game/chapter-2/src/craft.js",
+      "bytes": 5959,
+      "sha256": "5b236f9ccbba1d2c80067375b32b1d6d6f1215871b4cedfbe6edaf84cb8bec8a"
+    },
+    {
+      "path": "game/chapter-2/src/enemies.js",
+      "bytes": 7371,
+      "sha256": "7bca0b33c240cc78d84efb76d05c282585f54aa81f53428d9c61f7936cf695d6"
+    },
+    {
+      "path": "game/chapter-2/src/main.js",
+      "bytes": 10071,
+      "sha256": "fd9168e932094a887fce62c3117985325aac798d69d2f93f46d54425aba20ebe"
+    },
+    {
+      "path": "game/chapter-2/src/world.js",
+      "bytes": 7232,
+      "sha256": "e7a1fa8b9f0385ee50ad17552f6bc86f3d187c50e5c5a25851768031f05631e1"
+    },
+    {
+      "path": "game/chapter-2/styles.css",
+      "bytes": 4758,
+      "sha256": "16ec1e1a28802fca2550a00065fb149ccd900f9f5996b932126179240b1239ad"
+    },
+    {
       "path": "game/index.html",
       "bytes": 13608,
       "sha256": "a5f919915109f875ad29e5fcea70e57b3251dbce7728559d87931b9f6800be86"
@@ -314,7 +354,7 @@
     {
       "path": "game/main.js",
       "bytes": 166979,
-      "sha256": "98ae834bd48e6f48eb8ad166bcce81c1476da198ec253705ace49c681367f056"
+      "sha256": "5ceef08b10794fbfd0aac239f0112e1d427b1371e6ef00bb974313b6659c072b"
     },
     {
       "path": "game/mobile-entry.js",
@@ -529,7 +569,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 27221,
-      "sha256": "c60aaf1a9c4d8ab11e21c4acc38202f622ac2547214391a13bf8d5ea0281c9d6"
+      "sha256": "52d319bf8e7d20b82f9c34e4a48f30f54264fc1cf18143f7999affb07cc3d368"
     },
     {
       "path": "game/src/opening-camera.js",

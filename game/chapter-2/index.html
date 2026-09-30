@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#090604">
+  <title>GUNNER — Chapter 02 test flight</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/gunner-plane.svg?v=052">
+  <link rel="stylesheet" href="./styles.css?v=ch2-01">
+</head>
+<body>
+  <canvas id="game" aria-label="Chapter 2 test flight view"></canvas>
+
+  <section id="start" class="panel" aria-labelledby="startTitle">
+    <p class="eyebrow">Gunner · Chapter 02 · round 1 test flight</p>
+    <h1 id="startTitle">The Warden</h1>
+    <p class="lede">Grey boxes, real controls. You fly now. Hunt the creatures hiding on the statue and in the city, and keep moving: they shoot back.</p>
+    <dl class="keys">
+      <div><dt>W A S D</dt><dd>Fly and strafe</dd></div>
+      <div><dt>Space / C</dt><dd>Climb / drop</dd></div>
+      <div><dt>Mouse</dt><dd>Aim; the nose follows</dd></div>
+      <div><dt>Left click</dt><dd>Fire</dd></div>
+      <div><dt>Right click</dt><dd>Gun camera (hold)</dd></div>
+      <div><dt>T</dt><dd>Thermal</dd></div>
+      <div><dt>1 2 3 / wheel</dt><dd>Gatling, cannon, Lance</dd></div>
+      <div><dt>Esc</dt><dd>Pause</dd></div>
+    </dl>
+    <button id="startButton" type="button">Take off</button>
+    <p class="fine">A glowing head means that creature is about to attack. Hurlers throw slow rubble; Lamplighters fire fast bolts at where you are.</p>
+  </section>
+
+  <section id="pause" class="panel small" hidden aria-labelledby="pauseTitle">
+    <h2 id="pauseTitle">Paused</h2>
+    <button id="resumeButton" type="button">Resume</button>
+  </section>
+
+  <section id="down" class="panel small" hidden aria-labelledby="downTitle">
+    <h2 id="downTitle">Going down</h2>
+    <p class="lede">The Satoshi took too much. Press R or start again.</p>
+    <button id="restartButton" type="button">Start again</button>
+  </section>
+
+  <div id="hud" hidden>
+    <div class="hull"><span class="label">HULL</span><span class="bar"><i id="hullFill"></i></span><b id="hullValue">100</b></div>
+    <div class="status"><span id="kills"></span><span id="fps"></span></div>
+    <div class="flight"><span id="mode">CHASE VIEW</span><span id="altitude">ALT 0 M</span><span id="levelName"></span></div>
+    <ol id="weapons">
+      <li><kbd>1</kbd><span class="name">Gatling</span><span class="meter"><i></i></span><span class="note">READY</span></li>
+      <li><kbd>2</kbd><span class="name">Heavy cannon</span><span class="meter"><i></i></span><span class="note">READY</span></li>
+      <li><kbd>3</kbd><span class="name">Lance</span><span class="meter"><i></i></span><span class="note">4 / 4</span></li>
+    </ol>
+    <div id="reticle" aria-hidden="true"><span></span></div>
+    <div id="hitMarker" aria-hidden="true"></div>
+  </div>
+  <div id="thermalOverlay" hidden aria-hidden="true"><span>WHT HOT · THERMAL</span></div>
+  <div id="veil" aria-hidden="true"></div>
+
+  <script type="module" src="./src/main.js?v=ch2-01"></script>
+</body>
+</html>
