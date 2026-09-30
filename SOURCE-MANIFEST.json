@@ -1,5 +1,5 @@
 {
-  "version": "0.54.98",
+  "version": "0.54.99",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -314,7 +314,7 @@
     {
       "path": "game/main.js",
       "bytes": 165800,
-      "sha256": "d43eb1f9a9d3e35025edc85f456b4b02d3ee52b3943d9a3c1b930194ec3ae1cd"
+      "sha256": "be0d9a24f4dad5e9791210acd9dd5ae4b525708d09dddd6edbf1a15aad1d0383"
     },
     {
       "path": "game/mobile-entry.js",
@@ -529,7 +529,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 27220,
-      "sha256": "e7653cdb107a7ad07186fc91cc587766bfe491afd08590c70ef3189cc0d0f7df"
+      "sha256": "6008876bf5ec3383bb61a211cc14d6a636546d8067cde841724d2ca9d51132fc"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -708,8 +708,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 69176,
-      "sha256": "75989570ee04bbe18e2d401158d522b03bfbe56f9d867f2a6e1548afc5b192ea"
+      "bytes": 69465,
+      "sha256": "7d5e6260dfbff89cb6bfea01b69fd26baee2e676994ee5c281768df51a5a001a"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",
