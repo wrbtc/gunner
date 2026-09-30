@@ -1,8 +1,8 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
-import {createWorld,WORLD_LAYER,WARDEN,LEVELS} from './world.js?v=ch2-05';
-import {createCraft,CRAFT} from './craft.js?v=ch2-05';
-import {createCombat,createArsenal,WEAPONS,FX_LAYER} from './combat.js?v=ch2-05';
-import {createEnemies,ENEMY_LAYER} from './enemies.js?v=ch2-05';
+import {createWorld,WORLD_LAYER,WARDEN,LEVELS} from './world.js?v=ch2-06';
+import {createCraft,CRAFT} from './craft.js?v=ch2-06';
+import {createCombat,createArsenal,WEAPONS,FX_LAYER} from './combat.js?v=ch2-06';
+import {createEnemies,ENEMY_LAYER} from './enemies.js?v=ch2-06';
 
 // Gunner Chapter 02, The Warden: the gunship round. It plays like the AC-130 mission: the
 // pilot circles, you work the sensor and three guns. Clear the Warden's five levels and the

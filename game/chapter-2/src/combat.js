@@ -1,5 +1,5 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
-import {colliderHas,colliderRay} from './world.js?v=ch2-05';
+import {colliderHas,colliderRay} from './world.js?v=ch2-06';
 
 export const FX_LAYER=3;
 const GRAVITY=30;

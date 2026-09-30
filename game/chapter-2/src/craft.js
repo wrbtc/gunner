@@ -1,7 +1,7 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
 import {mergeGeometries} from '../../vendor/BufferGeometryUtils.js?v=052';
-import {BOWL_RADIUS,CEILING} from './world.js?v=ch2-05';
-import {AIRFRAME,loadAirframe} from './airframe.js?v=ch2-05';
+import {BOWL_RADIUS,CEILING} from './world.js?v=ch2-06';
+import {AIRFRAME,loadAirframe} from './airframe.js?v=ch2-06';
 
 // The Satoshi as a gunship, flown the way the AC-130 is: the pilot holds a left-hand pylon
 // turn round a point and the guns look out of the left side at it. You don't fly the plane;

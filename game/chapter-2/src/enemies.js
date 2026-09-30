@@ -1,17 +1,18 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
-import {rng,colliderRay,LEVELS} from './world.js?v=ch2-05';
-import {FX_LAYER} from './combat.js?v=ch2-05';
+import {rng,colliderRay,LEVELS} from './world.js?v=ch2-06';
+import {FX_LAYER} from './combat.js?v=ch2-06';
+import {loadCreeperLoco} from '../../src/creeper-loco.js?v=054-84';
 
 export const ENEMY_LAYER=2;
 // Only a few attack at once, and never on the same beat, so the fire coming up stays readable.
 const MAX_ATTACKERS=3,ATTACK_GAP=.45;
 // Creatures per Warden level, feet to crown, and on city rooftops.
 const PER_LEVEL=[10,7,7,8,5],ROOFTOPS=8;
-// Stand-ins. Hurlers (5 m) hide behind a column, step out, wind up and lob rubble at the
-// gunship; Lamplighters (6.5 m) glow for a second, then fire a fast bolt at it. Both heads
-// glow before an attack, and through thermal that glow flashes white: that is the tell.
+// Hurlers (5 m) are the sculpted creepers: they hide behind a column, step out, and throw a
+// rock that glows in the hand through the wind-up. Lamplighters (6.5 m, still stand-ins) glow
+// at the head for a second, then fire a fast bolt. Through thermal both tells flash white.
 const TYPES={
- hurler:{hp:55,radius:2.2,height:5,range:700,windup:1.1,cover:[2.4,4.6]},
+ hurler:{hp:55,radius:2.2,height:5,range:700,windup:1.8,cover:[2.4,4.6]},
  lamplighter:{hp:40,radius:1.9,height:6.5,range:1000,windup:1.0,cover:[2.2,3.8]}
 };
 const HEAD_IDLE={hurler:new THREE.Color(0x8a2f14),lamplighter:new THREE.Color(0xc9b46a)};
@@ -45,7 +46,35 @@ export function createEnemies(scene,world,combat){
  const tmp=new THREE.Vector3(),away=new THREE.Vector3(),dir=new THREE.Vector3(),head=new THREE.Vector3();
  // Keep a point within a step of the pillar along the ledge's facing.
  const onLedge=(pt,e)=>{const pl=world.pillars[e.anchor],d=tmp.subVectors(pt,e.home).dot(pl.normal);pt.addScaledVector(pl.normal,THREE.MathUtils.clamp(d,-pl.inward,6)-d);};
- let kills={hurler:0,lamplighter:0},attackGap=0;
+ let kills={hurler:0,lamplighter:0},attackGap=0,lastCraft=null;
+ // The Chapter 1 creeper pack (walk, run and a real throw) replaces the Hurler stand-ins once
+ // it loads; the stand-ins stay if it never does. The throw clip lets go at 2.9 s, so it is
+ // sped up to let go at the end of the wind-up.
+ const CREEPER_HEIGHT=6.15,THROW_RELEASE=2.9;
+ let creepers=null;
+ const hotRocks=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(.6,1),new THREE.MeshBasicMaterial({color:0xffc070}),count);
+ hotRocks.layers.set(FX_LAYER);hotRocks.frustumCulled=false;hotRocks.name='Hot rocks in hand';scene.add(hotRocks);
+ const hand=new THREE.Vector3();
+ const ready=loadCreeperLoco().then(kit=>{
+  const made=new Map();
+  for(const e of list){
+   if(e.type!=='hurler')continue;
+   const holder=new THREE.Group();holder.name='Hurler';holder.scale.setScalar(e.height/CREEPER_HEIGHT);scene.add(holder);
+   const actor=kit.attach(holder);actor.play('throw');actor.play('walk');
+   holder.traverse(o=>o.layers.set(ENEMY_LAYER));
+   made.set(e.index,{holder,actor,last:e.pos.clone()});
+  }
+  creepers=made;sync(lastCraft,.9);return true;
+ }).catch(()=>false);
+ // Walk while moving, run when fast, barely sway at rest; the throw runs through wind-up and recovery.
+ function driveCreeper(e,c,face,dt){
+  c.holder.visible=true;c.holder.position.copy(e.pos);c.holder.rotation.y=face+Math.PI;
+  const speed=dt>0?c.last.distanceTo(e.pos)/dt:0;c.last.copy(e.pos);
+  if(e.state==='windup'||e.state==='recover')c.actor.play('throw',dt,THROW_RELEASE/e.windup);
+  else if(speed>.4)c.actor.play(speed>6?'run':'walk',dt,THREE.MathUtils.clamp(speed/1.6,.5,2.2));
+  else c.actor.play('walk',dt,.12);
+  if(e.state==='windup'&&c.actor.throwingHandWorld(hand))hotRocks.setMatrixAt(e.index,m4.compose(hand,q.identity(),s3.setScalar(.35+e.glow*.8)));
+ }
 
  function center(e,out){return out.copy(e.pos).setY(e.pos.y+e.height*.6);}
  function headPos(e,out){return out.copy(e.pos).setY(e.pos.y+e.height+.7);}
@@ -67,6 +96,7 @@ export function createEnemies(scene,world,combat){
  function attack(e,craft){
   headPos(e,head);const target=craft.state.pos;
   if(e.type==='hurler'){
+   if(creepers?.get(e.index)?.actor.throwingHandWorld(hand))head.copy(hand);
    // Ballistic lob with only part of the lead, so a sideways move still clears it.
    const flight=THREE.MathUtils.clamp(head.distanceTo(target)/70,1.4,5);
    tmp.copy(target).addScaledVector(craft.state.vel,flight*.55);
@@ -104,21 +134,23 @@ export function createEnemies(scene,world,combat){
     if(e.timer<=0){e.state='cover';const [a,b]=e.cover;const exposed=e.anchor<0||world.pillars[e.anchor].hp<=0;e.timer=(a+random()*(b-a))*(exposed?.55:1);}
    }
   }
-  sync(craftPos);
+  sync(craftPos,dt);
  }
- function sync(craftPos){
+ function sync(craftPos,dt=0){
+  lastCraft=craftPos;
   for(const e of list){
-   const body=bodies[e.type],other=bodies[e.type==='hurler'?'lamplighter':'hurler'];
-   other.setMatrixAt(e.index,zero);
-   if(!e.alive){body.setMatrixAt(e.index,zero);heads.setMatrixAt(e.index,zero);continue;}
+   const body=bodies[e.type],other=bodies[e.type==='hurler'?'lamplighter':'hurler'],creeper=creepers?.get(e.index);
+   other.setMatrixAt(e.index,zero);hotRocks.setMatrixAt(e.index,zero);
+   if(!e.alive){body.setMatrixAt(e.index,zero);heads.setMatrixAt(e.index,zero);if(creeper)creeper.holder.visible=false;continue;}
    const face=craftPos?Math.atan2(craftPos.x-e.pos.x,craftPos.z-e.pos.z):0;
+   if(creeper){body.setMatrixAt(e.index,zero);heads.setMatrixAt(e.index,zero);driveCreeper(e,creeper,face,dt);continue;}
    e3.set(-e.lean*.35,face,0);q.setFromEuler(e3);
    body.setMatrixAt(e.index,m4.compose(e.pos,q,s3.setScalar(1)));
    headPos(e,head);heads.setMatrixAt(e.index,m4.compose(head,q,s3.setScalar(e.type==='hurler'?.8:1+e.glow*.5)));
    color.copy(HEAD_IDLE[e.type]).lerp(HEAD_HOT[e.type],e.glow);if(e.hitFlash)color.lerp(new THREE.Color(1,1,1),e.hitFlash);
    heads.setColorAt(e.index,color);
   }
-  for(const m of [bodies.hurler,bodies.lamplighter,heads])m.instanceMatrix.needsUpdate=true;
+  for(const m of [bodies.hurler,bodies.lamplighter,heads,hotRocks])m.instanceMatrix.needsUpdate=true;
   if(heads.instanceColor)heads.instanceColor.needsUpdate=true;
  }
  function damage(e,amount){
@@ -126,7 +158,7 @@ export function createEnemies(scene,world,combat){
   if(e.hp<=0){e.alive=false;kills[e.type]++;combat.blast(center(e,tmp),5,.55);}
  }
  sync(null);
- return {list,center,update,damage,
+ return {list,center,update,damage,ready,
   kills:()=>({...kills}),totals:()=>({hurler:list.filter(e=>e.type==='hurler').length,lamplighter:list.filter(e=>e.type==='lamplighter').length}),
   // Alive and total per Warden level, feet to crown.
   levels:()=>LEVELS.map((_,level)=>{const on=list.filter(e=>e.level===level);return {alive:on.filter(e=>e.alive).length,total:on.length};}),
