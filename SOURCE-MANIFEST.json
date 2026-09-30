@@ -1,5 +1,5 @@
 {
-  "version": "0.54.101",
+  "version": "0.54.102",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -314,7 +314,7 @@
     {
       "path": "game/main.js",
       "bytes": 166979,
-      "sha256": "064402e9a7541b210f4be65131d5049bfd170c01894b20a23c594a22d684a0a6"
+      "sha256": "98ae834bd48e6f48eb8ad166bcce81c1476da198ec253705ace49c681367f056"
     },
     {
       "path": "game/mobile-entry.js",
@@ -438,8 +438,8 @@
     },
     {
       "path": "game/src/egg-nests.js",
-      "bytes": 46550,
-      "sha256": "ea70f86c5134af0c72e41a14efe3cb24b5404a5cafd083cd2e32a20f741a62cf"
+      "bytes": 46862,
+      "sha256": "07b9fcf29b2a57b970a412aa435f0b8bfba2e2db5f5c9929fb4cbc4a3ab5ebad"
     },
     {
       "path": "game/src/egg-solids.js",
@@ -453,8 +453,8 @@
     },
     {
       "path": "game/src/field-guide-egg-parts.js",
-      "bytes": 5804,
-      "sha256": "4ddf3ea1d73021ded5066844e45d1eee254d3efb57aa9cecc780b6b7638152c2"
+      "bytes": 6794,
+      "sha256": "cd0ea3cf45d18ff10ffe793279ada8462487215a9ae1a0130443647b61296ca3"
     },
     {
       "path": "game/src/field-guide-viewer.js",
@@ -463,8 +463,8 @@
     },
     {
       "path": "game/src/guide-models.js",
-      "bytes": 7073,
-      "sha256": "d4ab8465719ebac7ae8c4eee6a0d0e22e4a8ea85636c234fe480019d5fac9170"
+      "bytes": 7210,
+      "sha256": "e8566b83e914e38158dab54717fbe28ce940a313d7e3e27e5f74c2501a705197"
     },
     {
       "path": "game/src/gun-bubble.js",
@@ -529,7 +529,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 27221,
-      "sha256": "1fec4cbc6193e715c11f70d6e636e3b885ef0a7fbed15937aae54f335a89b71a"
+      "sha256": "c60aaf1a9c4d8ab11e21c4acc38202f622ac2547214391a13bf8d5ea0281c9d6"
     },
     {
       "path": "game/src/opening-camera.js",

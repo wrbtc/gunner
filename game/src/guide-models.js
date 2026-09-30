@@ -2,7 +2,7 @@ import * as THREE from '../vendor/three.module.js?v=052';
 import {createBankGuideModel} from './bank-demons.js?v=054-84';
 import {createRimmerModel} from './rimmer-model.js?v=052';
 import {cloneSkinnedGuide} from './skinned-solids.js?v=054-86';
-import {loadGuideEggPart,loadGuideIntactEgg} from './field-guide-egg-parts.js?v=054-74';
+import {infestSpecimenShell,loadGuideEggPart,loadGuideIntactEgg} from './field-guide-egg-parts.js?v=054-74';
 const GUIDE_FRONT_YAW=.35,GUIDE_DRAGON_YAW=.18;
 export const GUIDE_FRONT_IDS=Object.freeze(['creepers','rimmers','plasma','tanks','dancers','eggs','egg-maggot','egg-shell']);
 export function guideYawFor(id){
@@ -88,6 +88,7 @@ export async function buildGuideModel(id,{eggNests,plasmaBugs,cinderModel,creepe
  }
  else if(id==='dragons')root=solidGuideRoot(skinnedSolids?.dragons);
  if(!root)throw Error('No 3D guide model: '+id);
+ if(id==='egg-shell')root.traverse(n=>{if(n.isMesh&&!Array.isArray(n.material))infestSpecimenShell(n,n.material);});
  root.visible=true;root.position.set(0,0,0);root.updateMatrixWorld(true);
  root.traverse(n=>{n.layers.set(0);n.frustumCulled=false;n.castShadow=false;n.receiveShadow=false;});
  const bounds=new THREE.Box3().setFromObject(root),center=bounds.getCenter(new THREE.Vector3()),extent=bounds.getSize(new THREE.Vector3()),scale=2.4/Math.max(extent.x,extent.y,extent.z);

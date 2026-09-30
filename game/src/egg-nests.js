@@ -82,11 +82,14 @@ diffuseColor.a=mix(diffuseColor.a,.96,broodRim*.76+broodRoot*.20);
 // The decimated shell arrives with split vertices, so even creased normals left
 // visible facets. Weld by position alone (the atlas UVs are unused once the shell
 // takes vertex colour) and let the whole body shade smooth.
-function smoothShell(geometry){
+export function smoothShell(geometry){
  for(const name of Object.keys(geometry.attributes))if(name!=='position')geometry.deleteAttribute(name);
  const welded=mergeVertices(geometry,1e-4);welded.computeVertexNormals();return welded;
 }
-function infestShell(material){
+// space maps the geometry into the live shell's frame (roots on -Z, about 1 unit radius),
+// so the Field Guide can dress the raw GLB with the same pattern; lump scales the bumps.
+export function infestShell(material,{space=[1,1,1],lump=.12,key='baked-egg-infested-v6'}={}){
+ const shSpace=`vec3(${space.map(n=>n.toFixed(3)).join(',')})`;
  // GLTFLoader turns flat shading on for a mesh that arrives without normals.
  material.flatShading=false;material.needsUpdate=true;
  material.onBeforeCompile=s=>{
@@ -105,9 +108,9 @@ vec3 shOrigin=(modelMatrix*instanceMatrix*vec4(0.,0.,0.,1.)).xyz;vShHit=eggHit;
 vec3 shOrigin=modelMatrix[3].xyz;vShHit=0.;
 #endif
 vShSeed=fract(dot(shOrigin,vec3(.131,.077,.019)));
-vShP=position;
-float shBody=smoothstep(-.35,-.1,position.z);
-transformed+=objectNormal*(shN(position*3.1+vShSeed*17.)-.5)*.12*shBody;`);
+vShP=position*${shSpace};
+float shBody=smoothstep(-.35,-.1,vShP.z);
+transformed+=objectNormal*(shN(vShP*3.1+vShSeed*17.)-.5)*${lump.toFixed(3)}*shBody;`);
   s.fragmentShader=s.fragmentShader.replace('#include <common>',`#include <common>
 varying vec3 vShP;varying float vShSeed;varying float vShHit;
 ${noise}
@@ -157,7 +160,7 @@ roughnessFactor=mix(roughnessFactor*mix(.62,.95,shMottle),.12,max(shPit,shRim*.6
   s.fragmentShader=s.fragmentShader.replace('#include <opaque_fragment>',`outgoingLight+=vec3(.8,.4,.12)*vShHit*(.055+.20*pow(1.-abs(dot(normal,normalize(vViewPosition))),2.));
 #include <opaque_fragment>`);
  };
- material.customProgramCacheKey=()=> 'baked-egg-infested-v6';
+ material.customProgramCacheKey=()=>key;
  return material;
 }
 export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hitFeedback,onHit,eggSolids=null}){

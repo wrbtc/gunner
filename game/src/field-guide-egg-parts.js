@@ -1,5 +1,6 @@
 import * as THREE from '../vendor/three.module.js?v=052';
 import {loadGuideSolid} from './skinned-solids.js?v=054-86';
+import {infestShell,smoothShell} from './egg-nests.js?v=054-74';
 // Independent specimen views only; the live nest and its source assets are untouched.
 const SPECS={
  'egg-maggot':{id:'egg-maggot',asset:'field-notes-v02/egg-maggot-fieldnotes-v02',sha256:'dce9f57242857ebcf84a567a25932278ea1e6454cb3e6aeb2c26bc83a1402d7d',bytes:240068,armature:'MaggotArmature',clips:{idle:'maggot_wriggle'}},
@@ -47,6 +48,15 @@ function intactSurfaceShader(membrane,rootStart,fadeStart){
   if(membrane)shader.fragmentShader=shader.fragmentShader.replace('vec4 diffuseColor = vec4( diffuse, opacity );','float rootJoin=smoothstep(uIntactFadeStart,uIntactRootStart,vIntactLocalZ);\nvec4 diffuseColor = vec4( diffuse, mix(opacity,1.,rootJoin) );');
  };
 }
+// The live brood's look on the museum GLB: the nests turn the shell half around and
+// fatten it (EGG_GIRTH 2.35/1.85), so the pattern reads the raw shell in that frame.
+const SHELL_SPACE=[-2.35,1.85,-1],SHELL_LUMP=.06;
+export function infestSpecimenShell(mesh,material){
+ mesh.geometry=smoothShell(mesh.geometry.clone());
+ // Welding drops the atlas UVs, so the roots take the live nests' root colour.
+ material.map=null;material.color?.setHex(0x4a3a2a);
+ return infestShell(material,{space:SHELL_SPACE,lump:SHELL_LUMP,key:'fn-infested-shell'});
+}
 function makeIntactSurfaceMaterial(source,membrane,rootStart,fadeStart){
  const material=source.clone();
  if(material.emissive)material.emissive.setHex(0);
@@ -57,8 +67,17 @@ function makeIntactSurfaceMaterial(source,membrane,rootStart,fadeStart){
  material.transparent=membrane;
  material.opacity=membrane?.42:1;
  material.depthWrite=!membrane;
- material.onBeforeCompile=intactSurfaceShader(membrane,rootStart,fadeStart);
- material.customProgramCacheKey=()=>membrane?'fn-intact-leather-sac-05474':'fn-intact-opaque-roots-05474';
+ const intact=intactSurfaceShader(membrane,rootStart,fadeStart);
+ if(!membrane){
+  material.onBeforeCompile=intact;
+  material.customProgramCacheKey=()=>'fn-intact-opaque-roots-05474';
+  return material;
+ }
+ // The sac wears the brood's pitted, veined skin; the larva still shows between clusters.
+ material.map=null;
+ infestShell(material,{space:SHELL_SPACE,lump:SHELL_LUMP,key:'fn-intact-infested-sac'});
+ const infest=material.onBeforeCompile;
+ material.onBeforeCompile=shader=>{intact(shader);infest(shader);};
  return material;
 }
 export function assembleIntactEgg(shellSolid,maggotSolid){
@@ -72,7 +91,7 @@ export function assembleIntactEgg(shellSolid,maggotSolid){
   // This authored shell tapers into its root crown along +Z, not across its upper half.
   const rootStart=box.min.z+span*.7,fadeStart=rootStart-span*.12;
   const sources=Array.isArray(node.material)?node.material:[node.material];
-  const skin=node.clone();skin.name='Intact egg membrane';
+  const skin=node.clone();skin.name='Intact egg membrane';skin.geometry=smoothShell(geometry.clone());
   const dress=membrane=>sources.map(source=>makeIntactSurfaceMaterial(source,membrane,rootStart,fadeStart));
   const rootMaterials=dress(false),skinMaterials=dress(true);
   node.name='Intact egg roots';node.material=Array.isArray(node.material)?rootMaterials:rootMaterials[0];
