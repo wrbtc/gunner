@@ -7,30 +7,29 @@
   <meta name="theme-color" content="#090604">
   <title>GUNNER — Chapter 02 test flight</title>
   <link rel="icon" type="image/svg+xml" href="../assets/gunner-plane.svg?v=052">
-  <link rel="stylesheet" href="./styles.css?v=ch2-04">
+  <link rel="stylesheet" href="./styles.css?v=ch2-05">
 </head>
 <body>
-  <canvas id="game" aria-label="Chapter 2 test flight view"></canvas>
+  <canvas id="game" aria-label="Chapter 2 gunship sensor view"></canvas>
 
   <section id="start" class="panel" aria-labelledby="startTitle">
-    <p class="eyebrow">Gunner · Chapter 02 · round 2 test flight</p>
+    <p class="eyebrow">Gunner · Chapter 02 · round 2.1 · the gunship</p>
     <h1 id="startTitle">The Warden</h1>
-    <p class="lede">The Warden stands at full size in rough stone, and the Satoshi flies on lift fans. Climb it: clear all five levels from the feet to the crown, and the pit behind its head opens. Keep moving, because they shoot back.</p>
+    <p class="lede">The Satoshi is a gunship now. The pilot circles, and you work the sensor and three guns, as on the AC-130. Move the orbit to reach every level of the Warden. Clear all five and the seal behind its head breaks.</p>
     <dl class="keys">
-      <div><dt>W A S D</dt><dd>Fly and strafe</dd></div>
-      <div><dt>Space / C</dt><dd>Climb / drop</dd></div>
-      <div><dt>Mouse</dt><dd>Aim; the nose follows</dd></div>
+      <div><dt>Mouse</dt><dd>Aim the sensor</dd></div>
       <div><dt>Left click</dt><dd>Fire</dd></div>
-      <div><dt>Right click</dt><dd>Gun camera (hold)</dd></div>
+      <div><dt>Right click</dt><dd>Zoom (hold)</dd></div>
+      <div><dt>1 2 3 / wheel</dt><dd>105 mm, 40 mm, 25 mm</dd></div>
+      <div><dt>W A S D</dt><dd>Move the orbit</dd></div>
+      <div><dt>Space / C</dt><dd>Orbit higher / lower</dd></div>
+      <div><dt>O</dt><dd>Circle where you aim</dd></div>
+      <div><dt>T</dt><dd>White hot, black hot, TV</dd></div>
       <div><dt>V</dt><dd>Outside view</dd></div>
-      <div><dt>F</dt><dd>Gun camera zoom</dd></div>
-      <div><dt>O</dt><dd>Pilot orbits your target</dd></div>
-      <div><dt>T</dt><dd>Thermal</dd></div>
-      <div><dt>1 2 3 / wheel</dt><dd>Gatling, cannon, Lance</dd></div>
       <div><dt>Esc</dt><dd>Pause</dd></div>
     </dl>
     <button id="startButton" type="button">Take off</button>
-    <p class="fine">A glowing head means that creature is about to attack. Hurlers throw slow rubble; Lamplighters fire fast bolts at where you are.</p>
+    <p class="fine">Shells take time to fall from the orbit, so fire a beat early. A head that flashes white is about to attack.</p>
   </section>
 
   <section id="pause" class="panel small" hidden aria-labelledby="pauseTitle">
@@ -45,34 +44,34 @@
   </section>
 
   <section id="done" class="panel small" hidden aria-labelledby="doneTitle">
-    <p class="eyebrow">Round 2 · the climb</p>
+    <p class="eyebrow">Round 2.1 · the gunship</p>
     <h2 id="doneTitle">Into the pit</h2>
     <p class="stats" id="doneStats"></p>
-    <p class="lede">What waits down here comes in round 5.</p>
+    <p class="lede">What waits down there comes in round 5.</p>
     <button id="againButton" type="button">Fly again</button>
   </section>
 
   <div id="hud" hidden>
     <div class="hull"><span class="label">HULL</span><span class="bar"><i id="hullFill"></i></span><b id="hullValue">100</b></div>
     <div class="status"><span id="kills"></span><span id="fps"></span></div>
-    <div class="flight"><span id="mode">CHASE VIEW</span><span id="altitude">ALT 0 M</span></div>
-    <p id="objective"></p>
+    <div class="flight"><span id="mode">SENSOR</span><span id="altitude">ALT 0 M</span></div>
+    <p id="subtitle"><b id="speaker"></b> <span id="line"></span></p>
     <div id="climb" aria-hidden="true">
       <div class="pit"><span>THE PIT</span><b id="pitState">SEALED</b></div>
       <div class="rail"><i id="climbMarker"></i><ol id="climbLevels"></ol></div>
     </div>
     <ol id="weapons">
-      <li><kbd>1</kbd><span class="name">Gatling</span><span class="meter"><i></i></span><span class="note">READY</span></li>
-      <li><kbd>2</kbd><span class="name">Heavy cannon</span><span class="meter"><i></i></span><span class="note">READY</span></li>
-      <li><kbd>3</kbd><span class="name">Lance</span><span class="meter"><i></i></span><span class="note">4 / 4</span></li>
+      <li><kbd>1</kbd><span class="name">105 mm</span><span class="meter"><i></i></span><span class="note">READY</span></li>
+      <li><kbd>2</kbd><span class="name">40 mm</span><span class="meter"><i></i></span><span class="note">READY</span></li>
+      <li><kbd>3</kbd><span class="name">25 mm</span><span class="meter"><i></i></span><span class="note">READY</span></li>
     </ol>
-    <div id="reticle" aria-hidden="true"><span></span></div>
     <div id="optics" hidden aria-hidden="true">
       <div class="compass"><div id="compassTape"></div><i class="caret"></i></div>
-      <span id="opticsMode" class="tl">TV</span>
-      <span id="opticsZoom" class="tr">ZOOM 4X</span>
+      <span id="opticsMode" class="tl">THERMAL · WHT</span>
+      <span id="opticsZoom" class="tr">105 MM · 1X</span>
       <div class="brackets"><i></i><i></i><i></i><i></i></div>
       <div class="cross"><i></i><i></i><i></i><i></i></div>
+      <div class="ranging"><i></i><i></i><i></i><i></i><i></i></div>
       <span id="opticsRange" class="bl">RNG ---- M</span>
       <span id="opticsAngles" class="br">AZ 000 · EL +00</span>
       <pre id="opticsData" class="data"></pre>
@@ -80,9 +79,9 @@
     </div>
     <div id="hitMarker" aria-hidden="true"></div>
   </div>
-  <div id="thermalOverlay" hidden aria-hidden="true"><span>WHT HOT · THERMAL</span></div>
+  <div id="thermalOverlay" hidden aria-hidden="true"></div>
   <div id="veil" aria-hidden="true"></div>
 
-  <script type="module" src="./src/main.js?v=ch2-04"></script>
+  <script type="module" src="./src/main.js?v=ch2-05"></script>
 </body>
 </html>

@@ -1,21 +1,22 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
 import {mergeGeometries} from '../../vendor/BufferGeometryUtils.js?v=052';
-import {BOWL_RADIUS,CEILING,colliderHas,colliderPush,colliderRay} from './world.js?v=ch2-04';
-import {AIRFRAME,loadAirframe} from './airframe.js?v=ch2-04';
+import {BOWL_RADIUS,CEILING} from './world.js?v=ch2-05';
+import {AIRFRAME,loadAirframe} from './airframe.js?v=ch2-05';
 
-// The Satoshi refitted to hover. Keys push it around; it drifts and settles instead of
-// stopping dead. The mouse aims, and the nose swings round to follow the aim with a lag,
-// so you go where the guns point but can still slide sideways out of incoming fire.
-// As in Chapter 1 you sit in the ball turret under the belly: the seat view is the default,
-// right click is the zoomed gun camera, and V swaps to an outside view.
+// The Satoshi as a gunship, flown the way the AC-130 is: the pilot holds a left-hand pylon
+// turn round a point and the guns look out of the left side at it. You don't fly the plane;
+// you tell the pilot where to circle (W A S D slide the orbit, Space and C raise and lower
+// it, O circles where you aim) and work the sensor and the guns.
 export const CRAFT=Object.freeze({
- radius:8,accel:46,maxSpeed:64,climb:30,drag:1.35,turnRate:2.2,
- pitchMin:-1.35,pitchMax:.6,chaseBack:44,chaseUp:13,// Gun camera zoom per weapon, wide then close: tight for the gatling, wide for the Lance,
- // like the AC-130's 25, 40 and 105 mm cameras.
- optics:[[14,5],[22,9],[36,15]],orbitSpeed:34,chaseFov:62,seatFov:70,seatY:-3.1,
- // The sculpt is 29.4 wide; at .68 it spans 20 m, big enough to read and small enough to
- // keep the reticle clear in the outside view.
- modelScale:.68
+ // The sculpt is 22 long and 29.4 wide; at .5 it is an 11 m, 15 m span aircraft.
+ modelScale:.5,
+ orbitSpeed:46,radius:380,minAlt:260,maxAlt:CEILING-20,startAlt:560,
+ slideSpeed:70,climbRate:45,bank:.42,
+ // How far the orbit keeps clear of anything below it, and the sensor's gimbal limits:
+ // yaw either side of the left beam, and pitch from nearly straight down to just above level.
+ clearance:30,gimbalYaw:1.3,pitchMin:-1.5,pitchMax:.12,
+ chaseBack:70,chaseUp:20,chaseFov:50,
+ start:Object.freeze({center:[0,-420],angle:.9})
 });
 
 // Stand-in until the sculpt arrives, and the fallback if it never does.
@@ -27,14 +28,14 @@ function greyboxSatoshi(){
  for(const x of [-5.2,5.2]){b(1.8,1.8,17,x,.3,3.5);b(.4,4,3,x,2.2,11.5);} // booms and fins
  b(11,.4,2.6,0,3.8,11.5); // tailplane
  const body=new THREE.Mesh(mergeGeometries(g),new THREE.MeshLambertMaterial({color:0x6a6e55}));
- const group=new THREE.Group();group.add(body);group.scale.setScalar(.7);group.position.y=1.2;group.name='Satoshi hover refit (grey box)';
+ const group=new THREE.Group();group.add(body);group.scale.setScalar(.55);group.position.y=.8;group.name='Satoshi gunship (grey box)';
  return group;
 }
 
-// The refit, in the sculpt's own units: a ducted lift fan cut into each outer wing, the old
-// propellers kept for forward thrust, and a swivel nozzle under each tail boom.
+// The refit, in the sculpt's own units: a ducted lift fan in each outer wing, the propellers,
+// a swivel nozzle under each tail boom, and the three guns out of the left flank.
 function refit(materials){
- const parts=new THREE.Group();parts.name='Hover refit';
+ const parts=new THREE.Group();parts.name='Gunship refit';
  const rotors=[],glows=[],nozzles=[],props=[];
  const bladeSet=(count,make)=>mergeGeometries(Array.from({length:count},(_,i)=>make(i)));
  for(const [x,y,z] of AIRFRAME.fans){
@@ -55,31 +56,15 @@ function refit(materials){
   const pivot=new THREE.Group();pivot.position.set(x,y,z);
   const bell=new THREE.Mesh(new THREE.CylinderGeometry(.34,.5,1.2,14,1,true).translate(0,-.6,0),materials.duct);
   const collar=new THREE.Mesh(new THREE.CylinderGeometry(.4,.4,.3,14).translate(0,-.05,0),materials.metal);
-  const glow=new THREE.Mesh(new THREE.CircleGeometry(.44,16).rotateX(Math.PI/2).translate(0,-1.18,0),materials.glow.clone());
-  pivot.add(bell,collar,glow);parts.add(pivot);nozzles.push(pivot);glows.push(glow);
+  pivot.add(bell,collar);parts.add(pivot);nozzles.push(pivot);
  }
+ // Side guns, pointing out and a little down from the left flank: 25 mm forward, 40 mm
+ // behind the wing root, the 105 aft. The sensor ball sits just ahead of them.
+ const guns=new THREE.Mesh(mergeGeometries(AIRFRAME.guns.map(([x,y,z,r,len])=>
+  new THREE.CylinderGeometry(r*.8,r,len,12).rotateZ(Math.PI/2).rotateZ(.12).translate(x-len/2,y,z))),materials.metal);
+ const sensor=new THREE.Mesh(new THREE.SphereGeometry(.42,16,10).translate(...AIRFRAME.sensor),materials.glass);
+ parts.add(guns,sensor);
  return {parts,rotors,glows,nozzles,props};
-}
-
-// The ball turret under the belly, in metres. Its guns follow your aim in the outside view;
-// from the seat you are inside it, so it all hides and the seat guns show instead.
-function ballTurret(materials){
- const turret=new THREE.Group();turret.name='Ball turret';
- const r=1.15,top=CRAFT.seatY+r;
- const cradle=new THREE.Mesh(new THREE.CylinderGeometry(.62,.9,-top,14).translate(0,top/2,0),materials.metal);
- const ball=new THREE.Group();ball.position.y=CRAFT.seatY;
- const glass=new THREE.Mesh(new THREE.SphereGeometry(r,22,14),materials.glass);
- const frame=new THREE.Mesh(mergeGeometries([new THREE.TorusGeometry(r+.03,.08,6,26).rotateX(Math.PI/2),new THREE.TorusGeometry(r+.03,.07,6,26)]),materials.metal);
- const yaw=new THREE.Group(),pitch=new THREE.Group();
- const guns=new THREE.Mesh(mergeGeometries([
-  ...[-.46,.46].map(x=>new THREE.CylinderGeometry(.12,.14,2,10).rotateX(Math.PI/2).translate(x,-.05,-1.9)),
-  new THREE.CylinderGeometry(.19,.24,2.6,12).rotateX(Math.PI/2).translate(0,-.46,-2),
-  new THREE.BoxGeometry(1.3,.4,.7).translate(0,-.22,-1.05)
- ]),materials.metal);
- pitch.add(guns);yaw.add(pitch);ball.add(glass,yaw);
- frame.position.y=CRAFT.seatY;
- turret.add(cradle,ball,frame);
- return {turret,yaw,pitch};
 }
 
 export function createCraft(scene,world){
@@ -87,13 +72,11 @@ export function createCraft(scene,world){
   metal:new THREE.MeshStandardMaterial({color:0x4a4f49,metalness:.45,roughness:.5}),
   duct:new THREE.MeshStandardMaterial({color:0x2c302d,metalness:.4,roughness:.6,side:THREE.DoubleSide}),
   rotor:new THREE.MeshStandardMaterial({color:0x8d8e82,metalness:.5,roughness:.45}),
-  // Smoked glass that still catches the light; true dark glass renders as a black ball.
   glass:new THREE.MeshStandardMaterial({color:0x6a7b76,metalness:.15,roughness:.22,emissive:0x0b1413}),
   glow:new THREE.MeshBasicMaterial({color:0xff9a4a,transparent:true,opacity:.3,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide})
  };
  const group=new THREE.Group();group.name='Satoshi';scene.add(group);
  let hull=greyboxSatoshi(),kit=null;group.add(hull);
- const turret=ballTurret(materials);group.add(turret.turret);
  const model={group,get sculpted(){return !!kit;}};
  // Swap the sculpt in when it arrives; the grey box stays if it never does.
  model.ready=loadAirframe().then(airframe=>{
@@ -103,139 +86,131 @@ export function createCraft(scene,world){
   return true;
  }).catch(()=>false);
 
+ const S=CRAFT.start;
  const state={
-  pos:new THREE.Vector3(0,70,560),vel:new THREE.Vector3(),heading:0,
-  aimYaw:0,aimPitch:-.02,bank:0,tilt:0,hull:100,gunCam:false,view:'seat',barrel:0,zoom:0,weapon:0,orbit:null,lift:0,thrust:0
+  pos:new THREE.Vector3(),vel:new THREE.Vector3(),heading:0,bank:CRAFT.bank,tilt:0,hull:100,
+  view:'sensor',zoom:false,weapon:0,
+  // look: the sensor's yaw off the left beam and its pitch; aimYaw/aimPitch: the same in the world.
+  look:{yaw:0,pitch:-.9},aimYaw:0,aimPitch:-.9,
+  orbit:{center:new THREE.Vector3(S.center[0],0,S.center[1]),want:new THREE.Vector3(S.center[0],0,S.center[1]),
+   radius:CRAFT.radius,alt:CRAFT.startAlt,wantAlt:CRAFT.startAlt,floor:0,angle:S.angle},
+  lift:0,thrust:0
  };
- const tmp=new THREE.Vector3(),fwd=new THREE.Vector3(),right=new THREE.Vector3(),push=new THREE.Vector3(),normal=new THREE.Vector3();
- const orbitPoint=new THREE.Vector3(),tangent=new THREE.Vector3(),desired=new THREE.Vector3();
- const aimDir=()=>tmp.set(-Math.sin(state.aimYaw)*Math.cos(state.aimPitch),Math.sin(state.aimPitch),-Math.cos(state.aimYaw)*Math.cos(state.aimPitch));
+ const tmp=new THREE.Vector3(),fwd=new THREE.Vector3(),left=new THREE.Vector3(),prev=new THREE.Vector3(),slide=new THREE.Vector3();
 
- // Orbit: the pilot circles the point you marked, AC-130 style, and you only gun.
- // Any flying key hands the controls straight back.
- function startOrbit(center){
-  const c=center.clone(),flat=Math.hypot(state.pos.x-c.x,state.pos.z-c.z);let alt=Math.max(state.pos.y,c.y+110);
-  // Shrink the circle until none of it runs through the statue, the cliff or the bowl wall.
-  const probe=new THREE.Vector3(),clear=r=>{
-   for(let i=0;i<32;i++){
-    const a=i/32*Math.PI*2;probe.set(c.x+Math.cos(a)*r,alt,c.z+Math.sin(a)*r);
-    if(Math.hypot(probe.x,probe.z)>BOWL_RADIUS-20)return false;
-    for(const box of world.colliders)if(box.alive&&colliderHas(box,probe,CRAFT.radius+12))return false;
+ // The highest thing under the circle, sampled round it: towers, the statue, the cliff.
+ // The pilot won't go lower than that plus clearance.
+ function orbitFloor(center,radius){
+  let top=0;const pad=CRAFT.clearance;
+  for(let i=0;i<40;i++){
+   const a=i/40*Math.PI*2,x=center.x+Math.cos(a)*radius,z=center.z+Math.sin(a)*radius;
+   for(const c of world.colliders){
+    if(!c.alive)continue;
+    if(c.inv){const b=c.bound,dx=b.center.x-x,dz=b.center.z-z;if(dx*dx+dz*dz<(b.radius+pad)**2)top=Math.max(top,b.center.y+b.radius);}
+    else if(x>c.min.x-pad&&x<c.max.x+pad&&z>c.min.z-pad&&z<c.max.z+pad)top=Math.max(top,c.max.y);
    }
-   return true;
-  };
-  // If no circle around the target itself is clear (up against the statue), circle a point
-  // pulled out toward the craft, climbing if needed; the gunner keeps aiming at the target.
-  const toward=new THREE.Vector3(state.pos.x-c.x,0,state.pos.z-c.z);if(toward.lengthSq()<1)toward.set(0,0,1);toward.normalize();
-  const base=c.clone();let found=null;
-  search:for(const lift of [0,90,180])for(let shift=0;shift<=480;shift+=60){
-   c.copy(base).addScaledVector(toward,shift);alt=Math.max(state.pos.y,base.y+110)+lift;
-   for(let radius=THREE.MathUtils.clamp(flat<60?220:flat-shift,160,480);radius>=140;radius-=20)if(clear(radius)){found=radius;break search;}
   }
-  if(!found){c.copy(base);found=220;alt=Math.max(state.pos.y,base.y+110);}
-  state.orbit={center:c,radius:found,alt,angle:Math.atan2(state.pos.z-c.z,state.pos.x-c.x),speed:CRAFT.orbitSpeed};
+  return top+CRAFT.clearance;
  }
+ let floorClock=0;
+ function place(o){
+  state.pos.set(o.center.x+Math.cos(o.angle)*o.radius,o.alt,o.center.z+Math.sin(o.angle)*o.radius);
+ }
+ function updateAim(){
+  // The left beam points at the centre of a perfect circle, so yaw 0 looks at the orbit point.
+  state.aimYaw=state.heading+Math.PI/2+state.look.yaw;state.aimPitch=state.look.pitch;
+ }
+ // Point the sensor at a world position, within the gimbal.
+ function lookAt(point){
+  tmp.subVectors(point,sensorPos(prev));
+  const yaw=Math.atan2(-tmp.x,-tmp.z)-state.heading-Math.PI/2;
+  state.look.yaw=THREE.MathUtils.clamp(Math.atan2(Math.sin(yaw),Math.cos(yaw)),-CRAFT.gimbalYaw,CRAFT.gimbalYaw);
+  state.look.pitch=THREE.MathUtils.clamp(Math.asin(tmp.y/tmp.length()),CRAFT.pitchMin,CRAFT.pitchMax);
+  updateAim();
+ }
+ function headingFromAngle(o){const t=tmp.set(Math.sin(o.angle),0,-Math.cos(o.angle));return Math.atan2(-t.x,-t.z);}
  function step(dt,input){
-  if(input.forward||input.strafe||input.lift)state.orbit=null;
-  state.lift=input.lift;state.thrust=input.forward;
-  let wantHeading=state.aimYaw;
   const o=state.orbit;
-  if(o){
-   o.angle+=o.speed/o.radius*dt;
-   orbitPoint.set(o.center.x+Math.cos(o.angle)*o.radius,o.alt,o.center.z+Math.sin(o.angle)*o.radius);
-   tangent.set(-Math.sin(o.angle),0,Math.cos(o.angle));
-   wantHeading=Math.atan2(-tangent.x,-tangent.z);
-  }
-  // The nose chases the aim yaw (or the orbit's tangent) at a limited turn rate.
-  let d=wantHeading-state.heading;d=Math.atan2(Math.sin(d),Math.cos(d));
-  const maxTurn=CRAFT.turnRate*dt;
-  state.heading+=THREE.MathUtils.clamp(d*(1-Math.exp(-5*dt)),-maxTurn,maxTurn);
-  fwd.set(-Math.sin(state.heading),0,-Math.cos(state.heading));right.set(-fwd.z,0,fwd.x);
-  push.set(0,0,0).addScaledVector(fwd,input.forward).addScaledVector(right,input.strafe);
-  if(push.lengthSq()>1)push.normalize();
-  if(o){
-   desired.copy(tangent).multiplyScalar(o.speed).addScaledVector(tmp.subVectors(orbitPoint,state.pos),1.1);
-   state.vel.lerp(desired,1-Math.exp(-2.2*dt));
-  }else{
-   state.vel.addScaledVector(push,CRAFT.accel*dt);
-   state.vel.y+=input.lift*CRAFT.accel*.8*dt;
-   state.vel.multiplyScalar(Math.exp(-CRAFT.drag*dt));
-  }
-  const flat=Math.hypot(state.vel.x,state.vel.z);
-  if(flat>CRAFT.maxSpeed){state.vel.x*=CRAFT.maxSpeed/flat;state.vel.z*=CRAFT.maxSpeed/flat;}
-  state.vel.y=THREE.MathUtils.clamp(state.vel.y,-CRAFT.climb,CRAFT.climb);
-  state.pos.addScaledVector(state.vel,dt);
-  collide();
-  // Bank into strafes and nod into acceleration: the hover reads as weight, not a cursor.
-  const side=state.vel.dot(right),ahead=state.vel.dot(fwd);
-  state.bank+=(THREE.MathUtils.clamp(-side/CRAFT.maxSpeed,-1,1)*.42-state.bank)*(1-Math.exp(-4*dt));
-  state.tilt+=(THREE.MathUtils.clamp(-ahead/CRAFT.maxSpeed,-1,1)*.16+input.forward*-.08-state.tilt)*(1-Math.exp(-3*dt));
+  state.lift=input.lift;state.thrust=input.forward;
+  // W A S D slide the orbit over the ground, relative to where the sensor looks.
+  fwd.set(-Math.sin(state.aimYaw),0,-Math.cos(state.aimYaw));left.set(fwd.z,0,-fwd.x);
+  slide.set(0,0,0).addScaledVector(fwd,input.forward).addScaledVector(left,-input.strafe);
+  if(slide.lengthSq()>0){o.want.addScaledVector(slide.normalize(),CRAFT.slideSpeed*dt);floorClock=0;}
+  const reach=BOWL_RADIUS-o.radius-20,flat=Math.hypot(o.want.x,o.want.z);
+  if(flat>reach)o.want.multiplyScalar(reach/flat);
+  o.wantAlt=THREE.MathUtils.clamp(o.wantAlt+input.lift*CRAFT.climbRate*dt,CRAFT.minAlt,CRAFT.maxAlt);
+  floorClock-=dt;if(floorClock<=0){o.floor=orbitFloor(o.want,o.radius);floorClock=.25;}
+  o.center.lerp(o.want,1-Math.exp(-1.1*dt));
+  const alt=Math.min(CRAFT.maxAlt,Math.max(o.wantAlt,o.floor));
+  // Climb out of trouble quickly, settle down gently.
+  o.alt+=(alt-o.alt)*(1-Math.exp(-(alt>o.alt?1.6:.6)*dt));
+  o.angle-=CRAFT.orbitSpeed/o.radius*dt;
+  prev.copy(state.pos);place(o);
+  state.vel.subVectors(state.pos,prev).divideScalar(Math.max(dt,1e-4));
+  const h=headingFromAngle(o);let d=h-state.heading;d=Math.atan2(Math.sin(d),Math.cos(d));state.heading+=d;
+  state.tilt+=((state.pos.y-prev.y)/Math.max(dt,1e-4)/120-state.tilt)*(1-Math.exp(-3*dt));
+  updateAim();
  }
- function collide(){
-  const r=CRAFT.radius,p=state.pos,v=state.vel;
-  if(p.y<r+2){p.y=r+2;v.y=Math.max(0,v.y);}
-  if(p.y>CEILING){p.y=CEILING;v.y=Math.min(0,v.y);}
-  const flat=Math.hypot(p.x,p.z);
-  if(flat>BOWL_RADIUS){p.x*=BOWL_RADIUS/flat;p.z*=BOWL_RADIUS/flat;const n=tmp.set(p.x,0,p.z).normalize(),out=v.dot(n);if(out>0)v.addScaledVector(n,-out);}
-  // Push out through the nearest face and kill velocity into the wall.
-  for(const c of world.colliders){
-   if(!c.alive||!colliderPush(c,p,r,normal))continue;
-   const into=v.dot(normal);if(into<0)v.addScaledVector(normal,-into);
-  }
+ // The sensor ball on the left flank, stabilised: it neither banks nor pitches with the airframe.
+ function sensorPos(out){
+  fwd.set(-Math.sin(state.heading),0,-Math.cos(state.heading));left.set(fwd.z,0,-fwd.x);
+  return out.copy(state.pos).addScaledVector(left,1.6).addScaledVector(fwd,1.4).add(tmp.set(0,-.4,0));
  }
- const camTarget=new THREE.Vector3(),camWant=new THREE.Vector3(),camDir=new THREE.Vector3();
- function placeCamera(camera,dt){
-  const dir=aimDir().clone(),seat=state.gunCam||state.view==='seat';
-  camera.near=seat?.12:1;
-  if(seat){
-   // The turret hangs on a short pylon under the belly, so the fuselage only shows when you
-   // look up. The view turns with the guns, and the airframe's
-   // bank rocks it a little so the hover is felt from inside.
-   camera.position.copy(state.pos).add(tmp.set(0,CRAFT.seatY,0));
-   const fov=state.gunCam?CRAFT.optics[state.weapon][state.zoom]:CRAFT.seatFov;
-   camera.fov+=(fov-camera.fov)*(dt>0?1-Math.exp(-14*dt):1);
+ const aimDir=()=>tmp.set(-Math.sin(state.aimYaw)*Math.cos(state.aimPitch),Math.sin(state.aimPitch),-Math.cos(state.aimYaw)*Math.cos(state.aimPitch));
+ const camTarget=new THREE.Vector3(),camWant=new THREE.Vector3();
+ function placeCamera(camera,dt,fov){
+  const sensor=state.view==='sensor';
+  camera.near=sensor?1:1;
+  if(sensor){
+   sensorPos(camera.position);
+   camera.fov+=(fov-camera.fov)*(dt>0?1-Math.exp(-10*dt):1);
+   camTarget.copy(camera.position).add(aimDir());camera.up.set(0,1,0);camera.lookAt(camTarget);
   }else{
-   camWant.copy(state.pos).addScaledVector(dir,-CRAFT.chaseBack).add(tmp.set(0,CRAFT.chaseUp,0));
-   // Keep the chase camera out of towers: pull it in along the line to the craft.
-   camDir.subVectors(camWant,state.pos);const len=camDir.length();camDir.divideScalar(len);
-   let hit=len;
-   for(const c of world.colliders)if(c.alive){const t=colliderRay(c,state.pos,camDir,len);if(t<hit)hit=t;}
-   camWant.copy(state.pos).addScaledVector(camDir,Math.max(6,hit-2));
-   if(camWant.y<3)camWant.y=3;
-   camera.position.lerp(camWant,dt>0?1-Math.exp(-10*dt):1);
-   camera.fov+=(CRAFT.chaseFov-camera.fov)*(dt>0?1-Math.exp(-10*dt):1);
+   // Outside: behind and above, off the outer wing, looking along the turn into the orbit.
+   fwd.set(-Math.sin(state.heading),0,-Math.cos(state.heading));left.set(fwd.z,0,-fwd.x);
+   camWant.copy(state.pos).addScaledVector(fwd,-CRAFT.chaseBack).addScaledVector(left,-22).add(tmp.set(0,CRAFT.chaseUp,0));
+   camera.position.lerp(camWant,dt>0?1-Math.exp(-6*dt):1);
+   camera.fov+=(CRAFT.chaseFov-camera.fov)*(dt>0?1-Math.exp(-8*dt):1);
+   camTarget.copy(state.pos).addScaledVector(fwd,40).addScaledVector(left,70).add(tmp.set(0,-45,0));
+   camera.up.set(0,1,0);camera.lookAt(camTarget);
   }
   camera.updateProjectionMatrix();
-  camTarget.copy(camera.position).addScaledVector(dir,100);
-  camera.lookAt(camTarget);
-  if(seat&&!state.gunCam)camera.rotateZ(state.bank*.35);
  }
  let lastTime=0,spin=0,propSpin=0;
  function syncModel(time){
   const dt=Math.min(.05,Math.max(0,time-lastTime));lastTime=time;
   group.position.copy(state.pos);
   group.rotation.set(state.tilt,state.heading,state.bank,'YXZ');
-  // From the seat the belly, wings and fans hang overhead; the optics hide them.
-  group.visible=!state.gunCam;
-  turret.turret.visible=state.view!=='seat';
-  turret.yaw.rotation.y=state.aimYaw-state.heading;turret.pitch.rotation.x=state.aimPitch;
+  // From the sensor you don't see your own aircraft, as on the gunship's feed.
+  group.visible=state.view!=='sensor';
   if(!kit)return;
-  // The fans work harder climbing and ease off dropping; the nozzles swing to push you along.
-  const speed=Math.hypot(state.vel.x,state.vel.z)/CRAFT.maxSpeed,effort=THREE.MathUtils.clamp(.55+state.lift*.45+speed*.2,.2,1.2);
-  spin+=dt*(22+effort*26);propSpin+=dt*(18+speed*30);
+  const effort=THREE.MathUtils.clamp(.55+state.lift*.45,.2,1.2);
+  spin+=dt*(22+effort*26);propSpin+=dt*40;
   kit.rotors.forEach((r,i)=>r.rotation.y=i?spin:-spin);
   kit.props.forEach((p,i)=>p.rotation.z=i?propSpin:-propSpin);
   const flicker=.9+.1*Math.sin(time*37);
   kit.glows.forEach(g=>g.material.opacity=(.14+effort*.26)*flicker);
-  const swing=-.62*state.thrust;
-  kit.nozzles.forEach(n=>n.rotation.x+=(swing-n.rotation.x)*(1-Math.exp(-6*dt)));
+  kit.nozzles.forEach(n=>n.rotation.x+=(-.3-n.rotation.x)*(1-Math.exp(-4*dt)));
  }
- return {state,model,step,placeCamera,syncModel,startOrbit,aimDir:()=>aimDir().clone(),
-  // Gun tips in the turret, left and right in turn, so tracers leave the barrels you see.
-  muzzle(out){
-   const dir=aimDir(),side=(state.barrel=1-state.barrel)?1:-1;
-   right.set(-dir.z,0,dir.x).normalize();
-   return out.copy(state.pos).add(push.set(0,CRAFT.seatY-.38,0)).addScaledVector(dir,1.7).addScaledVector(right,side*.5);
+ function setOrbit({center,radius=CRAFT.radius,alt=CRAFT.startAlt,angle=0}){
+  const o=state.orbit;o.center.set(center[0],0,center[1]);o.want.copy(o.center);o.radius=radius;
+  o.floor=orbitFloor(o.center,radius);o.alt=o.wantAlt=Math.max(alt,o.floor);o.angle=angle;
+  place(o);state.heading=headingFromAngle(o);state.vel.set(0,0,0);
+  state.look.yaw=0;state.look.pitch=-Math.atan2(o.alt,o.radius);updateAim();
+ }
+ setOrbit({center:S.center,angle:S.angle});
+ return {state,model,step,placeCamera,syncModel,setOrbit,lookAt,sensorPos,aimDir:()=>aimDir().clone(),
+  // O: circle the point under the reticle.
+  orbitAt(point){state.orbit.want.set(point.x,0,point.z);floorClock=0;},
+  // Mouse: slew the sensor, held inside the gimbal.
+  slew(dx,dy){
+   state.look.yaw=THREE.MathUtils.clamp(state.look.yaw-dx,-CRAFT.gimbalYaw,CRAFT.gimbalYaw);
+   state.look.pitch=THREE.MathUtils.clamp(state.look.pitch-dy,CRAFT.pitchMin,CRAFT.pitchMax);updateAim();
   },
-  reset(){state.pos.set(0,70,560);state.vel.set(0,0,0);state.heading=state.aimYaw=0;state.aimPitch=-.02;state.hull=100;state.gunCam=false;state.orbit=null;}};
+  // Rounds leave the side guns; the sensor ball is close enough that aim and fire agree.
+  muzzle(out,weapon){
+   sensorPos(out);fwd.set(-Math.sin(state.heading),0,-Math.cos(state.heading));
+   return out.addScaledVector(fwd,[-2.2,-1,1.6][weapon]??0).add(tmp.set(0,-.6,0));
+  },
+  reset(){state.hull=100;state.view='sensor';state.zoom=false;setOrbit({center:S.center,angle:S.angle});}};
 }

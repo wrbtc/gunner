@@ -11,7 +11,11 @@ export const AIRFRAME=Object.freeze({
  spinners:Object.freeze([[-4.804,3.068,-6.087],[4.826,3.034,-6.089]]),
  // Mid-plane of each outer wing, where the lift fans are cut in, and the tail boom ends.
  fans:Object.freeze([[-9.6,3.44,-1.12],[9.6,3.44,-1.12]]),
- nozzles:Object.freeze([[-4.8,2.3,9.1],[4.8,2.3,9.1]])
+ nozzles:Object.freeze([[-4.8,2.3,9.1],[4.8,2.3,9.1]]),
+ // Gunship fit on the left flank: [x at the skin, y, z, bore radius, barrel length] for the
+ // 25 mm, 40 mm and 105 mm, and the sensor ball ahead of them.
+ guns:Object.freeze([[-1.7,1.4,-7.2,.12,2.2],[-2.1,1.3,-3.4,.17,2.6],[-2.2,1.1,1.4,.26,3.2]]),
+ sensor:Object.freeze([-1.9,1.0,-8.8])
 });
 
 function hexSha256(bytes){

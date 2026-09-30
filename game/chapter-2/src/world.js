@@ -5,7 +5,8 @@ import {mergeGeometries} from '../../vendor/BufferGeometryUtils.js?v=052';
 // tall kneeling on one knee, hewn out of the north cliff. Round 2 blocks the figure out at
 // full scale from rough-cut stone; round 4 carves it properly. The creatures' own works
 // (bridges, towers, balconies) are timber brown, so they read apart from the carving.
-// Units are metres, north is -Z, and the Warden faces south toward the city.
+// Units are metres at real scale: columns 11 m, creatures 5 to 6.5 m, the Satoshi a 15 m span.
+// North is -Z, and the Warden faces south toward the city.
 export const BOWL_RADIUS=1000,CEILING=900,WARDEN=Object.freeze({x:0,z:-700});
 export const LEVELS=Object.freeze([
  {name:'Feet galleries',y:80},{name:'Knee bridges',y:308},{name:'Chest halls',y:400},
@@ -177,7 +178,7 @@ export function createWorld(scene){
  // Legs. Left leg raised with the foot planted forward; the right knee down on the plinth.
  block([45,80,70],[125,112,190]);                                       // left foot
  hewn(at(85,108,120),at(85,285,112),[56,60],[64,66],{sides:8});          // left shin
- block([48,278,78],[122,300,160]);                                      // left knee: the bridge rests on it
+ block([48,278,78],[122,304,160]);                                      // left knee: the bridge rests on it
  hewn(at(85,280,105),at(78,262,-40),[70,70],[88,84],{sides:8});          // left thigh
  block([-122,80,40],[-48,128,110]);                                     // right knee on the ground
  hewn(at(-85,104,55),at(-85,100,-120),[54,46],[44,40],{sides:8});        // right shin, lying back
@@ -187,7 +188,7 @@ export function createWorld(scene){
  // Chest, with the halls cut across its front between a floor at 400 and a roof at 440.
  block([-135,390,-95],[135,500,0]);block([-135,390,0],[135,400,42]);block([-135,440,0],[135,500,42]);
  block([-135,400,0],[-125,440,42]);block([125,400,0],[135,440,42]);
- for(let x=-105;x<=105;x+=30)glowSlit(5,8,x,424,.9);
+ for(let x=-105;x<=105;x+=15)glowSlit(2,3,x,420,.9);
  block([-172,478,-92],[172,512,10]);                                    // shoulders
  for(const side of [-1,1]){
   hewn(at(side*158,492,-35),at(side*182,398,70),[62,62],[52,52],{sides:8});// upper arm
@@ -213,15 +214,15 @@ export function createWorld(scene){
 
  // Their works: a bridge across the knees on posts and a scaffold, balconies round two towers.
  const builtOpts={group:'built',tint:BUILT,rough:1};
- block([-182,300,142],[128,308,204],builtOpts);                        // knee bridge deck
- block([-190,80,142],[-150,300,180],builtOpts);                        // scaffold under its west end
- for(const x of [-110,-40,36])block([x-3,80,150],[x+3,300,156],builtOpts);
+ block([-182,304,142],[128,308,204],builtOpts);                        // knee bridge deck
+ block([-180,80,150],[-160,304,172],builtOpts);                        // scaffold under its west end
+ for(const x of [-110,-40,36])block([x-1,80,152],[x+1,304,154],builtOpts);
  for(const side of [-1,1]){
   const x=side*150;
   hewn(at(x,512,-40),at(x,600,-40),[34,34],[28,28],{...builtOpts,segments:2});// shoulder tower
   hewn(at(x,600,-40),at(x,634,-40),[30,30],[4,4],{...builtOpts,segments:1,collide:1});
-  block([x-44,532,-84],[x+44,540,4],builtOpts);                          // balcony
-  for(const y of [560,584]){const r=17.6-3*(y-512)/88;for(const [dx,dz,ry] of [[0,r,0],[0,-r,Math.PI],[r,0,Math.PI/2],[-r,0,-Math.PI/2]])glowSlit(4,7,x+dx,y,-40+dz,ry);}
+  block([x-44,537,-84],[x+44,540,4],builtOpts);                          // balcony
+  for(const y of [552,568,584]){const r=17.6-3*(y-512)/88;for(const [dx,dz,ry] of [[0,r,0],[0,-r,Math.PI],[r,0,Math.PI/2],[-r,0,-Math.PI/2]])glowSlit(2.2,3.6,x+dx,y,-40+dz,ry);}
  }
 
  // Ledges: where creatures stand. Pillars along each front edge give them cover; `normal`
@@ -230,15 +231,20 @@ export function createWorld(scene){
  const pillars=[];
  const pillar=(x,y,z,nx,nz,level,inward=10)=>{
   const pos=at(x,y,z);
-  pillars.push({pos,level,inward,normal:new THREE.Vector3(nx,0,nz).normalize(),hp:260,collider:addCollider([pos.x-4,y,pos.z-4],[pos.x+4,y+22,pos.z+4],'pillar')});
+  pillars.push({pos,level,inward,normal:new THREE.Vector3(nx,0,nz).normalize(),hp:260,collider:addCollider([pos.x-1.9,y,pos.z-1.9],[pos.x+1.9,y+11,pos.z+1.9],'pillar')});
  };
- for(let x=-195;x<=195;x+=39)if(x<40||x>130)pillar(x,80,196,0,1,0);// none in front of the planted foot
- for(const side of [-1,1])for(let z=-110;z<=110;z+=55)pillar(side*200,80,z,side,0,0);
- for(let x=-172;x<=118;x+=32)pillar(x,308,194,0,1,1,4);// the cross guard stands just behind
- for(let x=-105;x<=105;x+=30)pillar(x,400,30,0,1,2);
- for(const side of [-1,1])for(const [dx,dz] of [[-1,-1],[0,-1],[1,-1],[1,0],[1,1],[0,1],[-1,1],[-1,0]])pillar(side*150+dx*36,540,-40+dz*36,dx,dz,3);
- for(let i=0;i<6;i++){const t=i/6*Math.PI*2;pillar(Math.sin(t)*24,612,-32+Math.cos(t)*24,Math.sin(t),Math.cos(t),4);}
- const pillarMesh=new THREE.InstancedMesh(new THREE.CylinderGeometry(4,4.6,22,10).translate(0,11,0),materials.pillar,pillars.length);
+ // Colonnades: 11 m columns about 16 to 22 m apart, the scale that makes the statue read as huge.
+ for(let x=-195;x<=195;x+=20)if(x<42||x>128)pillar(x,80,196,0,1,0);// none in front of the planted foot
+ for(const side of [-1,1])for(let z=-110;z<=110;z+=22)pillar(side*200,80,z,side,0,0);
+ for(let x=-172;x<=118;x+=16)pillar(x,308,194,0,1,1,4);// the cross guard stands just behind
+ for(let i=0;i<=14;i++)pillar(-110+i*220/14,400,30,0,1,2);
+ const ring=[[-36,-36],[-12,-36],[12,-36],[36,-36],[36,-12],[36,12],[36,36],[12,36],[-12,36],[-36,36],[-36,12],[-36,-12]];
+ for(const side of [-1,1])for(const [dx,dz] of ring){
+  const corner=Math.abs(dx)===36&&Math.abs(dz)===36;
+  pillar(side*150+dx,540,-40+dz,corner||Math.abs(dx)===36?Math.sign(dx):0,corner||Math.abs(dz)===36?Math.sign(dz):0,3);
+ }
+ for(let i=0;i<8;i++){const t=i/8*Math.PI*2;pillar(Math.sin(t)*24,612,-32+Math.cos(t)*24,Math.sin(t),Math.cos(t),4);}
+ const pillarMesh=new THREE.InstancedMesh(new THREE.CylinderGeometry(1.6,1.9,11,10).translate(0,5.5,0),materials.pillar,pillars.length);
  const pillarMatrix=i=>{const pl=pillars[i];p.copy(pl.pos);q.identity();s.setScalar(pl.hp>0?1:0);return m.compose(p,q,s);};
  pillars.forEach((_,i)=>pillarMesh.setMatrixAt(i,pillarMatrix(i)));
  pillarMesh.name='Cover pillars';
@@ -256,20 +262,23 @@ export function createWorld(scene){
  const lamps=new THREE.Mesh(mergeGeometries(ember),materials.ember);lamps.name='Lit openings';
  root.add(warden,works,seal,lamps,pillarMesh,pitFloor,column);
 
- const pit={open:false,
+ const pit={open:false,meshes:[pitFloor,column],
   // The finish: down inside the notch, below the cliff top.
   region:{min:at(-70,0,-300),max:at(70,560,-150)},
   setOpen(on){
    pit.open=on;seal.visible=!on;pitFloor.visible=on;column.visible=on;
    sealColliders.forEach(c=>c.alive=!on);
   },
-  contains(pt){return pit.open&&pointInBox(pt,pit.region.min,pit.region.max);},
+  // A shell that bursts on the shaft's rim still counts.
+  contains(pt){return pit.open&&pointInBox(pt,pit.region.min,pit.region.max,12);},
   update(time){if(column.visible)materials.glow.opacity=.16+.07*Math.sin(time*2.4);}
  };
 
  root.traverse(o=>o.layers.set(WORLD_LAYER));
  return {
   root,colliders,pillars,rooftops,towers,materials,pit,
+  // Things that give off light: the thermal sensor shows them burning white, not as stone.
+  glowing:[crackMesh,lamps,pitFloor,column],
   damagePillar(index,amount){
    const pl=pillars[index];if(!pl||pl.hp<=0)return false;
    pl.hp-=amount;if(pl.hp>0)return false;

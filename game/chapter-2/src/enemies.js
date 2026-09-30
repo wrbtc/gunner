@@ -1,19 +1,18 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
-import {rng,colliderRay,LEVELS} from './world.js?v=ch2-04';
+import {rng,colliderRay,LEVELS} from './world.js?v=ch2-05';
+import {FX_LAYER} from './combat.js?v=ch2-05';
 
 export const ENEMY_LAYER=2;
-// Only a few attack at once, and never on the same beat: dodging stays readable.
+// Only a few attack at once, and never on the same beat, so the fire coming up stays readable.
 const MAX_ATTACKERS=3,ATTACK_GAP=.45;
-// A level wakes when you fly within this height of it, so the climb comes at you a floor at a time.
-const WAKE_BAND=230;
 // Creatures per Warden level, feet to crown, and on city rooftops.
 const PER_LEVEL=[10,7,7,8,5],ROOFTOPS=8;
-// Stand-ins for round 1. Hurlers hide behind a pillar, step out, wind up and throw rubble in
-// a slow arc you can dodge. Lamplighters glow for a second, then fire a fast bolt at where you
-// are, so moving is the defence. Both heads glow before an attack: that is the tell.
+// Stand-ins. Hurlers (5 m) hide behind a column, step out, wind up and lob rubble at the
+// gunship; Lamplighters (6.5 m) glow for a second, then fire a fast bolt at it. Both heads
+// glow before an attack, and through thermal that glow flashes white: that is the tell.
 const TYPES={
- hurler:{hp:55,radius:4.2,height:9,range:460,windup:1.1,cover:[2.4,4.6]},
- lamplighter:{hp:40,radius:3.6,height:12,range:620,windup:1.0,cover:[2.2,3.8]}
+ hurler:{hp:55,radius:2.2,height:5,range:700,windup:1.1,cover:[2.4,4.6]},
+ lamplighter:{hp:40,radius:1.9,height:6.5,range:1000,windup:1.0,cover:[2.2,3.8]}
 };
 const HEAD_IDLE={hurler:new THREE.Color(0x8a2f14),lamplighter:new THREE.Color(0xc9b46a)};
 const HEAD_HOT={hurler:new THREE.Color(0xff6a1a),lamplighter:new THREE.Color(0xfffbe8)};
@@ -31,14 +30,16 @@ export function createEnemies(scene,world,combat){
  world.rooftops.filter(r=>r.z<420&&Math.abs(r.x)<520).sort(()=>random()-.5).slice(0,ROOFTOPS).forEach((r,i)=>add(i%3?'hurler':'lamplighter',r,-1,-1));
 
  const count=list.length,geo={
-  hurler:new THREE.CylinderGeometry(1.5,2.3,9,8).translate(0,4.5,0),
-  lamplighter:new THREE.CylinderGeometry(.5,1.4,12,6).translate(0,6,0),
+  hurler:new THREE.CylinderGeometry(.8,1.25,5,8).translate(0,2.5,0),
+  lamplighter:new THREE.CylinderGeometry(.28,.75,6.5,6).translate(0,3.25,0),
   head:new THREE.SphereGeometry(1,12,8)
  };
  const bodyMat=new THREE.MeshLambertMaterial({color:0x3d2a24}),headMat=new THREE.MeshBasicMaterial({color:0xffffff});
  const bodies={hurler:new THREE.InstancedMesh(geo.hurler,bodyMat,count),lamplighter:new THREE.InstancedMesh(geo.lamplighter,bodyMat,count)};
  const heads=new THREE.InstancedMesh(geo.head,headMat,count);
  for(const m of [bodies.hurler,bodies.lamplighter,heads]){m.layers.set(ENEMY_LAYER);m.frustumCulled=false;scene.add(m);}
+ // Heads draw in the effects pass, which thermal leaves in colour, so a winding-up head shows hot.
+ heads.layers.set(FX_LAYER);
  bodies.hurler.name='Hurlers (stand-in)';bodies.lamplighter.name='Lamplighters (stand-in)';heads.name='Creature heads';
  const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e3=new THREE.Euler(),s3=new THREE.Vector3(),zero=new THREE.Matrix4().makeScale(0,0,0),color=new THREE.Color();
  const tmp=new THREE.Vector3(),away=new THREE.Vector3(),dir=new THREE.Vector3(),head=new THREE.Vector3();
@@ -47,16 +48,16 @@ export function createEnemies(scene,world,combat){
  let kills={hurler:0,lamplighter:0},attackGap=0;
 
  function center(e,out){return out.copy(e.pos).setY(e.pos.y+e.height*.6);}
- function headPos(e,out){return out.copy(e.pos).setY(e.pos.y+e.height+1.2);}
+ function headPos(e,out){return out.copy(e.pos).setY(e.pos.y+e.height+.7);}
  // Cover is the far side of the pillar from the craft; out is a step to the side of it.
  function plan(e,craftPos){
   if(e.anchor<0||world.pillars[e.anchor].hp<=0){
    e.hide.copy(e.home).setY(e.home.y-(e.anchor<0?e.height*.8:0));e.out.copy(e.home);return;
   }
   away.subVectors(e.home,craftPos).setY(0);if(away.lengthSq()<1)away.set(0,0,-1);away.normalize();
-  e.hide.copy(e.home).addScaledVector(away,6.5);onLedge(e.hide,e);
+  e.hide.copy(e.home).addScaledVector(away,3.5);onLedge(e.hide,e);
   const side=(e.index%2?1:-1);
-  e.out.copy(e.home).add(tmp.set(-away.z*side,0,away.x*side).multiplyScalar(7.5));onLedge(e.out,e);
+  e.out.copy(e.home).add(tmp.set(-away.z*side,0,away.x*side).multiplyScalar(4.5));onLedge(e.out,e);
  }
  function canSee(e,craftPos){
   headPos(e,head);dir.subVectors(craftPos,head);const len=dir.length();dir.divideScalar(len);
@@ -72,7 +73,9 @@ export function createEnemies(scene,world,combat){
    dir.subVectors(tmp,head).divideScalar(flight);dir.y+=.5*30*flight;
    combat.throwRock(head,dir);
   }else{
-   dir.subVectors(target,head).normalize().multiplyScalar(230);
+   // Half the lead: a gunship holding its orbit gets grazed, one that moves gets missed.
+   tmp.copy(target).addScaledVector(craft.state.vel,head.distanceTo(target)/320*.5);
+   dir.subVectors(tmp,head).normalize().multiplyScalar(320);
    combat.fireBolt(head,dir);
   }
  }
@@ -83,7 +86,7 @@ export function createEnemies(scene,world,combat){
   for(const e of list){
    if(!e.alive)continue;
    e.timer-=dt;e.hitFlash=Math.max(0,e.hitFlash-dt*5);
-   const inRange=e.home.distanceTo(craftPos)<e.range&&Math.abs(craftPos.y-e.home.y)<WAKE_BAND;
+   const inRange=e.home.distanceTo(craftPos)<e.range;
    if(e.state==='cover'){
     plan(e,craftPos);e.pos.lerp(e.hide,1-Math.exp(-5*dt));e.glow=Math.max(0,e.glow-dt*3);
     if(e.timer<=0){
@@ -111,7 +114,7 @@ export function createEnemies(scene,world,combat){
    const face=craftPos?Math.atan2(craftPos.x-e.pos.x,craftPos.z-e.pos.z):0;
    e3.set(-e.lean*.35,face,0);q.setFromEuler(e3);
    body.setMatrixAt(e.index,m4.compose(e.pos,q,s3.setScalar(1)));
-   headPos(e,head);heads.setMatrixAt(e.index,m4.compose(head,q,s3.setScalar(e.type==='hurler'?1.5:1.9+e.glow*.9)));
+   headPos(e,head);heads.setMatrixAt(e.index,m4.compose(head,q,s3.setScalar(e.type==='hurler'?.8:1+e.glow*.5)));
    color.copy(HEAD_IDLE[e.type]).lerp(HEAD_HOT[e.type],e.glow);if(e.hitFlash)color.lerp(new THREE.Color(1,1,1),e.hitFlash);
    heads.setColorAt(e.index,color);
   }
@@ -120,7 +123,7 @@ export function createEnemies(scene,world,combat){
  }
  function damage(e,amount){
   if(!e||!e.alive)return;e.hp-=amount;e.hitFlash=1;
-  if(e.hp<=0){e.alive=false;kills[e.type]++;combat.blast(center(e,tmp),9,.55);}
+  if(e.hp<=0){e.alive=false;kills[e.type]++;combat.blast(center(e,tmp),5,.55);}
  }
  sync(null);
  return {list,center,update,damage,
