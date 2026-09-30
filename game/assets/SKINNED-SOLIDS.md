@@ -9,7 +9,7 @@ Expected binaries next to this note:
 
 | Path | Bytes | sha256 |
 | --- | ---: | --- |
-| `game/assets/rimmer-skinned-solid.glb` | 1153368 | `1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456` |
+| `game/assets/rimmer-skinned-solid.glb` | 1153368 | `1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456` | (retired and removed in v0.54.97; superseded by rimmer-meshy-v2-rigged)
 | `game/assets/plasma-bug-skinned-solid.glb` | 1135104 | `127e6fdc95d775413b4831544a780118033559abc4b8f8a1e357ab25108fc67f` |
 | `game/assets/creeper-ember-hollow.glb` | 1091768 | `25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe` |
 | `game/assets/dragon-fg-a.glb` | 3507348 | `147cd4e06246c023242d89416f8a684a6bb7b7a31f98964bef43fa7527000e0f` |

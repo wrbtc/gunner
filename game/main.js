@@ -128,6 +128,8 @@ const rng = new Rng(),fxRng=new Rng(0xa11ce),ejectionRng=new Rng(0xb12a55);
 startupMark('renderer','begin');
 const renderer = new THREE.WebGLRenderer({ canvas: dom.canvas, antialias: false, powerPreference: 'high-performance', failIfMajorPerformanceCaveat: false });
 const scratchPresentationView = new THREE.Vector3();
+// Reused by the per-frame tracer projection (was two clones per bullet per frame).
+const tracerHead=new THREE.Vector3(),tracerTail=new THREE.Vector3();
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1));
 renderer.setSize(innerWidth, innerHeight, false);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -910,14 +912,17 @@ function resolveHostile(h,reason,position){
   if(h.owner&&!h.rock){h.owner.commitment=false;if(!h.owner.dead){h.owner.state='cooldown';h.owner.timer=2.4;}if(h.owner.throat)clearEnemyTell(h.owner);}
   logEvent('hostile-resolved',{source:h.owner?.id||null,reason,position:position.toArray()});
 }
+// Scratch for the per-step hostile sweep: every value is used within one iteration.
+const HOSTILE_EMBER=new THREE.Color(0xff421c),HOSTILE_EMBER_LIFT=new THREE.Vector3(0,.5,0),ORIGIN=new THREE.Vector3();
+const hostileMove=new THREE.Vector3(),hostileRelStart=new THREE.Vector3(),hostileRelEnd=new THREE.Vector3(),hostileRelMove=new THREE.Vector3(),hostileRelDir=new THREE.Vector3();
 function updateHostiles(dt){
   for(const h of hostile){if(!h.active)continue;h.life-=dt;h.prev.copy(h.pos);h.pos.addScaledVector(h.vel,dt);
-    if(!h.heavy&&!h.rock&&!h.spike){h.vel.y+=Math.sin(game.time*9)*.015;particles.emit(h.pos,new THREE.Color(0xff421c),new THREE.Vector3(0,.5,0),.22);}else h.vel.y-=4.5*dt;
-    const movement=h.pos.clone().sub(h.prev),length=movement.length(),direction=movement.normalize();
+    if(!h.heavy&&!h.rock&&!h.spike){h.vel.y+=Math.sin(game.time*9)*.015;particles.emit(h.pos,HOSTILE_EMBER,HOSTILE_EMBER_LIFT,.22);}else h.vel.y-=4.5*dt;
+    const movement=hostileMove.copy(h.pos).sub(h.prev),length=movement.length(),direction=movement.normalize();
     const terrain=traceTerrain(h.prev,direction,length);
     // Sweep relative to the moving turret; small fast stones cannot tunnel.
-    const eye=getAimOrigin(),relativeStart=h.prev.clone().sub(eye.clone().addScaledVector(planeVel,-dt)),relativeEnd=h.pos.clone().sub(eye),relativeMove=relativeEnd.clone().sub(relativeStart),relativeLength=relativeMove.length();
-    const glassDistance=(h.rock||h.spike||h.queenBomb)?raySphereDistance(relativeStart,relativeMove.clone().normalize(),new THREE.Vector3(),2.75+h.radius,relativeLength):null;
+    const eye=getAimOrigin(),relativeStart=hostileRelStart.copy(eye).addScaledVector(planeVel,-dt).negate().add(h.prev),relativeEnd=hostileRelEnd.copy(h.pos).sub(eye),relativeMove=hostileRelMove.copy(relativeEnd).sub(relativeStart),relativeLength=relativeMove.length();
+    const glassDistance=(h.rock||h.spike||h.queenBomb)?raySphereDistance(relativeStart,hostileRelDir.copy(relativeMove).normalize(),ORIGIN,2.75+h.radius,relativeLength):null;
     const hullDistance=(h.rock||h.spike||h.queenBomb)?(glassDistance===null?null:glassDistance/relativeLength*length):raySphereDistance(h.prev,direction,planePos,h.radius+4.2,length);
     if(terrain&&(hullDistance===null||terrain.distance<=hullDistance)){
       h.pos.copy(terrain.point);resolveHostile(h,'terrain',h.pos);explode(h.pos,h.heavy?8:4);continue;
@@ -1148,7 +1153,9 @@ function updateUI(now=performance.now(),force=false){
   if(queen?.quiet&&!queen.cleared){const qs=queen.stats();status=qs.phase==='combat'?(qs.reloading?'<b>QUEEN RELOADING.</b> DESTROY THE RED TENTACLE TIPS.':'<b>HOVER LOCK.</b> HIT THE RED TIPS. SHOOT DOWN INCOMING FIRE.'):'<b>WEAPONS LOCKED.</b> THE QUEEN IS AHEAD.';dom.distance.textContent=qs.hover?'HOVER LOCK':'QUEEN NESTING GROUND';}
   if(queen?.cleared)status='<b>THE QUEEN IS DOWN.</b> THE PILOT HAS THE EXIT.';
   if(game.time<runReview.cueUntil&&runReview.repair&&queen?.quiet&&!queen.cleared)status='<b>EMERGENCY PATCH.</b> HULL RESTORED TO 60 FOR THE FINAL FIGHT.';
-  const guidance=selectFlightGuidance({time:game.time,opening:game.opening,urgent:threats.length>0,feedback:feedbackText,status,criticalStatus:!!queen?.quiet||!!queen?.cleared||exit.active});
+  if(game.aimUnlocked)status='<b>CLICK TO AIM.</b> CLICK THE VIEW TO TAKE THE GUNS BACK.';
+  if(game.halted)status='<b>WORLD HALTED.</b> PRESS P TO RESUME. MOVE THE MOUSE TO LOOK AROUND.';
+  const guidance=selectFlightGuidance({time:game.time,opening:game.opening,urgent:threats.length>0,feedback:feedbackText,status,criticalStatus:game.halted||game.aimUnlocked||!!queen?.quiet||!!queen?.cleared||exit.active});
   $('#flightLesson').textContent=guidance.lesson;$('#combatFeedback').textContent=guidance.feedback;
   if(guidance.status!==uiCache.status){dom.status.innerHTML=guidance.status;uiCache.status=guidance.status;}
 }
@@ -1228,7 +1235,7 @@ function render(now){
   lava.userData.lavaMaterial.uniforms.uTime.value=visualTime;heatMaterial.uniforms.uTime.value=visualTime;heatMaterial.uniforms.uStrength.value=reducedMotion.matches?0:.0018;atmosphereMaterials.forEach(m=>{m.uniforms.uTime.value=visualTime;m.uniforms.uReduced.value=0;});for(const b of atmosphereBatches){b.points.geometry.setDrawRange(0,b.count);b.points.visible=b.count>0;}
   for(const plume of ventPlumes){const rise=(visualTime*plume.speed+plume.phase)%20;plume.sprite.position.copy(plume.origin);plume.sprite.position.y+=rise;plume.sprite.position.x+=Math.sin(visualTime*.4+plume.phase)*2;const swell=1+rise*.045;plume.sprite.scale.setScalar((9+plume.phase*.22)*swell);plume.sprite.material.opacity=.075+Math.sin(Math.PI*rise/20)*.14;}
   if(!exteriorView){camera.position.x=reducedOpening()?0:Math.sin(time*101)*game.shake*.4;camera.position.y=reducedOpening()?0:Math.sin(time*137+1)*game.shake*.3;}camera.updateWorldMatrix(true,false);rimmers?.render();
-  for(const b of bullets){if(!b.active||!b.mesh.visible)continue;const head=b.end.clone().project(camera),tail=b.start.clone().project(camera),angle=Math.atan2(head.y-tail.y,head.x-tail.x);b.mesh.material.rotation=angle-Math.PI/2;}
+  for(const b of bullets){if(!b.active||!b.mesh.visible)continue;const head=tracerHead.copy(b.end).project(camera),tail=tracerTail.copy(b.start).project(camera),angle=Math.atan2(head.y-tail.y,head.x-tail.x);b.mesh.material.rotation=angle-Math.PI/2;}
   }
   emitHook('update',{time,dt:game.running&&!game.paused&&!game.ended&&!game.captureFreeze?dt:0,planePos,camera,paused:game.paused||game.captureFreeze});updateUI(now);
   if(!game.contextLost&&!graphicsPreparation&&loadingSnapshot().status!=='failed'){
@@ -1255,6 +1262,7 @@ function render(now){
 
 function reset(){
   actorPoseTime=-1;
+  if(game.halted){game.halted=false;game.captureFreeze=false;}game.aimUnlocked=false;
   pilot?.reset();
   queenSampleCues.stop();
   lastQueenPhase='dormant';
@@ -1303,7 +1311,16 @@ function start({skipOpening=false,legacyRoute=false}={}){
   if(skipOpening){dom.hud.classList.add('visible');updatePlane(0);logEvent('run-start');}
   else{game.opening=true;dom.opening.hidden=false;dom.hud.classList.remove('visible');updatePlane(0);updateOpeningPresentation();logEvent('opening-start');}
 }
-function pause(){if((!game.running&&!endingFlight?.active)||game.paused)return;game.paused=true;game.accumulator=0;game.gunHeld=false;audio.pause();if(!queen?.cinematic)queenSampleCues.pause();menuMusic?.setActive(true);dom.pause.hidden=false;$('#pauseEyebrow').textContent='FLIGHT SUSPENDED';$('#pauseTitle').textContent='PAUSED';$('#pauseDescription').textContent='The plane and every attack are frozen.';dom.resume.textContent=endingFlight?.active?'CONTINUE THE LAST FLIGHT':game.opening?'CONTINUE THE APPROACH':'RETURN TO THE GUN';document.exitPointerLock?.();dom.resume.focus({preventScroll:true});logEvent('paused');}
+function pause(){if((!game.running&&!endingFlight?.active)||game.paused)return;if(game.halted)toggleHalt();game.paused=true;game.accumulator=0;game.gunHeld=false;audio.pause();if(!queen?.cinematic)queenSampleCues.pause();menuMusic?.setActive(true);dom.pause.hidden=false;$('#pauseEyebrow').textContent='FLIGHT SUSPENDED';$('#pauseTitle').textContent='PAUSED';$('#pauseDescription').textContent='The plane and every attack are frozen.';dom.resume.textContent=endingFlight?.active?'CONTINUE THE LAST FLIGHT':game.opening?'CONTINUE THE APPROACH':'RETURN TO THE GUN';document.exitPointerLock?.();dom.resume.focus({preventScroll:true});logEvent('paused');}
+// P halts the whole world (simulation, creatures, projectiles, lava, sky and sound)
+// while mouse look keeps working, so the player can study the canyon mid-fight.
+function toggleHalt(){
+  if(!game.running||game.opening||game.ended||game.paused||game.contextLost||endingFlight?.active)return;
+  game.halted=!game.halted;game.captureFreeze=game.halted;game.gunHeld=false;game.accumulator=0;
+  if(game.halted){audio.pause();if(!queen?.cinematic)queenSampleCues.pause();}
+  else{audio.start();queenSampleCues.resume();game.lastFrame=performance.now()/1000;}
+  logEvent(game.halted?'halted':'halt-released');updateUI(performance.now(),true);
+}
 function resume(){if(!game.paused||game.contextLost)return;game.paused=false;game.accumulator=0;dom.pause.hidden=true;menuMusic?.setActive(false);audio.start();queenSampleCues.resume();if(!endingFlight?.started&&!QA_MODE)requestPointerCapture();game.lastFrame=performance.now()/1000;logEvent('resumed');}
 const playTracking=createPlayTracking({enabled:false,
   snapshot:()=>({score:Math.max(0,Math.round(game.score)),hull:Math.max(0,Math.min(100,Math.round(game.hull))),eggs:eggNests?.rupturedCount()||0,progress:Math.round(Math.max(0,Math.min(1,currentFlightProgress()))*10000)})});
@@ -1339,8 +1356,8 @@ function showResult(won){
   const mainCause=Object.entries(damageTotals).sort((a,b)=>b[1]-a[1])[0]?.[0];
   const tips={queen:'Focus on one glowing red tip at a time. Fire the cannon as soon as it is ready; shoot incoming projectiles to protect the hull.',tank:'Shoot a Tank while its mouth charges to interrupt the volley. You can also shoot its fireballs out of the air.',rimmer:'Follow the incoming laser to its source. You have three seconds to interrupt the Rimmer.',plasma:'Plasma bugs reward a distant shot. Detonate them before the plane is close to their pressure wave.',creeper:'A few rounds interrupt a Creeper before it throws. Keep firing while you track the next threat.',fireball:'Watch the edge arrows. Destroy incoming fire, then turn back to the next threat.'};
   $('#resultTip').textContent=won?'The brood survives in the eggs you left behind. Fly again, destroy more, and beat your score.':tips[mainCause]||'The pilot flies. You aim and hold fire. Use SPACE for the heavy cannon every three seconds.';
-  $('#runProgress').textContent=won?'CANYON CLEARED':runReview.queenReached?'REACHED THE QUEEN':Math.round(currentFlightProgress()*100)+'% THROUGH THE CANYON';
-  $('#runAccuracy').textContent=runReview.shots?Math.round(runReview.hits/runReview.shots*100)+'% MG HIT RATE':'NO MG SHOTS';
+  $('#runProgress').textContent=won?'CANYON CLEARED':runReview.queenReached?'REACHED THE QUEEN':Math.floor(currentFlightProgress()*100)+'% THROUGH THE CANYON';
+  $('#runAccuracy').textContent=runReview.shots?Math.round(runReview.hits/runReview.shots*100)+'% OF ROUNDS ON TARGET':'NO ROUNDS FIRED';
   $('#ending').hidden=true;dom.result.hidden=false;dom.result.classList.toggle('lost',!won);
   dom.resultTitle.textContent=won?'PLANE HOME':'PLANE LOST';dom.resultOverline.textContent=won?'THE EXIT CLOSED BEHIND YOU':'THE CANYON CLAIMED THE PLANE';
   $('#finalCompletion').textContent=(won?100:Math.floor(currentFlightProgress()*100))+'%';
@@ -1357,15 +1374,18 @@ $('#settingsButton').addEventListener('click',()=>{if(!settingsReady||game.conte
 function closeSettings(){settingsOnly=false;dom.pause.hidden=true;$('#settingsButton').focus();}
 $('#skipQueen').addEventListener('click',()=>queen?.skipCinematic());
 dom.start.addEventListener('click',start);dom.resume.addEventListener('click',()=>settingsOnly?closeSettings():resume());dom.replay.addEventListener('click',()=>start({skipOpening:true}));dom.skipOpening.addEventListener('click',()=>finishOpening(true));
-dom.canvas.addEventListener('mousedown',e=>{if(queen?.canSkipCinematic&&!game.paused&&!game.contextLost&&e.button===0){queen.skipCinematic();return;}if(game.opening){if(e.button===0)finishOpening(true);return;}if(e.button===0&&game.running&&!game.paused&&!game.ended){game.gunHeld=true;if(game.shotClock<=0){fireRound();game.shotClock=1/18;}if(!document.pointerLockElement&&!QA_MODE)requestPointerCapture();}if(e.button===2)fireCannon();});
+dom.canvas.addEventListener('mousedown',e=>{if(queen?.canSkipCinematic&&!game.paused&&!game.contextLost&&e.button===0){queen.skipCinematic();return;}if(game.opening){if(e.button===0)finishOpening(true);return;}if(e.button===0&&game.running&&!game.paused&&!game.ended&&!game.halted){game.gunHeld=true;if(game.shotClock<=0){fireRound();game.shotClock=1/18;}if(!document.pointerLockElement&&!QA_MODE)requestPointerCapture();}if(e.button===2)fireCannon();});
 addEventListener('mouseup',e=>{if(e.button===0)game.gunHeld=false;});dom.canvas.addEventListener('contextmenu',e=>e.preventDefault());
 addEventListener('mousemove',e=>{if(document.pointerLockElement===dom.canvas&&game.running&&!game.opening&&!game.paused&&!game.ended&&!queen?.cinematic){if(e.movementX||e.movementY)cancelQuickTurn();game.yaw-=e.movementX*.00215*preferences.sensitivity;game.pitch=THREE.MathUtils.clamp(game.pitch-e.movementY*.0019*preferences.sensitivity*(preferences.invert?-1:1),-1.38,.95);}});
-addEventListener('keydown',e=>{if(settingsOnly&&e.code==='Escape'){e.preventDefault();closeSettings();return;}if(queen?.canSkipCinematic&&!game.paused&&!game.contextLost&&!e.repeat&&['Enter','Space'].includes(e.code)){e.preventDefault();queen.skipCinematic();return;}if(e.target.closest?.('input,button,form')&&!game.running&&!endingFlight?.active)return;if(endingFlight?.active){if(e.code==='Escape'&&!game.paused){e.preventDefault();pause();}else if(e.code==='Enter'&&!e.repeat&&!game.paused){e.preventDefault();skipEnding();}return;}if(game.opening&&!game.paused&&!game.contextLost&&['Enter','Space','KeyR'].includes(e.code)){e.preventDefault();if(!e.repeat&&e.code!=='KeyR')finishOpening(true);return;}if(e.code==='Space'&&!e.repeat&&game.running&&!game.paused){e.preventDefault();fireCannon();}if(e.code==='KeyR'&&!e.repeat&&game.running&&!game.paused)turnAround();if(e.code==='Escape'&&game.running&&!game.paused)setTimeout(pause,0);});
-document.addEventListener('pointerlockchange',()=>{document.body.classList.toggle('locked',document.pointerLockElement===dom.canvas);if(!document.pointerLockElement&&game.running&&!game.paused&&!game.ended&&!QA_MODE)pause();});
+addEventListener('keydown',e=>{if(settingsOnly&&e.code==='Escape'){e.preventDefault();closeSettings();return;}if(queen?.canSkipCinematic&&!game.paused&&!game.contextLost&&!e.repeat&&['Enter','Space'].includes(e.code)){e.preventDefault();queen.skipCinematic();return;}if(e.target.closest?.('input,button,form')&&!game.running&&!endingFlight?.active)return;if(endingFlight?.active){if(e.code==='Escape'&&!game.paused){e.preventDefault();pause();}else if(e.code==='Enter'&&!e.repeat&&!game.paused){e.preventDefault();skipEnding();}return;}if(game.opening&&!game.paused&&!game.contextLost&&['Enter','Space','KeyR'].includes(e.code)){e.preventDefault();if(!e.repeat&&e.code!=='KeyR')finishOpening(true);return;}if(e.code==='KeyP'&&!e.repeat&&game.running&&!game.paused){e.preventDefault();toggleHalt();return;}if(game.halted&&['Space','KeyR'].includes(e.code)){e.preventDefault();return;}if(e.code==='Space'&&!e.repeat&&game.running&&!game.paused){e.preventDefault();fireCannon();}if(e.code==='KeyR'&&!e.repeat&&game.running&&!game.paused)turnAround();if(e.code==='Escape'&&game.running&&!game.paused)setTimeout(pause,0);});
+document.addEventListener('pointerlockchange',()=>{document.body.classList.toggle('locked',document.pointerLockElement===dom.canvas);if(document.pointerLockElement===dom.canvas)game.aimUnlocked=false;if(!document.pointerLockElement&&game.running&&!game.paused&&!game.ended&&!QA_MODE)pause();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&(game.running||endingFlight?.active)&&!game.paused)pause();});
 addEventListener('blur',()=>{if((game.running||endingFlight?.active)&&!game.paused)pause();});
-function requestPointerCapture(){try{const request=dom.canvas.requestPointerLock?.();if(request?.catch)request.catch(()=>pause());}catch{pause();}}
-document.addEventListener('pointerlockerror',()=>{if(game.running&&!QA_MODE)pause();});
+// A refused lock (Chrome refuses right after Escape) keeps the flight running with a
+// CLICK TO AIM cue; clicking the view requests the lock again.
+function aimLockRefused(){if(game.running&&!game.paused&&!game.ended)game.aimUnlocked=true;}
+function requestPointerCapture(){try{const request=dom.canvas.requestPointerLock?.();if(request?.catch)request.catch(aimLockRefused);}catch{aimLockRefused();}}
+document.addEventListener('pointerlockerror',()=>{if(game.running&&!QA_MODE)aimLockRefused();});
 let graphicsContextGeneration=0,graphicsPreparation=null,recoveryAttempt=null,recoveryTimer;
 function preparationError(message,code='PREPARATION_FAILED'){const error=Error(message);error.code=code;return error;}
 function failFlightPreparation(error){
@@ -1523,7 +1543,7 @@ function qaCoreChecks(){
   return {kind:'diagnostic-core-checks',passed:checks.filter(c=>c.pass).length,total:checks.length,checks};
 }
 const qaApi={
-  version:'0.54.96',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,masterMode:preferences.master,masterUsed:game.masterUsed,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:frameMetrics.counterScope||'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
+  version:'0.54.97',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,masterMode:preferences.master,masterUsed:game.masterUsed,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:frameMetrics.counterScope||'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
   start:()=>start({skipOpening:true,legacyRoute:true}),beginOpening:()=>start(),skipOpening:()=>finishOpening(true),openingState:()=>({active:game.opening,title:game.title,time:game.openingTime,phase:openingPhase,flightProgress:currentFlightProgress(),camera:camera.position.toArray(),quaternion:camera.quaternion.toArray(),fov:camera.fov,fade:Number(dom.openingFade.style.opacity)||0,exterior:bomberExterior?.stats(),cameraPath:openingCamera?.stats()}),seekOpening:(seconds)=>{game.openingTime=THREE.MathUtils.clamp(seconds,0,OPENING_SECONDS);game.captureFreeze=true;updatePlane(0);updateOpeningPresentation();return true;},reset:qaReset,pause,resume,setTime:(seconds)=>{game.time=THREE.MathUtils.clamp(seconds,0,RUN_SECONDS);updatePlane(0);creatureTracking?.seek(game.time);},setView:(yaw,pitch)=>{game.yaw=yaw;game.pitch=THREE.MathUtils.clamp(pitch,-1.38,.95);updatePlane(0);},turnAround,toggleRear:turnAround,fireCannon,fireRound,damage:(amount=6)=>damageHull(amount,planePos),masterMode:(enabled=true)=>setMasterMode(enabled,{persist:false}),explode:()=>explode(planePos.clone().addScaledVector(planeTangent,70),14),preview:setPreview,
   events:()=>game.eventLog.slice(),runtime:gunnerRuntime,trace:qaTrace,replay:qaReplay,checkCore:qaCoreChecks,
   aimAt:(target)=>{const actor=typeof target==='string'?enemies.concat(siege).find(e=>e.id===target):null;qaAimAt(actor?actorCenter(actor):new THREE.Vector3().fromArray(target));},

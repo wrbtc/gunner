@@ -1,10 +1,10 @@
 {
-  "version": "0.54.96",
+  "version": "0.54.97",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
-      "bytes": 3288,
-      "sha256": "0ca1ecefef660df036ccc2ccf6429bcff906b45f3daa188e574b0f73a485473e"
+      "bytes": 3665,
+      "sha256": "e2bbe499b6e580c6a9bc2546bbd4ef5cc2ebc2af2fd2711f557a93191d5f1105"
     },
     {
       "path": "game/assets/CINDER-MAW-PROVENANCE.json",
@@ -13,8 +13,8 @@
     },
     {
       "path": "game/assets/CREEPER-LAVA-LOCO.md",
-      "bytes": 1720,
-      "sha256": "99843365a177e267aa36180a902dc32d32eafef945b99be64fa09b20bee43dfa"
+      "bytes": 1909,
+      "sha256": "d25a003ecd010ff220cc061bbca07fad59d73c244a179180dc4d2a1daf48f397"
     },
     {
       "path": "game/assets/CREEPER-MESHY-LOCO.md",
@@ -33,8 +33,8 @@
     },
     {
       "path": "game/assets/SKINNED-SOLIDS.md",
-      "bytes": 6669,
-      "sha256": "aa3ffaebfed913f5445dece7139a15942b709c54286cbd592f2be402fa3a663d"
+      "bytes": 6741,
+      "sha256": "b0a0b8825da236e8f45a47308326b2b07fcf1c6654eaa21fe903673d13d9d49a"
     },
     {
       "path": "game/assets/audio/KOKORO-CODE-LICENSE.txt",
@@ -50,11 +50,6 @@
       "path": "game/assets/audio/gunner-lose-v05416.mp3",
       "bytes": 1026092,
       "sha256": "f4990a82c92e4944b656ff2ecad3efac1c67f0f712becc43a93fdf74254bbcd6"
-    },
-    {
-      "path": "game/assets/audio/gunner-menu-theme-v05413.mp3",
-      "bytes": 3546268,
-      "sha256": "e9f8ce2215bdac7e7b30f78cefd79dd81c3c4084b2ae99a434c1a535fa845048"
     },
     {
       "path": "game/assets/audio/gunner-menu-theme-v05416.mp3",
@@ -97,19 +92,9 @@
       "sha256": "38edf4d7cd3a0bd34cf1aac9f496347b650a382eefb0738e03e77bec8c3a3e0a"
     },
     {
-      "path": "game/assets/cinder-maw-v02.glb",
-      "bytes": 4449728,
-      "sha256": "216f3d871630f7063ece5dd48f912699a198c01d874c7d2e6aa64fdd011d41c0"
-    },
-    {
       "path": "game/assets/creeper-ember-hollow.glb",
       "bytes": 1091768,
       "sha256": "25a1be82fe3b2ec6784547682e78fe4f64e619df9d91c7e8d8cd128bf7ffdebe"
-    },
-    {
-      "path": "game/assets/creeper-lava-loco-003.glb",
-      "bytes": 9840676,
-      "sha256": "e8140b9486256eaa4b3e8240fb0985b54e46f5930cf108a38963447c47b23de5"
     },
     {
       "path": "game/assets/creeper-meshy-extra.glb",
@@ -232,6 +217,11 @@
       "sha256": "dce9f57242857ebcf84a567a25932278ea1e6454cb3e6aeb2c26bc83a1402d7d"
     },
     {
+      "path": "game/assets/fonts/anton-latin.woff2",
+      "bytes": 12004,
+      "sha256": "23aab0b2692a0c89eb7997d3c7cf5bda41276d6cd4ab6cc0edc3edfcece32b09"
+    },
+    {
       "path": "game/assets/geology/PROVENANCE.json",
       "bytes": 1429,
       "sha256": "f24b534b48366b22fdcee3fdd43238447c628a16f7da52d9d675802cc9e74cb6"
@@ -257,9 +247,9 @@
       "sha256": "7b4f1c178bb7aa2c7f6036017541e64e2f06e9f7c53495c29e90b49f03740d82"
     },
     {
-      "path": "game/assets/gunner-chapter.jpg",
-      "bytes": 243168,
-      "sha256": "eac79b6993bbe6a32f77cf0c61ae3e9bf5f9dd431607c0a5b333cc7768644b52"
+      "path": "game/assets/gunner-hero.jpg",
+      "bytes": 210361,
+      "sha256": "fe0aadf65d6d9005d75f0524cfbfd9fca2d812842edf2ddbf6d38a5bd0c7dbb9"
     },
     {
       "path": "game/assets/gunner-plane.svg",
@@ -307,11 +297,6 @@
       "sha256": "1250e767ff6c24e4e932a0ac75236b32434626b0862e67e2a11ef685e8bcb6e1"
     },
     {
-      "path": "game/assets/rimmer-skinned-solid.glb",
-      "bytes": 1153368,
-      "sha256": "1cc99c3e0c0c0a4116f11bf82b1550b212c6cac1b0582edcff1950f7e115b456"
-    },
-    {
       "path": "game/assets/siege-002.glb",
       "bytes": 396688,
       "sha256": "88d7904d6dd869aa225dc83ca86a8f59dbe81ada83f08469aaf0dcb2a5defbd0"
@@ -323,13 +308,13 @@
     },
     {
       "path": "game/index.html",
-      "bytes": 13333,
-      "sha256": "e8664bcba7093c3b03b38f110a755dd0a35197b72c95100a79fb7644188bcb9a"
+      "bytes": 13439,
+      "sha256": "1a88129ed74773e71b6b9cf6029a7e316bc0037b807c4d641559a0e0a3bd4b2f"
     },
     {
       "path": "game/main.js",
-      "bytes": 163589,
-      "sha256": "fbaf12d62f53f6519b6a67f53f263f8ce8e4a728f912ff0265c070a18757b8de"
+      "bytes": 165682,
+      "sha256": "aecab9f85f1957ca833956e06392f576459efca0d47dea21c9c4a6b9720d9bb0"
     },
     {
       "path": "game/mobile-entry.js",
@@ -408,8 +393,8 @@
     },
     {
       "path": "game/src/cinematic-pass.js",
-      "bytes": 32428,
-      "sha256": "4306e8dd3b7818e57411c2cce5a52f1daf77af650e12619bc0ff523b04c46079"
+      "bytes": 33096,
+      "sha256": "5b42ca9b694bff16d8dee8de41c2b1b2029415db0d913074253055280a352082"
     },
     {
       "path": "game/src/cliff-outcrops.js",
@@ -473,8 +458,8 @@
     },
     {
       "path": "game/src/field-guide-viewer.js",
-      "bytes": 16103,
-      "sha256": "633405cf4b6ecf114c6c69cba91e4b8cdbfb41fda5da2f597d7e6a488daf83b8"
+      "bytes": 16271,
+      "sha256": "6fea07bdb7f5c1a5679d5f29201c66f1d432f5e3c088f48e5d88c8008f6d7549"
     },
     {
       "path": "game/src/guide-models.js",
@@ -498,8 +483,8 @@
     },
     {
       "path": "game/src/hell-world.js",
-      "bytes": 42235,
-      "sha256": "d66770fa6a000668226f789240bcbc2f54c9ee6799ffca63cdf49319b4c1b4c8"
+      "bytes": 42351,
+      "sha256": "8d1a7fba8cf2684528029f5dbae423ef25f14e6107ae5bf93205d0b55aa0fa5c"
     },
     {
       "path": "game/src/high-scores.js",
@@ -538,13 +523,13 @@
     },
     {
       "path": "game/src/mission-rating.js",
-      "bytes": 3910,
-      "sha256": "88d109d19711a6c8c50a4022863229c28a3953446a267bfdbb6f40d0b0c0d795"
+      "bytes": 3906,
+      "sha256": "adb9a2ecd32209e02353db3a750fe9a3a7f7a57f086fdd6d2bcc96d21bc59064"
     },
     {
       "path": "game/src/mission-screen.js",
-      "bytes": 27246,
-      "sha256": "e25e0badb6af65e747a1fcce401bfdac2a4f063fcfa2b2952241bec89dc2a77b"
+      "bytes": 27220,
+      "sha256": "0445142c92587e047dd5df4110070c578933a0e7a6023684ed5956fa47fcfee7"
     },
     {
       "path": "game/src/opening-camera.js",
@@ -638,8 +623,8 @@
     },
     {
       "path": "game/src/rimmers.js",
-      "bytes": 14309,
-      "sha256": "d86ad22c40183ea03400dbd84b3a8be2e1bf673d2e08cb251805f3bc7b78c778"
+      "bytes": 14596,
+      "sha256": "a8f3b8bbf8b2f340b57bd08a50e36e3458a18f213e82ff9f0045c52aacc2f64f"
     },
     {
       "path": "game/src/river-profile.js",
@@ -675,11 +660,6 @@
       "path": "game/src/sliced-iterator-preparation.js",
       "bytes": 2748,
       "sha256": "16ed362b929bb1dfb6878bc3a449c8281b68bb8afac35d6c69da7bae04f37027"
-    },
-    {
-      "path": "game/src/sonar.js",
-      "bytes": 3132,
-      "sha256": "57db10833184077a8a3cdd504f9cbac3539508f41b835625f099ef47b7683352"
     },
     {
       "path": "game/src/sphere-overlap-bound.js",
@@ -723,8 +703,8 @@
     },
     {
       "path": "game/styles.css",
-      "bytes": 58612,
-      "sha256": "669d316763725ab7dd178c8474238de2eb3b71362a8cdb5eafc635f69ecc31c6"
+      "bytes": 70652,
+      "sha256": "0d847bc33d05c6dbc7a42d4d2641f7101af0c6d1f0ed5c2016a145dc81a428a9"
     },
     {
       "path": "game/vendor/BufferGeometryUtils.js",

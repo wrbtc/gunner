@@ -21,8 +21,7 @@
     <p>Please enable JavaScript and open Gunner on a desktop or laptop with a mouse and keyboard. Mobile play is unavailable for now.</p>
   </section></noscript>
   <section id="device-notice" aria-labelledby="device-heading" hidden>
-    <div class="device-brand"><img src="./assets/gunner-plane.svg?v=052" alt="" width="48" height="32">GUNNER</div>
-    <div class="device-rule" aria-hidden="true"></div>
+    <div class="device-brand"><img src="./assets/gunner-plane.svg?v=052" alt="" width="48" height="32">GUNNER · FLIGHT OPS</div>
     <h1 id="device-heading" tabindex="-1">Play on desktop</h1>
     <p>Please open Gunner on a desktop or laptop with a mouse and keyboard.</p>
     <p class="device-detail">Mobile play is unavailable for now.</p>
@@ -34,7 +33,7 @@
   <div id="whiteout" aria-hidden="true"></div>
 
   <main id="intro" class="modal mission-screen mission-poster">
-    <img class="chapter-image" data-src="./assets/gunner-chapter.jpg?v=054-20-c24" alt="Satoshi twin-boom with belly gunner bubble over the lava canyon">
+    <img class="chapter-image" data-src="./assets/gunner-hero.jpg?v=054-98" alt="The Satoshi bomber dives through the burning canyon, belly guns firing">
     <div class="mission-frame">
       <header class="mission-masthead">
         <div>
@@ -58,7 +57,7 @@
         </div>
         <div class="poster-right">
           <div class="poster-soon" aria-labelledby="nextChapter">
-            <span class="chapter-number">CHAPTER 02 - COMING SOON</span>
+            <span class="chapter-number">CHAPTER 02 · COMING SOON</span>
             <h2 id="nextChapter">Uncharted</h2>
             <p class="sector-note">The next flight is still beyond the horizon.</p>
           </div>
@@ -80,11 +79,11 @@
       </div>
       <footer class="mission-footer">
         <div class="mission-links">
-          <button id="fieldGuideButton" type="button" class="quietButton" aria-haspopup="dialog" aria-controls="fieldGuide" aria-expanded="false">ALIEN FIELD GUIDE <span>↗</span></button>
+          <button id="fieldGuideButton" type="button" class="quietButton" aria-haspopup="dialog" aria-controls="fieldGuide" aria-expanded="false">ALIEN FIELD GUIDE</button>
           <button id="settingsButton" disabled type="button" class="quietButton">SOUND &amp; CONTROLS</button>
           <button id="menuMusicButton" type="button" class="quietButton" aria-pressed="false">PLAY MUSIC</button>
         </div>
-        <p>MOUSE · AIM &amp; FIRE &nbsp; / &nbsp; SPACE · HEAVY CANNON &nbsp; / &nbsp; ESC · PAUSE</p>
+        <p>MOUSE · AIM &amp; FIRE &nbsp; / &nbsp; SPACE · HEAVY CANNON &nbsp; / &nbsp; P · FREEZE AND LOOK &nbsp; / &nbsp; ESC · PAUSE</p>
       </footer>
     </div>
     <audio id="menuMusicTrack" src="./assets/audio/gunner-menu-theme-v05416.mp3" preload="none" loop></audio>
@@ -178,7 +177,7 @@
 
   <section id="rankReveal" class="modal rank-reveal" aria-labelledby="rankTitle" hidden>
     <div class="rank-card">
-      <div class="eyebrow">FLIGHT COMMAND · PERSONNEL ASSESSMENT</div>
+      <div class="eyebrow">FLIGHT COMMAND · YOUR RATING</div>
       <h2 id="rankTitle">GUNNER</h2>
       <p class="rank-rating"><b id="rankPercent">0.0%</b> MISSION RATING</p>
       <div id="rankFace" class="rank-portrait" role="img" aria-label="Your gunner rank"></div>
@@ -209,16 +208,17 @@
         </form>
         <p id="scoreStatus" role="status"></p>
         <button id="retryScores" type="button" class="quietButton" hidden>CHECK TOP TEN AGAIN</button>
-        <p class="scoreNote">PLAYER-SUBMITTED SCORES · NOT VERIFIED</p>
+        <p class="scoreNote">SCORES ENTERED BY PLAYERS · NOT VERIFIED</p>
       </div>
       <p id="resultTip" class="result-tip"></p>
-      <button id="replayButton" type="button">FLY AGAIN <span aria-hidden="true">↗</span></button>
+      <button id="replayButton" type="button">FLY AGAIN <span aria-hidden="true">→</span></button>
     </div>
   </section>
 
   <div id="unsupported" class="modal compact" hidden>
-    <h2>WEBGL 2 REQUIRED</h2>
-    <p>This gun bubble needs a WebGL 2-capable browser.</p>
+    <div class="eyebrow">FLIGHT OPS · GRAPHICS CHECK</div>
+    <h2>3D GRAPHICS UNAVAILABLE</h2>
+    <p>Gunner draws the canyon with WebGL 2. Open it in a current Chrome, Edge, Firefox or Safari on a desktop or laptop.</p>
   </div>
 
   <script type="module" src="./mobile-entry.js?v=desktop-054-87" data-game-entry="./main.js?v=054-87"></script>

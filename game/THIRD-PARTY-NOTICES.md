@@ -64,3 +64,11 @@ in assets/audio/PROVENANCE.json. No voice model or generation service runs in th
 Retained earlier pilot recordings use Kokoro-82M am_fenrir. Their generation
 provenance remains in the same JSON; the upstream code license is preserved in
 assets/audio/KOKORO-CODE-LICENSE.txt.
+
+## Anton (display face)
+
+`assets/fonts/anton-latin.woff2` is the Latin subset of Anton by Vernon Adams,
+Copyright 2020 The Anton Project Authors (https://github.com/googlefonts/AntonFont),
+served as published by Google Fonts. It is licensed under the SIL Open Font License,
+Version 1.1 (https://openfontlicense.org). The font is bundled unmodified and is not
+sold on its own.

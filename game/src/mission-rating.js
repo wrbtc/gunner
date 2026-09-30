@@ -47,7 +47,7 @@ export function createRankReveal({root,face,title,percent,caption,benchmarkLabel
   if(image&&decoded[index])face.replaceChildren(image);else face.replaceChildren();
   face.dataset.rank=rating.rank.id;face.setAttribute('aria-label',rating.rank.description);
   title.textContent=rating.rank.name;percent.textContent=rating.percent.toFixed(1)+'%';
-  caption.textContent=rating.rank.line;benchmarkLabel.textContent='100% BENCHMARK · '+rating.benchmark.toLocaleString('en-US')+' PTS';
+  caption.textContent=rating.rank.line;benchmarkLabel.textContent='FULL MARKS · '+rating.benchmark.toLocaleString('en-US')+' PTS';
   button.focus({preventScroll:true});
  },reset(){active=false;root.hidden=true;},stats:()=>({active,loaded,decoded:decoded.filter(Boolean).length,expected:RANKS.length,rank:face?.dataset?.rank,frames:4})};
 }
