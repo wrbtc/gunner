@@ -6,6 +6,7 @@ import {createEnemies,ENEMY_LAYER} from './enemies.js?v=ch2-08';
 import {createSurvivors} from './survivors.js?v=ch2-08';
 import {createHorde} from './horde.js?v=ch2-08';
 import {createSound} from './sound.js?v=ch2-08';
+import {createRoot,BOSS_LAYER} from './root.js?v=ch2-08';
 
 // Gunner Chapter 02, The Warden: downtown, on a clear afternoon. It plays like the AC-130
 // mission: the pilot circles, you work the sensor and three guns, and a team on the ground
@@ -15,6 +16,7 @@ const $=id=>document.getElementById(id);
 const dom={canvas:$('game'),start:$('start'),pause:$('pause'),down:$('down'),hud:$('hud'),hull:$('hullFill'),hullValue:$('hullValue'),
  weapons:$('weapons'),optics:$('optics'),compass:$('compassTape'),opticsMode:$('opticsMode'),opticsZoom:$('opticsZoom'),opticsRange:$('opticsRange'),opticsAngles:$('opticsAngles'),opticsData:$('opticsData'),
  mode:$('mode'),kills:$('kills'),fps:$('fps'),hit:$('hitMarker'),veil:$('veil'),thermal:$('thermalOverlay'),alt:$('altitude'),
+ bossBar:$('bossBar'),bossSacs:$('bossSacs'),bossHeart:$('bossHeart'),
  speaker:$('speaker'),line:$('line'),climb:$('climbLevels'),marker:$('climbMarker'),pitState:$('pitState'),done:$('done'),doneStats:$('doneStats'),
  team:$('team'),downTitle:$('downTitle'),downText:$('downText'),orbitMark:$('orbitMark'),helpStrip:$('helpStrip')};
 const shot=new URLSearchParams(location.search).get('shot')||globalThis.CH2_SHOT||'';
@@ -54,6 +56,22 @@ arsenal.onFire=(weapon,at)=>sound.fire(weapon.id,at);
 combat.onThrow=(kind,at,scale)=>sound.launch(kind,at,scale);combat.onFlyby=at=>sound.flyby(at);
 horde.onDeath=e=>sound.death(e.type,e.pos);horde.onLeap=e=>sound.scream('leaper',e.pos);horde.onWindup=e=>sound.scream('brute',e.pos);
 enemies.onDeath=e=>sound.death(e.type,e.pos);survivors.onShot=p=>sound.rifle(p.pos);
+// What waits in the crater. Its sacs, heart, tendril tips and flesh are all shot targets.
+const root=createRoot(scene,{combat,survivors,craft}),ROOT_SOUND=new THREE.Vector3(0,150,-230);root.groups.forEach(g=>combat.addTargets(g));
+root.onStage=stage=>{
+ sound.root(stage,ROOT_SOUND);
+ if(shot)return;
+ if(stage==='fight')say('Pilot','Hot spots all over it. Burst those sacs, and watch for a tendril lifting over the team.',7);
+ if(stage==='heart')say('Pilot',"It's opening up. Put one in the heart!",5);
+ if(stage==='sink')say('Vega',"It's going down! It's going back down!",4);
+};
+let lastSlamCall=-99;
+root.onSlam=(at,kind)=>{
+ sound.root('slam',at);
+ if(!shot&&kind!=='craft'&&game.time-lastSlamCall>25){lastSlamCall=game.time;say('Vega','It is hitting the rim! Shoot the tips when they light up!',4);}
+};
+root.onPop=(at,kind)=>{sound.root(kind==='tip'?'flinch':'pop',at);if(kind!=='tip')sound.cue('kill');};
+root.onBile=at=>sound.root('bile',at);
 // The statue's garrison sleeps until the team reaches the plaza.
 enemies.dormant=true;
 for(const mesh of world.glowing)mesh.layers.set(FX_LAYER);
@@ -78,6 +96,7 @@ craft.hurt=(amount)=>{
 // than shade, so the shadows still show. Black hot is the same picture inverted on the canvas.
 const hotMat=new THREE.MeshLambertMaterial({color:0x76746e,emissive:0x232220});
 const coldMat=new THREE.MeshBasicMaterial({color:0xf4f2ec,fog:false});
+const warmMat=new THREE.MeshLambertMaterial({color:0xb4aea2,emissive:0x45403a});
 // Heat bloom: a soft glow round every warm body, drawn only through thermal, so a 2 m figure
 // at 700 m still reads as a point of heat. Buildings in front hide it, as they hide the body.
 const HALO_LAYER=6,HALO_MAX=220;
@@ -126,20 +145,22 @@ function updateAimPoint(){
 }
 function render(){
  if(!sensorView()||game.sensor==='tv'){
-  camera.layers.set(WORLD_LAYER);camera.layers.enable(ENEMY_LAYER);camera.layers.enable(FX_LAYER);camera.layers.enable(SKY_LAYER);
+  camera.layers.set(WORLD_LAYER);camera.layers.enable(ENEMY_LAYER);camera.layers.enable(FX_LAYER);camera.layers.enable(SKY_LAYER);camera.layers.enable(BOSS_LAYER);
   renderer.render(scene,camera);return;
  }
  // Three passes that share one depth buffer, so cover still hides a creature. A colour
  // background makes three.js clear on every pass, so only the first pass has one.
- const fog=scene.fog.color.clone(),bg=scene.background;
+ const fog=scene.fog.color.clone(),bg=scene.background;root.heat(true);
  scene.background=THERMAL_SKY;scene.fog.color.copy(THERMAL_FOG);
  scene.overrideMaterial=hotMat;camera.layers.set(WORLD_LAYER);renderer.render(scene,camera);
  renderer.autoClear=false;scene.background=null;
+ // The Root's flesh is warmer than the stone and cooler than the bodies.
+ scene.overrideMaterial=warmMat;camera.layers.set(BOSS_LAYER);renderer.render(scene,camera);
  scene.overrideMaterial=coldMat;camera.layers.set(ENEMY_LAYER);renderer.render(scene,camera);
  scene.overrideMaterial=null;halos.update();camera.layers.set(HALO_LAYER);renderer.render(scene,camera);
  // Blasts, tracers and the creatures' heads keep their own colour: they burn white.
  scene.overrideMaterial=null;camera.layers.set(FX_LAYER);renderer.render(scene,camera);
- renderer.autoClear=true;scene.background=bg;scene.fog.color.copy(fog);
+ renderer.autoClear=true;scene.background=bg;scene.fog.color.copy(fog);root.heat(false);
 }
 // Compass tape: two turns of ticks so the heading can wrap without a jump.
 const TAPE_PX=6;
@@ -208,7 +229,9 @@ function mission(dt){
   if(team.arrived){game.stage='warden';enemies.dormant=false;horde.perch(teamPos,3);say('Vega',"We're at the statue. Clear those ledges, we'll hold the plaza.",6);}
  }else if(game.stage==='warden'){
   if(world.pit.open){game.stage='crater';survivors.headForCrater();horde.wave(teamPos,14,2,2);say('Vega',"Seal's broken. Moving round to the crater, cover us.",6);}
- }else if(game.stage==='crater'&&team.arrived){finish();return;}
+ }else if(game.stage==='crater'&&team.arrived){
+  game.stage='root';root.rise();say('Vega','The ground is moving... Something is coming up out of the pit!',5);
+ }else if(game.stage==='root'&&root.dead){finish();return;}
  game.trickle-=dt;
  if(game.trickle<=0){game.trickle=game.stage==='escort'?11:8;horde.wave(teamPos,game.stage==='escort'?3:4,0,Math.random()<.25?1:0);}
  if(team.holding&&!game.holding)say('Vega',pick(['Contact! Holding.',"They're on us!",'Holding here. Clear them out!']),2.5);
@@ -247,6 +270,15 @@ function orbitMarker(){
  dom.orbitMark.hidden=!on;
  if(on)dom.orbitMark.style.transform=`translate(${(orbitMark.x*.5+.5)*innerWidth}px,${(-orbitMark.y*.5+.5)*innerHeight}px)`;
 }
+// The Root's bar: one diamond per sac still alive, and the heart once the bulb opens.
+function boss(){
+ // The pit's heat column gives way to the thing climbing out of it.
+ world.pit.meshes[1].visible=world.pit.open&&!root.active;
+ dom.bossBar.hidden=!root.active;if(!root.active)return;
+ if(dom.bossSacs.children.length!==root.sacs.length)dom.bossSacs.innerHTML=root.sacs.map(()=>'<li></li>').join('');
+ root.sacs.forEach((sac,i)=>dom.bossSacs.children[i].classList.toggle('on',sac.alive));
+ dom.bossHeart.classList.toggle('open',root.heart.alive);
+}
 function hud(dt){
  const s=craft.state,a=arsenal.state;orbitMarker();
  dom.helpStrip.hidden=!(game.running&&game.clock<30);
@@ -262,7 +294,7 @@ function hud(dt){
  dom.kills.textContent=`INFECTED ${horde.kills()} · WARDEN ${warden}/${t.hurler+t.lamplighter}`;
  survivors.list.forEach((p,i)=>{teamRows[i].classList.toggle('down',!p.alive);teamRows[i].classList.toggle('hurt',p.hitFlash>0);teamRows[i].lastChild.firstChild.style.transform=`scaleX(${p.hp/100})`;});
  dom.alt.textContent=`ALT ${Math.round(s.pos.y)} M · ${s.orbiting?'PILOT ORBIT':'MANUAL'}`;
- climb(dt);
+ climb(dt);boss();
  game.hurtFlash=Math.max(0,game.hurtFlash-dt*2.5);dom.veil.style.opacity=(game.hurtFlash*.55+(1-s.hull/100)*.18).toFixed(3);
  optics();
 }
@@ -286,7 +318,7 @@ function frame(dt){
   // sensor keeps pointing at your spot until the helicopter comes round and it clears.
   if(slewed||!craft.state.track)craft.state.track=hit.t<2600?trackPoint.copy(aimPoint):null;
   arsenal.update(dt,game.firing&&sensorView(),aimPoint);
-  enemies.update(dt,craft);survivors.update(dt,horde);horde.update(dt);mission(dt);
+  enemies.update(dt,craft);survivors.update(dt,horde);horde.update(dt);root.update(dt,craft.state.pos);mission(dt);
   game.clock+=dt;
   dom.optics.classList.toggle('on-target',hit.kind==='enemy');
   lastRange=hit.t;
@@ -350,7 +382,7 @@ function finish(){
  dom.done.hidden=false;
 }
 function restart(){
- craft.reset();enemies.reset();combat.reset();arsenal.reset();survivors.reset();horde.reset();world.restorePillars();world.pit.setOpen(false);rungs.forEach(r=>r.last=-1);
+ craft.reset();enemies.reset();combat.reset();arsenal.reset();survivors.reset();horde.reset();root.reset();world.restorePillars();world.pit.setOpen(false);rungs.forEach(r=>r.last=-1);
  enemies.dormant=true;
  Object.assign(game,{over:false,clock:0,calloutTime:0,warned:false,started:false,stage:'escort',waveLeg:1,trickle:8,holding:false});dom.done.hidden=true;begin();
 }
@@ -420,6 +452,12 @@ const SHOTS={
  plazawht:{center:[0,440],angle:.35,look:[0,1,292],weapon:2,mode:'wht',team:[0,268],wave:30,run:7},
  // One of each, standing on the open plaza, for checking the models.
  lineup:{center:[0,560],angle:1.35,alt:260,look:[0,2,262],weapon:2,zoom:true,mode:'tv',team:[-12,256],lineup:true},
+ // The Root risen over the crater, the team on the rim: from outside, through the sensor, in
+ // thermal, and with its bulb open on the heart.
+ root:{center:[0,-230],angle:.5,alt:300,outside:true,team:[80,-156],root:'fight',view:{from:[460,240,-560],to:[0,150,-230],fov:55}},
+ roottv:{center:[0,-230],angle:.5,alt:300,look:[0,150,-230],weapon:0,mode:'tv',team:[80,-156],root:'fight'},
+ rootwht:{center:[0,-230],angle:.5,alt:300,look:[0,150,-230],weapon:0,mode:'wht',team:[80,-156],root:'fight'},
+ rootheart:{center:[0,-230],angle:.5,alt:300,outside:true,team:[80,-156],root:'heart',view:{from:[300,360,-520],to:[0,240,-230],fov:45}},
  // The helicopter itself, hovering low over the avenue: a camera off its nose, off its side,
  // and the ordinary outside view over the team. cam is [right, up, ahead] of the aircraft.
  heli:{center:[0,900],angle:1.35,alt:150,outside:true,tilt:-.1,cam:[14,4,18]},
@@ -456,6 +494,7 @@ function applyShot(name){
  if(cfg.pit)world.pit.setOpen(true);
  if(cfg.expose)enemies.exposeAll(s.pos,1);
  if(cfg.team)survivors.placeAt(...cfg.team);
+ if(cfg.root){world.pit.setOpen(true);root.pose(cfg.root,cfg.root==='heart'?1:0);}
  if(cfg.lineup){
   [['runner',-4],['leaper',0],['bloater',4.5],['brute',10]].forEach(([type,x])=>horde.spawn(type,x,262));
   const pose=()=>{horde.sync(.4);survivors.sync(.4);render();};horde.ready.then(pose);survivors.ready.then(pose);
@@ -476,7 +515,7 @@ function applyShot(name){
  for(let i=0;i<3;i++)combat.update(0);
  hud(0);render();return true;
 }
-globalThis.__CH2__={THREE,renderer,scene,camera,world,craft,enemies,survivors,horde,combat,arsenal,game,applyShot,render,sound,
+globalThis.__CH2__={THREE,renderer,scene,camera,world,craft,enemies,survivors,horde,combat,arsenal,game,applyShot,render,sound,root,
  info:()=>({draws:renderer.info.render.calls,triangles:renderer.info.render.triangles,world:world.stats(),enemies:enemies.list.length,fx:combat.stats()})};
 if(shot)applyShot(shot);
 requestAnimationFrame(loop);

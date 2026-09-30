@@ -73,7 +73,7 @@ export function createCombat(scene,world){
    if(!e.alive)continue;
    // Own scratch vectors: callers pass the shared tmp/dir vectors in as origin and direction.
    const c=group.center(e,rayCenter),oc=rayOffset.subVectors(origin,c),b=oc.dot(direction),cc=oc.lengthSq()-e.radius*e.radius,h=b*b-cc;
-   if(h<0)continue;const t=-b-Math.sqrt(h);if(t>0&&t<best.t)best={t,kind:group.friendly?'friendly':'enemy',index:e.index,group};
+   if(h<0)continue;const t=-b-Math.sqrt(h);if(t>0&&t<best.t)best={t,kind:group.kind||(group.friendly?'friendly':'enemy'),index:e.index,group};
   }
   return best;
  }

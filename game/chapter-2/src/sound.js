@@ -117,7 +117,7 @@ export function createSound(){
   add('rocket',()=>motorBuffer(c,false));add('missile',()=>motorBuffer(c,true));
   for(const [kind,duration] of [['boom',2.4],['cannonImpact',1.7],['rock',.35],['flesh',.21],['metal',.21],['flyby',.48],['rumble',3],['gun',.27]])add(kind,()=>weaponSoundBuffer(c,duration,kind,891+duration*100));
   [[310,0xa1],[365,0xb2],[430,0xc3]].forEach(([hz,seed],i)=>add('shriek'+i,()=>shriekBuffer(c,hz,seed)));
-  add('roar',()=>queenSoundBuffer(c,1.1,'queen-attack'));add('wet',()=>mudImpactBuffer(c));
+  add('roar',()=>queenSoundBuffer(c,1.1,'queen-attack'));add('groan',()=>queenSoundBuffer(c,3.4,'queen-reveal'));add('dying',()=>queenSoundBuffer(c,3.8,'queen-defeated'));add('wet',()=>mudImpactBuffer(c));
   add('fall',()=>creatureBuffer(c,'creeper',true));add('zap',()=>creatureBuffer(c,'plasma',false));
   add('squelch',()=>squelchBuffer(c));add('beep',()=>beepBuffer(c));
   for(const kind of CUES)add('cue-'+kind,()=>synthFeedbackProof(c,kind));
@@ -233,6 +233,16 @@ export function createSound(){
    else play('flesh',.42,{at,carry:'voice',pitch:type==='brute'?.6:.85+Math.random()*.3,gap:.04});
   },
   burst(at){play('wet',.85,{at,carry:'blast',priority:2});play('boom',.4,{at,carry:'blast',pitch:1.3,priority:2});},
+  // The Root: a groan as it rises, slams on the rim, wet pops, a roar as it opens, its death.
+  root(kind,at){
+   if(kind==='rise')play('groan',.95,{at,carry:'blast',pitch:.45,priority:3});
+   else if(kind==='heart')play('roar',.9,{at,carry:'blast',pitch:.5,priority:3});
+   else if(kind==='sink')play('dying',1,{at,carry:'blast',pitch:.5,priority:3});
+   else if(kind==='slam'){play('boom',.85,{at,carry:'blast',pitch:.62,priority:3});play('rock',.5,{at,carry:'blast',pitch:.6});}
+   else if(kind==='pop'){play('wet',.95,{at,carry:'blast',pitch:.75,priority:3});play('boom',.5,{at,carry:'blast',pitch:.9,priority:2});}
+   else if(kind==='flinch')play('flesh',.6,{at,carry:'blast',pitch:.5,priority:2});
+   else if(kind==='bile')play('wet',.4,{at,carry:'blast',pitch:1.6,gap:.5});
+  },
   radio(){play('squelch',.5,{bus:feedback,priority:3,gap:.1});},
   cue(kind){if(CUE_LEVEL[kind])play('cue-'+kind,CUE_LEVEL[kind],{bus:feedback,priority:3,gap:CUE_GAP[kind]});},
   stats:()=>({context:ctx?.state||'none',buffers:Object.keys(buffers).length,pending:jobs.length,voices:voices.size,muted,failed})

@@ -1,5 +1,5 @@
 {
-  "version": "0.54.119",
+  "version": "0.54.120",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -348,8 +348,8 @@
     },
     {
       "path": "game/chapter-2/index.html",
-      "bytes": 5363,
-      "sha256": "dd7a0979fca53dee24c82949354f20ec554eed2c51cd3dc50c7858bb7212b5a0"
+      "bytes": 5561,
+      "sha256": "929b44235f3b0c60861c63986d60c69ac4592f9b4b76f86b9d9764ca5c641649"
     },
     {
       "path": "game/chapter-2/src/cast.js",
@@ -363,8 +363,8 @@
     },
     {
       "path": "game/chapter-2/src/combat.js",
-      "bytes": 13557,
-      "sha256": "bb6ec2e7b462b667666e2761ce35acaa657839fb47ae21b4f799c6307da162b0"
+      "bytes": 13571,
+      "sha256": "870b522e7b88b50d9959e3401a733d15b813f8c192083d1377279f96877305df"
     },
     {
       "path": "game/chapter-2/src/craft.js",
@@ -393,18 +393,23 @@
     },
     {
       "path": "game/chapter-2/src/main.js",
-      "bytes": 31487,
-      "sha256": "d81b8edc54dc35352c7107bf8daa48fc02937fad9f20e8173058f581590316c9"
+      "bytes": 34365,
+      "sha256": "7bbb53901e4daabae24d10445a5386e1e3f9a3111f30fd4912b2bdd45914d322"
+    },
+    {
+      "path": "game/chapter-2/src/root.js",
+      "bytes": 17302,
+      "sha256": "b50a95835af76c9ffb951cb628fa5adef6c984c2eff3615a22167724e1c1acff"
     },
     {
       "path": "game/chapter-2/src/sound.js",
-      "bytes": 14848,
-      "sha256": "8a615e4492ecc60b06898e89106a03ebb4b6e9e8252e64cb7bae238ab00d6bca"
+      "bytes": 15749,
+      "sha256": "e159b02aaa502305fffcb2936c0a812f08aee531c29076f798db45b1350f3b2c"
     },
     {
       "path": "game/chapter-2/src/survivors.js",
-      "bytes": 6416,
-      "sha256": "62a7de332b11882d3a001c108281e5d33e95308d9c07aa24836d3a2f37689ff6"
+      "bytes": 6804,
+      "sha256": "4a3b9a1dd93a4d7cafafa2bf1c8ec4eebd2548ed0ad63a31f84649ca21bc01f5"
     },
     {
       "path": "game/chapter-2/src/warden-shape.js",
@@ -423,8 +428,8 @@
     },
     {
       "path": "game/chapter-2/styles.css",
-      "bytes": 14003,
-      "sha256": "31c3aa4c746852c5f1d252393b4c28314d9e2bbafb3b2341a601c2d763859df5"
+      "bytes": 14568,
+      "sha256": "4e47d2b8f337d837979fa6159e8db08d4ee334d32162929fd870f154f3ed6a21"
     },
     {
       "path": "game/index.html",
@@ -434,7 +439,7 @@
     {
       "path": "game/main.js",
       "bytes": 166979,
-      "sha256": "322015aba52081aa441a2d6680c48199a4beaebcad630c009f5b919583a52d0a"
+      "sha256": "77ddd552114b381aecedd2a253e5f1cbd13c6a98bae62d279255079a4166b167"
     },
     {
       "path": "game/mobile-entry.js",
@@ -649,7 +654,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 27221,
-      "sha256": "c4d8156df7128f9c6c414cc7772ab6a752639c5cba9ce1b3a59141bd892e1541"
+      "sha256": "d19bfee6773630e7a59547bab7ffde0254902fd2aa8fcc7d1ac59c772d8b7189"
     },
     {
       "path": "game/src/opening-camera.js",

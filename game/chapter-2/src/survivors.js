@@ -62,6 +62,10 @@ export function createSurvivors(scene,combat){
     const [gx,gz]=team.route[team.leg],[fx,fz]=FORMATION[p.index];
     step.set(gx+fx,0,gz+fz).sub(p.pos);const d=step.length();
     if(d>.05)p.pos.addScaledVector(step,Math.min(d,(team.route===TO_CRATER?5.5:SPEED)*dt)/d);
+   }else if(team.arrived&&team.spots){
+    // Spread out along the rim, each to a spot of their own.
+    const [sx,sz]=team.spots[p.index];step.set(sx,0,sz).sub(p.pos);const d=step.length();
+    if(d>.05)p.pos.addScaledVector(step,Math.min(d,SPEED*dt)/d);
    }
    // Aimed single shots at the nearest infected in range.
    p.fireClock-=dt;
@@ -105,11 +109,13 @@ export function createSurvivors(scene,combat){
   centerOf:out=>teamCenter(out),
   // Stage two: the leg round the plinth to the crater.
   headForCrater(){team.route=TO_CRATER;team.leg=0;team.arrived=false;},
+  // At the rim: each takes a spot of their own, so one blow can't take them all.
+  spreadOut(spots){team.spots=spots;},
   // Proof shots: stand the team at a spot in formation.
   placeAt(x,z){list.forEach((p,i)=>p.pos.set(x+FORMATION[i][0],0,z+FORMATION[i][1]));sync();},
   reset(){
    list.forEach((p,i)=>{p.hp=HP;p.alive=true;p.hitFlash=0;p.pos.set(APPROACH[0][0]+FORMATION[i][0],0,APPROACH[0][1]+FORMATION[i][1]);});
-   Object.assign(team,{route:APPROACH,leg:1,holding:false,calm:0,arrived:false,moving:true});clock=0;sync();
+   Object.assign(team,{route:APPROACH,leg:1,holding:false,calm:0,arrived:false,moving:true,spots:null});clock=0;sync();
   }};
  sync();
  return api;

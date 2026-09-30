@@ -50,6 +50,12 @@ button:hover,button:focus-visible{background:#ffd27a;outline:2px solid #ffd27a;o
 #fps{color:var(--dim)}
 .flight{position:absolute;left:50%;top:22px;transform:translateX(-50%);display:flex;gap:18px;color:var(--dim)}
 #mode{color:var(--ink)}#mode.thermal{color:#fff}
+/* The Root's sacs as diamonds, filled while they live, and its heart once the bulb opens. */
+#bossBar{position:absolute;left:50%;top:150px;transform:translateX(-50%);display:flex;gap:14px;align-items:center;color:var(--ink)}
+#bossSacs{display:flex;gap:9px;list-style:none;margin:0;padding:0}
+#bossSacs li{width:9px;height:9px;border:1.5px solid currentColor;transform:rotate(45deg);box-shadow:0 0 3px rgba(0,0,0,.8)}
+#bossSacs li.on{background:var(--ember);border-color:var(--ember)}
+#bossHeart{font-weight:500;color:var(--dim)}#bossHeart.open{color:var(--ember)}
 /* Radio subtitles low in the frame: the pilot's calls, then the standing order, dimmer. */
 #subtitle{position:absolute;left:50%;bottom:112px;transform:translateX(-50%);width:min(640px,calc(100% - 48px));margin:0;text-align:center;
   font:400 16px/1.4 var(--body);letter-spacing:.01em;color:var(--dim);text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 8px rgba(0,0,0,.6)}
