@@ -150,6 +150,22 @@ function updateFps(now) {
   frameMetrics.fps=fps;dom.fps.textContent=String(fps);dom.fps.dataset.band=fps<30?'low':fps<50?'watch':'good';
   fpsSample.started=now;fpsSample.frames=0;
 }
+// Adaptive quality for slower GPUs, measured on Studio: MSAA costs about 4.5 ms a
+// frame and contact shadows about 2.5 ms, while bloom and heat are nearly free.
+// After about three seconds of real flight under 50 fps, shed MSAA, then contact
+// shadows. It never steps back up in a session, so the image cannot flicker between
+// levels; menus, pause, the opening, cinematics, hidden tabs and QA never count.
+const qualityGovernor={tier:0,slowSamples:0};
+// Its own timer reads the FPS counter, so updateFps and render stay untouched.
+setInterval(()=>governQuality(frameMetrics.fps),500);
+function governQuality(fps){
+  if(QA_MODE||!fps||qualityGovernor.tier>=2||!game.running||game.paused||game.opening||game.ended||game.captureFreeze||game.contextLost||document.hidden||queen?.cinematic){qualityGovernor.slowSamples=0;return;}
+  qualityGovernor.slowSamples=fps<50?qualityGovernor.slowSamples+1:0;
+  if(qualityGovernor.slowSamples<6)return;
+  qualityGovernor.slowSamples=0;qualityGovernor.tier++;
+  if(qualityGovernor.tier===1)cinematic.quality.msaa=false;else cinematic.quality.contact=false;
+  logEvent('quality-step',{tier:qualityGovernor.tier,fps});
+}
 const hooks = { update: null, onShot: null, onImpact: null, onEnemyHit: null, onCannon: null, onReset: null };
 let worldCollisionMeshes = [];
 let worldGroundAt = null;
@@ -1225,7 +1241,7 @@ function render(now){
   const titleHold=titleIdleHold();
   if(!titleHold){
   const presentationView=endingFlight?.started||queenView?camera.getWorldPosition(scratchPresentationView):planePos;
-  hellWorld.update(visualTime,presentationView,reducedOpening());hellWorld.skyActivity.root.visible=true;hellWorld.skyActivity.update(visualTime,planePos,reducedOpening());blastWorld?.update(visualTime,presentationView,reducedOpening());if(actorPoseTime!==game.time)bankDemons?.update(game.time,planePos);eggNests?.update(0,game.time,presentationView);plasmaBugs?.update(0,game.time);if(assetKit)assetKit.update(0,game.time,camera);if(actorPoseTime!==game.time)tankerBugs?.update(game.time,planePos);
+  hellWorld.update(visualTime,presentationView,reducedOpening());hellWorld.skyActivity.root.visible=true;hellWorld.skyActivity.update(visualTime,planePos,reducedOpening());blastWorld?.update(visualTime,presentationView,reducedOpening());if(actorPoseTime!==game.time)bankDemons?.update(game.time,planePos);eggNests?.update(0,game.time,presentationView,camera);plasmaBugs?.update(0,game.time);if(assetKit)assetKit.update(0,game.time,camera);if(actorPoseTime!==game.time)tankerBugs?.update(game.time,planePos);
   if(game.opening&&!game.paused&&!game.captureFreeze&&!game.contextLost){audio.setListener(getAimOrigin(),getAimDirection());audio.update(dt,visualTime,planePos);}
   for(const e of enemies)if(!e.rimmer)e.root.visible=!e.dead;
   for(const d of scenicDemons){d.marker.visible=!d.dead;if(d.assetVisual)d.assetVisual.visible=d.marker.position.distanceToSquared(planePos)<360*360;}
@@ -1454,7 +1470,7 @@ function qaAimAt(position){const local=position.clone().sub(getAimOrigin()).norm
 function qaDefend(count=1){const oldFreeze=game.captureFreeze;game.captureFreeze=false;game.running=true;game.paused=false;let maxCommitments=activeCommitments(),maxHeavy=activeHeavyCount(),ran=0;for(;ran<count&&!game.ended;ran++){const projectile=hostile.filter(h=>h.active).sort((a,b)=>a.pos.distanceToSquared(planePos)-b.pos.distanceToSquared(planePos))[0];const warning=enemies.filter(e=>e.commitment&&!e.dead&&e.state==='windup').concat(siege.filter(s=>s.commitment&&!s.dead&&s.state==='windup')).sort((a,b)=>a.root.position.distanceToSquared(planePos)-b.root.position.distanceToSquared(planePos))[0];const target=projectile&&projectile.pos.distanceTo(planePos)<190?projectile:warning;if(target){qaAimAt(target.pos||actorCenter(target));game.gunHeld=true;}else game.gunHeld=false;fixedUpdate(FIXED_STEP);maxCommitments=Math.max(maxCommitments,activeCommitments());maxHeavy=Math.max(maxHeavy,activeHeavyCount());}game.gunHeld=false;game.captureFreeze=oldFreeze;return{steps:ran,time:+game.time.toFixed(3),ended:game.ended,hull:game.hull,score:game.score,maxCommitments,maxHeavy,livingEnemies:enemies.filter(e=>!e.dead).length};}
 // Additive art/world modules use this surface; simulation ownership stays here.
 export const gunnerRuntime={
-  THREE,scene,camera,renderer,renderTarget,postScene,postCamera,heatMaterial,craft,game,
+  THREE,scene,camera,renderer,renderTarget,postScene,postCamera,heatMaterial,craft,game,cinematic,
   enemies,siege,scenicDemons,shelves,rift,route,routeLength,centerAt,widthAt,NESTING_POOLS,
   planePos,planeVel,planeTangent,mats,hooks,audio,gunHeat,runReview,particles,bullets,hostile,cannonRounds,
   debris,smoke,shockwaves,impactLights,frameMetrics,casings,links,updateGunMechanisms,
@@ -1544,7 +1560,7 @@ function qaCoreChecks(){
   return {kind:'diagnostic-core-checks',passed:checks.filter(c=>c.pass).length,total:checks.length,checks};
 }
 const qaApi={
-  version:'0.54.99',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,masterMode:preferences.master,masterUsed:game.masterUsed,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:frameMetrics.counterScope||'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
+  version:'0.54.100',state:()=>{const view=getAimDirection(),tearNdc=rift.getWorldPosition(new THREE.Vector3()).project(camera),exitDistance=planePos.clone().sub(rift.position).dot(rift.userData.normal);return {running:game.running,paused:game.paused,ended:game.ended,time:+game.time.toFixed(3),progress:+progress().toFixed(4),hull:game.hull,masterMode:preferences.master,masterUsed:game.masterUsed,score:game.score,cannonCooldown:+game.cannonCooldown.toFixed(3),rearState:game.rearState,commitments:activeCommitments(),heavy:activeHeavy(),playerRounds:bullets.filter(b=>b.active).length,hostileProjectiles:hostile.filter(h=>h.active).length,plane:planePos.toArray().map(v=>+v.toFixed(2)),tangent:planeTangent.toArray().map(v=>+v.toFixed(3)),view:view.toArray().map(v=>+v.toFixed(3)),tearNdc:tearNdc.toArray().map(v=>+v.toFixed(3)),exit:{visualKind:'ragged-tear',visible:rift.visible,position:rift.position.toArray().map(v=>+v.toFixed(2)),normal:rift.userData.normal.toArray().map(v=>+v.toFixed(3)),signedDistance:+exitDistance.toFixed(3),beyondSceneVisible:false,crossed:game.eventLog.some(e=>e.type==='escaped')},contextLost:game.contextLost,muzzleBlocked:game.muzzleBlocked,lastShot:game.lastShot,lastCannon:game.lastCannon,exitCue:exitDirection(),render:{...frameMetrics,counterScope:frameMetrics.counterScope||'all-frame-passes',collisionMeshes:worldCollisionMeshes.length,impactLights:mayhemFX.stats().caps.lights},events:game.eventLog.slice(-40)};},
   start:()=>start({skipOpening:true,legacyRoute:true}),beginOpening:()=>start(),skipOpening:()=>finishOpening(true),openingState:()=>({active:game.opening,title:game.title,time:game.openingTime,phase:openingPhase,flightProgress:currentFlightProgress(),camera:camera.position.toArray(),quaternion:camera.quaternion.toArray(),fov:camera.fov,fade:Number(dom.openingFade.style.opacity)||0,exterior:bomberExterior?.stats(),cameraPath:openingCamera?.stats()}),seekOpening:(seconds)=>{game.openingTime=THREE.MathUtils.clamp(seconds,0,OPENING_SECONDS);game.captureFreeze=true;updatePlane(0);updateOpeningPresentation();return true;},reset:qaReset,pause,resume,setTime:(seconds)=>{game.time=THREE.MathUtils.clamp(seconds,0,RUN_SECONDS);updatePlane(0);creatureTracking?.seek(game.time);},setView:(yaw,pitch)=>{game.yaw=yaw;game.pitch=THREE.MathUtils.clamp(pitch,-1.38,.95);updatePlane(0);},turnAround,toggleRear:turnAround,fireCannon,fireRound,damage:(amount=6)=>damageHull(amount,planePos),masterMode:(enabled=true)=>setMasterMode(enabled,{persist:false}),explode:()=>explode(planePos.clone().addScaledVector(planeTangent,70),14),preview:setPreview,
   events:()=>game.eventLog.slice(),runtime:gunnerRuntime,trace:qaTrace,replay:qaReplay,checkCore:qaCoreChecks,
   aimAt:(target)=>{const actor=typeof target==='string'?enemies.concat(siege).find(e=>e.id===target):null;qaAimAt(actor?actorCenter(actor):new THREE.Vector3().fromArray(target));},

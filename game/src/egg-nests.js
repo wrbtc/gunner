@@ -201,8 +201,15 @@ export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hit
    for(const [name,geo,mat]of definitions){const mesh=new THREE.InstancedMesh(geo,mat,nursery.length);if(name==='shell')geo.setAttribute('eggHit',new THREE.InstancedBufferAttribute(new Float32Array(nursery.length),1));mesh.name='Egg gallery '+name;mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);mesh.frustumCulled=false;mesh.count=0;mesh.receiveShadow=true;mesh.castShadow=false;mesh.renderOrder=name==='shell'?2:0;root.add(mesh);nurseryBatches.push({name,mesh});}
  }
  let nurseryMatricesStale=true,nurseryOrder=[];const nurseryOrderView=V(Infinity,0,0);
- function presentNursery(view){
+ // Off-screen gallery eggs are left out of the batches (the instanced meshes are not
+ // frustum culled as a whole). The sphere is generous: the baked shell is widened by
+ // EGG_GIRTH and the roots reach past the sac.
+ const nurseryFrustum=new THREE.Frustum(),nurseryViewProjection=new THREE.Matrix4(),nurseryViewInverse=new THREE.Matrix4(),nurserySphere=new THREE.Sphere();
+ function presentNursery(view,camera){
    if(!nursery.length)return;
+   // This frame's view, not last frame's matrixWorldInverse, so nothing pops in on a fast turn.
+   if(camera){camera.updateWorldMatrix(true,false);nurseryViewProjection.multiplyMatrices(camera.projectionMatrix,nurseryViewInverse.copy(camera.matrixWorld).invert());nurseryFrustum.setFromProjectionMatrix(nurseryViewProjection);}
+   for(const e of nursery)e.inView=!camera||nurseryFrustum.intersectsSphere(nurserySphere.set(e.center,Math.max(e.length,e.radius)*EGG_GIRTH.x+2));
    // Gallery eggs are static until hit or ruptured: refresh only those, plus a full pass
    // after build or reset. The renderer's own matrix pass covers everything else.
    if(nurseryMatricesStale){root.updateMatrixWorld(true);nurseryMatricesStale=false;}
@@ -210,7 +217,7 @@ export function createEggNests({scene,world,centerAt,widthAt,onRupture,audio,hit
    // Far to near order for the translucent shells; re-sort only after 4 m of travel.
    if(nurseryOrder.length!==nursery.length||nurseryOrderView.distanceToSquared(view)>16){nurseryOrder=nursery.slice().sort((a,b)=>b.center.distanceToSquared(view)-a.center.distanceToSquared(view));nurseryOrderView.copy(view);}
    const ordered=nurseryOrder;
-   for(const {name,mesh}of nurseryBatches){let n=0;for(const e of ordered){if(!e.group.visible)continue;const body=name.startsWith('body');if(body&&e.stage!==Number(name.slice(4)))continue;const source=body?e.embryo:e[name];if(!source.visible)continue;if(name==='shell')mesh.geometry.attributes.eggHit.setX(n,Math.min(1,(e.hitFlash||0)/.12)*(e.reducedHit?.32:1));mesh.setMatrixAt(n++,source.matrixWorld);}mesh.count=n;mesh.instanceMatrix.needsUpdate=true;if(name==='shell')mesh.geometry.attributes.eggHit.needsUpdate=true;}
+   for(const {name,mesh}of nurseryBatches){let n=0;for(const e of ordered){if(!e.group.visible||!e.inView)continue;const body=name.startsWith('body');if(body&&e.stage!==Number(name.slice(4)))continue;const source=body?e.embryo:e[name];if(!source.visible)continue;if(name==='shell')mesh.geometry.attributes.eggHit.setX(n,Math.min(1,(e.hitFlash||0)/.12)*(e.reducedHit?.32:1));mesh.setMatrixAt(n++,source.matrixWorld);}mesh.count=n;mesh.instanceMatrix.needsUpdate=true;if(name==='shell')mesh.geometry.attributes.eggHit.needsUpdate=true;}
  }
  function addGallery({routeLength,ruins}){
    if(gallery)return gallery;
@@ -334,7 +341,7 @@ let cursor={drop:0,flap:0,splat:0,tether:0},ruptures=0;
 
  let effectAccumulator=0;
  const debrisPrev=new THREE.Vector3(),debrisLocal=new THREE.Vector3(),debrisLerp=new THREE.Vector3();
- function update(dt,time,plane){
+ function update(dt,time,plane,camera=null){
   const simulationOnly=dt>0;
   // Scenery physics uses a deterministic 30Hz tick with interpolated display, independent of the
   // aircraft's 60Hz combat clock. Sweeps still cover every fluid step.
@@ -348,7 +355,7 @@ let cursor={drop:0,flap:0,splat:0,tether:0},ruptures=0;
    }
    e.embryo.visible=e.releaseAge<8&&(e.stage>0||e.index%3===0);if(e.releaseAge>6)e.embryo.scale.multiplyScalar(Math.exp(-dt*.4));
   }
-  if(dt<=0){if(!simulationOnly){present();presentNursery(plane);presentEffects(plane);presentRootFilaments();}return;}
+  if(dt<=0){if(!simulationOnly){present();presentNursery(plane,camera);presentEffects(plane);presentRootFilaments();}return;}
   for(const [items,isFlap] of [[drops,false],[flaps,true]])for(const a of items){if(!a.active)continue;a.life-=dt;a.prev.copy(a.pos);a.vel.y-=(isFlap?8:13)*dt;a.vel.multiplyScalar(Math.exp(-dt*(isFlap?.55:.36)));a.pos.addScaledVector(a.vel,dt);const h=traceDebris(a.prev,a.pos);if(h){const n=hitNormal(h);if(n.dot(a.vel)>0)n.negate();splat(h.point,n,a.scale*(isFlap?.5:2));a.life=0;}
    if(a.life<=0){a.active=false;a.mesh.visible=false;continue;}a.mesh.position.copy(a.pos);if(isFlap){a.mesh.rotation.x+=dt*2;a.mesh.rotation.y+=dt*1.1;}else{a.mesh.quaternion.setFromUnitVectors(UP,a.vel.clone().normalize());a.mesh.scale.set(a.scale,a.scale*(1+Math.min(4,a.vel.length()*.16)),a.scale);}}
   for(const s of splats)if(s.active){s.life-=dt;if(s.life<=0){s.active=false;s.mesh.visible=false;}}

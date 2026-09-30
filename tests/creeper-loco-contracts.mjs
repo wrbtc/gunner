@@ -81,7 +81,7 @@ assert.match(main, /creeper-loco\.js\?v=[A-Za-z0-9.-]+/);
 assert.match(main, /bank-demons\.js\?v=[A-Za-z0-9.-]+/);
 assert.match(main, /optionalCreeperLoco/);
 assert.match(main, /locoKit:creeperLocoBootstrap\?\.value/);
-assert.match(main, /version:'0\.54\.99'/);
+assert.match(main, /version:'0\.54\.100'/);
 assert.doesNotMatch(main, /version:'0\.54\.52'/);
 assert.doesNotMatch(main, /version:'0\.54\.57'/);
 assert.doesNotMatch(main, /version:'0\.54\.58'/);
@@ -106,7 +106,7 @@ for (const asset of requiredAssets){
 }
 
 const packageJson = JSON.parse(read('package.json'));
-assert.equal(packageJson.version, '0.54.99');
+assert.equal(packageJson.version, '0.54.100');
 assert.notEqual(packageJson.version, '0.54.57');
 assert.notEqual(packageJson.version, '0.54.58');
 assert.notEqual(packageJson.version, '0.54.59');
@@ -122,7 +122,7 @@ assert.notEqual(packageJson.version, '0.54.68');
 assert.notEqual(packageJson.version, '0.54.69');
 assert.notEqual(packageJson.version, '0.54.70');
 const manifest = JSON.parse(read('SOURCE-MANIFEST.json'));
-assert.equal(manifest.version, '0.54.99');
+assert.equal(manifest.version, '0.54.100');
 const locoRows = requiredAssets.map(asset => {
   const row = manifest.files.find(item => item.path === `game/assets/${asset}.glb`);
   assert.ok(row, `manifest row missing for ${asset}.glb`);
