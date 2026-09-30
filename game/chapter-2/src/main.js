@@ -208,7 +208,7 @@ function mission(dt){
 function opticsData(s){
  const t=new Date(),hh=String(t.getHours()).padStart(2,'0'),mm=String(t.getMinutes()).padStart(2,'0'),ss=String(t.getSeconds()).padStart(2,'0');
  const grid=`${String(Math.round(aimPoint.x+5000)).padStart(5,'0')} ${String(Math.round(aimPoint.z+5000)).padStart(5,'0')}`;
- return `${hh}${mm}${ss}Z\nTGT ${grid}\nALT ${String(Math.round(s.pos.y)).padStart(4,'0')}\n${s.orbiting?`ORBIT R${Math.round(s.orbit.radius)}`:`SPD ${String(Math.round(Math.hypot(s.vel.x,s.vel.z))).padStart(3,'0')}`}`;
+ return `${hh}${mm}${ss}Z\nTGT ${grid}\nALT ${String(Math.round(s.pos.y)).padStart(4,'0')}\n${s.orbiting?`ORBIT R${Math.round(s.orbit.radius)}`:`SPD ${String(Math.round(Math.hypot(s.vel.x,s.vel.z))).padStart(3,'0')}`}${combat.guiding()?'\nMSL GUIDING':''}`;
 }
 function optics(){
  const s=craft.state,on=sensorView(),w=WEAPONS[arsenal.state.weapon];
@@ -222,6 +222,8 @@ function optics(){
  dom.opticsMode.textContent=SENSOR_LABEL[game.sensor];
  dom.opticsZoom.textContent=`${w.label.toUpperCase()} · ${Math.round(WEAPONS[0].fov/sensorFov())}X`;
  dom.optics.dataset.weapon='w'+w.id;
+ // While a missile flies, the brackets blink: keep the spot under the cross until it lands.
+ dom.optics.classList.toggle('guiding',combat.guiding()>0);
  dom.opticsData.textContent=opticsData(s);
  dom.opticsRange.textContent=Number.isFinite(lastRange)&&lastRange<2600?`RNG ${String(Math.round(lastRange)).padStart(4,'0')} M`:'RNG ---- M';
  const el=Math.round(s.aimPitch*180/Math.PI);
@@ -240,11 +242,10 @@ function hud(dt){
  dom.helpStrip.hidden=!(game.running&&game.clock<30);
  dom.hull.style.transform=`scaleX(${s.hull/100})`;dom.hullValue.textContent=Math.ceil(s.hull);
  const rows=dom.weapons.children;
- WEAPONS.forEach((w,i)=>{
+ WEAPONS.forEach((_,i)=>{
   const row=rows[i];row.classList.toggle('active',a.weapon===i);
-  const meter=row.querySelector('.meter i'),note=row.querySelector('.note');
-  if(w.id==='25'){meter.style.transform=`scaleX(${a.heat})`;row.classList.toggle('hot',a.overheated);note.textContent=a.overheated?'OVERHEAT':'READY';}
-  else{const left=a.cooldown[i];meter.style.transform=`scaleX(${1-left/w.cooldown})`;note.textContent=left>0?`${left.toFixed(1)} s`:'READY';}
+  const meter=row.querySelector('.meter i'),note=row.querySelector('.note'),st=arsenal.status(i);
+  meter.style.transform=`scaleX(${st.fill})`;row.classList.toggle('hot',st.hot);note.textContent=st.note;
  });
  dom.mode.textContent=sensorView()?'SENSOR':'OUTSIDE VIEW';
  const k=enemies.kills(),t=enemies.totals(),warden=k.hurler+k.lamplighter;
@@ -257,9 +258,10 @@ function hud(dt){
 }
 let lastHits=0,lastShots=0;
 function pulseHit(){dom.hit.classList.remove('show');void dom.hit.offsetWidth;dom.hit.classList.add('show');}
+combat.viewer=camera;
 combat.onImpact=(pos,weapon,struck)=>{
  if(struck)pulseHit();
- // Rounds landing close send the creatures running: wide for the 105, a few metres for the 25.
+ // Rounds landing close send the creatures running: wide for a missile, a few metres for the 30 mm.
  enemies.scare(pos,(weapon.radius||4)*2.5+8);
 };
 function frame(dt){
@@ -280,7 +282,7 @@ function frame(dt){
  }
  craft.placeCamera(camera,dt,sensorFov());if(shotCam)shotCam();craft.syncModel(game.time);
  const a=arsenal.state;
- if(a.shots!==lastShots){lastShots=a.shots;game.kick=a.weapon===0?1:.4;}
+ if(a.shots!==lastShots){lastShots=a.shots;game.kick=a.weapon===0?1:a.weapon===1?.6:.35;}
  // The guns shake the sensor: a thump for each shell, a buzz while the 25 runs, a jolt when hit.
  if(sensorView()){
   const buzz=game.firing&&a.weapon===2&&!a.overheated&&game.running&&!game.paused?.0009:0;
@@ -387,7 +389,12 @@ const SHOTS={
  // and the ordinary outside view over the team. cam is [right, up, ahead] of the aircraft.
  heli:{center:[0,900],angle:1.35,alt:150,outside:true,tilt:-.1,cam:[14,4,18]},
  heliside:{center:[0,900],angle:1.35,alt:150,outside:true,cam:[26,3,-2]},
- helichase:{center:[0,1180],angle:1.45,alt:140,outside:true,tilt:-.12,look:[0,1,985],team:[0,985],wave:22,run:4}
+ helichase:{center:[0,1180],angle:1.45,alt:140,outside:true,tilt:-.12,look:[0,1,985],team:[0,985],wave:22,run:4},
+ // Weapons in flight: fire, then step the world a moment so the smoke has drawn out.
+ missile:{center:[0,1180],angle:1.45,alt:140,look:[0,1,905],weapon:0,team:[0,985],wave:22,run:4,fire:[.05,1.1]},
+ rockets:{center:[0,1180],angle:1.45,alt:140,look:[0,1,905],weapon:1,team:[0,985],wave:22,run:4,fire:[.9,.35]},
+ rocketsout:{center:[0,1180],angle:1.45,alt:140,outside:true,look:[0,1,905],weapon:1,team:[0,985],wave:22,run:4,fire:[.9,.35]},
+ gun:{center:[0,1180],angle:1.45,alt:140,look:[0,1,905],weapon:2,zoom:true,team:[0,985],wave:22,run:4,fire:[.6,.05]}
 };
 let shotCam=null;
 function applyShot(name){
@@ -417,6 +424,11 @@ function applyShot(name){
  dom.start.hidden=true;dom.hud.hidden=false;
  camera.fov=cfg.outside?CRAFT.chaseFov:sensorFov();
  craft.placeCamera(camera,0,sensorFov());craft.syncModel(0);lastRange=updateAimPoint().t;
+ if(cfg.fire){
+  // Hold the trigger for the first span, then let the rounds fly for the second.
+  const [hold,fly]=cfg.fire;
+  for(let t=0;t<hold+fly;t+=1/60){arsenal.update(1/60,t<hold,aimPoint);combat.update(1/60);}
+ }
  for(let i=0;i<3;i++)combat.update(0);
  hud(0);render();return true;
 }

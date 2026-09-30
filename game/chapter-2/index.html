@@ -20,7 +20,7 @@
       <div><dt>Mouse</dt><dd>Aim the sensor</dd></div>
       <div><dt>Left click</dt><dd>Fire</dd></div>
       <div><dt>Right click</dt><dd>Zoom (hold)</dd></div>
-      <div><dt>1 2 3 / wheel</dt><dd>105 mm, 40 mm, 25 mm</dd></div>
+      <div><dt>1 2 3 / wheel</dt><dd>Missile, rockets, 30 mm gun</dd></div>
       <div><dt>W A S D</dt><dd>Fly where you look</dd></div>
       <div><dt>Space / C</dt><dd>Up / down</dd></div>
       <div><dt>O</dt><dd>Pilot circles your target</dd></div>
@@ -29,7 +29,7 @@
       <div><dt>Esc</dt><dd>Pause</dd></div>
     </dl>
     <button id="startButton" type="button">Take off</button>
-    <p class="fine">The team wears infrared strobes: the blinking points on the sensor, and your shells hurt them as much as anything else. Jumpers wait on the rooftops for a helicopter that comes too low. Bloaters burst: shoot them in a crowd, never next to the team.</p>
+    <p class="fine">The team wears infrared strobes: the blinking points on the sensor, and your shells hurt them as much as anything else. Jumpers wait on the rooftops for a helicopter that comes too low. Bloaters burst: shoot them in a crowd, never next to the team. A missile flies to wherever the sensor points, so keep the cross on the target until it lands.</p>
   </section>
 
   <section id="pause" class="panel small" hidden aria-labelledby="pauseTitle">
@@ -62,14 +62,14 @@
       <div class="rail"><i id="climbMarker"></i><ol id="climbLevels"></ol></div>
     </div>
     <ol id="weapons">
-      <li><kbd>1</kbd><span class="name">105 mm</span><span class="meter"><i></i></span><span class="note">READY</span></li>
-      <li><kbd>2</kbd><span class="name">40 mm</span><span class="meter"><i></i></span><span class="note">READY</span></li>
-      <li><kbd>3</kbd><span class="name">25 mm</span><span class="meter"><i></i></span><span class="note">READY</span></li>
+      <li><kbd>1</kbd><span class="name">Missile</span><span class="meter"><i></i></span><span class="note">READY</span></li>
+      <li><kbd>2</kbd><span class="name">Rockets</span><span class="meter"><i></i></span><span class="note">READY</span></li>
+      <li><kbd>3</kbd><span class="name">30 mm</span><span class="meter"><i></i></span><span class="note">READY</span></li>
     </ol>
     <div id="optics" hidden aria-hidden="true">
       <div class="compass"><div id="compassTape"></div><i class="caret"></i></div>
       <span id="opticsMode" class="tl">THERMAL · WHT</span>
-      <span id="opticsZoom" class="tr">105 MM · 1X</span>
+      <span id="opticsZoom" class="tr">MISSILE · 1X</span>
       <div class="brackets"><i></i><i></i><i></i><i></i></div>
       <div class="cross"><i></i><i></i><i></i><i></i></div>
       <div class="ranging"><i></i><i></i><i></i><i></i><i></i></div>

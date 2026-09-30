@@ -16,7 +16,8 @@ canvas#game.sensor.thermal.blk{filter:grayscale(1) invert(1) contrast(1.28) blur
 [hidden]{display:none!important}
 
 .panel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(620px,calc(100% - 32px));
-  background:var(--panel);border:1px solid var(--rule);padding:32px 34px;z-index:5;backdrop-filter:blur(3px)}
+  background:var(--panel);border:1px solid var(--rule);padding:32px 34px;z-index:5;backdrop-filter:blur(3px);
+  max-height:calc(100% - 24px);overflow:auto}
 .panel.small{width:min(380px,calc(100% - 32px));text-align:center}
 .eyebrow{font:500 11px/1.4 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--sulphur);margin:0}
 h1{font:400 76px/.95 var(--display);text-transform:uppercase;margin:.12em 0 .18em;letter-spacing:.01em}
@@ -78,7 +79,7 @@ button:hover,button:focus-visible{background:#ffd27a;outline:2px solid #ffd27a;o
 #climbMarker{position:absolute;right:-12px;width:0;height:0;transform:translateY(50%);border:5px solid transparent;border-right:8px solid var(--ink);border-left:0}
 .stats{font:500 13px/1.5 var(--mono);letter-spacing:.14em;color:var(--sulphur);margin:0 0 12px}
 #weapons{position:absolute;left:24px;bottom:24px;list-style:none;margin:0;padding:0;display:grid;gap:7px}
-#weapons li{display:grid;grid-template-columns:22px 128px 120px 86px;align-items:center;gap:10px;color:var(--dim);opacity:.62}
+#weapons li{display:grid;grid-template-columns:22px 128px 120px 120px;align-items:center;gap:10px;color:var(--dim);opacity:.62}
 #weapons li.active{color:var(--ink);opacity:1}
 #weapons li.active .name{color:var(--sulphur)}
 #weapons li.hot .meter i{background:var(--ember)}
@@ -95,10 +96,10 @@ button:hover,button:focus-visible{background:#ffd27a;outline:2px solid #ffd27a;o
 
 /* Gun camera screen, after the Apache gunner's feed: compass tape, corner brackets, readouts. */
 #optics{position:absolute;inset:0;color:#f4f1e8;font:500 12px/1 var(--mono);letter-spacing:.16em;
-  /* Reticle size per gun: the 105 frames an area, the 25 a single creature. */
+  /* Reticle size per weapon: the missile frames an area, the 30 mm a single creature. */
   --box:340px;--arm:74px;--gap:48px;--tick:18px}
-#optics[data-weapon=w40]{--box:210px;--arm:56px;--gap:34px}
-#optics[data-weapon=w25]{--box:112px;--arm:34px;--gap:20px;--tick:10px}
+#optics[data-weapon=wrockets]{--box:210px;--arm:56px;--gap:34px}
+#optics[data-weapon=wgun]{--box:112px;--arm:34px;--gap:20px;--tick:10px}
 /* The feed runs light in white hot, so every line carries a thin dark edge. */
 #optics .compass,#optics .brackets,#optics .cross,#optics .ranging{filter:drop-shadow(0 0 1.2px rgba(0,0,0,.9))}
 #optics .tl,#optics .tr,#optics .bl,#optics .br{position:absolute}
@@ -132,9 +133,12 @@ button:hover,button:focus-visible{background:#ffd27a;outline:2px solid #ffd27a;o
 #optics .cross i:nth-child(2)::after{right:0;top:calc(1px - var(--tick)/2);width:2px;height:var(--tick)}
 #optics .cross i:nth-child(3)::after{top:0;left:calc(1px - var(--tick)/2);width:var(--tick);height:2px}
 #optics .cross i:nth-child(4)::after{bottom:0;left:calc(1px - var(--tick)/2);width:var(--tick);height:2px}
-/* The 40 mm's ranging steps, up and right of the centre as on the gunship's Bofors sight. */
+/* The rockets' ranging steps, up and right of the centre, for holding over a long shot. */
 #optics .ranging{display:none;position:absolute;left:calc(50% + var(--gap)/2 + 8px);top:calc(50% - var(--arm) - var(--gap)/2)}
-#optics[data-weapon=w40] .ranging{display:block}
+#optics[data-weapon=wrockets] .ranging{display:block}
+#optics.guiding .brackets{animation:guide .5s steps(2,jump-none) infinite}
+@keyframes guide{from{opacity:1}to{opacity:.15}}
+@media (prefers-reduced-motion:reduce){#optics.guiding .brackets{animation:none;opacity:.6}}
 #optics .ranging i{position:absolute;width:12px;height:10px;border-left:2px solid currentColor;border-top:2px solid currentColor}
 #optics .ranging i:nth-child(1){left:0;top:0}#optics .ranging i:nth-child(2){left:14px;top:9px}#optics .ranging i:nth-child(3){left:28px;top:18px}
 #optics .ranging i:nth-child(4){left:42px;top:27px}#optics .ranging i:nth-child(5){left:56px;top:36px}

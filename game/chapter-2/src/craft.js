@@ -188,7 +188,12 @@ export function createCraft(scene,world){
   },
   // Mouse: turn the sensor, all the way round and from straight down to a little above level.
   slew(dx,dy){state.aimYaw-=dx;state.aimPitch=THREE.MathUtils.clamp(state.aimPitch-dy,CRAFT.pitchMin,CRAFT.pitchMax);},
-  // Rounds leave the chin gun beside the sensor, so aim and fire agree.
-  muzzle(out,weapon){sensorPos(out);return out.add(tmp.set(0,-.5-weapon*.2,0));},
+  // The 30 mm fires from the chin, just under the sensor, so aim and fire agree. Missiles
+  // leave the outer wing pods and rockets the inner ones, left and right in turn.
+  muzzle(out,weapon,side=1){
+   if(weapon===2){sensorPos(out);return out.add(tmp.set(0,-.6,0));}
+   fwd.set(-Math.sin(state.heading),0,-Math.cos(state.heading));right.set(-fwd.z,0,fwd.x);
+   return out.copy(state.pos).addScaledVector(right,side*(weapon?2.3:3.4)).addScaledVector(fwd,2.6).add(tmp.set(0,-1,0));
+  },
   reset(){state.hull=100;state.view='sensor';state.zoom=false;start();}};
 }
