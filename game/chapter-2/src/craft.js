@@ -1,7 +1,7 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
 import {mergeGeometries} from '../../vendor/BufferGeometryUtils.js?v=052';
-import {BOWL_RADIUS,CEILING} from './world.js?v=ch2-07';
-import {AIRFRAME,loadAirframe} from './airframe.js?v=ch2-07';
+import {BOWL_RADIUS,CEILING} from './world.js?v=ch2-08';
+import {AIRFRAME,loadAirframe} from './airframe.js?v=ch2-08';
 
 // The Satoshi as a gunship, flown the way the AC-130 is: the pilot holds a left-hand pylon
 // turn round a point and the guns look out of the left side at it. You don't fly the plane;
@@ -193,6 +193,8 @@ export function createCraft(scene,world){
  }
  setOrbit({center:S.center,angle:S.angle});
  return {state,model,step,placeCamera,syncModel,setOrbit,lookAt,sensorPos,aimDir:()=>aimDir().clone(),
+  // Where the gunship will be in t seconds if the pilot holds the orbit.
+  predict(t,out){const o=state.orbit,a=o.angle-CRAFT.orbitSpeed/o.radius*t;return out.set(o.center.x+Math.cos(a)*o.radius,o.alt,o.center.z+Math.sin(a)*o.radius);},
   // O: circle the point under the reticle.
   orbitAt(point){state.orbit.want.set(point.x,0,point.z);floorClock=0;},
   // Mouse: slew the sensor, held inside the gimbal.

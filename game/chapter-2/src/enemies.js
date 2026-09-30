@@ -1,8 +1,8 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
-import {rng,LEVELS} from './world.js?v=ch2-07';
-import {FX_LAYER} from './combat.js?v=ch2-07';
+import {rng,LEVELS} from './world.js?v=ch2-08';
+import {FX_LAYER} from './combat.js?v=ch2-08';
 import {loadCreeperLoco} from '../../src/creeper-loco.js?v=054-84';
-import {loadLamplighters,LAMPLIGHTER_SOLID} from './lamplighter.js?v=ch2-07';
+import {loadLamplighters,LAMPLIGHTER_SOLID} from './lamplighter.js?v=ch2-08';
 
 export const ENEMY_LAYER=2;
 // Only a few attack at once, and never on the same beat, so the fire coming up stays readable.

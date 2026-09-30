@@ -1,5 +1,5 @@
 {
-  "version": "0.54.111",
+  "version": "0.54.112",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -90,6 +90,31 @@
       "path": "game/assets/audio/queen-reveal-growl.mp3",
       "bytes": 79532,
       "sha256": "38edf4d7cd3a0bd34cf1aac9f496347b650a382eefb0738e03e77bec8c3a3e0a"
+    },
+    {
+      "path": "game/assets/ch2-bloater.glb",
+      "bytes": 1062528,
+      "sha256": "1f07c5f6b8c215c2d5aa9db2f037a4592d0d91b912ebf1b9a8a0c6429ac44a09"
+    },
+    {
+      "path": "game/assets/ch2-brute.glb",
+      "bytes": 1362692,
+      "sha256": "1d46f552a7c640f33f83ae25bf43492824239ac0258b8bd69c818e8a9ae6651b"
+    },
+    {
+      "path": "game/assets/ch2-leaper.glb",
+      "bytes": 918160,
+      "sha256": "1914559e9f8a9649634b7d04ce78c96aabd6e9bd6420e2eeb4d6185397605fc5"
+    },
+    {
+      "path": "game/assets/ch2-runner.glb",
+      "bytes": 1015584,
+      "sha256": "f0cc4c6ee04d42fbafd291358e468df8167c1b09a8f23ace4df61d88d2c34a91"
+    },
+    {
+      "path": "game/assets/ch2-survivor.glb",
+      "bytes": 900872,
+      "sha256": "ecf61b7494d4c2d78030b321b1e637026446cb4f4f4529f3e46f0ec07b5dc975"
     },
     {
       "path": "game/assets/creeper-ember-hollow.glb",
@@ -313,13 +338,18 @@
     },
     {
       "path": "game/chapter-2/index.html",
-      "bytes": 4789,
-      "sha256": "daa8973ca276e9e13f626027ae08883a8fb84590c55aedcb008a45b2797466c5"
+      "bytes": 4830,
+      "sha256": "04c170ef8bc851dad7ba0201ac6a368f3b0774d5465ff43da0e713a2fd4fb753"
     },
     {
       "path": "game/chapter-2/src/airframe.js",
       "bytes": 4353,
       "sha256": "5a6b5940cba98b65154586a01d1124d6021b2dd3ebad523322ad72b1cc10976a"
+    },
+    {
+      "path": "game/chapter-2/src/cast.js",
+      "bytes": 4256,
+      "sha256": "8b98bb88ecedae6fd7531d41662c6f9979706de34570df003cf7cb1aba679bb5"
     },
     {
       "path": "game/chapter-2/src/city.js",
@@ -333,18 +363,18 @@
     },
     {
       "path": "game/chapter-2/src/craft.js",
-      "bytes": 12298,
-      "sha256": "8372bbae8d89eb35735a40d3bf9cd0e17fde7a26863bdb60de8203c401915f95"
+      "bytes": 12536,
+      "sha256": "d08844484f63f18d9c079b0bf39810f7f70da13655dcb15bcaf707065078ef37"
     },
     {
       "path": "game/chapter-2/src/enemies.js",
       "bytes": 13449,
-      "sha256": "bbd20d005d69f06fdf681863a8a77543d255a2ccaadb411a597b1b12073bf5fb"
+      "sha256": "68175edee13c9eaa4cf23044a03808767904bc1551147e1f6e4fe60e45ccba54"
     },
     {
       "path": "game/chapter-2/src/horde.js",
-      "bytes": 7323,
-      "sha256": "c3b243bfced314d57729d9fbf21743418a021074016c2fd7498de4ccfed4428e"
+      "bytes": 11115,
+      "sha256": "ac67e80924a4a4c81b10c6642396fe57b23a88c591304685efb2087176883745"
     },
     {
       "path": "game/chapter-2/src/lamplighter.js",
@@ -353,18 +383,18 @@
     },
     {
       "path": "game/chapter-2/src/main.js",
-      "bytes": 23958,
-      "sha256": "a7128f21725321052ce11679d340b70d6380533e4d91d41e6d74e9c72f6bc53d"
+      "bytes": 25304,
+      "sha256": "3d2127e2d30667504e284a6164b850e15b4dfcf42fd8b738af60d93c70641352"
     },
     {
       "path": "game/chapter-2/src/survivors.js",
-      "bytes": 5304,
-      "sha256": "11740dbc6bd994035756fff651dbd2452964a20da73966f333db18017a11262c"
+      "bytes": 6388,
+      "sha256": "2e8fac596a4d63186f420bd4605b6542793d877b5c86a4b965bde3e40f9be981"
     },
     {
       "path": "game/chapter-2/src/world.js",
       "bytes": 21137,
-      "sha256": "de4ebfcdabd8c07b2fdcc91b94753b7a6e20afc78d694ccbb67de0de5fcfb969"
+      "sha256": "95c5588c69fa1424566b3a968ffef84ac0f2820bc8a7b83e7cdbff3f22db1267"
     },
     {
       "path": "game/chapter-2/styles.css",
@@ -379,7 +409,7 @@
     {
       "path": "game/main.js",
       "bytes": 166979,
-      "sha256": "28cb6b2406ab30d774278a52c035b832e5319f5722050ff6632fba51423031eb"
+      "sha256": "24ddb990af60063113a530bcc81e2a99b0370c5cea8af65e3cb8bc40273dbbaf"
     },
     {
       "path": "game/mobile-entry.js",
@@ -594,7 +624,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 27221,
-      "sha256": "de17e251ee39720adc4a6e8a6c3e7460f9b8f2af26b9bf6b60068f0e796aa5c5"
+      "sha256": "c0bd9342c87c671592dff7ca4fc145f9b510cc342dccce0ff5c1629e30f101ab"
     },
     {
       "path": "game/src/opening-camera.js",

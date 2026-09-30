@@ -1,6 +1,7 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
-import {ENEMY_LAYER} from './enemies.js?v=ch2-07';
-import {FX_LAYER} from './combat.js?v=ch2-07';
+import {ENEMY_LAYER} from './enemies.js?v=ch2-08';
+import {FX_LAYER} from './combat.js?v=ch2-08';
+import {loadCast} from './cast.js?v=ch2-08';
 
 // The ground team: four survivors crossing downtown up the grand avenue to the Warden, and
 // on round the plinth to the crater once its seal breaks. Each wears an infrared strobe the
@@ -23,6 +24,13 @@ export function createSurvivors(scene,combat){
  const strobe=new THREE.InstancedMesh(new THREE.SphereGeometry(.9,8,6),new THREE.MeshBasicMaterial({color:0xffffff,fog:false}),list.length);
  strobe.layers.set(FX_LAYER);strobe.frustumCulled=false;strobe.name='Infrared strobes';scene.add(strobe);
  const m=new THREE.Matrix4(),q=new THREE.Quaternion(),s=new THREE.Vector3(),zero=new THREE.Matrix4().makeScale(0,0,0);
+ // The survivor model from the cast replaces the capsules once it loads.
+ let actors=null;
+ const ready=loadCast('survivor').then(kit=>{
+  actors=list.map(()=>{const holder=new THREE.Group();holder.name='Survivor';scene.add(holder);const actor=kit.make(holder);actor.play('idle');
+   holder.traverse(o=>o.layers.set(ENEMY_LAYER));return {holder,actor,last:new THREE.Vector3(),face:0};});
+  sync(0);return true;
+ }).catch(()=>false);
  const center=new THREE.Vector3(),goal=new THREE.Vector3(),step=new THREE.Vector3(),muzzle=new THREE.Vector3(),aim=new THREE.Vector3();
  let clock=0,hostiles=null;
 
@@ -57,7 +65,7 @@ export function createSurvivors(scene,combat){
    }
    // Aimed single shots at the nearest infected in range.
    p.fireClock-=dt;
-   const target=nearestHostile(p.pos,FIRE_RANGE);
+   const target=nearestHostile(p.pos,FIRE_RANGE);p.aim=target?target.pos:null;
    if(target&&p.fireClock<=0){
     // Short, frightened bursts: they slow the horde down, they can't stop it.
     p.fireClock=.75+Math.random()*.45;
@@ -66,12 +74,21 @@ export function createSurvivors(scene,combat){
     if(Math.random()<.35)horde.damage(target,12);
    }
   }
-  sync();
+  sync(dt);
  }
- function sync(){
+ function sync(dt=0){
   list.forEach((p,i)=>{
-   if(!p.alive){body.setMatrixAt(i,zero);strobe.setMatrixAt(i,zero);return;}
-   q.identity();body.setMatrixAt(i,m.compose(p.pos,q,s.setScalar(1)));
+   const a=actors?.[i];
+   if(a){
+    // Run while moving, stand and face the fight while holding; the fallen stay where they fell.
+    body.setMatrixAt(i,zero);a.holder.position.copy(p.pos);
+    const speed=dt>0?a.last.distanceTo(p.pos)/dt:0;
+    if(speed>.5)a.face=Math.atan2(p.pos.x-a.last.x,p.pos.z-a.last.z);else if(p.aim)a.face=Math.atan2(p.aim.x-p.pos.x,p.aim.z-p.pos.z);
+    a.last.copy(p.pos);a.holder.rotation.y=a.face;
+    a.actor.play(!p.alive?'die':speed>.5?'run':p.aim?'shoot':'idle',dt,!p.alive?1:speed>.5?speed/4.5:p.aim?.35:1);
+   }
+   if(!p.alive){if(!a)body.setMatrixAt(i,zero);strobe.setMatrixAt(i,zero);return;}
+   if(!a){q.identity();body.setMatrixAt(i,m.compose(p.pos,q,s.setScalar(1)));}
    // One flash a second, each strobe on its own beat.
    const on=((clock+i*.23)%1)<.12;
    strobe.setMatrixAt(i,on?m.compose(step.copy(p.pos).setY(2.1),q,s.setScalar(1)):zero);
@@ -82,7 +99,7 @@ export function createSurvivors(scene,combat){
   if(!p||!p.alive)return;p.hp-=amount;p.hitFlash=1;
   if(p.hp<=0){p.hp=0;p.alive=false;api.onDown?.(p);}
  }
- const api={list,team,update,damage,sync,onDown:null,
+ const api={list,team,ready,update,damage,sync,onDown:null,
   center:(p,out)=>out.copy(p.pos).setY(1),
   alive:()=>list.filter(p=>p.alive).length,
   centerOf:out=>teamCenter(out),

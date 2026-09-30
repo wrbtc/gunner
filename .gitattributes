@@ -13,3 +13,8 @@ game/assets/creeper-meshy-throw.glb filter=lfs diff=lfs merge=lfs -text
 game/assets/creeper-meshy-run.glb filter=lfs diff=lfs merge=lfs -text
 game/assets/rimmer-meshy-v2-rigged.glb filter=lfs diff=lfs merge=lfs -text
 game/assets/satoshi-airframe-001.glb filter=lfs diff=lfs merge=lfs -text
+game/assets/ch2-bloater.glb filter=lfs diff=lfs merge=lfs -text
+game/assets/ch2-brute.glb filter=lfs diff=lfs merge=lfs -text
+game/assets/ch2-leaper.glb filter=lfs diff=lfs merge=lfs -text
+game/assets/ch2-runner.glb filter=lfs diff=lfs merge=lfs -text
+game/assets/ch2-survivor.glb filter=lfs diff=lfs merge=lfs -text

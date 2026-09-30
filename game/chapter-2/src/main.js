@@ -1,10 +1,10 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
-import {createWorld,WORLD_LAYER,WARDEN,LEVELS} from './world.js?v=ch2-07';
-import {createCraft,CRAFT} from './craft.js?v=ch2-07';
-import {createCombat,createArsenal,WEAPONS,FX_LAYER} from './combat.js?v=ch2-07';
-import {createEnemies,ENEMY_LAYER} from './enemies.js?v=ch2-07';
-import {createSurvivors} from './survivors.js?v=ch2-07';
-import {createHorde} from './horde.js?v=ch2-07';
+import {createWorld,WORLD_LAYER,WARDEN,LEVELS} from './world.js?v=ch2-08';
+import {createCraft,CRAFT} from './craft.js?v=ch2-08';
+import {createCombat,createArsenal,WEAPONS,FX_LAYER} from './combat.js?v=ch2-08';
+import {createEnemies,ENEMY_LAYER} from './enemies.js?v=ch2-08';
+import {createSurvivors} from './survivors.js?v=ch2-08';
+import {createHorde} from './horde.js?v=ch2-08';
 
 // Gunner Chapter 02, The Warden: downtown, on a clear afternoon. It plays like the AC-130
 // mission: the pilot circles, you work the sensor and three guns, and a team on the ground
@@ -50,6 +50,10 @@ survivors.friendly=true;combat.addTargets(horde);combat.addTargets(survivors);
 // The statue's garrison sleeps until the team reaches the plaza.
 enemies.dormant=true;
 for(const mesh of world.glowing)mesh.layers.set(FX_LAYER);
+// Radio for the special infected: a jumper crouching while we circle low, a bloater bursting by the team.
+let lastJumperCall=-99;
+horde.onCrouch=()=>{if(shot||game.time-lastJumperCall<20||craft.state.pos.y>450)return;lastJumperCall=game.time;say('Pilot','Jumpers on the rooftops! Taking us up.',3);craft.state.orbit.wantAlt=Math.max(craft.state.orbit.wantAlt,520);};
+horde.onBurst=e=>{if(shot)return;survivors.centerOf(teamPos);if(e.pos.distanceTo(teamPos)<30)say('Vega','Bloater! Get back!',2.5);};
 survivors.onDown=p=>{if(!shot)say(survivors.alive()?'Vega':'Pilot',survivors.alive()?`${p.name} is down!`:'We lost the team.',3);};
 craft.hurt=(amount)=>{
  if(game.over||shot)return;craft.state.hull=Math.max(0,craft.state.hull-amount);game.hurtFlash=1;
@@ -183,15 +187,16 @@ function mission(dt){
  if(!survivors.alive()){teamLost();return;}
  if(game.stage==='escort'){
   if(team.leg>game.waveLeg){
-   game.waveLeg=team.leg;horde.wave(teamPos,6+team.leg*2,team.leg>=3&&team.leg%2?1:0);
+   game.waveLeg=team.leg;horde.wave(teamPos,6+team.leg*2,team.leg>=3&&team.leg%2?1:0,team.leg>=3?1:0);
+   if(team.leg>=2)horde.perch(teamPos,2);
    if(team.leg%2===0)say('Pilot','Movement in the cross streets ahead of them.',3);
   }
-  if(team.arrived){game.stage='warden';enemies.dormant=false;say('Vega',"We're at the statue. Clear those ledges, we'll hold the plaza.",6);}
+  if(team.arrived){game.stage='warden';enemies.dormant=false;horde.perch(teamPos,3);say('Vega',"We're at the statue. Clear those ledges, we'll hold the plaza.",6);}
  }else if(game.stage==='warden'){
-  if(world.pit.open){game.stage='crater';survivors.headForCrater();horde.wave(teamPos,14,2);say('Vega',"Seal's broken. Moving round to the crater, cover us.",6);}
+  if(world.pit.open){game.stage='crater';survivors.headForCrater();horde.wave(teamPos,14,2,2);say('Vega',"Seal's broken. Moving round to the crater, cover us.",6);}
  }else if(game.stage==='crater'&&team.arrived){finish();return;}
  game.trickle-=dt;
- if(game.trickle<=0){game.trickle=game.stage==='escort'?11:8;horde.wave(teamPos,game.stage==='escort'?3:4);}
+ if(game.trickle<=0){game.trickle=game.stage==='escort'?11:8;horde.wave(teamPos,game.stage==='escort'?3:4,0,Math.random()<.25?1:0);}
  if(team.holding&&!game.holding)say('Vega',pick(['Contact! Holding.',"They're on us!",'Holding here. Clear them out!']),2.5);
  game.holding=team.holding;
 }
@@ -348,17 +353,26 @@ const SHOTS={
  escortzoom:{center:[0,700],angle:.25,look:[0,1,985],weapon:2,zoom:true,wave:22,run:4},
  escortwide:{center:[0,700],angle:.25,look:[0,1,960],weapon:0,wave:26,run:5},
  escorttv:{center:[0,700],angle:.25,look:[0,1,975],weapon:1,mode:'tv',wave:22,run:4},
- plaza:{center:[0,440],angle:.35,look:[0,1,268],weapon:1,team:[0,268],wave:20,run:5}
+ plaza:{center:[0,440],angle:.35,look:[0,1,268],weapon:1,team:[0,268],wave:20,run:5},
+ cast:{center:[0,700],angle:.25,look:[0,1,960],weapon:2,zoom:true,mode:'tv',wave:26,run:5},
+ plazatv:{center:[0,440],angle:.35,look:[0,1,292],weapon:2,zoom:true,mode:'tv',team:[0,268],wave:30,run:7},
+ plazawht:{center:[0,440],angle:.35,look:[0,1,292],weapon:2,mode:'wht',team:[0,268],wave:30,run:7},
+ // One of each, standing on the open plaza, for checking the models.
+ lineup:{center:[0,560],angle:1.35,alt:260,look:[0,2,262],weapon:2,zoom:true,mode:'tv',team:[-12,256],lineup:true}
 };
 function applyShot(name){
  const cfg=SHOTS[name];if(!cfg)return false;
- craft.setOrbit({center:cfg.center,angle:cfg.angle});
+ craft.setOrbit({center:cfg.center,angle:cfg.angle,alt:cfg.alt});
  const s=craft.state;s.view=cfg.outside?'chase':'sensor';s.zoom=!!cfg.zoom;
  if(cfg.look)craft.lookAt(new THREE.Vector3(...cfg.look));
  arsenal.select(cfg.weapon||0);game.sensor=cfg.mode||'wht';
  if(cfg.pit)world.pit.setOpen(true);
  if(cfg.expose)enemies.exposeAll(s.pos,1);
  if(cfg.team)survivors.placeAt(...cfg.team);
+ if(cfg.lineup){
+  [['runner',-4],['leaper',0],['bloater',4.5],['brute',10]].forEach(([type,x])=>horde.spawn(type,x,262));
+  const pose=()=>{horde.sync(.4);survivors.sync(.4);render();};horde.ready.then(pose);survivors.ready.then(pose);
+ }
  if(cfg.wave){
   survivors.centerOf(teamPos);horde.wave(teamPos,cfg.wave,1);
   const loop=()=>{for(let i=0;i<cfg.run*30;i++)horde.update(1/30);survivors.sync();render();};

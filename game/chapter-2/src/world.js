@@ -1,6 +1,6 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
 import {mergeGeometries} from '../../vendor/BufferGeometryUtils.js?v=052';
-import {createCity} from './city.js?v=ch2-07';
+import {createCity} from './city.js?v=ch2-08';
 
 // Chapter 2: downtown New York after the Warden, a swordsman about 620 m tall kneeling on one
 // knee, came up through it. The city is in city.js; the statue is built here from rough-cut
