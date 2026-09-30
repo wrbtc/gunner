@@ -15,7 +15,7 @@ const dom={canvas:$('game'),start:$('start'),pause:$('pause'),down:$('down'),hud
  weapons:$('weapons'),optics:$('optics'),compass:$('compassTape'),opticsMode:$('opticsMode'),opticsZoom:$('opticsZoom'),opticsRange:$('opticsRange'),opticsAngles:$('opticsAngles'),opticsData:$('opticsData'),
  mode:$('mode'),kills:$('kills'),fps:$('fps'),hit:$('hitMarker'),veil:$('veil'),thermal:$('thermalOverlay'),alt:$('altitude'),
  speaker:$('speaker'),line:$('line'),climb:$('climbLevels'),marker:$('climbMarker'),pitState:$('pitState'),done:$('done'),doneStats:$('doneStats'),
- team:$('team'),downTitle:$('downTitle'),downText:$('downText')};
+ team:$('team'),downTitle:$('downTitle'),downText:$('downText'),orbitMark:$('orbitMark'),helpStrip:$('helpStrip')};
 const shot=new URLSearchParams(location.search).get('shot')||globalThis.CH2_SHOT||'';
 
 const renderer=new THREE.WebGLRenderer({canvas:dom.canvas,antialias:true,powerPreference:'high-performance'});
@@ -92,7 +92,7 @@ const SENSOR_MODES=['wht','blk','tv'],SENSOR_LABEL={wht:'THERMAL · WHT',blk:'TH
 const game={running:false,paused:false,over:false,sensor:'wht',firing:false,time:0,clock:0,hurtFlash:0,kick:0,fpsTime:0,fpsFrames:0,
  speaker:'',callout:'',calloutTime:0,warned:false,started:false,stage:'escort',waveLeg:1,trickle:8,holding:false};
 const keys=new Set(),input={forward:0,strafe:0,lift:0};
-const aimPoint=new THREE.Vector3(),aimOrigin=new THREE.Vector3(),aimDir=new THREE.Vector3(),shake=new THREE.Vector3();
+const aimPoint=new THREE.Vector3(),aimOrigin=new THREE.Vector3(),aimDir=new THREE.Vector3(),shake=new THREE.Vector3(),trackPoint=new THREE.Vector3();
 
 function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
 addEventListener('resize',resize);resize();
@@ -149,6 +149,7 @@ const LADDER_TOP=900,rungs=LEVELS.map(l=>{
 // Subtitles, as on the gunship's radio: the pilot's calls, then the standing order.
 function say(speaker,text,time=4){game.speaker=speaker;game.callout=text;game.calloutTime=time;}
 function climb(dt){
+ if(game.hintAt&&game.time>game.hintAt){game.hintAt=0;say('Pilot','I fly the circle, you run the guns. Mouse aims. W A S D moves where I circle: the diamond on the ground.',7);}
  const levels=enemies.levels();
  levels.forEach((l,i)=>{
   const r=rungs[i];
@@ -223,8 +224,18 @@ function optics(){
  const el=Math.round(s.aimPitch*180/Math.PI);
  dom.opticsAngles.textContent=`AZ ${String(Math.round(heading)%360).padStart(3,'0')} · EL ${el>=0?'+':'-'}${String(Math.abs(el)).padStart(2,'0')}`;
 }
+// The ORBIT diamond: where the pilot is circling, or heading to, drawn on the ground.
+const orbitMark=new THREE.Vector3();
+function orbitMarker(){
+ const o=craft.state.orbit;orbitMark.set(o.want.x,0,o.want.z).project(camera);
+ const on=sensorView()&&orbitMark.z<1&&Math.abs(orbitMark.x)<.96&&Math.abs(orbitMark.y)<.92;
+ dom.orbitMark.hidden=!on;
+ if(on)dom.orbitMark.style.transform=`translate(${(orbitMark.x*.5+.5)*innerWidth}px,${(-orbitMark.y*.5+.5)*innerHeight}px)`;
+ dom.orbitMark.classList.toggle('moving',craft.state.orbit.center.distanceTo(o.want)>25);
+}
 function hud(dt){
- const s=craft.state,a=arsenal.state;
+ const s=craft.state,a=arsenal.state;orbitMarker();
+ dom.helpStrip.hidden=!(game.running&&game.clock<30);
  dom.hull.style.transform=`scaleX(${s.hull/100})`;dom.hullValue.textContent=Math.ceil(s.hull);
  const rows=dom.weapons.children;
  WEAPONS.forEach((w,i)=>{
@@ -253,7 +264,12 @@ function frame(dt){
  game.time+=dt;
  if(game.running&&!game.paused&&!game.over){
   readInput();craft.step(dt,input);
+  const slewed=!!(slew.x||slew.y);
+  if(slewed){craft.slew(slew.x,slew.y);slew.x=slew.y=0;}
   const hit=updateAimPoint();
+  // The lock moves only with the mouse: a building passing in front doesn't steal it, the
+  // sensor keeps pointing at your spot until the plane comes round and it clears.
+  if(slewed||!craft.state.track)craft.state.track=hit.t<2600?trackPoint.copy(aimPoint):null;
   arsenal.update(dt,game.firing&&sensorView(),aimPoint);
   enemies.update(dt,craft);survivors.update(dt,horde);horde.update(dt);mission(dt);
   game.clock+=dt;
@@ -282,7 +298,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;frame(dt);req
 function begin(){
  dom.start.hidden=true;dom.down.hidden=true;dom.pause.hidden=true;dom.hud.hidden=false;
  game.running=true;game.paused=false;
- if(!game.started){game.started=true;say('Vega','Gunship, this is Vega. Four of us, moving up the avenue to the statue. Watch the side streets.',6);}
+ if(!game.started){game.started=true;game.hintAt=game.time+6.2;say('Vega','Gunship, this is Vega. Four of us, moving up the avenue to the statue. Watch the side streets.',6);}
  dom.canvas.requestPointerLock?.()?.catch?.(()=>{});
 }
 function stop(){game.over=true;game.firing=false;craft.state.zoom=false;document.exitPointerLock?.();}
@@ -310,9 +326,12 @@ document.addEventListener('pointerlockchange',()=>{
  if(document.pointerLockElement!==dom.canvas&&game.running&&!game.over){game.paused=true;game.firing=false;keys.clear();dom.pause.hidden=false;}
 });
 // The sensor slews slower the tighter the zoom, so a small hand move is a small move on screen.
+// Mouse moves are gathered and applied once a frame, after the plane has moved and the sensor
+// has re-locked on its spot, so the hand always has the last word.
+const slew={x:0,y:0};
 addEventListener('mousemove',e=>{
  if(document.pointerLockElement!==dom.canvas||game.paused)return;
- const sens=.0021*sensorFov()/45;craft.slew(e.movementX*sens,e.movementY*sens);
+ const sens=.0021*sensorFov()/45;slew.x+=e.movementX*sens;slew.y+=e.movementY*sens;
 });
 addEventListener('mousedown',e=>{
  if(document.pointerLockElement!==dom.canvas)return;

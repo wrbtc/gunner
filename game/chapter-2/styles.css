@@ -147,3 +147,14 @@ button:hover,button:focus-visible{background:#ffd27a;outline:2px solid #ffd27a;o
 #optics .data{position:absolute;right:48px;top:96px;margin:0;font:500 11px/1.5 var(--mono);letter-spacing:.12em;text-align:right;opacity:.85}
 /* The monitor's rounded edge: the corners of the feed fall away to black. */
 #optics .lens::after{content:"";position:absolute;inset:10px;border-radius:34px;box-shadow:0 0 0 80px #000,inset 0 0 60px 18px rgba(0,0,0,.55)}
+
+/* The ORBIT diamond on the ground, where the pilot circles; it pulses while the circle moves. */
+#orbitMark{position:absolute;left:0;top:0;pointer-events:none;color:var(--radio)}
+#orbitMark i{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border:2px solid currentColor;transform:rotate(45deg);filter:drop-shadow(0 0 1.5px rgba(0,0,0,.9))}
+#orbitMark span{position:absolute;left:14px;top:-7px;font:600 11px var(--mono);letter-spacing:.16em}
+#orbitMark.moving i{animation:orbitPulse .8s ease-in-out infinite}
+@keyframes orbitPulse{50%{transform:rotate(45deg) scale(1.35)}}
+@media (prefers-reduced-motion:reduce){#orbitMark.moving i{animation:none}}
+/* The controls, on screen for the first half minute. */
+#helpStrip{position:absolute;left:50%;bottom:150px;transform:translateX(-50%);margin:0;padding:6px 12px;width:max-content;max-width:min(92vw,980px);text-align:center;
+  font:600 11px var(--mono);letter-spacing:.14em;color:var(--ink);background:rgba(0,0,0,.45)}

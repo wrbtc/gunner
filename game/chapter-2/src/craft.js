@@ -11,7 +11,7 @@ export const CRAFT=Object.freeze({
  // The sculpt is 22 long and 29.4 wide; at .5 it is an 11 m, 15 m span aircraft.
  modelScale:.5,
  orbitSpeed:46,radius:380,minAlt:260,maxAlt:CEILING-20,startAlt:560,
- slideSpeed:70,climbRate:45,bank:.42,
+ slideSpeed:120,climbRate:45,bank:.42,
  // How far the orbit keeps clear of anything below it, and the sensor's gimbal limits:
  // yaw either side of the left beam, and pitch from nearly straight down to just above level.
  clearance:30,gimbalYaw:1.3,pitchMin:-1.5,pitchMax:.12,
@@ -94,7 +94,7 @@ export function createCraft(scene,world){
   look:{yaw:0,pitch:-.9},aimYaw:0,aimPitch:-.9,
   orbit:{center:new THREE.Vector3(S.center[0],0,S.center[1]),want:new THREE.Vector3(S.center[0],0,S.center[1]),
    radius:CRAFT.radius,alt:CRAFT.startAlt,wantAlt:CRAFT.startAlt,floor:0,angle:S.angle},
-  lift:0,thrust:0
+  lift:0,thrust:0,track:null
  };
  const tmp=new THREE.Vector3(),fwd=new THREE.Vector3(),left=new THREE.Vector3(),prev=new THREE.Vector3(),slide=new THREE.Vector3();
 
@@ -133,7 +133,7 @@ export function createCraft(scene,world){
   if(flat>reach)o.want.multiplyScalar(reach/flat);
   o.wantAlt=THREE.MathUtils.clamp(o.wantAlt+input.lift*CRAFT.climbRate*dt,CRAFT.minAlt,CRAFT.maxAlt);
   floorClock-=dt;if(floorClock<=0){o.floor=orbitFloor(o.want,o.radius);floorClock=.25;}
-  o.center.lerp(o.want,1-Math.exp(-1.1*dt));
+  o.center.lerp(o.want,1-Math.exp(-1.8*dt));
   const alt=Math.min(CRAFT.maxAlt,Math.max(o.wantAlt,o.floor));
   // Climb out of trouble quickly, settle down gently.
   o.alt+=(alt-o.alt)*(1-Math.exp(-(alt>o.alt?1.6:.6)*dt));
@@ -142,7 +142,9 @@ export function createCraft(scene,world){
   state.vel.subVectors(state.pos,prev).divideScalar(Math.max(dt,1e-4));
   const h=headingFromAngle(o);let d=h-state.heading;d=Math.atan2(Math.sin(d),Math.cos(d));state.heading+=d;
   state.tilt+=((state.pos.y-prev.y)/Math.max(dt,1e-4)/120-state.tilt)*(1-Math.exp(-3*dt));
-  updateAim();
+  // Ground-stabilised, as a gunship's sensor is: it stays on the spot you aimed at while the
+  // plane circles, and only the mouse moves it (inside the gimbal).
+  if(state.track)lookAt(state.track);else updateAim();
  }
  // The sensor ball on the left flank, stabilised: it neither banks nor pitches with the airframe.
  function sensorPos(out){
@@ -189,7 +191,7 @@ export function createCraft(scene,world){
   const o=state.orbit;o.center.set(center[0],0,center[1]);o.want.copy(o.center);o.radius=radius;
   o.floor=orbitFloor(o.center,radius);o.alt=o.wantAlt=Math.max(alt,o.floor);o.angle=angle;
   place(o);state.heading=headingFromAngle(o);state.vel.set(0,0,0);
-  state.look.yaw=0;state.look.pitch=-Math.atan2(o.alt,o.radius);updateAim();
+  state.track=null;state.look.yaw=0;state.look.pitch=-Math.atan2(o.alt,o.radius);updateAim();
  }
  setOrbit({center:S.center,angle:S.angle});
  return {state,model,step,placeCamera,syncModel,setOrbit,lookAt,sensorPos,aimDir:()=>aimDir().clone(),
