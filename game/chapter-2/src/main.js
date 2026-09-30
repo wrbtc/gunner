@@ -5,6 +5,7 @@ import {createCombat,createArsenal,WEAPONS,FX_LAYER} from './combat.js?v=ch2-08'
 import {createEnemies,ENEMY_LAYER} from './enemies.js?v=ch2-08';
 import {createSurvivors} from './survivors.js?v=ch2-08';
 import {createHorde} from './horde.js?v=ch2-08';
+import {createSound} from './sound.js?v=ch2-08';
 
 // Gunner Chapter 02, The Warden: downtown, on a clear afternoon. It plays like the AC-130
 // mission: the pilot circles, you work the sensor and three guns, and a team on the ground
@@ -47,6 +48,12 @@ const enemies=createEnemies(scene,world,combat),arsenal=createArsenal(combat,cra
 combat.bind(enemies,craft);
 const survivors=createSurvivors(scene,combat),horde=createHorde(scene,world,combat,survivors,craft);
 survivors.friendly=true;combat.addTargets(horde);combat.addTargets(survivors);
+// Sound: built in the background as the page loads, started by the take off click.
+const sound=createSound();if(!shot)sound.prepare();
+arsenal.onFire=(weapon,at)=>sound.fire(weapon.id,at);
+combat.onThrow=(kind,at,scale)=>sound.launch(kind,at,scale);combat.onFlyby=at=>sound.flyby(at);
+horde.onDeath=e=>sound.death(e.type,e.pos);horde.onLeap=e=>sound.scream('leaper',e.pos);horde.onWindup=e=>sound.scream('brute',e.pos);
+enemies.onDeath=e=>sound.death(e.type,e.pos);survivors.onShot=p=>sound.rifle(p.pos);
 // The statue's garrison sleeps until the team reaches the plaza.
 enemies.dormant=true;
 for(const mesh of world.glowing)mesh.layers.set(FX_LAYER);
@@ -54,14 +61,15 @@ for(const mesh of world.glowing)mesh.layers.set(FX_LAYER);
 world.onSculpt=()=>{renderer.shadowMap.needsUpdate=true;};
 // Radio for the special infected: a jumper crouching while we circle low, a bloater bursting by the team.
 let lastJumperCall=-99;
-horde.onCrouch=()=>{
+horde.onCrouch=e=>{
+ sound.scream('leaper',e.pos);
  if(shot||game.time-lastJumperCall<20||craft.state.pos.y>450)return;lastJumperCall=game.time;
  say('Pilot','Jumpers on the rooftops! Get some height.',3);if(craft.state.orbiting)craft.state.orbit.alt=Math.max(craft.state.orbit.alt,520);
 };
-horde.onBurst=e=>{if(shot)return;survivors.centerOf(teamPos);if(e.pos.distanceTo(teamPos)<30)say('Vega','Bloater! Get back!',2.5);};
+horde.onBurst=e=>{sound.burst(e.pos);if(shot)return;survivors.centerOf(teamPos);if(e.pos.distanceTo(teamPos)<30)say('Vega','Bloater! Get back!',2.5);};
 survivors.onDown=p=>{if(!shot)say(survivors.alive()?'Vega':'Pilot',survivors.alive()?`${p.name} is down!`:'We lost the team.',3);};
 craft.hurt=(amount)=>{
- if(game.over||shot)return;craft.state.hull=Math.max(0,craft.state.hull-amount);game.hurtFlash=1;
+ if(game.over||shot)return;craft.state.hull=Math.max(0,craft.state.hull-amount);game.hurtFlash=1;sound.damage();
  if(craft.state.hull<50&&!game.warned){game.warned=true;say('Pilot',"We're taking fire. Move the orbit.");}
  if(craft.state.hull<=0)crash();
 };
@@ -152,7 +160,7 @@ const LADDER_TOP=900,rungs=LEVELS.map(l=>{
  dom.climb.append(li);return {li,count:li.lastChild,last:-1};
 });
 // Subtitles, as on the gunship's radio: the pilot's calls, then the standing order.
-function say(speaker,text,time=4){game.speaker=speaker;game.callout=text;game.calloutTime=time;}
+function say(speaker,text,time=4){game.speaker=speaker;game.callout=text;game.calloutTime=time;sound.radio();}
 function climb(dt){
  if(game.hintAt&&game.time>game.hintAt){game.hintAt=0;say('Pilot','You have control. W A S D fly where you look, Space and C for height, let go to hover. Press O and I will circle your target.',8);}
  const levels=enemies.levels();
@@ -259,9 +267,10 @@ function hud(dt){
  optics();
 }
 let lastHits=0,lastShots=0;
-function pulseHit(){dom.hit.classList.remove('show');void dom.hit.offsetWidth;dom.hit.classList.add('show');}
+function pulseHit(){sound.cue('hit-confirm');dom.hit.classList.remove('show');void dom.hit.offsetWidth;dom.hit.classList.add('show');}
 combat.viewer=camera;
 combat.onImpact=(pos,weapon,struck)=>{
+ sound.impact(weapon.id,pos);
  if(struck)pulseHit();
  // Rounds landing close send the creatures running: wide for a missile, a few metres for the 30 mm.
  enemies.scare(pos,(weapon.radius||4)*2.5+8);
@@ -296,23 +305,46 @@ function frame(dt){
  world.pit.update(game.time);
  if(a.hits!==lastHits){lastHits=a.hits;pulseHit();}
  hud(dt);render();
+ listen(dt);
  game.fpsFrames++;game.fpsTime+=dt;if(game.fpsTime>.5){dom.fps.textContent=`${Math.round(game.fpsFrames/game.fpsTime)} FPS`;game.fpsFrames=0;game.fpsTime=0;}
 }
 let last=performance.now();
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;frame(dt);requestAnimationFrame(loop);}
 
+// What the sound hears each frame: the camera, the cabin, the collective and the missile in the
+// air, plus the cockpit cues for kills, the gun's heat, the pods' reload and a failing hull.
+const heard={kills:0,overheated:false,reloading:false,missile:0,scream:1};
+function listen(dt){
+ if(!game.running||game.paused)return;
+ const a=arsenal.state;
+ sound.update(dt,{camera,inside:sensorView(),lift:craft.state.lift,guiding:combat.guiding()>0});
+ const kills=horde.kills()+enemies.list.filter(e=>!e.alive).length;
+ if(kills>heard.kills)sound.cue('kill');heard.kills=kills;
+ if(a.overheated!==heard.overheated)sound.cue(a.overheated?'gun-overheat':'gun-cooled');heard.overheated=a.overheated;
+ const reloading=a.reload>0;if(reloading!==heard.reloading)sound.cue(reloading?'cannon-empty':'cannon-ready');heard.reloading=reloading;
+ if(heard.missile>0&&a.cooldown===0&&a.weapon===0)sound.cue('cannon-ready');heard.missile=a.cooldown;
+ if(craft.state.hull<30&&!game.over)sound.cue('low-hull');
+ // Now and then one of the infected near what you're watching screams.
+ heard.scream-=dt;
+ if(heard.scream<=0){
+  heard.scream=.35+Math.random()*.8;
+  const near=horde.list.filter(e=>e.alive&&e.pos.distanceTo(aimPoint)<220);
+  if(near.length){const e=near[Math.random()*near.length|0];sound.scream(e.type,e.pos);}
+ }
+}
 function begin(){
+ sound.start();
  dom.start.hidden=true;dom.down.hidden=true;dom.pause.hidden=true;dom.hud.hidden=false;
  game.running=true;game.paused=false;
  if(!game.started){game.started=true;game.hintAt=game.time+6.2;say('Vega','Gunship, this is Vega. Four of us, moving up the avenue to the statue. Watch the side streets.',6);}
  dom.canvas.requestPointerLock?.()?.catch?.(()=>{});
 }
-function stop(){game.over=true;game.firing=false;craft.state.zoom=false;document.exitPointerLock?.();}
+function stop(won=false){sound.end(won);game.over=true;game.firing=false;craft.state.zoom=false;document.exitPointerLock?.();}
 function crash(){stop();dom.downTitle.textContent='Going down';dom.downText.textContent='The Satoshi took too much. Press R or start again.';dom.down.hidden=false;}
 function teamLost(){stop();dom.downTitle.textContent='The team is down';dom.downText.textContent='Nobody made it to the crater. Press R or start again.';dom.down.hidden=false;}
 // The team at the crater's rim: the end of the round.
 function finish(){
- stop();
+ stop(true);
  const t=Math.round(game.clock);
  dom.doneStats.textContent=`TIME ${Math.floor(t/60)}:${String(t%60).padStart(2,'0')} · TEAM ${survivors.alive()}/4 · INFECTED ${horde.kills()} · HULL ${Math.ceil(craft.state.hull)}`;
  dom.done.hidden=false;
@@ -329,7 +361,7 @@ $('restartButton').addEventListener('click',()=>{location.reload();});
 $('againButton').addEventListener('click',restart);
 dom.canvas.addEventListener('click',()=>{if(game.running&&!game.over&&document.pointerLockElement!==dom.canvas)begin();});
 document.addEventListener('pointerlockchange',()=>{
- if(document.pointerLockElement!==dom.canvas&&game.running&&!game.over){game.paused=true;game.firing=false;keys.clear();dom.pause.hidden=false;}
+ if(document.pointerLockElement!==dom.canvas&&game.running&&!game.over){game.paused=true;game.firing=false;keys.clear();dom.pause.hidden=false;sound.pause();}
 });
 // The sensor slews slower the tighter the zoom, so a small hand move is a small move on screen.
 // Mouse moves are gathered and applied once a frame, after the helicopter has moved and the sensor
@@ -358,6 +390,7 @@ addEventListener('keydown',e=>{
   else{craft.orbitAt(aimPoint);say('Pilot','Circling your target. Touch the controls and she is yours.',3);}
  }
  if(e.code==='KeyR'&&game.over)restart();
+ if(e.code==='KeyM'&&!e.repeat)sound.toggleMute();
 });
 addEventListener('keyup',e=>keys.delete(e.code));
 
@@ -443,7 +476,7 @@ function applyShot(name){
  for(let i=0;i<3;i++)combat.update(0);
  hud(0);render();return true;
 }
-globalThis.__CH2__={THREE,renderer,scene,camera,world,craft,enemies,survivors,horde,combat,arsenal,game,applyShot,render,
+globalThis.__CH2__={THREE,renderer,scene,camera,world,craft,enemies,survivors,horde,combat,arsenal,game,applyShot,render,sound,
  info:()=>({draws:renderer.info.render.calls,triangles:renderer.info.render.triangles,world:world.stats(),enemies:enemies.list.length,fx:combat.stats()})};
 if(shot)applyShot(shot);
 requestAnimationFrame(loop);

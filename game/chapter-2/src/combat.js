@@ -61,7 +61,7 @@ export function createCombat(scene,world){
  const tmp=new THREE.Vector3(),dir=new THREE.Vector3(),rayCenter=new THREE.Vector3(),rayOffset=new THREE.Vector3();
  const laser=new THREE.Vector3(),want=new THREE.Vector3(),turn=new THREE.Quaternion(),still=new THREE.Quaternion();
  // The camera the smoke turns to face; main hands it in.
- const api={onImpact:null,viewer:null};
+ const api={onImpact:null,viewer:null,onThrow:null,onFlyby:null};
 
  // First thing a ray meets: an enemy, a pillar or wall, or the ground.
  function raycast(origin,direction,far,{hitEnemies=true}={}){
@@ -97,6 +97,7 @@ export function createCombat(scene,world){
   const craftPos=craft.state.pos;
   for(const r of rocks.items){
    if(!r.live)continue;r.age+=dt;r.vel.y-=GRAVITY*dt;r.pos.addScaledVector(r.vel,dt);
+   if(!r.passed&&r.pos.distanceTo(craftPos)<40){r.passed=true;api.onFlyby?.(r.pos);}
    if(r.pos.distanceTo(craftPos)<7){r.live=false;craft.hurt(14,r.pos);blast(r.pos,4);continue;}
    const team=groups.find(g=>g.friendly);let struckTeam=false;
    if(team)for(const p of team.list)if(p.alive&&team.center(p,tmp).distanceTo(r.pos)<1.6+r.scale){team.damage(p,10*r.scale);struckTeam=true;}
@@ -105,6 +106,7 @@ export function createCombat(scene,world){
   }
   for(const b of bolts.items){
    if(!b.live)continue;b.age+=dt;b.pos.addScaledVector(b.vel,dt);
+   if(!b.passed&&b.pos.distanceTo(craftPos)<30){b.passed=true;api.onFlyby?.(b.pos);}
    if(b.pos.distanceTo(craftPos)<6){b.live=false;craft.hurt(7,b.pos);blast(b.pos,3,.3);continue;}
    if(b.age>5||hitsWorld(b.pos))b.live=false;
   }
@@ -147,8 +149,8 @@ export function createCombat(scene,world){
  return Object.assign(api,{raycast,blast,splash,tracer,update,
   bind(e,c){enemies=e;craft=c;groups.push(e);},
   addTargets(group){groups.push(group);},
-  throwRock(origin,vel,scale=1){const r=rocks.spawn();if(r){r.pos.copy(origin);r.vel.copy(vel);r.scale=scale;}},
-  fireBolt(origin,vel){const b=bolts.spawn();if(b){b.pos.copy(origin);b.vel.copy(vel);}},
+  throwRock(origin,vel,scale=1){const r=rocks.spawn();if(r){r.pos.copy(origin);r.vel.copy(vel);r.scale=scale;r.passed=false;api.onThrow?.('rock',origin,scale);}},
+  fireBolt(origin,vel){const b=bolts.spawn();if(b){b.pos.copy(origin);b.vel.copy(vel);b.passed=false;api.onThrow?.('bolt',origin);}},
   fireShell(origin,direction,weapon){const s=shells.spawn();if(!s)return false;s.pos.copy(origin);s.vel.copy(direction).setLength(weapon.launch);s.extra=weapon;s.scale=weapon.scale;s.puff=0;return true;},
   // The spot the sensor marks this frame: the missiles in the air fly to it.
   designate(point){laser.copy(point);},
@@ -186,7 +188,7 @@ export function createArsenal(combat,craft,enemies){
     aimFrom(aimPoint,.004);
     const hit=combat.raycast(muzzle,dir,2600);
     end.copy(muzzle).addScaledVector(dir,Math.min(hit.t,2600));
-    combat.tracer(muzzle,end);s.shots++;
+    combat.tracer(muzzle,end);s.shots++;out.onFire?.(w,muzzle);
     if(hit.kind==='enemy'||hit.kind==='friendly'){hit.group.damage(hit.group.list[hit.index],w.damage);if(hit.kind==='enemy')s.hits++;}
     if(hit.kind!=='none'){combat.splash(end,w.radius,w.splash,3);combat.blast(end,2.6,.18);combat.onImpact?.(end,w,0);}
    }
@@ -195,11 +197,11 @@ export function createArsenal(combat,craft,enemies){
    while(s.rocketClock<=0&&s.rockets>0){
     s.rocketClock+=w.rate;s.side=-s.side;craft.muzzle(muzzle,1,s.side);
     if(!combat.fireShell(muzzle,aimFrom(aimPoint,w.spread),w))break;
-    s.shots++;if(--s.rockets===0)s.reload=w.reload;
+    s.shots++;out.onFire?.(w,muzzle);if(--s.rockets===0)s.reload=w.reload;
    }
   }else if(s.cooldown<=0){
    s.side=-s.side;craft.muzzle(muzzle,0,s.side);
-   if(combat.fireShell(muzzle,aimFrom(aimPoint,0),w)){s.cooldown=w.cooldown;s.shots++;}
+   if(combat.fireShell(muzzle,aimFrom(aimPoint,0),w)){s.cooldown=w.cooldown;s.shots++;out.onFire?.(w,muzzle);}
   }
  }
  // What each weapon's row on the HUD shows: a bar from 0 to 1, a note, and whether it is hot.
@@ -208,6 +210,8 @@ export function createArsenal(combat,craft,enemies){
   if(i===1)return s.reload>0?{fill:1-s.reload/ROCKETS.reload,note:`RELOAD ${s.reload.toFixed(1)} s`,hot:false}:{fill:s.rockets/ROCKETS.load,note:`${s.rockets} LEFT`,hot:false};
   return {fill:1-s.cooldown/MISSILE.cooldown,note:s.cooldown>0?`${s.cooldown.toFixed(1)} s`:'READY',hot:false};
  }
- return {state:s,update,status,select(i){s.weapon=(i+WEAPONS.length)%WEAPONS.length;},
+ // onFire hears every round, rocket and missile as it leaves, with where it left from.
+ const out={state:s,update,status,onFire:null,select(i){s.weapon=(i+WEAPONS.length)%WEAPONS.length;},
   reset(){Object.assign(s,fresh());}};
+ return out;
 }

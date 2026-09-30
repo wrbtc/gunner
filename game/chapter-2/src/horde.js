@@ -122,7 +122,7 @@ export function createHorde(scene,world,combat,survivors,craft){
    if(e.throwClock<=0){
     e.throwClock=3+Math.random()*5;
     head.copy(e.pos).setY(e.height);
-    if(e.type==='brute'&&head.distanceTo(craftPos)<e.range&&canSee(head,craftPos)){e.state='windup';e.timer=e.windup;}
+    if(e.type==='brute'&&head.distanceTo(craftPos)<e.range&&canSee(head,craftPos)){e.state='windup';e.timer=e.windup;api.onWindup?.(e);}
     else if(e.type==='runner'&&dist>12&&dist<55){
      // Junk thrown at the team on the run.
      const flight=THREE.MathUtils.clamp(dist/22,.8,2.2);tmp.copy(target.pos).setY(1);
@@ -146,7 +146,7 @@ export function createHorde(scene,world,combat,survivors,craft){
     const T=THREE.MathUtils.clamp(e.pos.distanceTo(craftPos)/95,1.4,4);
     craft.predict(T,tmp).add(dir.set((Math.random()-.5)*26,(Math.random()-.5)*10,(Math.random()-.5)*26));
     e.vel.subVectors(tmp,e.pos).divideScalar(T);e.vel.y+=.5*GRAVITY*T;
-    e.state='leap';usedRoofs.delete(e.roof);
+    e.state='leap';usedRoofs.delete(e.roof);api.onLeap?.(e);
    }
   }else if(e.state==='leap'){
    e.vel.y-=GRAVITY*dt;e.pos.addScaledVector(e.vel,dt);
@@ -192,10 +192,10 @@ export function createHorde(scene,world,combat,survivors,craft){
   if(!e||!e.alive)return;e.hp-=amount;e.hitFlash=1;
   if(e.hp>0)return;
   if(e.type==='bloater'){burst(e);return;}
-  e.alive=false;e.dying=CORPSE;kills++;usedRoofs.delete(e.roof);
+  e.alive=false;e.dying=CORPSE;kills++;usedRoofs.delete(e.roof);api.onDeath?.(e);
   combat.blast(tmp.copy(e.pos).setY(e.height*.5),e.type==='brute'?6:2.5,.5);
  }
- const api={list,ready,update,sync,spawn,wave,perch,damage,onBurst:null,onCrouch:null,
+ const api={list,ready,update,sync,spawn,wave,perch,damage,onBurst:null,onCrouch:null,onLeap:null,onWindup:null,onDeath:null,
   center:(e,out)=>out.copy(e.pos).setY(e.pos.y+e.height*.55),
   alive:()=>list.filter(e=>e.alive).length,kills:()=>kills,
   reset(){for(const e of list){e.alive=false;e.dying=0;}usedRoofs.clear();kills=0;sync();}};

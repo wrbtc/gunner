@@ -70,7 +70,7 @@ export function createSurvivors(scene,combat){
     // Short, frightened bursts: they slow the horde down, they can't stop it.
     p.fireClock=.75+Math.random()*.45;
     muzzle.copy(p.pos).setY(1.4);horde.center(target,aim);
-    combat.tracer(muzzle,aim);
+    combat.tracer(muzzle,aim);api.onShot?.(p);
     if(Math.random()<.35)horde.damage(target,12);
    }
   }
@@ -99,7 +99,7 @@ export function createSurvivors(scene,combat){
   if(!p||!p.alive)return;p.hp-=amount;p.hitFlash=1;
   if(p.hp<=0){p.hp=0;p.alive=false;api.onDown?.(p);}
  }
- const api={list,team,ready,update,damage,sync,onDown:null,
+ const api={list,team,ready,update,damage,sync,onDown:null,onShot:null,
   center:(p,out)=>out.copy(p.pos).setY(1),
   alive:()=>list.filter(p=>p.alive).length,
   centerOf:out=>teamCenter(out),

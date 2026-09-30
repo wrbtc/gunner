@@ -188,7 +188,7 @@ export function createEnemies(scene,world,combat){
  }
  function damage(e,amount){
   if(!e||!e.alive)return;e.hp-=amount;e.hitFlash=1;
-  if(e.hp<=0){e.alive=false;kills[e.type]++;taken.delete(e.anchor);combat.blast(center(e,tmp),5,.55);}
+  if(e.hp<=0){e.alive=false;kills[e.type]++;taken.delete(e.anchor);combat.blast(center(e,tmp),5,.55);api.onDeath?.(e);}
  }
  // Columns in use, so two creatures never run for the same one.
  const taken=new Set();
@@ -210,7 +210,7 @@ export function createEnemies(scene,world,combat){
   }
  }
  sync(null);
- const api={dormant:false,list,center,update,damage,scare,ready:Promise.all([ready,lampReady]),
+ const api={dormant:false,onDeath:null,list,center,update,damage,scare,ready:Promise.all([ready,lampReady]),
   kills:()=>({...kills}),totals:()=>({hurler:list.filter(e=>e.type==='hurler').length,lamplighter:list.filter(e=>e.type==='lamplighter').length}),
   // Alive and total per Warden level, feet to crown.
   levels:()=>LEVELS.map((_,level)=>{const on=list.filter(e=>e.level===level);return {alive:on.filter(e=>e.alive).length,total:on.length};}),
