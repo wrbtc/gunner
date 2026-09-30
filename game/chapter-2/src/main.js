@@ -52,7 +52,10 @@ enemies.dormant=true;
 for(const mesh of world.glowing)mesh.layers.set(FX_LAYER);
 // Radio for the special infected: a jumper crouching while we circle low, a bloater bursting by the team.
 let lastJumperCall=-99;
-horde.onCrouch=()=>{if(shot||game.time-lastJumperCall<20||craft.state.pos.y>450)return;lastJumperCall=game.time;say('Pilot','Jumpers on the rooftops! Taking us up.',3);craft.state.orbit.wantAlt=Math.max(craft.state.orbit.wantAlt,520);};
+horde.onCrouch=()=>{
+ if(shot||game.time-lastJumperCall<20||craft.state.pos.y>450)return;lastJumperCall=game.time;
+ say('Pilot','Jumpers on the rooftops! Get some height.',3);if(craft.state.orbiting)craft.state.orbit.alt=Math.max(craft.state.orbit.alt,520);
+};
 horde.onBurst=e=>{if(shot)return;survivors.centerOf(teamPos);if(e.pos.distanceTo(teamPos)<30)say('Vega','Bloater! Get back!',2.5);};
 survivors.onDown=p=>{if(!shot)say(survivors.alive()?'Vega':'Pilot',survivors.alive()?`${p.name} is down!`:'We lost the team.',3);};
 craft.hurt=(amount)=>{
@@ -149,7 +152,7 @@ const LADDER_TOP=900,rungs=LEVELS.map(l=>{
 // Subtitles, as on the gunship's radio: the pilot's calls, then the standing order.
 function say(speaker,text,time=4){game.speaker=speaker;game.callout=text;game.calloutTime=time;}
 function climb(dt){
- if(game.hintAt&&game.time>game.hintAt){game.hintAt=0;say('Pilot','I fly the circle, you run the guns. Mouse aims. W A S D moves where I circle: the diamond on the ground.',7);}
+ if(game.hintAt&&game.time>game.hintAt){game.hintAt=0;say('Pilot','Your plane. W A S D fly where you look, Space and C for height. Press O and I will circle your target.',7);}
  const levels=enemies.levels();
  levels.forEach((l,i)=>{
   const r=rungs[i];
@@ -205,7 +208,7 @@ function mission(dt){
 function opticsData(s){
  const t=new Date(),hh=String(t.getHours()).padStart(2,'0'),mm=String(t.getMinutes()).padStart(2,'0'),ss=String(t.getSeconds()).padStart(2,'0');
  const grid=`${String(Math.round(aimPoint.x+5000)).padStart(5,'0')} ${String(Math.round(aimPoint.z+5000)).padStart(5,'0')}`;
- return `${hh}${mm}${ss}Z\nTGT ${grid}\nALT ${String(Math.round(s.pos.y)).padStart(4,'0')}\nORBIT R${Math.round(s.orbit.radius)}`;
+ return `${hh}${mm}${ss}Z\nTGT ${grid}\nALT ${String(Math.round(s.pos.y)).padStart(4,'0')}\n${s.orbiting?`ORBIT R${Math.round(s.orbit.radius)}`:`SPD ${String(Math.round(Math.hypot(s.vel.x,s.vel.z))).padStart(3,'0')}`}`;
 }
 function optics(){
  const s=craft.state,on=sensorView(),w=WEAPONS[arsenal.state.weapon];
@@ -224,14 +227,13 @@ function optics(){
  const el=Math.round(s.aimPitch*180/Math.PI);
  dom.opticsAngles.textContent=`AZ ${String(Math.round(heading)%360).padStart(3,'0')} · EL ${el>=0?'+':'-'}${String(Math.abs(el)).padStart(2,'0')}`;
 }
-// The ORBIT diamond: where the pilot is circling, or heading to, drawn on the ground.
+// The ORBIT diamond: while the pilot has the plane, the point it circles, on the ground.
 const orbitMark=new THREE.Vector3();
 function orbitMarker(){
- const o=craft.state.orbit;orbitMark.set(o.want.x,0,o.want.z).project(camera);
- const on=sensorView()&&orbitMark.z<1&&Math.abs(orbitMark.x)<.96&&Math.abs(orbitMark.y)<.92;
+ const o=craft.state.orbit;orbitMark.copy(o.center).project(camera);
+ const on=craft.state.orbiting&&sensorView()&&orbitMark.z<1&&Math.abs(orbitMark.x)<.96&&Math.abs(orbitMark.y)<.92;
  dom.orbitMark.hidden=!on;
  if(on)dom.orbitMark.style.transform=`translate(${(orbitMark.x*.5+.5)*innerWidth}px,${(-orbitMark.y*.5+.5)*innerHeight}px)`;
- dom.orbitMark.classList.toggle('moving',craft.state.orbit.center.distanceTo(o.want)>25);
 }
 function hud(dt){
  const s=craft.state,a=arsenal.state;orbitMarker();
@@ -248,7 +250,7 @@ function hud(dt){
  const k=enemies.kills(),t=enemies.totals(),warden=k.hurler+k.lamplighter;
  dom.kills.textContent=`INFECTED ${horde.kills()} · WARDEN ${warden}/${t.hurler+t.lamplighter}`;
  survivors.list.forEach((p,i)=>{teamRows[i].classList.toggle('down',!p.alive);teamRows[i].classList.toggle('hurt',p.hitFlash>0);teamRows[i].lastChild.firstChild.style.transform=`scaleX(${p.hp/100})`;});
- dom.alt.textContent=`ALT ${Math.round(s.pos.y)} M · ORBIT ${Math.round(s.orbit.radius)} M`;
+ dom.alt.textContent=`ALT ${Math.round(s.pos.y)} M · ${s.orbiting?'PILOT ORBIT':'MANUAL'}`;
  climb(dt);
  game.hurtFlash=Math.max(0,game.hurtFlash-dt*2.5);dom.veil.style.opacity=(game.hurtFlash*.55+(1-s.hull/100)*.18).toFixed(3);
  optics();
@@ -347,7 +349,10 @@ addEventListener('keydown',e=>{
  if(e.code==='Digit1'||e.code==='Digit2'||e.code==='Digit3')arsenal.select(Number(e.code.slice(-1))-1);
  if(e.code==='KeyT'&&!e.repeat)game.sensor=SENSOR_MODES[(SENSOR_MODES.indexOf(game.sensor)+1)%SENSOR_MODES.length];
  if(e.code==='KeyV'&&!e.repeat)craft.state.view=sensorView()?'chase':'sensor';
- if(e.code==='KeyO'&&!e.repeat&&game.running&&!game.over){craft.orbitAt(aimPoint);say('Pilot','Moving the orbit.',2);}
+ if(e.code==='KeyO'&&!e.repeat&&game.running&&!game.over){
+  if(craft.state.orbiting){craft.state.orbiting=false;say('Pilot','Your plane.',2);}
+  else{craft.orbitAt(aimPoint);say('Pilot','Circling your target. Touch the controls and she is yours.',3);}
+ }
  if(e.code==='KeyR'&&game.over)restart();
 });
 addEventListener('keyup',e=>keys.delete(e.code));

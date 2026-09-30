@@ -1,5 +1,5 @@
 {
-  "version": "0.54.114",
+  "version": "0.54.115",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -338,8 +338,8 @@
     },
     {
       "path": "game/chapter-2/index.html",
-      "bytes": 5061,
-      "sha256": "5a201dc2c69e61ba6eafd48634359dd12c2f7aef2d02547710a97f2921ef4bb4"
+      "bytes": 5147,
+      "sha256": "46f3f6a7ed23976a07c55cbe41007364d84fd55f2dddb1a971a54032e5348020"
     },
     {
       "path": "game/chapter-2/src/airframe.js",
@@ -363,8 +363,8 @@
     },
     {
       "path": "game/chapter-2/src/craft.js",
-      "bytes": 12768,
-      "sha256": "eca6d03582d0dd104b35ea6008b1a0beba3e602a9e2e05c745bf3c6aee7f4df7"
+      "bytes": 13901,
+      "sha256": "b3f04d1f2e2a0e94de8d4d23ef5c4ee64e4b0a95f6b35ed1af4b56755d727231"
     },
     {
       "path": "game/chapter-2/src/enemies.js",
@@ -383,8 +383,8 @@
     },
     {
       "path": "game/chapter-2/src/main.js",
-      "bytes": 26769,
-      "sha256": "9f5deb68cdfd5223f6bb81dad05f0edd23b88499b5bc0d54492797eef740669e"
+      "bytes": 26941,
+      "sha256": "bec06b4096bfb1a26adb56fd88e420d45e9f021d70e0befe1222c8c8b55a0385"
     },
     {
       "path": "game/chapter-2/src/survivors.js",
@@ -393,13 +393,13 @@
     },
     {
       "path": "game/chapter-2/src/world.js",
-      "bytes": 21137,
-      "sha256": "95c5588c69fa1424566b3a968ffef84ac0f2820bc8a7b83e7cdbff3f22db1267"
+      "bytes": 21337,
+      "sha256": "c1f6cc37fc85b5242fd890890d084f9771ea05887f7b5ecff62346543fa87abb"
     },
     {
       "path": "game/chapter-2/styles.css",
       "bytes": 13720,
-      "sha256": "df88014f907cd438b93ac68662d91df383b6d838dbbe7a311374e2198b06c7cd"
+      "sha256": "0b4330f097463950ec64f44a16d2ee37c621a5f502ba6a6db51e28e553269de1"
     },
     {
       "path": "game/index.html",
@@ -409,7 +409,7 @@
     {
       "path": "game/main.js",
       "bytes": 166979,
-      "sha256": "12f2a8570e173e7321da1689ac6c1b7ddb03937442e629fa66eca6ae5dc839d4"
+      "sha256": "0a3de176835554147e47e3d438634ced4eceaef908b74518f0ed5b1b805ded23"
     },
     {
       "path": "game/mobile-entry.js",
@@ -624,7 +624,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 27221,
-      "sha256": "8312b1fc6f5136644c17af79bfb7d1d0a42247ec403cff271d9844136f3e4476"
+      "sha256": "eaf6c1263d90b3582bf55dd5f08ed0548f3f55a4b7f6e778998135120c1bde52"
     },
     {
       "path": "game/src/opening-camera.js",

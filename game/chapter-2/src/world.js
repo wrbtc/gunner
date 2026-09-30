@@ -295,6 +295,8 @@ export function createWorld(scene){
  return {
   root,colliders,pillars,rooftops,towers,materials,pit,overPit,rayHit,
   pointHit:(pt,pad=0)=>eachNear(pt.x-pad,pt.x+pad,pt.z-pad,pt.z+pad,c=>colliderHas(c,pt,pad)),
+  // Every live box whose footprint comes within pad metres of a point.
+  collidersNear(pt,pad){const out=[];eachNear(pt.x-pad,pt.x+pad,pt.z-pad,pt.z+pad,c=>{out.push(c);return false;});return out;},
   // The highest roof or stone within pad metres of a spot: the pilot's floor for an orbit.
   topNear(x,z,pad){let top=0;eachNear(x-pad,x+pad,z-pad,z+pad,c=>{
    const [x0,x1,z0,z1]=footprint(c);if(x>x0-pad&&x<x1+pad&&z>z0-pad&&z<z1+pad)top=Math.max(top,c.inv?c.bound.center.y+c.bound.radius:c.max.y);return false;});return top;},

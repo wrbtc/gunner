@@ -156,5 +156,5 @@ button:hover,button:focus-visible{background:#ffd27a;outline:2px solid #ffd27a;o
 @keyframes orbitPulse{50%{transform:rotate(45deg) scale(1.35)}}
 @media (prefers-reduced-motion:reduce){#orbitMark.moving i{animation:none}}
 /* The controls, on screen for the first half minute. */
-#helpStrip{position:absolute;left:50%;top:100px;transform:translateX(-50%);margin:0;padding:6px 12px;width:max-content;max-width:min(92vw,980px);text-align:center;
+#helpStrip{position:absolute;left:50%;top:100px;transform:translateX(-50%);margin:0;padding:6px 12px;width:max-content;max-width:min(60vw,900px);text-align:center;
   font:600 11px var(--mono);letter-spacing:.14em;color:var(--ink);background:rgba(0,0,0,.45)}

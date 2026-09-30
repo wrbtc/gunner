@@ -1,22 +1,23 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
 import {mergeGeometries} from '../../vendor/BufferGeometryUtils.js?v=052';
-import {BOWL_RADIUS,CEILING} from './world.js?v=ch2-08';
+import {BOWL_RADIUS,CEILING,colliderPush} from './world.js?v=ch2-08';
 import {AIRFRAME,loadAirframe} from './airframe.js?v=ch2-08';
 
-// The Satoshi as a gunship, flown the way the AC-130 is: the pilot holds a left-hand pylon
-// turn round a point and the guns look out of the left side at it. You don't fly the plane;
-// you tell the pilot where to circle (W A S D slide the orbit, Space and C raise and lower
-// it, O circles where you aim) and work the sensor and the guns.
+// The Satoshi as a hover gunship, and you fly it: W A S D push it toward and across where the
+// sensor looks, Space and C climb and drop, and it drifts and settles instead of stopping dead.
+// The nose swings round to follow the sensor. The sensor is ground-stabilised and turns all the
+// way round, so the target stays put while you fly. O hands the plane to the pilot, who holds a
+// pylon turn round the target, AC-130 style, until you touch a flight key again.
 export const CRAFT=Object.freeze({
  // The sculpt is 22 long and 29.4 wide; at .5 it is an 11 m, 15 m span aircraft.
  modelScale:.5,
- orbitSpeed:46,radius:380,minAlt:260,maxAlt:CEILING-20,startAlt:560,
- slideSpeed:120,climbRate:45,bank:.42,
- // How far the orbit keeps clear of anything below it, and the sensor's gimbal limits:
- // yaw either side of the left beam, and pitch from nearly straight down to just above level.
- clearance:30,gimbalYaw:1.3,pitchMin:-1.5,pitchMax:.12,
- chaseBack:70,chaseUp:20,chaseFov:50,
- start:Object.freeze({center:[0,640],angle:.9})
+ accel:68,maxSpeed:72,climb:32,drag:1.2,turnRate:1.4,radius:7,
+ orbitSpeed:46,orbitRadius:320,minOrbitAlt:260,bank:.42,
+ // How far the pilot's orbit keeps clear of anything below it, and the sensor's pitch range,
+ // from nearly straight down to a little above level. It turns freely all the way round.
+ clearance:30,pitchMin:-1.5,pitchMax:.2,
+ chaseBack:60,chaseUp:18,chaseFov:55,
+ start:Object.freeze({pos:[0,430,1260],look:[0,0,1000]})
 });
 
 // Stand-in until the sculpt arrives, and the fallback if it never does.
@@ -88,88 +89,105 @@ export function createCraft(scene,world){
 
  const S=CRAFT.start;
  const state={
-  pos:new THREE.Vector3(),vel:new THREE.Vector3(),heading:0,bank:CRAFT.bank,tilt:0,hull:100,
-  view:'sensor',zoom:false,weapon:0,
-  // look: the sensor's yaw off the left beam and its pitch; aimYaw/aimPitch: the same in the world.
-  look:{yaw:0,pitch:-.9},aimYaw:0,aimPitch:-.9,
-  orbit:{center:new THREE.Vector3(S.center[0],0,S.center[1]),want:new THREE.Vector3(S.center[0],0,S.center[1]),
-   radius:CRAFT.radius,alt:CRAFT.startAlt,wantAlt:CRAFT.startAlt,floor:0,angle:S.angle},
+  pos:new THREE.Vector3(...S.pos),vel:new THREE.Vector3(),heading:0,bank:0,tilt:0,hull:100,
+  view:'sensor',zoom:false,weapon:0,aimYaw:0,aimPitch:-.6,
+  orbiting:false,orbit:{center:new THREE.Vector3(),radius:CRAFT.orbitRadius,alt:0,floor:0,angle:0},
   lift:0,thrust:0,track:null
  };
- const tmp=new THREE.Vector3(),fwd=new THREE.Vector3(),left=new THREE.Vector3(),prev=new THREE.Vector3(),slide=new THREE.Vector3();
+ const tmp=new THREE.Vector3(),fwd=new THREE.Vector3(),right=new THREE.Vector3(),push=new THREE.Vector3(),normal=new THREE.Vector3();
+ const orbitPoint=new THREE.Vector3(),tangent=new THREE.Vector3(),desired=new THREE.Vector3(),eye=new THREE.Vector3();
 
- // The highest thing under the circle, sampled round it: towers, the statue, the cliff.
- // The pilot won't go lower than that plus clearance.
+ // The highest thing under a circle: the pilot won't orbit lower than that plus clearance.
  function orbitFloor(center,radius){
   let top=0;
   for(let i=0;i<48;i++){const a=i/48*Math.PI*2;top=Math.max(top,world.topNear(center.x+Math.cos(a)*radius,center.z+Math.sin(a)*radius,CRAFT.clearance));}
   return top+CRAFT.clearance;
  }
- let floorClock=0;
- function place(o){
-  state.pos.set(o.center.x+Math.cos(o.angle)*o.radius,o.alt,o.center.z+Math.sin(o.angle)*o.radius);
- }
- function updateAim(){
-  // The left beam points at the centre of a perfect circle, so yaw 0 looks at the orbit point.
-  state.aimYaw=state.heading+Math.PI/2+state.look.yaw;state.aimPitch=state.look.pitch;
- }
- // Point the sensor at a world position, within the gimbal.
+ // Point the sensor at a world position.
  function lookAt(point){
-  tmp.subVectors(point,sensorPos(prev));
-  const yaw=Math.atan2(-tmp.x,-tmp.z)-state.heading-Math.PI/2;
-  state.look.yaw=THREE.MathUtils.clamp(Math.atan2(Math.sin(yaw),Math.cos(yaw)),-CRAFT.gimbalYaw,CRAFT.gimbalYaw);
-  state.look.pitch=THREE.MathUtils.clamp(Math.asin(tmp.y/tmp.length()),CRAFT.pitchMin,CRAFT.pitchMax);
-  updateAim();
+  tmp.subVectors(point,sensorPos(eye));
+  state.aimYaw=Math.atan2(-tmp.x,-tmp.z);
+  state.aimPitch=THREE.MathUtils.clamp(Math.asin(tmp.y/Math.max(1e-3,tmp.length())),CRAFT.pitchMin,CRAFT.pitchMax);
  }
- function headingFromAngle(o){const t=tmp.set(Math.sin(o.angle),0,-Math.cos(o.angle));return Math.atan2(-t.x,-t.z);}
+ // O: the pilot circles a point, starting from wherever the plane is now.
+ function orbitAt(point){
+  const o=state.orbit;o.center.set(point.x,0,point.z);
+  const flat=Math.hypot(state.pos.x-point.x,state.pos.z-point.z);
+  o.radius=THREE.MathUtils.clamp(flat,220,480);
+  o.floor=orbitFloor(o.center,o.radius);o.alt=Math.max(state.pos.y,o.floor,CRAFT.minOrbitAlt);
+  o.angle=Math.atan2(state.pos.z-point.z,state.pos.x-point.x);state.orbiting=true;
+ }
  function step(dt,input){
-  const o=state.orbit;
   state.lift=input.lift;state.thrust=input.forward;
-  // W A S D slide the orbit over the ground, relative to where the sensor looks.
-  fwd.set(-Math.sin(state.aimYaw),0,-Math.cos(state.aimYaw));left.set(fwd.z,0,-fwd.x);
-  slide.set(0,0,0).addScaledVector(fwd,input.forward).addScaledVector(left,-input.strafe);
-  if(slide.lengthSq()>0){o.want.addScaledVector(slide.normalize(),CRAFT.slideSpeed*dt);floorClock=0;}
-  const reach=BOWL_RADIUS-o.radius-20,flat=Math.hypot(o.want.x,o.want.z);
-  if(flat>reach)o.want.multiplyScalar(reach/flat);
-  o.wantAlt=THREE.MathUtils.clamp(o.wantAlt+input.lift*CRAFT.climbRate*dt,CRAFT.minAlt,CRAFT.maxAlt);
-  floorClock-=dt;if(floorClock<=0){o.floor=orbitFloor(o.want,o.radius);floorClock=.25;}
-  o.center.lerp(o.want,1-Math.exp(-1.8*dt));
-  const alt=Math.min(CRAFT.maxAlt,Math.max(o.wantAlt,o.floor));
-  // Climb out of trouble quickly, settle down gently.
-  o.alt+=(alt-o.alt)*(1-Math.exp(-(alt>o.alt?1.6:.6)*dt));
-  o.angle-=CRAFT.orbitSpeed/o.radius*dt;
-  prev.copy(state.pos);place(o);
-  state.vel.subVectors(state.pos,prev).divideScalar(Math.max(dt,1e-4));
-  const h=headingFromAngle(o);let d=h-state.heading;d=Math.atan2(Math.sin(d),Math.cos(d));state.heading+=d;
-  state.tilt+=((state.pos.y-prev.y)/Math.max(dt,1e-4)/120-state.tilt)*(1-Math.exp(-3*dt));
-  // Ground-stabilised, as a gunship's sensor is: it stays on the spot you aimed at while the
-  // plane circles, and only the mouse moves it (inside the gimbal).
-  if(state.track)lookAt(state.track);else updateAim();
+  if(input.forward||input.strafe||input.lift)state.orbiting=false;
+  let wantHeading=state.aimYaw;
+  const o=state.orbit;
+  if(state.orbiting){
+   // A left-hand pylon turn: the target stays off the left side, as on the AC-130.
+   o.angle-=CRAFT.orbitSpeed/o.radius*dt;
+   orbitPoint.set(o.center.x+Math.cos(o.angle)*o.radius,o.alt,o.center.z+Math.sin(o.angle)*o.radius);
+   tangent.set(Math.sin(o.angle),0,-Math.cos(o.angle));
+   wantHeading=Math.atan2(-tangent.x,-tangent.z);
+   desired.copy(tangent).multiplyScalar(CRAFT.orbitSpeed).addScaledVector(tmp.subVectors(orbitPoint,state.pos),1.1);
+   state.vel.lerp(desired,1-Math.exp(-2.2*dt));
+  }else{
+   // Flight is relative to the sensor: W toward where you look, A and D across it.
+   fwd.set(-Math.sin(state.aimYaw),0,-Math.cos(state.aimYaw));right.set(-fwd.z,0,fwd.x);
+   push.set(0,0,0).addScaledVector(fwd,input.forward).addScaledVector(right,input.strafe);
+   if(push.lengthSq()>1)push.normalize();
+   state.vel.addScaledVector(push,CRAFT.accel*dt);
+   state.vel.y+=input.lift*CRAFT.accel*.8*dt;
+   state.vel.multiplyScalar(Math.exp(-CRAFT.drag*dt));
+  }
+  const flat=Math.hypot(state.vel.x,state.vel.z),top=state.orbiting?CRAFT.orbitSpeed*1.6:CRAFT.maxSpeed;
+  if(flat>top){state.vel.x*=top/flat;state.vel.z*=top/flat;}
+  state.vel.y=THREE.MathUtils.clamp(state.vel.y,-CRAFT.climb,CRAFT.climb);
+  state.pos.addScaledVector(state.vel,dt);
+  collide();
+  // The nose chases the sensor (or the orbit's tangent) at a big aircraft's turn rate.
+  let d=wantHeading-state.heading;d=Math.atan2(Math.sin(d),Math.cos(d));
+  state.heading+=THREE.MathUtils.clamp(d*(1-Math.exp(-4*dt)),-CRAFT.turnRate*dt,CRAFT.turnRate*dt);
+  // Bank into turns and slides, nod into acceleration: the hover reads as weight.
+  fwd.set(-Math.sin(state.heading),0,-Math.cos(state.heading));right.set(-fwd.z,0,fwd.x);
+  const side=state.vel.dot(right),ahead=state.vel.dot(fwd);
+  state.bank+=(THREE.MathUtils.clamp(-side/CRAFT.maxSpeed,-1,1)*.42+(state.orbiting?CRAFT.bank*.5:0)-state.bank)*(1-Math.exp(-3*dt));
+  state.tilt+=(THREE.MathUtils.clamp(-ahead/CRAFT.maxSpeed,-1,1)*.14-state.tilt)*(1-Math.exp(-3*dt));
+  // Ground-stabilised: the sensor stays on the spot you aimed at while you fly.
+  if(state.track)lookAt(state.track);
  }
- // The sensor ball on the left flank, stabilised: it neither banks nor pitches with the airframe.
+ function collide(){
+  const r=CRAFT.radius,p=state.pos,v=state.vel;
+  if(p.y<r+3){p.y=r+3;v.y=Math.max(0,v.y);}
+  if(p.y>CEILING){p.y=CEILING;v.y=Math.min(0,v.y);}
+  const flat=Math.hypot(p.x,p.z);
+  if(flat>BOWL_RADIUS){p.x*=BOWL_RADIUS/flat;p.z*=BOWL_RADIUS/flat;const n=tmp.set(p.x,0,p.z).normalize(),out=v.dot(n);if(out>0)v.addScaledVector(n,-out);}
+  // Push out of buildings and stone through the nearest face, and lose the speed into it.
+  for(const c of world.collidersNear(p,r+4)){
+   if(!colliderPush(c,p,r,normal))continue;
+   const into=v.dot(normal);if(into<0)v.addScaledVector(normal,-into);
+  }
+ }
+ // The sensor ball under the nose, stabilised: it neither banks nor pitches with the airframe.
  function sensorPos(out){
-  fwd.set(-Math.sin(state.heading),0,-Math.cos(state.heading));left.set(fwd.z,0,-fwd.x);
-  return out.copy(state.pos).addScaledVector(left,1.6).addScaledVector(fwd,1.4).add(tmp.set(0,-.4,0));
+  fwd.set(-Math.sin(state.heading),0,-Math.cos(state.heading));
+  return out.copy(state.pos).addScaledVector(fwd,3.5).add(tmp.set(0,-1.4,0));
  }
  const aimDir=()=>tmp.set(-Math.sin(state.aimYaw)*Math.cos(state.aimPitch),Math.sin(state.aimPitch),-Math.cos(state.aimYaw)*Math.cos(state.aimPitch));
  const camTarget=new THREE.Vector3(),camWant=new THREE.Vector3();
  function placeCamera(camera,dt,fov){
-  const sensor=state.view==='sensor';
-  camera.near=sensor?1:1;
-  if(sensor){
+  if(state.view==='sensor'){
    sensorPos(camera.position);
    camera.fov+=(fov-camera.fov)*(dt>0?1-Math.exp(-10*dt):1);
    camTarget.copy(camera.position).add(aimDir());camera.up.set(0,1,0);camera.lookAt(camTarget);
   }else{
-   // Outside: behind and above, off the outer wing, looking along the turn into the orbit.
-   fwd.set(-Math.sin(state.heading),0,-Math.cos(state.heading));left.set(fwd.z,0,-fwd.x);
-   camWant.copy(state.pos).addScaledVector(fwd,-CRAFT.chaseBack).addScaledVector(left,-22).add(tmp.set(0,CRAFT.chaseUp,0));
+   // Outside: behind and above the plane, looking past it the way the sensor looks.
+   const dir=aimDir().clone();dir.y=Math.max(dir.y,-.5);dir.normalize();
+   camWant.copy(state.pos).addScaledVector(dir,-CRAFT.chaseBack).add(tmp.set(0,CRAFT.chaseUp,0));
    camera.position.lerp(camWant,dt>0?1-Math.exp(-6*dt):1);
    camera.fov+=(CRAFT.chaseFov-camera.fov)*(dt>0?1-Math.exp(-8*dt):1);
-   camTarget.copy(state.pos).addScaledVector(fwd,40).addScaledVector(left,70).add(tmp.set(0,-45,0));
-   camera.up.set(0,1,0);camera.lookAt(camTarget);
+   camTarget.copy(state.pos).addScaledVector(dir,60);camera.up.set(0,1,0);camera.lookAt(camTarget);
   }
-  camera.updateProjectionMatrix();
+  camera.near=1;camera.updateProjectionMatrix();
  }
  let lastTime=0,spin=0,propSpin=0;
  function syncModel(time){
@@ -187,27 +205,29 @@ export function createCraft(scene,world){
   kit.glows.forEach(g=>g.material.opacity=(.14+effort*.26)*flicker);
   kit.nozzles.forEach(n=>n.rotation.x+=(-.3-n.rotation.x)*(1-Math.exp(-4*dt)));
  }
- function setOrbit({center,radius=CRAFT.radius,alt=CRAFT.startAlt,angle=0}){
-  const o=state.orbit;o.center.set(center[0],0,center[1]);o.want.copy(o.center);o.radius=radius;
-  o.floor=orbitFloor(o.center,radius);o.alt=o.wantAlt=Math.max(alt,o.floor);o.angle=angle;
-  place(o);state.heading=headingFromAngle(o);state.vel.set(0,0,0);
-  state.track=null;state.look.yaw=0;state.look.pitch=-Math.atan2(o.alt,o.radius);updateAim();
+ // Proof shots: put the plane on a circle round a point and hand it to the pilot.
+ function setOrbit({center,radius=380,alt=560,angle=0}){
+  const o=state.orbit;o.center.set(center[0],0,center[1]);o.radius=radius;
+  o.floor=orbitFloor(o.center,radius);o.alt=Math.max(alt,o.floor);o.angle=angle;
+  state.pos.set(o.center.x+Math.cos(angle)*radius,o.alt,o.center.z+Math.sin(angle)*radius);
+  tangent.set(Math.sin(angle),0,-Math.cos(angle));state.heading=Math.atan2(-tangent.x,-tangent.z);
+  state.vel.copy(tangent).multiplyScalar(CRAFT.orbitSpeed);state.orbiting=true;state.track=null;
+  lookAt(o.center);
  }
- setOrbit({center:S.center,angle:S.angle});
- return {state,model,step,placeCamera,syncModel,setOrbit,lookAt,sensorPos,aimDir:()=>aimDir().clone(),
-  // Where the gunship will be in t seconds if the pilot holds the orbit.
-  predict(t,out){const o=state.orbit,a=o.angle-CRAFT.orbitSpeed/o.radius*t;return out.set(o.center.x+Math.cos(a)*o.radius,o.alt,o.center.z+Math.sin(a)*o.radius);},
-  // O: circle the point under the reticle.
-  orbitAt(point){state.orbit.want.set(point.x,0,point.z);floorClock=0;},
-  // Mouse: slew the sensor, held inside the gimbal.
-  slew(dx,dy){
-   state.look.yaw=THREE.MathUtils.clamp(state.look.yaw-dx,-CRAFT.gimbalYaw,CRAFT.gimbalYaw);
-   state.look.pitch=THREE.MathUtils.clamp(state.look.pitch-dy,CRAFT.pitchMin,CRAFT.pitchMax);updateAim();
+ function start(){
+  state.pos.set(...S.pos);state.vel.set(0,0,0);state.orbiting=false;state.track=null;state.bank=state.tilt=0;
+  lookAt(tmp.set(...S.look));state.heading=state.aimYaw;
+ }
+ start();
+ return {state,model,step,placeCamera,syncModel,setOrbit,lookAt,sensorPos,orbitAt,aimDir:()=>aimDir().clone(),
+  // Where the gunship will be in t seconds: round the orbit if the pilot has it, straight on if not.
+  predict(t,out){
+   if(!state.orbiting)return out.copy(state.pos).addScaledVector(state.vel,t);
+   const o=state.orbit,a=o.angle-CRAFT.orbitSpeed/o.radius*t;return out.set(o.center.x+Math.cos(a)*o.radius,o.alt,o.center.z+Math.sin(a)*o.radius);
   },
-  // Rounds leave the side guns; the sensor ball is close enough that aim and fire agree.
-  muzzle(out,weapon){
-   sensorPos(out);fwd.set(-Math.sin(state.heading),0,-Math.cos(state.heading));
-   return out.addScaledVector(fwd,[-2.2,-1,1.6][weapon]??0).add(tmp.set(0,-.6,0));
-  },
-  reset(){state.hull=100;state.view='sensor';state.zoom=false;setOrbit({center:S.center,angle:S.angle});}};
+  // Mouse: turn the sensor, all the way round and from straight down to a little above level.
+  slew(dx,dy){state.aimYaw-=dx;state.aimPitch=THREE.MathUtils.clamp(state.aimPitch-dy,CRAFT.pitchMin,CRAFT.pitchMax);},
+  // Rounds leave the chin guns beside the sensor, so aim and fire agree.
+  muzzle(out,weapon){sensorPos(out);return out.add(tmp.set(0,-.5-weapon*.2,0));},
+  reset(){state.hull=100;state.view='sensor';state.zoom=false;start();}};
 }
