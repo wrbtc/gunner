@@ -7,15 +7,15 @@
   <meta name="theme-color" content="#090604">
   <title>GUNNER — Chapter 02 test flight</title>
   <link rel="icon" type="image/svg+xml" href="../assets/gunner-plane.svg?v=052">
-  <link rel="stylesheet" href="./styles.css?v=ch2-03">
+  <link rel="stylesheet" href="./styles.css?v=ch2-04">
 </head>
 <body>
   <canvas id="game" aria-label="Chapter 2 test flight view"></canvas>
 
   <section id="start" class="panel" aria-labelledby="startTitle">
-    <p class="eyebrow">Gunner · Chapter 02 · round 1 test flight</p>
+    <p class="eyebrow">Gunner · Chapter 02 · round 2 test flight</p>
     <h1 id="startTitle">The Warden</h1>
-    <p class="lede">Grey boxes, real controls. You sit in the ball turret as before, and now you fly too. Hunt the creatures hiding on the statue and in the city, and keep moving: they shoot back.</p>
+    <p class="lede">The Warden stands at full size in rough stone, and the Satoshi flies on lift fans. Climb it: clear all five levels from the feet to the crown, and the pit behind its head opens. Keep moving, because they shoot back.</p>
     <dl class="keys">
       <div><dt>W A S D</dt><dd>Fly and strafe</dd></div>
       <div><dt>Space / C</dt><dd>Climb / drop</dd></div>
@@ -44,10 +44,23 @@
     <button id="restartButton" type="button">Start again</button>
   </section>
 
+  <section id="done" class="panel small" hidden aria-labelledby="doneTitle">
+    <p class="eyebrow">Round 2 · the climb</p>
+    <h2 id="doneTitle">Into the pit</h2>
+    <p class="stats" id="doneStats"></p>
+    <p class="lede">What waits down here comes in round 5.</p>
+    <button id="againButton" type="button">Fly again</button>
+  </section>
+
   <div id="hud" hidden>
     <div class="hull"><span class="label">HULL</span><span class="bar"><i id="hullFill"></i></span><b id="hullValue">100</b></div>
     <div class="status"><span id="kills"></span><span id="fps"></span></div>
-    <div class="flight"><span id="mode">CHASE VIEW</span><span id="altitude">ALT 0 M</span><span id="levelName"></span></div>
+    <div class="flight"><span id="mode">CHASE VIEW</span><span id="altitude">ALT 0 M</span></div>
+    <p id="objective"></p>
+    <div id="climb" aria-hidden="true">
+      <div class="pit"><span>THE PIT</span><b id="pitState">SEALED</b></div>
+      <div class="rail"><i id="climbMarker"></i><ol id="climbLevels"></ol></div>
+    </div>
     <ol id="weapons">
       <li><kbd>1</kbd><span class="name">Gatling</span><span class="meter"><i></i></span><span class="note">READY</span></li>
       <li><kbd>2</kbd><span class="name">Heavy cannon</span><span class="meter"><i></i></span><span class="note">READY</span></li>
@@ -70,6 +83,6 @@
   <div id="thermalOverlay" hidden aria-hidden="true"><span>WHT HOT · THERMAL</span></div>
   <div id="veil" aria-hidden="true"></div>
 
-  <script type="module" src="./src/main.js?v=ch2-03"></script>
+  <script type="module" src="./src/main.js?v=ch2-04"></script>
 </body>
 </html>

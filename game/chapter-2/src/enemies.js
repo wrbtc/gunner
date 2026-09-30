@@ -1,9 +1,13 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
-import {rng,rayBox} from './world.js?v=ch2-01';
+import {rng,colliderRay,LEVELS} from './world.js?v=ch2-04';
 
 export const ENEMY_LAYER=2;
 // Only a few attack at once, and never on the same beat: dodging stays readable.
 const MAX_ATTACKERS=3,ATTACK_GAP=.45;
+// A level wakes when you fly within this height of it, so the climb comes at you a floor at a time.
+const WAKE_BAND=230;
+// Creatures per Warden level, feet to crown, and on city rooftops.
+const PER_LEVEL=[10,7,7,8,5],ROOFTOPS=8;
 // Stand-ins for round 1. Hurlers hide behind a pillar, step out, wind up and throw rubble in
 // a slow arc you can dodge. Lamplighters glow for a second, then fire a fast bolt at where you
 // are, so moving is the defence. Both heads glow before an attack: that is the tell.
@@ -16,15 +20,15 @@ const HEAD_HOT={hurler:new THREE.Color(0xff6a1a),lamplighter:new THREE.Color(0xf
 
 export function createEnemies(scene,world,combat){
  const random=rng(77),list=[];
- const add=(type,home,anchor,ledge)=>list.push({index:list.length,type,...TYPES[type],home:home.clone(),pos:home.clone(),anchor,ledge,
+ const add=(type,home,anchor,level)=>list.push({index:list.length,type,...TYPES[type],home:home.clone(),pos:home.clone(),anchor,level,
   hp:TYPES[type].hp,alive:true,state:'cover',timer:.5+random()*3,glow:0,lean:0,out:new THREE.Vector3(),hide:new THREE.Vector3(),hitFlash:0});
- // Two thirds of the pillars get a creature: Hurlers mostly low, Lamplighters higher up.
- world.pillars.forEach((pl,i)=>{
-  if(random()<.34)return;
-  add(pl.ledge.level>=2&&random()<.45||random()<.22?'lamplighter':'hurler',pl.pos,i,pl.ledge);
+ // A fixed number of pillars on each level get a creature: Hurlers mostly low, Lamplighters higher up.
+ PER_LEVEL.forEach((count,level)=>{
+  const spots=world.pillars.map((pl,i)=>({pl,i,order:random()})).filter(o=>o.pl.level===level).sort((a,b)=>a.order-b.order).slice(0,count);
+  for(const {pl,i} of spots.sort((a,b)=>a.i-b.i))add(level>=2&&random()<.45||random()<.22?'lamplighter':'hurler',pl.pos,i,level);
  });
  // A few on city rooftops: no pillar, they duck behind the parapet instead.
- world.rooftops.filter(r=>r.z<420&&Math.abs(r.x)<520).sort(()=>random()-.5).slice(0,10).forEach((r,i)=>add(i%3?'hurler':'lamplighter',r,-1,null));
+ world.rooftops.filter(r=>r.z<420&&Math.abs(r.x)<520).sort(()=>random()-.5).slice(0,ROOFTOPS).forEach((r,i)=>add(i%3?'hurler':'lamplighter',r,-1,-1));
 
  const count=list.length,geo={
   hurler:new THREE.CylinderGeometry(1.5,2.3,9,8).translate(0,4.5,0),
@@ -38,6 +42,8 @@ export function createEnemies(scene,world,combat){
  bodies.hurler.name='Hurlers (stand-in)';bodies.lamplighter.name='Lamplighters (stand-in)';heads.name='Creature heads';
  const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e3=new THREE.Euler(),s3=new THREE.Vector3(),zero=new THREE.Matrix4().makeScale(0,0,0),color=new THREE.Color();
  const tmp=new THREE.Vector3(),away=new THREE.Vector3(),dir=new THREE.Vector3(),head=new THREE.Vector3();
+ // Keep a point within a step of the pillar along the ledge's facing.
+ const onLedge=(pt,e)=>{const pl=world.pillars[e.anchor],d=tmp.subVectors(pt,e.home).dot(pl.normal);pt.addScaledVector(pl.normal,THREE.MathUtils.clamp(d,-pl.inward,6)-d);};
  let kills={hurler:0,lamplighter:0},attackGap=0;
 
  function center(e,out){return out.copy(e.pos).setY(e.pos.y+e.height*.6);}
@@ -48,15 +54,13 @@ export function createEnemies(scene,world,combat){
    e.hide.copy(e.home).setY(e.home.y-(e.anchor<0?e.height*.8:0));e.out.copy(e.home);return;
   }
   away.subVectors(e.home,craftPos).setY(0);if(away.lengthSq()<1)away.set(0,0,-1);away.normalize();
-  e.hide.copy(e.home).addScaledVector(away,6.5);
-  if(e.ledge){e.hide.z=THREE.MathUtils.clamp(e.hide.z,e.ledge.z-10,e.ledge.z+6);}
+  e.hide.copy(e.home).addScaledVector(away,6.5);onLedge(e.hide,e);
   const side=(e.index%2?1:-1);
-  e.out.copy(e.home).add(tmp.set(-away.z*side,0,away.x*side).multiplyScalar(7.5));
-  if(e.ledge)e.out.z=THREE.MathUtils.clamp(e.out.z,e.ledge.z-10,e.ledge.z+6);
+  e.out.copy(e.home).add(tmp.set(-away.z*side,0,away.x*side).multiplyScalar(7.5));onLedge(e.out,e);
  }
  function canSee(e,craftPos){
   headPos(e,head);dir.subVectors(craftPos,head);const len=dir.length();dir.divideScalar(len);
-  for(const c of world.colliders){if(c.alive&&rayBox(head,dir,c.min,c.max,len-10)<len-10)return false;}
+  for(const c of world.colliders){if(c.alive&&colliderRay(c,head,dir,len-10)<len-10)return false;}
   return true;
  }
  function attack(e,craft){
@@ -79,7 +83,7 @@ export function createEnemies(scene,world,combat){
   for(const e of list){
    if(!e.alive)continue;
    e.timer-=dt;e.hitFlash=Math.max(0,e.hitFlash-dt*5);
-   const inRange=e.home.distanceTo(craftPos)<e.range;
+   const inRange=e.home.distanceTo(craftPos)<e.range&&Math.abs(craftPos.y-e.home.y)<WAKE_BAND;
    if(e.state==='cover'){
     plan(e,craftPos);e.pos.lerp(e.hide,1-Math.exp(-5*dt));e.glow=Math.max(0,e.glow-dt*3);
     if(e.timer<=0){
@@ -121,6 +125,8 @@ export function createEnemies(scene,world,combat){
  sync(null);
  return {list,center,update,damage,
   kills:()=>({...kills}),totals:()=>({hurler:list.filter(e=>e.type==='hurler').length,lamplighter:list.filter(e=>e.type==='lamplighter').length}),
+  // Alive and total per Warden level, feet to crown.
+  levels:()=>LEVELS.map((_,level)=>{const on=list.filter(e=>e.level===level);return {alive:on.filter(e=>e.alive).length,total:on.length};}),
   exposeAll(craftPos,glow=0){for(const e of list){plan(e,craftPos);e.pos.copy(e.out);e.state='windup';e.timer=9;e.glow=glow*(e.type==='lamplighter'?1:.6);}sync(craftPos);},
   reset(){list.forEach(e=>Object.assign(e,{alive:true,hp:TYPES[e.type].hp,state:'cover',timer:.5+random()*3,glow:0,lean:0,hitFlash:0,pos:e.home.clone()}));kills={hurler:0,lamplighter:0};sync(null);}};
 }

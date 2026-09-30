@@ -1,5 +1,5 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
-import {rayBox} from './world.js?v=ch2-01';
+import {colliderHas,colliderRay} from './world.js?v=ch2-04';
 
 export const FX_LAYER=3;
 const GRAVITY=30;
@@ -40,7 +40,7 @@ export function createCombat(scene,world){
   let best={t:far,kind:'none',index:-1};
   for(let i=0;i<world.colliders.length;i++){
    const c=world.colliders[i];if(!c.alive)continue;
-   const t=rayBox(origin,direction,c.min,c.max,best.t);if(t<best.t)best={t,kind:c.kind,index:i};
+   const t=colliderRay(c,origin,direction,best.t);if(t<best.t)best={t,kind:c.kind,index:i};
   }
   if(direction.y<0){const t=-origin.y/direction.y;if(t>0&&t<best.t)best={t,kind:'ground',index:-1};}
   if(hitEnemies&&enemies)for(const e of enemies.list){
@@ -60,7 +60,7 @@ export function createCombat(scene,world){
  function tracer(a,b){const i=tracerNext++%TRACERS;tracerPos.set([a.x,a.y,a.z,b.x,b.y,b.z],i*6);tracerAge[i]=0;}
  function hitsWorld(p){
   if(p.y<=0)return true;
-  for(const c of world.colliders)if(c.alive&&p.x>c.min.x&&p.x<c.max.x&&p.y>c.min.y&&p.y<c.max.y&&p.z>c.min.z&&p.z<c.max.z)return true;
+  for(const c of world.colliders)if(c.alive&&colliderHas(c,p))return true;
   return false;
  }
  function update(dt,aimPoint){

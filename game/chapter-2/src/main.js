@@ -1,14 +1,16 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
-import {createWorld,WORLD_LAYER,WARDEN,LEVELS} from './world.js?v=ch2-01';
-import {createCraft,CRAFT} from './craft.js?v=ch2-03';
-import {createCombat,createArsenal,WEAPONS,FX_LAYER} from './combat.js?v=ch2-02';
-import {createEnemies,ENEMY_LAYER} from './enemies.js?v=ch2-01';
-import {createGunRig,GUN_LAYER} from './gun-rig.js?v=ch2-02';
+import {createWorld,WORLD_LAYER,WARDEN,LEVELS} from './world.js?v=ch2-04';
+import {createCraft,CRAFT} from './craft.js?v=ch2-04';
+import {createCombat,createArsenal,WEAPONS,FX_LAYER} from './combat.js?v=ch2-04';
+import {createEnemies,ENEMY_LAYER} from './enemies.js?v=ch2-04';
+import {createGunRig,GUN_LAYER} from './gun-rig.js?v=ch2-04';
 
-// Gunner Chapter 02, The Warden: round 1 test flight. Grey boxes, real controls.
+// Gunner Chapter 02, The Warden: round 2 test flight. The Warden roughed out at full size,
+// the Satoshi on lift fans, and the climb: clear its five levels and the pit opens.
 const $=id=>document.getElementById(id);
 const dom={canvas:$('game'),start:$('start'),pause:$('pause'),down:$('down'),hud:$('hud'),hull:$('hullFill'),hullValue:$('hullValue'),
- weapons:$('weapons'),optics:$('optics'),compass:$('compassTape'),opticsMode:$('opticsMode'),opticsZoom:$('opticsZoom'),opticsRange:$('opticsRange'),opticsAngles:$('opticsAngles'),opticsData:$('opticsData'),mode:$('mode'),kills:$('kills'),fps:$('fps'),reticle:$('reticle'),hit:$('hitMarker'),veil:$('veil'),thermal:$('thermalOverlay'),alt:$('altitude'),level:$('levelName')};
+ weapons:$('weapons'),optics:$('optics'),compass:$('compassTape'),opticsMode:$('opticsMode'),opticsZoom:$('opticsZoom'),opticsRange:$('opticsRange'),opticsAngles:$('opticsAngles'),opticsData:$('opticsData'),mode:$('mode'),kills:$('kills'),fps:$('fps'),reticle:$('reticle'),hit:$('hitMarker'),veil:$('veil'),thermal:$('thermalOverlay'),alt:$('altitude'),
+ objective:$('objective'),climb:$('climbLevels'),marker:$('climbMarker'),pitState:$('pitState'),done:$('done'),doneStats:$('doneStats')};
 const shot=new URLSearchParams(location.search).get('shot')||globalThis.CH2_SHOT||'';
 
 const renderer=new THREE.WebGLRenderer({canvas:dom.canvas,antialias:true,powerPreference:'high-performance'});
@@ -19,7 +21,8 @@ const SKY=new THREE.Color(0xc98a4a),THERMAL_SKY=new THREE.Color(0x3a3834),THERMA
 scene.background=SKY.clone();
 scene.fog=new THREE.FogExp2(0x9a6a3e,.0011);
 const camera=new THREE.PerspectiveCamera(CRAFT.seatFov,1,.12,4000);scene.add(camera);
-const hemi=new THREE.HemisphereLight(0xffd9a0,0x2a1a10,1.35);scene.add(hemi);
+// The ground burns, so faces turned down catch a warm glow instead of going black.
+const hemi=new THREE.HemisphereLight(0xffd9a0,0x5a3419,1.35);scene.add(hemi);
 const sun=new THREE.DirectionalLight(0xffc27a,1.6);sun.position.set(-600,900,500);scene.add(sun);
 // Lights are culled by camera layers too: they must also light the seat guns' pass.
 for(const light of [hemi,sun])light.layers.enable(GUN_LAYER);
@@ -34,7 +37,7 @@ craft.hurt=(amount)=>{if(game.over||shot)return;craft.state.hull=Math.max(0,craf
 // Mid greys, not white: the lights and fog still carve shape and depth into the heat.
 const hotMat=new THREE.MeshLambertMaterial({color:0xa9a59d,emissive:0x4a4843});
 const coldMat=new THREE.MeshBasicMaterial({color:0x050505,fog:false});
-const game={running:false,paused:false,over:false,thermal:false,firing:false,time:0,hurtFlash:0,fpsTime:0,fpsFrames:0};
+const game={running:false,paused:false,over:false,thermal:false,firing:false,time:0,clock:0,hurtFlash:0,fpsTime:0,fpsFrames:0,callout:'',calloutTime:0};
 const keys=new Set(),input={forward:0,strafe:0,lift:0};
 const aimPoint=new THREE.Vector3(),centerRay=new THREE.Vector3(),hudTmp=new THREE.Vector3();
 
@@ -86,6 +89,33 @@ const TAPE_PX=6;
  dom.compass.innerHTML=html;
 })();
 let lastRange=Infinity;
+// The climb ladder: the Warden's five levels up a rail, how many are left on each, where you
+// are, and the pit at the top.
+const LADDER_TOP=680,rungs=LEVELS.map(l=>{
+ const li=document.createElement('li');li.style.bottom=`${l.y/LADDER_TOP*100}%`;
+ li.append(document.createElement('span'),document.createElement('b'));li.firstChild.textContent=l.name;
+ dom.climb.append(li);return {li,count:li.lastChild,last:-1};
+});
+function callout(text){game.callout=text.toUpperCase();game.calloutTime=3;}
+function climb(dt){
+ const s=craft.state,levels=enemies.levels(),near=Math.hypot(s.pos.x-WARDEN.x,s.pos.z-WARDEN.z)<480;
+ let current=-1,best=120;
+ LEVELS.forEach((l,i)=>{const d=Math.abs(s.pos.y-l.y);if(near&&d<best){best=d;current=i;}});
+ levels.forEach((l,i)=>{
+  const r=rungs[i];
+  if(l.alive!==r.last){
+   if(r.last>0&&!l.alive)callout(`${LEVELS[i].name} clear`);
+   r.last=l.alive;r.count.textContent=l.alive?String(l.alive):'CLEAR';r.li.classList.toggle('clear',!l.alive);
+  }
+  r.li.classList.toggle('current',i===current);
+ });
+ dom.marker.style.bottom=`${THREE.MathUtils.clamp(s.pos.y/LADDER_TOP,0,1)*100}%`;
+ if(!world.pit.open&&levels.every(l=>!l.alive)){world.pit.setOpen(true);callout('The pit is open');}
+ dom.pitState.textContent=world.pit.open?'OPEN':'SEALED';dom.pitState.classList.toggle('open',world.pit.open);
+ game.calloutTime=Math.max(0,game.calloutTime-dt);
+ dom.objective.textContent=game.calloutTime>0?game.callout:world.pit.open?'THE PIT IS OPEN · OVER THE CROWN AND DOWN BEHIND THE HEAD':'CLIMB THE WARDEN · CLEAR ALL FIVE LEVELS';
+ dom.objective.classList.toggle('callout',game.calloutTime>0);
+}
 // Corner readouts, the dense block of numbers on a real sensor feed: time, target grid, orbit.
 function opticsData(s){
  const t=new Date(),hh=String(t.getHours()).padStart(2,'0'),mm=String(t.getMinutes()).padStart(2,'0'),ss=String(t.getSeconds()).padStart(2,'0');
@@ -123,8 +153,7 @@ function hud(dt){
  const k=enemies.kills(),t=enemies.totals();
  dom.kills.textContent=`HURLERS ${k.hurler}/${t.hurler} · LAMPLIGHTERS ${k.lamplighter}/${t.lamplighter}`;
  dom.alt.textContent=`ALT ${Math.round(s.pos.y)} M`;
- const level=[...LEVELS].reverse().find(l=>s.pos.y>=l.y-20&&Math.hypot(s.pos.x-WARDEN.x,s.pos.z-WARDEN.z)<420);
- dom.level.textContent=level?level.name.toUpperCase():'';
+ climb(dt);
  game.hurtFlash=Math.max(0,game.hurtFlash-dt*2.5);dom.veil.style.opacity=(game.hurtFlash*.55+(1-s.hull/100)*.18).toFixed(3);
  dom.thermal.hidden=!game.thermal||s.gunCam;dom.canvas.classList.toggle('thermal',game.thermal);
  dom.reticle.classList.toggle('gun',s.gunCam);
@@ -138,6 +167,7 @@ function frame(dt){
   const hit=updateAimPoint();
   arsenal.update(dt,game.firing,aimPoint);
   enemies.update(dt,craft);
+  game.clock+=dt;if(world.pit.contains(craft.state.pos))finish();
   dom.reticle.classList.toggle('on-target',hit.kind==='enemy');dom.optics.classList.toggle('on-target',hit.kind==='enemy');
   lastRange=hit.t;
  }
@@ -147,6 +177,7 @@ function frame(dt){
  const a=arsenal.state;gunRig.update(dt,{firing:game.firing&&game.running&&!game.paused,gatling:a.weapon===0,overheated:a.overheated});
  if(a.shots!==lastShots){lastShots=a.shots;gunRig.shot();}
  if(!game.paused)combat.update(dt,aimPoint);
+ world.pit.update(game.time);
  if(arsenal.state.hits!==lastHits){lastHits=arsenal.state.hits;dom.hit.classList.remove('show');void dom.hit.offsetWidth;dom.hit.classList.add('show');}
  hud(dt);render();
  game.fpsFrames++;game.fpsTime+=dt;if(game.fpsTime>.5){dom.fps.textContent=`${Math.round(game.fpsFrames/game.fpsTime)} FPS`;game.fpsFrames=0;game.fpsTime=0;}
@@ -160,12 +191,24 @@ function begin(){
  dom.canvas.requestPointerLock?.()?.catch?.(()=>{});
 }
 function crash(){game.over=true;game.firing=false;craft.state.gunCam=false;document.exitPointerLock?.();dom.down.hidden=false;}
-function restart(){craft.reset();enemies.reset();combat.reset();arsenal.reset();world.pillars.forEach(p=>{if(p.hp<=0){p.hp=260;p.collider.alive=true;}});game.over=false;begin();}
+// Down into the pit: the end of the round.
+function finish(){
+ game.over=true;game.firing=false;craft.state.gunCam=false;document.exitPointerLock?.();
+ const t=Math.round(game.clock),levels=enemies.levels(),city=enemies.list.filter(e=>e.level<0);
+ const warden=levels.reduce((n,l)=>n+l.total,0);
+ dom.doneStats.textContent=`TIME ${Math.floor(t/60)}:${String(t%60).padStart(2,'0')} · HULL ${Math.ceil(craft.state.hull)} · WARDEN ${warden}/${warden} · CITY ${city.filter(e=>!e.alive).length}/${city.length}`;
+ dom.done.hidden=false;
+}
+function restart(){
+ craft.reset();enemies.reset();combat.reset();arsenal.reset();world.restorePillars();world.pit.setOpen(false);rungs.forEach(r=>r.last=-1);
+ Object.assign(game,{over:false,clock:0,calloutTime:0});dom.done.hidden=true;begin();
+}
 function setThermal(on){game.thermal=on;}
 
 $('startButton').addEventListener('click',begin);
 $('resumeButton').addEventListener('click',begin);
 $('restartButton').addEventListener('click',()=>{location.reload();});
+$('againButton').addEventListener('click',restart);
 dom.canvas.addEventListener('click',()=>{if(game.running&&!game.over&&document.pointerLockElement!==dom.canvas)begin();});
 document.addEventListener('pointerlockchange',()=>{
  if(document.pointerLockElement!==dom.canvas&&game.running&&!game.over){game.paused=true;game.firing=false;keys.clear();dom.pause.hidden=false;}
@@ -198,23 +241,25 @@ addEventListener('keyup',e=>keys.delete(e.code));
 // Proof shots for screenshots: fixed positions, creatures stepped out, no input needed.
 const SHOTS={
  city:{pos:[40,46,760],yaw:0,pitch:.05},
- seat:{pos:[70,300,-300],yaw:-.08,pitch:-.12,expose:true},
- seatfire:{pos:[60,262,-330],look:[-20,236,-620],expose:true,fire:true},
- chase:{pos:[70,300,-300],yaw:-.08,pitch:-.12,expose:true,outside:true},
- guncam:{pos:[60,262,-330],look:[-20,236,-620],gun:true,expose:true},
- thermal:{pos:[60,262,-330],look:[-20,236,-620],gun:true,thermal:true,expose:true},
- apache:{pos:[-40,420,-260],look:[-60,226,-612],gun:true,thermal:true,expose:true,zoom:0},
- lance:{pos:[-40,420,-260],look:[-60,226,-612],gun:true,thermal:true,expose:true,weapon:2},
- gatlingzoom:{pos:[-40,420,-260],look:[-60,226,-612],gun:true,thermal:true,expose:true,weapon:0,zoom:1},
- thermalwide:{pos:[70,300,-300],yaw:-.08,pitch:-.12,thermal:true,expose:true},
- thermalseat:{pos:[60,262,-330],look:[-20,236,-620],thermal:true,expose:true},
- climb:{pos:[-230,470,-500],yaw:-.75,pitch:.08,expose:true}
+ warden:{pos:[30,250,100],yaw:-.04,pitch:.1,outside:true,lift:1},
+ satoshi:{pos:[-40,330,-260],yaw:0,pitch:-.04,heading:-.75,outside:true,expose:true,lift:1},
+ seat:{pos:[60,300,-240],yaw:-.05,pitch:.14,expose:true},
+ bridges:{pos:[150,330,-400],look:[-40,318,-506],expose:true},
+ hall:{pos:[70,428,-560],look:[0,412,-672],expose:true},
+ towers:{pos:[270,565,-660],look:[150,548,-740],expose:true,outside:true},
+ crown:{pos:[70,690,-610],look:[0,622,-732],expose:true,outside:true},
+ pit:{pos:[0,790,-700],look:[0,380,-930],outside:true,pit:true},
+ guncam:{pos:[70,428,-540],look:[0,412,-672],gun:true,expose:true},
+ thermal:{pos:[70,428,-540],look:[0,412,-672],gun:true,thermal:true,expose:true},
+ thermalwide:{pos:[60,330,-300],yaw:-.05,pitch:.1,thermal:true,expose:true},
+ lance:{pos:[-40,520,-420],look:[-150,548,-740],gun:true,thermal:true,expose:true,weapon:2}
 };
 function applyShot(name){
  const cfg=SHOTS[name];if(!cfg)return false;
  const s=craft.state;s.pos.set(...cfg.pos);
  if(cfg.look){const d=new THREE.Vector3(...cfg.look).sub(s.pos);cfg.yaw=Math.atan2(-d.x,-d.z);cfg.pitch=Math.asin(d.y/d.length());}
  s.aimYaw=s.heading=cfg.yaw;s.aimPitch=cfg.pitch;s.gunCam=!!cfg.gun;s.view=cfg.outside?'chase':'seat';s.zoom=cfg.zoom||0;
+ if(cfg.heading!==undefined)s.heading=cfg.heading;s.lift=cfg.lift||0;if(cfg.pit)world.pit.setOpen(true);
  if(cfg.weapon)arsenal.select(cfg.weapon);s.weapon=arsenal.state.weapon;
  setThermal(!!cfg.thermal);
  if(cfg.expose)enemies.exposeAll(s.pos,1);
