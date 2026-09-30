@@ -50,6 +50,8 @@ survivors.friendly=true;combat.addTargets(horde);combat.addTargets(survivors);
 // The statue's garrison sleeps until the team reaches the plaza.
 enemies.dormant=true;
 for(const mesh of world.glowing)mesh.layers.set(FX_LAYER);
+// The sun's shadows are drawn once; draw them again when the Warden's sculpt arrives.
+world.onSculpt=()=>{renderer.shadowMap.needsUpdate=true;};
 // Radio for the special infected: a jumper crouching while we circle low, a bloater bursting by the team.
 let lastJumperCall=-99;
 horde.onCrouch=()=>{
@@ -362,13 +364,13 @@ addEventListener('keyup',e=>keys.delete(e.code));
 // Proof shots for screenshots: a fixed orbit and sensor aim, creatures stepped out, no input.
 const SOUTH=[0,440],OVER=[0,140];
 const SHOTS={
- sensor:{center:SOUTH,angle:.3,look:[0,405,10],weapon:0,expose:true},
- bridges:{center:SOUTH,angle:.1,look:[-40,312,196],weapon:1,expose:true},
- hall:{center:SOUTH,angle:.2,look:[0,407,24],weapon:2,zoom:true,expose:true},
+ sensor:{center:SOUTH,angle:.3,look:[-60,445,150],weapon:0,expose:true},
+ bridges:{center:SOUTH,angle:.1,look:[-60,312,186],weapon:1,expose:true},
+ hall:{center:SOUTH,angle:.2,look:[-60,445,150],weapon:2,zoom:true,expose:true},
  blackhot:{center:SOUTH,angle:.5,look:[0,84,192],weapon:1,mode:'blk',expose:true},
  tv:{center:SOUTH,angle:.3,look:[0,330,60],weapon:0,mode:'tv',expose:true},
- towers:{center:OVER,angle:2.4,look:[150,546,-40],weapon:1,expose:true},
- crown:{center:OVER,angle:1.9,look:[0,618,-32],weapon:2,expose:true},
+ towers:{center:OVER,angle:2.4,look:[62,535,12],weapon:1,expose:true},
+ crown:{center:OVER,angle:1.9,look:[-60,580,82],weapon:2,expose:true},
  pit:{center:[0,40],angle:-1.3,look:[0,-130,-230],weapon:0,pit:true},
  outside:{center:SOUTH,angle:1.25,outside:true},
  avenue:{center:[0,640],angle:1.35,outside:true},
@@ -389,6 +391,11 @@ const SHOTS={
  // and the ordinary outside view over the team. cam is [right, up, ahead] of the aircraft.
  heli:{center:[0,900],angle:1.35,alt:150,outside:true,tilt:-.1,cam:[14,4,18]},
  heliside:{center:[0,900],angle:1.35,alt:150,outside:true,cam:[26,3,-2]},
+ // The Warden from the avenue, from the east, and its face, with a camera of its own.
+ warden:{center:[0,900],angle:1.35,alt:150,outside:true,view:{from:[40,180,880],to:[-30,330,0],fov:50}},
+ wardenside:{center:[0,900],angle:1.35,alt:150,outside:true,view:{from:[760,260,180],to:[-20,320,0],fov:50}},
+ wardenface:{center:[0,900],angle:1.35,alt:150,outside:true,view:{from:[-20,470,460],to:[-48,525,110],fov:30}},
+ wardentv:{center:SOUTH,angle:.3,look:[-60,520,60],weapon:0,mode:'tv',expose:true},
  helichase:{center:[0,1180],angle:1.45,alt:140,outside:true,tilt:-.12,look:[0,1,985],team:[0,985],wave:22,run:4},
  // Weapons in flight: fire, then step the world a moment so the smoke has drawn out.
  missile:{center:[0,1180],angle:1.45,alt:140,look:[0,1,905],weapon:0,team:[0,985],wave:22,run:4,fire:[.05,1.1]},
@@ -402,6 +409,10 @@ function applyShot(name){
  craft.setOrbit({center:cfg.center,angle:cfg.angle,alt:cfg.alt});
  const s=craft.state;s.view=cfg.outside?'chase':'sensor';s.zoom=!!cfg.zoom;
  s.tilt=cfg.tilt||0;
+ if(cfg.view){
+  const {from,to,fov}=cfg.view;
+  shotCam=()=>{camera.position.set(...from);camera.fov=fov;camera.updateProjectionMatrix();camera.lookAt(...to);};
+ }
  if(cfg.cam){
   const [r,u,f]=cfg.cam;
   shotCam=()=>{const h=s.heading,sin=Math.sin(h),cos=Math.cos(h);

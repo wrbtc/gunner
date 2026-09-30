@@ -27,7 +27,7 @@ function pool(scene,geometry,material,size,name){
 // The 30 mm chin gun fires small bursting rounds and heats up.
 export const WEAPONS=Object.freeze([
  {id:'missile',label:'Missile',key:'1',launch:60,speed:240,turn:2.6,radius:26,damage:420,pillar:999,cooldown:4,fov:40,scale:1.4,smoke:1.5},
- {id:'rockets',label:'Rockets',key:'2',launch:160,speed:340,radius:7,damage:90,pillar:120,rate:.15,load:14,reload:5,spread:.01,fov:20,scale:.75,smoke:.7},
+ {id:'rockets',label:'Rockets',key:'2',launch:160,speed:340,radius:7,damage:90,pillar:120,rate:.15,load:14,reload:5,spread:.01,fov:20,scale:.75,smoke:.55},
  {id:'gun',label:'30 mm',key:'3',rate:.1,damage:14,radius:3,splash:8,heat:.065,fov:10}
 ]);
 
@@ -48,7 +48,7 @@ export function createCombat(scene,world){
  const shells=pool(scene,new THREE.CapsuleGeometry(.4,2.2,2,6).rotateX(Math.PI/2),new THREE.MeshBasicMaterial({color:0xffe0a0}),40,'Missiles and rockets');
  // Motor smoke: a soft puff every couple of metres behind each missile and rocket, turned to
  // face the camera, swelling, then gone.
- const smoke=pool(scene,new THREE.PlaneGeometry(2,2),new THREE.MeshBasicMaterial({map:softDot(),color:0xd2cdc1,transparent:true,opacity:.42,depthWrite:false}),520,'Motor smoke');
+ const smoke=pool(scene,new THREE.PlaneGeometry(2,2),new THREE.MeshBasicMaterial({map:softDot(),color:0xd2cdc1,transparent:true,opacity:.42,depthWrite:false}),1000,'Motor smoke');
  const blasts=pool(scene,new THREE.SphereGeometry(1,16,10),new THREE.MeshBasicMaterial({color:0xff8a3a,transparent:true,opacity:.75,depthWrite:false,blending:THREE.AdditiveBlending}),40,'Blasts');
  const TRACERS=48,tracerPos=new Float32Array(TRACERS*6),tracerAge=new Float32Array(TRACERS).fill(9);let tracerNext=0;
  const tracerGeo=new THREE.BufferGeometry();tracerGeo.setAttribute('position',new THREE.BufferAttribute(tracerPos,3));
@@ -128,7 +128,7 @@ export function createCombat(scene,world){
    }
    s.pos.addScaledVector(dir,step);
    s.puff=(s.puff||0)+step;
-   while(s.puff>2){s.puff-=2;const p=smoke.spawn();if(!p)break;p.pos.copy(s.pos).addScaledVector(dir,-1.6-s.puff);p.life=w.smoke*(.8+Math.random()*.4);p.extra=w.smoke;p.scale=.01;}
+   while(s.puff>2.5){s.puff-=2.5;const p=smoke.spawn();if(!p)break;p.pos.copy(s.pos).addScaledVector(dir,-1.6-s.puff);p.life=w.smoke*(.8+Math.random()*.4);p.extra=w.smoke;p.scale=.01;}
    if(s.age>12)s.live=false;
   }
   for(const p of smoke.items){

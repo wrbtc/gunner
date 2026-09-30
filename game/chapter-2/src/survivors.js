@@ -11,7 +11,7 @@ export const TEAM=Object.freeze(['Vega','Okafor','Brandt','Sato']);
 // Up the avenue from the south to the plaza at the statue's feet.
 export const APPROACH=Object.freeze([[0,1000],[0,880],[0,760],[0,640],[0,520],[0,400],[0,268]]);
 // From the plaza round the east side of the plinth to the crater's rim, at a sprint.
-export const TO_CRATER=Object.freeze([[120,262],[232,228],[232,-152],[80,-156]]);
+export const TO_CRATER=Object.freeze([[120,262],[252,240],[252,-156],[80,-156]]);
 const SPEED=4,HOLD_RANGE=45,FIRE_RANGE=75,HP=100;
 const FORMATION=[[-3,-3],[3,-3],[-3,3],[3,3]];
 

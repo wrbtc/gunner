@@ -139,9 +139,9 @@ export function createEnemies(scene,world,combat){
    if(!e.alive)continue;
    e.timer-=dt;e.hitFlash=Math.max(0,e.hitFlash-dt*5);
    if(e.state==='flee'){
-    // Running for the new column; cover again on arrival.
-    dir.subVectors(e.home,e.pos).setY(0);const gap=dir.length();
-    if(gap<.6){e.state='cover';e.timer=2+random()*2.5;}
+    // Running for the new column, climbing or dropping with the stone between; cover again on arrival.
+    dir.subVectors(e.home,e.pos);const gap=Math.hypot(dir.x,dir.z);
+    if(gap<.6){e.pos.y=e.home.y;e.state='cover';e.timer=2+random()*2.5;}
     else e.pos.addScaledVector(dir,Math.min(gap,(e.type==='hurler'?8:5.5)*dt)/gap);
     continue;
    }

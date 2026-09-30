@@ -1,18 +1,24 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
 import {mergeGeometries} from '../../vendor/BufferGeometryUtils.js?v=052';
 import {createCity} from './city.js?v=ch2-08';
+import {loadWarden} from './warden.js?v=ch2-08';
+import {WARDEN_BOXES,WARDEN_SPOTS,WARDEN_EYES} from './warden-shape.js?v=ch2-08';
 
-// Chapter 2: downtown New York after the Warden, a swordsman about 620 m tall kneeling on one
-// knee, came up through it. The city is in city.js; the statue is built here from rough-cut
-// stone at full size, standing free on the rock it rose with, and the crater it climbed out of
-// opens behind it. The creatures' own works (bridges, towers, balconies) are timber brown so
+// Chapter 2: downtown New York after the Warden, a stone king 530 m tall kneeling on one knee
+// over his sword, came up through it. The city is in city.js; the statue is the Meshy sculpt
+// (warden.js) on a plinth built here, standing free on the rock it rose with, and the crater it
+// climbed out of opens behind it. The creatures' own works (bridges, towers, balconies) are timber brown so
 // they read apart from the carving. Units are metres at real scale: columns 11 m, creatures 2 to
 // 6.5 m, the Satoshi a 15 m helicopter. North is -Z, and the Warden faces south down the avenue.
 export const BOWL_RADIUS=1100,CEILING=900,WARDEN=Object.freeze({x:0,z:0});
 export const LEVELS=Object.freeze([
- {name:'Feet galleries',y:80},{name:'Knee bridges',y:308},{name:'Chest halls',y:400},
- {name:'Shoulder towers',y:540},{name:'The crown',y:612}
+ {name:'Feet galleries',y:80},{name:'Knee bridges',y:308},{name:'Sword arms',y:420},
+ {name:'Shoulder towers',y:530},{name:'The crown',y:577}
 ]);
+// Where the creatures built on the sculpt, local to the statue: a tower on each shoulder (x, the
+// stone's height under it, z) and the deck inside the crown.
+const SHOULDERS=Object.freeze([[-142,480,12],[62,480,12]]),CROWN=Object.freeze({x:-60,y:577,z:82});
+const COLUMN=new THREE.Color(0x8a7d64),POST=new THREE.Color(0x6a4a34);
 // The crater behind the statue, in world metres: its opening in the street and its floor.
 export const PIT=Object.freeze({x0:-70,x1:70,z0:-300,z1:-160,floor:-130});
 export const WORLD_LAYER=0;
@@ -61,10 +67,11 @@ export function createWorld(scene){
   ground:new THREE.MeshLambertMaterial({color:0x5d5a55}),
   stone:new THREE.MeshLambertMaterial({vertexColors:true}),
   built:new THREE.MeshLambertMaterial({vertexColors:true}),
-  pillar:new THREE.MeshLambertMaterial({color:0x8a7d64}),
+  pillar:new THREE.MeshLambertMaterial({color:0xffffff}),
   ember:new THREE.MeshBasicMaterial({color:0x2e2823}),
   seal:new THREE.MeshLambertMaterial({color:0x5e554a}),
   pit:new THREE.MeshBasicMaterial({color:0xffa040}),
+  eyes:new THREE.MeshBasicMaterial({color:0xffc070}),
   glow:new THREE.MeshBasicMaterial({color:0xff8a3a,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:false})
  };
  const root=new THREE.Group();root.name='Chapter 2 world';scene.add(root);
@@ -76,14 +83,14 @@ export function createWorld(scene){
  const ground=new THREE.Mesh(new THREE.ShapeGeometry(groundShape,48).rotateX(-Math.PI/2),materials.ground);
  ground.name='Streets';ground.receiveShadow=true;root.add(ground);
  const m=new THREE.Matrix4(),q=new THREE.Quaternion(),p=new THREE.Vector3(),s=new THREE.Vector3();
- // Nothing is built on the plaza round the statue, over the crater, or on the grand avenue south.
- const cleared=(x,z)=>Math.hypot(x-WARDEN.x,z-WARDEN.z)<230||(x>PIT.x0-45&&x<PIT.x1+45&&z>PIT.z0-45&&z<PIT.z1+45)||(Math.abs(x)<34&&z>0);
+ // Nothing is built on the plaza round the statue or its plinth, over the crater, or on the grand avenue south.
+ const cleared=(x,z)=>Math.hypot(x-WARDEN.x,z-WARDEN.z)<230||(Math.abs(x-WARDEN.x)<255&&z>WARDEN.z-170&&z<WARDEN.z+235)||(x>PIT.x0-45&&x<PIT.x1+45&&z>PIT.z0-45&&z<PIT.z1+45)||(Math.abs(x)<34&&z>0);
  const city=createCity(root,{addCollider,random,exclude:cleared});
  const {rooftops}=city,towers=city.meshes;
 
- // ---- The Warden. Every piece is a rough-cut block from a to b whose collider follows it.
+ // ---- The Warden: the sculpt on its plinth, and what the creatures have built on it.
  const W=WARDEN,at=(x,y,z)=>new THREE.Vector3(W.x+x,y,W.z+z);
- const pieces={stone:[],built:[],seal:[]},ember=[];
+ const pieces={stone:[],built:[],seal:[],stand:[]},ember=[],eyes=[];
  const STONE=new THREE.Color(0xa99c86),CLIFF=new THREE.Color(0x6b6155),BUILT=new THREE.Color(0x6a4a34);
  const X=new THREE.Vector3(1,0,0),Z=new THREE.Vector3(0,0,1),colour=new THREE.Color();
  // A block from a to b: w0 and w1 are its [across, depth] at each end; sides 4 is a slab,
@@ -147,85 +154,69 @@ export function createWorld(scene){
  block([PIT.x0-40,PIT.floor-20,PIT.z0-40],[PIT.x1+40,PIT.floor,PIT.z1+10],rock);
  block([PIT.x0-40,PIT.floor,PIT.z0-40],[PIT.x0,0,PIT.z1+10],rock);block([PIT.x1,PIT.floor,PIT.z0-40],[PIT.x1+40,0,PIT.z1+10],rock);
  block([PIT.x0,PIT.floor,PIT.z0-40],[PIT.x1,0,PIT.z0],rock);block([PIT.x0,PIT.floor,PIT.z1],[PIT.x1,0,PIT.z1+10],rock);
- // Plinth; its top is the feet galleries, and lit arches run along its face.
- block([-215,0,-150],[215,80,205],{rough:3});
- for(let x=-180;x<=180;x+=40)glowSlit(9,20,x,34,205.8);
- for(const side of [-1,1])for(let z=-100;z<=160;z+=52)glowSlit(9,20,side*215.8,34,z,Math.PI/2);
+ // Plinth; its top is the feet galleries, and dark arches run along its face.
+ block([-235,0,-150],[235,80,215],{rough:3});
+ for(let x=-200;x<=200;x+=40)glowSlit(9,20,x,34,215.8);
+ for(const side of [-1,1])for(let z=-110;z<=170;z+=56)glowSlit(9,20,side*235.8,34,z,Math.PI/2);
 
- // Legs. Left leg raised with the foot planted forward; the right knee down on the plinth.
- block([45,80,70],[125,112,190]);                                       // left foot
- hewn(at(85,108,120),at(85,285,112),[56,60],[64,66],{sides:8});          // left shin
- block([48,278,78],[122,304,160]);                                      // left knee: the bridge rests on it
- hewn(at(85,280,105),at(78,262,-40),[70,70],[88,84],{sides:8});          // left thigh
- block([-122,80,40],[-48,128,110]);                                     // right knee on the ground
- block([-110,80,-150],[-60,140,-112]);                                  // right foot, toes dug into the rock
- hewn(at(-85,104,55),at(-85,100,-120),[54,46],[44,40],{sides:8});        // right shin, lying back
- hewn(at(-85,118,78),at(-78,262,-35),[72,72],[88,86],{sides:8});         // right thigh
- hewn(at(0,238,-35),at(0,305,-35),[235,110],[225,110]);                 // pelvis
- hewn(at(0,300,-35),at(0,392,-30),[205,112],[240,122]);                 // belly
- // Chest, with the halls cut across its front between a floor at 400 and a roof at 440.
- block([-135,390,-95],[135,500,0]);block([-135,390,0],[135,400,42]);block([-135,440,0],[135,500,42]);
- block([-135,400,0],[-125,440,42]);block([125,400,0],[135,440,42]);
- for(let x=-105;x<=105;x+=15)glowSlit(2,3,x,420,.9);
- block([-172,478,-92],[172,512,10]);                                    // shoulders
- for(const side of [-1,1]){
-  hewn(at(side*158,492,-35),at(side*182,398,70),[62,62],[52,52],{sides:8});// upper arm
-  hewn(at(side*182,400,72),at(side*32,352,176),[50,50],[42,42],{sides:8}); // forearm
-  block(side<0?[-50,332,156]:[12,332,156],side<0?[-12,380,198]:[50,380,198]);// fist on the pommel
- }
- block([-42,505,-78],[42,545,-5]);                                      // neck
- hewn(at(0,538,-32),at(0,612,-32),[76,86],[70,80],{collide:1,rough:1.5});// head
- block([-30,560,6],[30,586,16],{rough:1});                              // brow and face plate
- for(const side of [-1,1])glowSlit(15,3.5,side*16,575,16.8);             // the eyes
- // The sword, point down in front of the knees, both hands on the pommel.
- hewn(at(0,80,178),at(0,300,178),[30,8],[42,11],{rough:.8});            // blade
- block([-78,300,168],[78,316,188],{rough:1});                           // cross guard
- block([-7,316,171],[7,346,185],{rough:.5});block([-14,346,164],[14,372,192],{rough:1});// grip, pommel
- // The crown: a band of eight stones round the head, each carrying a spike.
- const crownAt=(i,r)=>{const t=i/8*Math.PI*2+Math.PI/8;return at(Math.sin(t)*r,0,-32+Math.cos(t)*r);};
- for(let i=0;i<8;i++){
-  const a=crownAt(i,46).setY(606),b=crownAt(i+1,46).setY(606);
-  hewn(a,b,[10,14],[10,14],{segments:1,collide:1,rough:1});
-  const tall=40+(Math.cos(i/8*Math.PI*2+Math.PI/8)+1)*18;// tallest over the brow
-  hewn(crownAt(i,46).setY(600),crownAt(i,53).setY(612+tall),[12,12],[3,3],{segments:2,rough:1});
- }
+ // The statue's solid volume, as boxes worked out from the sculpt. The craft, rocks and
+ // creatures bump into these; until the sculpt loads they also stand in for it on screen.
+ const wardenBoxes=WARDEN_BOXES.map(([x0,y0,z0,x1,y1,z1])=>{
+  pieces.stand.push(new THREE.BoxGeometry(x1-x0,y1-y0,z1-z0).translate(W.x+(x0+x1)/2,(y0+y1)/2,W.z+(z0+z1)/2));
+  return addCollider([W.x+x0,y0,W.z+z0],[W.x+x1,y1,W.z+z1],'warden');
+ });
+ // The eyes burn, so the thermal sensor finds the face from anywhere.
+ for(const [x,y,z] of WARDEN_EYES)eyes.push(box(8.5,2.2,1.6,W.x+x,y,W.z+z));
 
- // Their works: a bridge across the knees on posts and a scaffold, balconies round two towers.
+ // Their works: a bridge across the front of the knees, in front of the blade and under the
+ // cross guard, on posts down to the plinth, with a plank out to the raised knee; a tower on
+ // each shoulder with a balcony round it; and a deck inside the crown on top of the head.
  const builtOpts={group:'built',tint:BUILT,rough:1};
- block([-182,304,142],[128,308,204],builtOpts);                        // knee bridge deck
- block([-180,80,150],[-160,304,172],builtOpts);                        // scaffold under its west end
- for(const x of [-110,-40,36])block([x-1,80,152],[x+1,304,154],builtOpts);
- for(const side of [-1,1]){
-  const x=side*150;
-  hewn(at(x,512,-40),at(x,600,-40),[34,34],[28,28],{...builtOpts,segments:2});// shoulder tower
-  hewn(at(x,600,-40),at(x,634,-40),[30,30],[4,4],{...builtOpts,segments:1,collide:1});
-  block([x-44,537,-84],[x+44,540,4],builtOpts);                          // balcony
-  for(const y of [552,568,584]){const r=17.6-3*(y-512)/88;for(const [dx,dz,ry] of [[0,r,0],[0,-r,Math.PI],[r,0,Math.PI/2],[-r,0,-Math.PI/2]])glowSlit(2.2,3.6,x+dx,y,-40+dz,ry);}
+ block([-172,304,166],[108,308,194],builtOpts);
+ for(const x of [-160,-100,-30,40,96])block([x-1.2,80,190],[x+1.2,304,192.4],builtOpts);
+ block([-152,304,146],[-136,306.5,168],builtOpts);
+ for(const [x,base,z] of SHOULDERS){
+  // An open timber tower: four leaning legs, a ring beam and cross braces each storey, a
+  // lookout cabin with a spire on top, and the balcony round it at 530.
+  const TOP=588,storeys=[base+6,527,557,TOP];
+  const leg=(i,y)=>{const k=(y-base)/(TOP-base),half=11-2.4*k,a=i*Math.PI/2+Math.PI/4;return at(x+Math.sign(Math.cos(a))*half,y,z+Math.sign(Math.sin(a))*half);};
+  for(let i=0;i<4;i++)hewn(leg(i,base),leg(i,TOP),[2.6,2.6],[2.2,2.2],{...builtOpts,rough:.3,segments:1,collide:2});
+  for(let k=1;k<storeys.length;k++)for(let i=0;i<4;i++){
+   const lo=storeys[k-1],hi=storeys[k],j=(i+1)%4;
+   const thin={...builtOpts,rough:.15,segments:1,collide:1};
+   hewn(leg(i,hi),leg(j,hi),[1.4,1.4],[1.4,1.4],thin);hewn(leg(i,lo),leg(j,hi),[1,1],[1,1],thin);hewn(leg(j,lo),leg(i,hi),[1,1],[1,1],thin);
+  }
+  block([x-10,TOP,z-10],[x+10,TOP+15,z+10],builtOpts);
+  hewn(at(x,TOP+15,z),at(x,TOP+40,z),[25,25],[3,3],{...builtOpts,segments:1,collide:1});
+  for(const [dx,dz,ry] of [[0,10.2,0],[0,-10.2,Math.PI],[10.2,0,Math.PI/2],[-10.2,0,-Math.PI/2]])glowSlit(3,4,x+dx,TOP+8,z+dz,ry);
+  block([x-44,527,z-44],[x+44,530,z+44],builtOpts);
  }
+ hewn(at(CROWN.x,CROWN.y-3,CROWN.z),at(CROWN.x,CROWN.y,CROWN.z),[44,44],[44,44],{...builtOpts,sides:8,segments:1,collide:1});
 
- // Ledges: where creatures stand. Pillars along each front edge give them cover; `normal`
- // points out of the ledge, and creatures stay within `inward` metres behind their pillar
- // and 6 in front of it.
+ // Ledges: where creatures stand. A post or column at each spot gives them cover; `normal`
+ // points out of the ledge, and creatures stay within `inward` metres behind it and 6 in front.
+ // Stone columns on the plinth, the creatures' timber posts on the statue and their works.
  const pillars=[];
- const pillar=(x,y,z,nx,nz,level,inward=10)=>{
+ const pillar=(x,y,z,nx,nz,level,inward=10,timber=false)=>{
   const pos=at(x,y,z);
-  pillars.push({pos,level,inward,normal:new THREE.Vector3(nx,0,nz).normalize(),hp:260,collider:addCollider([pos.x-1.9,y,pos.z-1.9],[pos.x+1.9,y+11,pos.z+1.9],'pillar')});
+  pillars.push({pos,level,inward,timber,normal:new THREE.Vector3(nx,0,nz).normalize(),hp:260,collider:addCollider([pos.x-1.9,y,pos.z-1.9],[pos.x+1.9,y+11,pos.z+1.9],'pillar')});
  };
- // Colonnades: 11 m columns about 16 to 22 m apart, the scale that makes the statue read as huge.
- for(let x=-195;x<=195;x+=20)if(x<42||x>128)pillar(x,80,196,0,1,0);// none in front of the planted foot
- for(const side of [-1,1])for(let z=-110;z<=110;z+=22)pillar(side*200,80,z,side,0,0);
- for(let x=-172;x<=118;x+=16)pillar(x,308,194,0,1,1,4);// the cross guard stands just behind
- for(let i=0;i<=14;i++)pillar(-110+i*220/14,400,30,0,1,2);
+ // Colonnades round the plinth: 11 m columns about 20 m apart, the scale that makes the statue read huge.
+ for(let x=-215;x<=215;x+=20)pillar(x,80,206,0,1,0);
+ for(const side of [-1,1])for(let z=-120;z<=180;z+=24)pillar(side*226,80,z,side,0,0);
+ // The knee, the forearms and the hands, from the sculpt's own flat tops; then the bridge.
+ for(const [x,y,z,nx,nz,level] of WARDEN_SPOTS)pillar(x,y,z,nx,nz,level,4,true);
+ for(let x=-164;x<=100;x+=18)pillar(x,308,186,0,1,1,4,true);
  const ring=[[-36,-36],[-12,-36],[12,-36],[36,-36],[36,-12],[36,12],[36,36],[12,36],[-12,36],[-36,36],[-36,12],[-36,-12]];
- for(const side of [-1,1])for(const [dx,dz] of ring){
+ for(const [x,,z] of SHOULDERS)for(const [dx,dz] of ring){
   const corner=Math.abs(dx)===36&&Math.abs(dz)===36;
-  pillar(side*150+dx,540,-40+dz,corner||Math.abs(dx)===36?Math.sign(dx):0,corner||Math.abs(dz)===36?Math.sign(dz):0,3);
+  pillar(x+dx,530,z+dz,corner||Math.abs(dx)===36?Math.sign(dx):0,corner||Math.abs(dz)===36?Math.sign(dz):0,3,10,true);
  }
- for(let i=0;i<8;i++){const t=i/8*Math.PI*2;pillar(Math.sin(t)*24,612,-32+Math.cos(t)*24,Math.sin(t),Math.cos(t),4);}
+ for(let i=0;i<8;i++){const t=i/8*Math.PI*2;pillar(CROWN.x+Math.sin(t)*15,CROWN.y,CROWN.z+Math.cos(t)*15,Math.sin(t),Math.cos(t),4,3,true);}
  const pillarMesh=new THREE.InstancedMesh(new THREE.CylinderGeometry(1.6,1.9,11,10).translate(0,5.5,0),materials.pillar,pillars.length);
  const pillarMatrix=i=>{const pl=pillars[i];p.copy(pl.pos);q.identity();s.setScalar(pl.hp>0?1:0);return m.compose(p,q,s);};
- pillars.forEach((_,i)=>pillarMesh.setMatrixAt(i,pillarMatrix(i)));
- pillarMesh.name='Cover pillars';
+ pillars.forEach((pl,i)=>{pillarMesh.setMatrixAt(i,pillarMatrix(i));pillarMesh.setColorAt(i,pl.timber?POST:COLUMN);});
+ pillarMesh.name='Cover columns and posts';
 
  // The rubble plugging the crater, and what shows when it breaks: a burning floor 130 m down
  // and a column of heat standing out of the street.
@@ -235,12 +226,20 @@ export function createWorld(scene){
  const column=new THREE.Mesh(new THREE.CylinderGeometry(55,68,520,24,1,true).translate((PIT.x0+PIT.x1)/2,PIT.floor+260,(PIT.z0+PIT.z1)/2),materials.glow);
  column.name='Pit heat column';column.visible=false;column.renderOrder=2;
 
- const warden=new THREE.Mesh(mergeGeometries(pieces.stone),materials.stone);warden.name='The Warden (blockout)';
+ const stand=new THREE.Mesh(mergeGeometries(pieces.stand),new THREE.MeshLambertMaterial({color:STONE}));stand.name='The Warden (until the sculpt loads)';
  const works=new THREE.Mesh(mergeGeometries(pieces.built),materials.built);works.name='Creature works';
+ const plinth=new THREE.Mesh(mergeGeometries(pieces.stone),materials.stone);plinth.name='Plinth and crater walls';
  const seal=new THREE.Mesh(mergeGeometries(pieces.seal),materials.seal);seal.name='Crater plug';
  const lamps=new THREE.Mesh(mergeGeometries(ember),materials.ember);lamps.name='Doorways';
- for(const mesh of [warden,works,seal,pillarMesh]){mesh.castShadow=true;mesh.receiveShadow=true;}
- root.add(warden,works,seal,lamps,pillarMesh,pitFloor,column);
+ const eyeMesh=new THREE.Mesh(mergeGeometries(eyes),materials.eyes);eyeMesh.name='The Warden\'s eyes';
+ for(const mesh of [stand,works,plinth,seal,pillarMesh]){mesh.castShadow=true;mesh.receiveShadow=true;}
+ root.add(stand,works,plinth,seal,lamps,eyeMesh,pillarMesh,pitFloor,column);
+ // The sculpt swaps in when it arrives; shots then test its triangles instead of the boxes.
+ let sculpt=null;
+ const sculptReady=loadWarden(W).then(found=>{
+  found.holder.traverse(o=>o.layers.set(WORLD_LAYER));root.add(found.holder);stand.visible=false;
+  for(const c of wardenBoxes)c.noRay=true;sculpt=found;api.onSculpt?.();return true;
+ }).catch(()=>false);
 
  const overPit=(x,z)=>x>PIT.x0&&x<PIT.x1&&z>PIT.z0&&z<PIT.z1;
  const pit={open:false,meshes:[pitFloor,column],
@@ -282,18 +281,21 @@ export function createWorld(scene){
   let t=0;
   while(t<=best){
    for(const i of cells[cz*SPAN+cx]){
-    if(seen[i]===stamp)continue;seen[i]=stamp;const c=colliders[i];if(!c.alive)continue;
+    if(seen[i]===stamp)continue;seen[i]=stamp;const c=colliders[i];if(!c.alive||c.noRay)continue;
     const hit=colliderRay(c,origin,dir,best);if(hit<best){best=hit;index=i;}
    }
    if(tX<tZ){t=tX;tX+=dX;cx+=sx;}else{t=tZ;tZ+=dZ;cz+=sz;}
    if(!Number.isFinite(t)||cx<0||cx>=SPAN||cz<0||cz>=SPAN)break;
   }
+  // The sculpt's own triangles, once it has loaded.
+  if(sculpt){const t=sculpt.ray(origin,dir,best);if(t<best){best=t;index=wardenIndex;}}
   return {t:best,index};
  }
+ const wardenIndex=colliders.indexOf(wardenBoxes[0]);
 
  root.traverse(o=>o.layers.set(WORLD_LAYER));
- return {
-  root,colliders,pillars,rooftops,towers,materials,pit,overPit,rayHit,
+ const api={
+  root,colliders,sculptReady,pillars,rooftops,towers,materials,pit,overPit,rayHit,
   pointHit:(pt,pad=0)=>eachNear(pt.x-pad,pt.x+pad,pt.z-pad,pt.z+pad,c=>colliderHas(c,pt,pad)),
   // Every live box whose footprint comes within pad metres of a point.
   collidersNear(pt,pad){const out=[];eachNear(pt.x-pad,pt.x+pad,pt.z-pad,pt.z+pad,c=>{out.push(c);return false;});return out;},
@@ -301,7 +303,7 @@ export function createWorld(scene){
   topNear(x,z,pad){let top=0;eachNear(x-pad,x+pad,z-pad,z+pad,c=>{
    const [x0,x1,z0,z1]=footprint(c);if(x>x0-pad&&x<x1+pad&&z>z0-pad&&z<z1+pad)top=Math.max(top,c.inv?c.bound.center.y+c.bound.radius:c.max.y);return false;});return top;},
   // Things that give off light: the thermal sensor shows them burning white, not as stone.
-  glowing:[pitFloor,column],
+  glowing:[pitFloor,column,eyeMesh],
   damagePillar(index,amount){
    const pl=pillars[index];if(!pl||pl.hp<=0)return false;
    pl.hp-=amount;if(pl.hp>0)return false;
@@ -309,8 +311,9 @@ export function createWorld(scene){
   },
   restorePillars(){pillars.forEach((pl,i)=>{if(pl.hp<=0){pl.hp=260;pl.collider.alive=true;pillarMesh.setMatrixAt(i,pillarMatrix(i));}});pillarMesh.instanceMatrix.needsUpdate=true;},
   stats(){return {...city.stats,colliders:colliders.length,pillars:pillars.length,pillarsStanding:pillars.filter(p=>p.hp>0).length,
-   wardenTriangles:warden.geometry.getAttribute('position').count/3,worksTriangles:works.geometry.getAttribute('position').count/3};}
+   wardenTriangles:sculpt?sculpt.triangles:stand.geometry.index.count/3,wardenBoxes:wardenBoxes.length,worksTriangles:works.geometry.getAttribute('position').count/3};}
  };
+ return api;
 }
 
 // Ray against an axis-aligned box; returns the entry distance or Infinity. A ray parallel to
