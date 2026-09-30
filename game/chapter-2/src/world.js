@@ -1,17 +1,20 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
 import {mergeGeometries} from '../../vendor/BufferGeometryUtils.js?v=052';
+import {createCity} from './city.js?v=ch2-07';
 
-// Chapter 2: one cliff-ringed bowl, a ruined city, and the Warden, a swordsman about 620 m
-// tall kneeling on one knee, hewn out of the north cliff. Round 2 blocks the figure out at
-// full scale from rough-cut stone; round 4 carves it properly. The creatures' own works
-// (bridges, towers, balconies) are timber brown, so they read apart from the carving.
-// Units are metres at real scale: columns 11 m, creatures 5 to 6.5 m, the Satoshi a 15 m span.
-// North is -Z, and the Warden faces south toward the city.
-export const BOWL_RADIUS=1000,CEILING=900,WARDEN=Object.freeze({x:0,z:-700});
+// Chapter 2: downtown New York after the Warden, a swordsman about 620 m tall kneeling on one
+// knee, came up through it. The city is in city.js; the statue is built here from rough-cut
+// stone at full size, standing free on the rock it rose with, and the crater it climbed out of
+// opens behind it. The creatures' own works (bridges, towers, balconies) are timber brown so
+// they read apart from the carving. Units are metres at real scale: columns 11 m, creatures 2 to
+// 6.5 m, the Satoshi a 15 m span. North is -Z, and the Warden faces south down the avenue.
+export const BOWL_RADIUS=1100,CEILING=900,WARDEN=Object.freeze({x:0,z:0});
 export const LEVELS=Object.freeze([
  {name:'Feet galleries',y:80},{name:'Knee bridges',y:308},{name:'Chest halls',y:400},
  {name:'Shoulder towers',y:540},{name:'The crown',y:612}
 ]);
+// The crater behind the statue, in world metres: its opening in the street and its floor.
+export const PIT=Object.freeze({x0:-70,x1:70,z0:-300,z1:-160,floor:-130});
 export const WORLD_LAYER=0;
 
 export function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
@@ -55,60 +58,33 @@ export function createWorld(scene){
  const colliders=[];// boxes that block the craft, shots and thrown rocks
  const addCollider=(min,max,kind)=>{const c={min:new THREE.Vector3(...min),max:new THREE.Vector3(...max),kind,alive:true};colliders.push(c);return c;};
  const materials={
-  ground:new THREE.MeshLambertMaterial({color:0x2b241d}),
-  city:new THREE.MeshLambertMaterial({color:0x4a4338}),
+  ground:new THREE.MeshLambertMaterial({color:0x5d5a55}),
   stone:new THREE.MeshLambertMaterial({vertexColors:true}),
   built:new THREE.MeshLambertMaterial({vertexColors:true}),
   pillar:new THREE.MeshLambertMaterial({color:0x8a7d64}),
-  ember:new THREE.MeshBasicMaterial({color:0xff7a2a}),
-  seal:new THREE.MeshLambertMaterial({color:0x3a1712,emissive:0x2a0600}),
+  ember:new THREE.MeshBasicMaterial({color:0x2e2823}),
+  seal:new THREE.MeshLambertMaterial({color:0x5e554a}),
   pit:new THREE.MeshBasicMaterial({color:0xffa040}),
   glow:new THREE.MeshBasicMaterial({color:0xff8a3a,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:false})
  };
  const root=new THREE.Group();root.name='Chapter 2 world';scene.add(root);
 
- const ground=new THREE.Mesh(new THREE.CircleGeometry(1300,64).rotateX(-Math.PI/2),materials.ground);
- ground.name='Ash plain';root.add(ground);
- // Glowing fissures on the plain give the ground heat and a sense of speed.
- const cracks=[];
- for(let i=0;i<70;i++){
-  const a=random()*Math.PI*2,r=120+random()*820,len=30+random()*90;
-  cracks.push(box(len,.4,1.2+random()*2.5,Math.cos(a)*r,.25,Math.sin(a)*r,random()*Math.PI));
- }
- const crackMesh=new THREE.Mesh(mergeGeometries(cracks),materials.ember);crackMesh.name='Ember fissures';root.add(crackMesh);
-
- // Cliff ring: the edge of the world, and the reason we never draw past about 1.2 km.
- const cliffCount=72,cliffs=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial({color:0x3a3128}),cliffCount);
- const m=new THREE.Matrix4(),q=new THREE.Quaternion(),p=new THREE.Vector3(),s=new THREE.Vector3(),up=new THREE.Vector3(0,1,0);
- for(let i=0;i<cliffCount;i++){
-  const a=i/cliffCount*Math.PI*2,r=1120+random()*60,h=260+random()*260;
-  p.set(Math.cos(a)*r,h/2-10,Math.sin(a)*r);q.setFromAxisAngle(up,-a+(random()-.5)*.3);s.set(150,h,110+random()*80);
-  cliffs.setMatrixAt(i,m.compose(p,q,s));
- }
- cliffs.name='Cliff ring';root.add(cliffs);
-
- // Ruined city: one instanced draw. A clear avenue runs from the south gate to the Warden.
- const towers=[],rooftops=[];
- for(let x=-760;x<=760;x+=58)for(let z=-380;z<=900;z+=58){
-  const jx=x+(random()-.5)*20,jz=z+(random()-.5)*20;
-  if(Math.hypot(jx,jz)>930||Math.abs(jx)<46||Math.hypot(jx-WARDEN.x,jz-WARDEN.z)<330||random()<.18)continue;
-  const w=18+random()*24,d=18+random()*24,far=Math.min(1,Math.hypot(jx,jz)/900);
-  const h=14+random()*(50+far*90)*(random()<.12?2:1);
-  towers.push({x:jx,z:jz,w,d,h,tilt:random()<.2?(random()-.5)*.18:0});
- }
- const city=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),materials.city,towers.length);
- towers.forEach((t,i)=>{
-  p.set(t.x,t.h/2,t.z);q.setFromEuler(new THREE.Euler(0,0,t.tilt));s.set(t.w,t.h,t.d);
-  city.setMatrixAt(i,m.compose(p,q,s));
-  addCollider([t.x-t.w/2,0,t.z-t.d/2],[t.x+t.w/2,t.h,t.z+t.d/2],'tower');
-  if(t.h>30&&!t.tilt)rooftops.push(new THREE.Vector3(t.x,t.h,t.z));
- });
- city.name='Ruined city';root.add(city);
+ // The street surface, with the crater's opening cut out of it.
+ const groundShape=new THREE.Shape().absarc(0,0,4200,0,Math.PI*2);
+ // Shape y becomes world -z once the ground is laid flat.
+ groundShape.holes.push(new THREE.Path().moveTo(PIT.x0,-PIT.z1).lineTo(PIT.x1,-PIT.z1).lineTo(PIT.x1,-PIT.z0).lineTo(PIT.x0,-PIT.z0).lineTo(PIT.x0,-PIT.z1));
+ const ground=new THREE.Mesh(new THREE.ShapeGeometry(groundShape,48).rotateX(-Math.PI/2),materials.ground);
+ ground.name='Streets';ground.receiveShadow=true;root.add(ground);
+ const m=new THREE.Matrix4(),q=new THREE.Quaternion(),p=new THREE.Vector3(),s=new THREE.Vector3();
+ // Nothing is built on the plaza round the statue, over the crater, or on the grand avenue south.
+ const cleared=(x,z)=>Math.hypot(x-WARDEN.x,z-WARDEN.z)<230||(x>PIT.x0-45&&x<PIT.x1+45&&z>PIT.z0-45&&z<PIT.z1+45)||(Math.abs(x)<34&&z>0);
+ const city=createCity(root,{addCollider,random,exclude:cleared});
+ const {rooftops}=city,towers=city.meshes;
 
  // ---- The Warden. Every piece is a rough-cut block from a to b whose collider follows it.
  const W=WARDEN,at=(x,y,z)=>new THREE.Vector3(W.x+x,y,W.z+z);
  const pieces={stone:[],built:[],seal:[]},ember=[];
- const STONE=new THREE.Color(0x76695a),CLIFF=new THREE.Color(0x4a3e33),BUILT=new THREE.Color(0x5a4232);
+ const STONE=new THREE.Color(0xa99c86),CLIFF=new THREE.Color(0x6b6155),BUILT=new THREE.Color(0x6a4a34);
  const X=new THREE.Vector3(1,0,0),Z=new THREE.Vector3(0,0,1),colour=new THREE.Color();
  // A block from a to b: w0 and w1 are its [across, depth] at each end; sides 4 is a slab,
  // 8 a chamfered limb. Corners and joints are jittered by up to `rough` metres so it reads hewn.
@@ -165,11 +141,12 @@ export function createWorld(scene){
   [max[0]-min[0],max[2]-min[2]],[max[0]-min[0],max[2]-min[2]],{segments:1,collide:1,...opts});
  const glowSlit=(w,h,x,y,z,ry=0)=>ember.push(box(w,h,1.4,W.x+x,y,W.z+z,ry));
 
- // The cliff it is carved from, with a notch behind the head: the pit, sealed until the climb is done.
- const cliffOpts={tint:CLIFF,rough:9,kind:'cliff'};
- block([-560,0,-330],[-70,720,-150],cliffOpts);block([70,0,-330],[560,720,-150],cliffOpts);
- block([-70,0,-330],[70,300,-150],cliffOpts);block([-70,300,-330],[70,720,-300],cliffOpts);
- block([-172,80,-150],[172,505,-90],{tint:CLIFF,rough:4});// the back of the figure, still part of the cliff
+ // The crater it climbed out of: a shaft behind the plinth, walled in rock down to its floor,
+ // plugged with rubble until the climb is done.
+ const rock={tint:CLIFF,rough:4,kind:'crater'};
+ block([PIT.x0-40,PIT.floor-20,PIT.z0-40],[PIT.x1+40,PIT.floor,PIT.z1+10],rock);
+ block([PIT.x0-40,PIT.floor,PIT.z0-40],[PIT.x0,0,PIT.z1+10],rock);block([PIT.x1,PIT.floor,PIT.z0-40],[PIT.x1+40,0,PIT.z1+10],rock);
+ block([PIT.x0,PIT.floor,PIT.z0-40],[PIT.x1,0,PIT.z0],rock);block([PIT.x0,PIT.floor,PIT.z1],[PIT.x1,0,PIT.z1+10],rock);
  // Plinth; its top is the feet galleries, and lit arches run along its face.
  block([-215,0,-150],[215,80,205],{rough:3});
  for(let x=-180;x<=180;x+=40)glowSlit(9,20,x,34,205.8);
@@ -181,6 +158,7 @@ export function createWorld(scene){
  block([48,278,78],[122,304,160]);                                      // left knee: the bridge rests on it
  hewn(at(85,280,105),at(78,262,-40),[70,70],[88,84],{sides:8});          // left thigh
  block([-122,80,40],[-48,128,110]);                                     // right knee on the ground
+ block([-110,80,-150],[-60,140,-112]);                                  // right foot, toes dug into the rock
  hewn(at(-85,104,55),at(-85,100,-120),[54,46],[44,40],{sides:8});        // right shin, lying back
  hewn(at(-85,118,78),at(-78,262,-35),[72,72],[88,86],{sides:8});         // right thigh
  hewn(at(0,238,-35),at(0,305,-35),[235,110],[225,110]);                 // pelvis
@@ -249,22 +227,25 @@ export function createWorld(scene){
  pillars.forEach((_,i)=>pillarMesh.setMatrixAt(i,pillarMatrix(i)));
  pillarMesh.name='Cover pillars';
 
- // The seal over the pit, and what shows when it breaks: a burning floor and a column of heat.
- const sealColliders=block([-70,300,-300],[70,720,-150],{group:'seal',tint:new THREE.Color(0x3a1712),rough:6,kind:'seal'});
- const pitFloor=new THREE.Mesh(new THREE.PlaneGeometry(140,150).rotateX(-Math.PI/2).translate(W.x,301,W.z-225),materials.pit);
+ // The rubble plugging the crater, and what shows when it breaks: a burning floor 130 m down
+ // and a column of heat standing out of the street.
+ const sealColliders=block([PIT.x0,-14,PIT.z0],[PIT.x1,3,PIT.z1],{group:'seal',tint:new THREE.Color(0x6a6052),rough:5,kind:'seal'});
+ const pitFloor=new THREE.Mesh(new THREE.PlaneGeometry(PIT.x1-PIT.x0,PIT.z1-PIT.z0).rotateX(-Math.PI/2).translate((PIT.x0+PIT.x1)/2,PIT.floor+.5,(PIT.z0+PIT.z1)/2),materials.pit);
  pitFloor.name='Pit floor';pitFloor.visible=false;
- const column=new THREE.Mesh(new THREE.CylinderGeometry(58,70,640,24,1,true).translate(W.x,620,W.z-225),materials.glow);
+ const column=new THREE.Mesh(new THREE.CylinderGeometry(55,68,520,24,1,true).translate((PIT.x0+PIT.x1)/2,PIT.floor+260,(PIT.z0+PIT.z1)/2),materials.glow);
  column.name='Pit heat column';column.visible=false;column.renderOrder=2;
 
  const warden=new THREE.Mesh(mergeGeometries(pieces.stone),materials.stone);warden.name='The Warden (blockout)';
  const works=new THREE.Mesh(mergeGeometries(pieces.built),materials.built);works.name='Creature works';
- const seal=new THREE.Mesh(mergeGeometries(pieces.seal),materials.seal);seal.name='Pit seal';
- const lamps=new THREE.Mesh(mergeGeometries(ember),materials.ember);lamps.name='Lit openings';
+ const seal=new THREE.Mesh(mergeGeometries(pieces.seal),materials.seal);seal.name='Crater plug';
+ const lamps=new THREE.Mesh(mergeGeometries(ember),materials.ember);lamps.name='Doorways';
+ for(const mesh of [warden,works,seal,pillarMesh]){mesh.castShadow=true;mesh.receiveShadow=true;}
  root.add(warden,works,seal,lamps,pillarMesh,pitFloor,column);
 
+ const overPit=(x,z)=>x>PIT.x0&&x<PIT.x1&&z>PIT.z0&&z<PIT.z1;
  const pit={open:false,meshes:[pitFloor,column],
-  // The finish: down inside the notch, below the cliff top.
-  region:{min:at(-70,0,-300),max:at(70,560,-150)},
+  // The finish: a shell bursting anywhere down the open shaft.
+  region:{min:new THREE.Vector3(PIT.x0,PIT.floor-5,PIT.z0),max:new THREE.Vector3(PIT.x1,5,PIT.z1)},
   setOpen(on){
    pit.open=on;seal.visible=!on;pitFloor.visible=on;column.visible=on;
    sealColliders.forEach(c=>c.alive=!on);
@@ -274,18 +255,58 @@ export function createWorld(scene){
   update(time){if(column.visible)materials.glow.opacity=.16+.07*Math.sin(time*2.4);}
  };
 
+ // A flat grid over the colliders, so a ray or a point only tests the boxes near it: the city
+ // alone has thousands.
+ const CELL=64,ORIGIN=-1600,SPAN=Math.ceil(3200/CELL),cells=Array.from({length:SPAN*SPAN},()=>[]);
+ const cellOf=v=>Math.max(0,Math.min(SPAN-1,Math.floor((v-ORIGIN)/CELL)));
+ const footprint=c=>c.inv?[c.bound.center.x-c.bound.radius,c.bound.center.x+c.bound.radius,c.bound.center.z-c.bound.radius,c.bound.center.z+c.bound.radius]:[c.min.x,c.max.x,c.min.z,c.max.z];
+ colliders.forEach((c,i)=>{
+  const [x0,x1,z0,z1]=footprint(c);
+  for(let cz=cellOf(z0);cz<=cellOf(z1);cz++)for(let cx=cellOf(x0);cx<=cellOf(x1);cx++)cells[cz*SPAN+cx].push(i);
+ });
+ const seen=new Uint32Array(colliders.length);let stamp=0;
+ function eachNear(x0,x1,z0,z1,fn){
+  stamp++;
+  for(let cz=cellOf(z0);cz<=cellOf(z1);cz++)for(let cx=cellOf(x0);cx<=cellOf(x1);cx++)for(const i of cells[cz*SPAN+cx]){
+   if(seen[i]===stamp)continue;seen[i]=stamp;const c=colliders[i];if(c.alive&&fn(c,i))return c;
+  }
+  return null;
+ }
+ // Nearest box along a ray, walking the grid cells the ray crosses in order.
+ function rayHit(origin,dir,far){
+  stamp++;let best=far,index=-1;
+  let cx=cellOf(origin.x),cz=cellOf(origin.z);
+  const sx=dir.x>0?1:-1,sz=dir.z>0?1:-1;
+  const dX=dir.x?CELL/Math.abs(dir.x):Infinity,dZ=dir.z?CELL/Math.abs(dir.z):Infinity;
+  let tX=dir.x?((ORIGIN+(cx+(dir.x>0?1:0))*CELL)-origin.x)/dir.x:Infinity,tZ=dir.z?((ORIGIN+(cz+(dir.z>0?1:0))*CELL)-origin.z)/dir.z:Infinity;
+  let t=0;
+  while(t<=best){
+   for(const i of cells[cz*SPAN+cx]){
+    if(seen[i]===stamp)continue;seen[i]=stamp;const c=colliders[i];if(!c.alive)continue;
+    const hit=colliderRay(c,origin,dir,best);if(hit<best){best=hit;index=i;}
+   }
+   if(tX<tZ){t=tX;tX+=dX;cx+=sx;}else{t=tZ;tZ+=dZ;cz+=sz;}
+   if(!Number.isFinite(t)||cx<0||cx>=SPAN||cz<0||cz>=SPAN)break;
+  }
+  return {t:best,index};
+ }
+
  root.traverse(o=>o.layers.set(WORLD_LAYER));
  return {
-  root,colliders,pillars,rooftops,towers,materials,pit,
+  root,colliders,pillars,rooftops,towers,materials,pit,overPit,rayHit,
+  pointHit:(pt,pad=0)=>eachNear(pt.x-pad,pt.x+pad,pt.z-pad,pt.z+pad,c=>colliderHas(c,pt,pad)),
+  // The highest roof or stone within pad metres of a spot: the pilot's floor for an orbit.
+  topNear(x,z,pad){let top=0;eachNear(x-pad,x+pad,z-pad,z+pad,c=>{
+   const [x0,x1,z0,z1]=footprint(c);if(x>x0-pad&&x<x1+pad&&z>z0-pad&&z<z1+pad)top=Math.max(top,c.inv?c.bound.center.y+c.bound.radius:c.max.y);return false;});return top;},
   // Things that give off light: the thermal sensor shows them burning white, not as stone.
-  glowing:[crackMesh,lamps,pitFloor,column],
+  glowing:[pitFloor,column],
   damagePillar(index,amount){
    const pl=pillars[index];if(!pl||pl.hp<=0)return false;
    pl.hp-=amount;if(pl.hp>0)return false;
    pl.collider.alive=false;pillarMesh.setMatrixAt(index,pillarMatrix(index));pillarMesh.instanceMatrix.needsUpdate=true;return true;
   },
   restorePillars(){pillars.forEach((pl,i)=>{if(pl.hp<=0){pl.hp=260;pl.collider.alive=true;pillarMesh.setMatrixAt(i,pillarMatrix(i));}});pillarMesh.instanceMatrix.needsUpdate=true;},
-  stats(){return {towers:towers.length,colliders:colliders.length,pillars:pillars.length,pillarsStanding:pillars.filter(p=>p.hp>0).length,
+  stats(){return {...city.stats,colliders:colliders.length,pillars:pillars.length,pillarsStanding:pillars.filter(p=>p.hp>0).length,
    wardenTriangles:warden.geometry.getAttribute('position').count/3,worksTriangles:works.geometry.getAttribute('position').count/3};}
  };
 }

@@ -1,7 +1,7 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
 import {mergeGeometries} from '../../vendor/BufferGeometryUtils.js?v=052';
-import {BOWL_RADIUS,CEILING} from './world.js?v=ch2-06';
-import {AIRFRAME,loadAirframe} from './airframe.js?v=ch2-06';
+import {BOWL_RADIUS,CEILING} from './world.js?v=ch2-07';
+import {AIRFRAME,loadAirframe} from './airframe.js?v=ch2-07';
 
 // The Satoshi as a gunship, flown the way the AC-130 is: the pilot holds a left-hand pylon
 // turn round a point and the guns look out of the left side at it. You don't fly the plane;
@@ -16,7 +16,7 @@ export const CRAFT=Object.freeze({
  // yaw either side of the left beam, and pitch from nearly straight down to just above level.
  clearance:30,gimbalYaw:1.3,pitchMin:-1.5,pitchMax:.12,
  chaseBack:70,chaseUp:20,chaseFov:50,
- start:Object.freeze({center:[0,-420],angle:.9})
+ start:Object.freeze({center:[0,640],angle:.9})
 });
 
 // Stand-in until the sculpt arrives, and the fallback if it never does.
@@ -101,15 +101,8 @@ export function createCraft(scene,world){
  // The highest thing under the circle, sampled round it: towers, the statue, the cliff.
  // The pilot won't go lower than that plus clearance.
  function orbitFloor(center,radius){
-  let top=0;const pad=CRAFT.clearance;
-  for(let i=0;i<40;i++){
-   const a=i/40*Math.PI*2,x=center.x+Math.cos(a)*radius,z=center.z+Math.sin(a)*radius;
-   for(const c of world.colliders){
-    if(!c.alive)continue;
-    if(c.inv){const b=c.bound,dx=b.center.x-x,dz=b.center.z-z;if(dx*dx+dz*dz<(b.radius+pad)**2)top=Math.max(top,b.center.y+b.radius);}
-    else if(x>c.min.x-pad&&x<c.max.x+pad&&z>c.min.z-pad&&z<c.max.z+pad)top=Math.max(top,c.max.y);
-   }
-  }
+  let top=0;
+  for(let i=0;i<48;i++){const a=i/48*Math.PI*2;top=Math.max(top,world.topNear(center.x+Math.cos(a)*radius,center.z+Math.sin(a)*radius,CRAFT.clearance));}
   return top+CRAFT.clearance;
  }
  let floorClock=0;

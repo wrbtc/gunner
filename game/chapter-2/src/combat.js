@@ -1,5 +1,4 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
-import {colliderHas,colliderRay} from './world.js?v=ch2-06';
 
 export const FX_LAYER=3;
 const GRAVITY=30;
@@ -40,22 +39,23 @@ export function createCombat(scene,world){
  const tracers=new THREE.LineSegments(tracerGeo,new THREE.LineBasicMaterial({color:0xffd27a,transparent:true,opacity:.9}));
  tracers.frustumCulled=false;tracers.layers.set(FX_LAYER);tracers.name='Gatling tracers';scene.add(tracers);
  let enemies=null,craft=null;
+ // Everything shots can strike: the statue's garrison, the street horde, and the survivors,
+ // who take your rounds as hard as anything else.
+ const groups=[];
  const tmp=new THREE.Vector3(),dir=new THREE.Vector3(),rayCenter=new THREE.Vector3(),rayOffset=new THREE.Vector3();
  const api={onImpact:null};
 
  // First thing a ray meets: an enemy, a pillar or wall, or the ground.
  function raycast(origin,direction,far,{hitEnemies=true}={}){
-  let best={t:far,kind:'none',index:-1};
-  for(let i=0;i<world.colliders.length;i++){
-   const c=world.colliders[i];if(!c.alive)continue;
-   const t=colliderRay(c,origin,direction,best.t);if(t<best.t)best={t,kind:c.kind,index:i};
-  }
-  if(direction.y<0){const t=-origin.y/direction.y;if(t>0&&t<best.t)best={t,kind:'ground',index:-1};}
-  if(hitEnemies&&enemies)for(const e of enemies.list){
+  const box=world.rayHit(origin,direction,far);
+  let best=box.index<0?{t:far,kind:'none',index:-1}:{t:box.t,kind:world.colliders[box.index].kind,index:box.index};
+  // The street, except where the crater opens in it.
+  if(direction.y<0){const t=-origin.y/direction.y;if(t>0&&t<best.t&&!world.overPit(origin.x+direction.x*t,origin.z+direction.z*t))best={t,kind:'ground',index:-1};}
+  if(hitEnemies)for(const group of groups)for(const e of group.list){
    if(!e.alive)continue;
    // Own scratch vectors: callers pass the shared tmp/dir vectors in as origin and direction.
-   const c=enemies.center(e,rayCenter),oc=rayOffset.subVectors(origin,c),b=oc.dot(direction),cc=oc.lengthSq()-e.radius*e.radius,h=b*b-cc;
-   if(h<0)continue;const t=-b-Math.sqrt(h);if(t>0&&t<best.t)best={t,kind:'enemy',index:e.index};
+   const c=group.center(e,rayCenter),oc=rayOffset.subVectors(origin,c),b=oc.dot(direction),cc=oc.lengthSq()-e.radius*e.radius,h=b*b-cc;
+   if(h<0)continue;const t=-b-Math.sqrt(h);if(t>0&&t<best.t)best={t,kind:group.friendly?'friendly':'enemy',index:e.index,group};
   }
   return best;
  }
@@ -63,21 +63,26 @@ export function createCombat(scene,world){
  // Damages everything in reach and returns how many creatures it struck.
  function splash(pos,radius,damage,pillarDamage){
   let struck=0;
-  if(enemies)for(const e of enemies.list){if(!e.alive)continue;const d=enemies.center(e,tmp).distanceTo(pos);if(d<radius+e.radius){enemies.damage(e,damage*(1-.6*Math.min(1,d/radius)));struck++;}}
+  for(const group of groups)for(const e of group.list){
+   if(!e.alive)continue;const d=group.center(e,tmp).distanceTo(pos);
+   if(d<radius+e.radius){group.damage(e,damage*(1-.6*Math.min(1,d/radius)));if(!group.friendly)struck++;}
+  }
   world.pillars.forEach((pl,i)=>{if(pl.hp>0&&tmp.copy(pl.pos).setY(pl.pos.y+5.5).distanceTo(pos)<radius+2)world.damagePillar(i,pillarDamage);});
   return struck;
  }
  function tracer(a,b){const i=tracerNext++%TRACERS;tracerPos.set([a.x,a.y,a.z,b.x,b.y,b.z],i*6);tracerAge[i]=0;}
  function hitsWorld(p){
-  if(p.y<=0)return true;
-  for(const c of world.colliders)if(c.alive&&colliderHas(c,p))return true;
-  return false;
+  if(p.y<=0&&!world.overPit(p.x,p.z))return true;
+  return !!world.pointHit(p);
  }
  function update(dt){
   const craftPos=craft.state.pos;
   for(const r of rocks.items){
    if(!r.live)continue;r.age+=dt;r.vel.y-=GRAVITY*dt;r.pos.addScaledVector(r.vel,dt);
    if(r.pos.distanceTo(craftPos)<7){r.live=false;craft.hurt(14,r.pos);blast(r.pos,4);continue;}
+   const team=groups.find(g=>g.friendly);let struckTeam=false;
+   if(team)for(const p of team.list)if(p.alive&&team.center(p,tmp).distanceTo(r.pos)<1.6+r.scale){team.damage(p,10*r.scale);struckTeam=true;}
+   if(struckTeam){r.live=false;blast(r.pos,2*r.scale,.3);continue;}
    if(r.age>9||hitsWorld(r.pos)){r.live=false;blast(r.pos,3,.35);}
   }
   for(const b of bolts.items){
@@ -107,8 +112,9 @@ export function createCombat(scene,world){
   rocks.sync();bolts.sync(true);shells.sync(true);blasts.sync();
  }
  return Object.assign(api,{raycast,blast,splash,tracer,update,
-  bind(e,c){enemies=e;craft=c;},
-  throwRock(origin,vel){const r=rocks.spawn();if(r){r.pos.copy(origin);r.vel.copy(vel);}},
+  bind(e,c){enemies=e;craft=c;groups.push(e);},
+  addTargets(group){groups.push(group);},
+  throwRock(origin,vel,scale=1){const r=rocks.spawn();if(r){r.pos.copy(origin);r.vel.copy(vel);r.scale=scale;}},
   fireBolt(origin,vel){const b=bolts.spawn();if(b){b.pos.copy(origin);b.vel.copy(vel);}},
   fireShell(origin,direction,weapon){const s=shells.spawn();if(!s)return false;s.pos.copy(origin);s.vel.copy(direction).setLength(weapon.speed);s.extra=weapon;s.scale=weapon.id==='105'?1.8:1;return true;},
   reset(){for(const p of [rocks,bolts,shells,blasts])p.items.forEach(i=>i.live=false);},
@@ -134,7 +140,7 @@ export function createArsenal(combat,craft,enemies){
     const hit=combat.raycast(muzzle,dir,2600);
     end.copy(muzzle).addScaledVector(dir,Math.min(hit.t,2600));
     combat.tracer(muzzle,end);
-    if(hit.kind==='enemy'){enemies.damage(enemies.list[hit.index],w.damage);s.hits++;combat.blast(end,1.6,.12);}
+    if(hit.kind==='enemy'||hit.kind==='friendly'){hit.group.damage(hit.group.list[hit.index],w.damage);if(hit.kind==='enemy')s.hits++;combat.blast(end,1.6,.12);}
     else if(hit.kind!=='none')combat.blast(end,1.4,.12);
     if(hit.kind!=='none')combat.onImpact?.(end,w,0);
    }

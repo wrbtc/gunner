@@ -1,8 +1,8 @@
 import * as THREE from '../../vendor/three.module.js?v=052';
-import {rng,colliderRay,LEVELS} from './world.js?v=ch2-06';
-import {FX_LAYER} from './combat.js?v=ch2-06';
+import {rng,LEVELS} from './world.js?v=ch2-07';
+import {FX_LAYER} from './combat.js?v=ch2-07';
 import {loadCreeperLoco} from '../../src/creeper-loco.js?v=054-84';
-import {loadLamplighters,LAMPLIGHTER_SOLID} from './lamplighter.js?v=ch2-06';
+import {loadLamplighters,LAMPLIGHTER_SOLID} from './lamplighter.js?v=ch2-07';
 
 export const ENEMY_LAYER=2;
 // Only a few attack at once, and never on the same beat, so the fire coming up stays readable.
@@ -112,8 +112,7 @@ export function createEnemies(scene,world,combat){
  }
  function canSee(e,craftPos){
   headPos(e,head);dir.subVectors(craftPos,head);const len=dir.length();dir.divideScalar(len);
-  for(const c of world.colliders){if(c.alive&&colliderRay(c,head,dir,len-10)<len-10)return false;}
-  return true;
+  return world.rayHit(head,dir,len-10).index<0;
  }
  function attack(e,craft){
   headPos(e,head);const target=craft.state.pos;
@@ -146,7 +145,7 @@ export function createEnemies(scene,world,combat){
     else e.pos.addScaledVector(dir,Math.min(gap,(e.type==='hurler'?8:5.5)*dt)/gap);
     continue;
    }
-   const inRange=e.home.distanceTo(craftPos)<e.range;
+   const inRange=!api.dormant&&e.home.distanceTo(craftPos)<e.range;
    if(e.state==='cover'){
     plan(e,craftPos);e.pos.lerp(e.hide,1-Math.exp(-5*dt));e.glow=Math.max(0,e.glow-dt*3);
     if(e.timer<=0){
@@ -211,10 +210,11 @@ export function createEnemies(scene,world,combat){
   }
  }
  sync(null);
- return {list,center,update,damage,scare,ready:Promise.all([ready,lampReady]),
+ const api={dormant:false,list,center,update,damage,scare,ready:Promise.all([ready,lampReady]),
   kills:()=>({...kills}),totals:()=>({hurler:list.filter(e=>e.type==='hurler').length,lamplighter:list.filter(e=>e.type==='lamplighter').length}),
   // Alive and total per Warden level, feet to crown.
   levels:()=>LEVELS.map((_,level)=>{const on=list.filter(e=>e.level===level);return {alive:on.filter(e=>e.alive).length,total:on.length};}),
   exposeAll(craftPos,glow=0){for(const e of list){plan(e,craftPos);e.pos.copy(e.out);e.state='windup';e.timer=9;e.glow=glow*(e.type==='lamplighter'?1:.6);}sync(craftPos);},
   reset(){list.forEach(e=>Object.assign(e,{alive:true,hp:TYPES[e.type].hp,state:'cover',timer:.5+random()*3,glow:0,lean:0,hitFlash:0,anchor:e.spawn.anchor,home:e.spawn.home.clone(),pos:e.spawn.home.clone()}));claimSpawns();kills={hurler:0,lamplighter:0};sync(null);}};
+ return api;
 }

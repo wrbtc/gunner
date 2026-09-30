@@ -7,15 +7,15 @@
   <meta name="theme-color" content="#090604">
   <title>GUNNER — Chapter 02 test flight</title>
   <link rel="icon" type="image/svg+xml" href="../assets/gunner-plane.svg?v=052">
-  <link rel="stylesheet" href="./styles.css?v=ch2-06">
+  <link rel="stylesheet" href="./styles.css?v=ch2-07">
 </head>
 <body>
   <canvas id="game" aria-label="Chapter 2 gunship sensor view"></canvas>
 
   <section id="start" class="panel" aria-labelledby="startTitle">
-    <p class="eyebrow">Gunner · Chapter 02 · round 2.1 · the gunship</p>
+    <p class="eyebrow">Gunner · Chapter 02 · downtown · round D1</p>
     <h1 id="startTitle">The Warden</h1>
-    <p class="lede">The Satoshi is a gunship now. The pilot circles, and you work the sensor and three guns, as on the AC-130. Move the orbit to reach every level of the Warden. Clear all five and the seal behind its head breaks.</p>
+    <p class="lede">Downtown, on a clear afternoon. Four survivors are crossing the ruins to the statue that came up through the city, and the infected are everywhere. The pilot circles; you work the sensor and three guns, as on the AC-130. Get the team up the avenue, clear the Warden while they hold its plaza, then cover them round to the crater.</p>
     <dl class="keys">
       <div><dt>Mouse</dt><dd>Aim the sensor</dd></div>
       <div><dt>Left click</dt><dd>Fire</dd></div>
@@ -29,7 +29,7 @@
       <div><dt>Esc</dt><dd>Pause</dd></div>
     </dl>
     <button id="startButton" type="button">Take off</button>
-    <p class="fine">Shells take time to fall from the orbit, so fire a beat early. A Hurler holding a glowing rock, or a Lamplighter whose head flashes white, is about to attack.</p>
+    <p class="fine">The team wears infrared strobes: the blinking points on the sensor. Your shells hurt them as much as anything else, so mind how close you fire. Shells take time to fall from the orbit, so fire a beat early.</p>
   </section>
 
   <section id="pause" class="panel small" hidden aria-labelledby="pauseTitle">
@@ -39,20 +39,21 @@
 
   <section id="down" class="panel small" hidden aria-labelledby="downTitle">
     <h2 id="downTitle">Going down</h2>
-    <p class="lede">The Satoshi took too much. Press R or start again.</p>
+    <p class="lede" id="downText">The Satoshi took too much. Press R or start again.</p>
     <button id="restartButton" type="button">Start again</button>
   </section>
 
   <section id="done" class="panel small" hidden aria-labelledby="doneTitle">
-    <p class="eyebrow">Round 2.1 · the gunship</p>
-    <h2 id="doneTitle">Into the pit</h2>
+    <p class="eyebrow">Round D1 · downtown</p>
+    <h2 id="doneTitle">At the crater</h2>
     <p class="stats" id="doneStats"></p>
-    <p class="lede">What waits down there comes in round 5.</p>
+    <p class="lede">The team made it to the hole the Warden came out of. What waits down there comes next.</p>
     <button id="againButton" type="button">Fly again</button>
   </section>
 
   <div id="hud" hidden>
     <div class="hull"><span class="label">HULL</span><span class="bar"><i id="hullFill"></i></span><b id="hullValue">100</b></div>
+    <ol id="team" aria-label="Ground team"></ol>
     <div class="status"><span id="kills"></span><span id="fps"></span></div>
     <div class="flight"><span id="mode">SENSOR</span><span id="altitude">ALT 0 M</span></div>
     <p id="subtitle"><b id="speaker"></b> <span id="line"></span></p>
@@ -82,6 +83,6 @@
   <div id="thermalOverlay" hidden aria-hidden="true"></div>
   <div id="veil" aria-hidden="true"></div>
 
-  <script type="module" src="./src/main.js?v=ch2-06"></script>
+  <script type="module" src="./src/main.js?v=ch2-07"></script>
 </body>
 </html>
