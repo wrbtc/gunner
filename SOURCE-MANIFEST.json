@@ -1,5 +1,5 @@
 {
-  "version": "0.54.104",
+  "version": "0.54.105",
   "files": [
     {
       "path": "game/THIRD-PARTY-NOTICES.md",
@@ -313,8 +313,8 @@
     },
     {
       "path": "game/chapter-2/index.html",
-      "bytes": 3770,
-      "sha256": "be6fb9225a2fca1009f374247b39e29d2d991f08f97a4e0b7d2de5cefad8f3a1"
+      "bytes": 3909,
+      "sha256": "d988951fc9b028ac84543b4863d71992d860e57b8430d9b331a84d80cffe4694"
     },
     {
       "path": "game/chapter-2/src/combat.js",
@@ -323,8 +323,8 @@
     },
     {
       "path": "game/chapter-2/src/craft.js",
-      "bytes": 6939,
-      "sha256": "d502ca92d188dc4507a75e5ccc2c246c91c0b1e8c818911302746523325b5da5"
+      "bytes": 9428,
+      "sha256": "dc37b327139016a70434be00386a104d51e3ed575ebb22c54d6356cc1a9aa62f"
     },
     {
       "path": "game/chapter-2/src/enemies.js",
@@ -338,8 +338,8 @@
     },
     {
       "path": "game/chapter-2/src/main.js",
-      "bytes": 13370,
-      "sha256": "2fa713b58e3bb60be01a64435d650aef623603b9770d4d9f257d156920c2c9cb"
+      "bytes": 14635,
+      "sha256": "30a1457fbc3d4bfd9c0486786ea2728bf640d56ba425c96986204976a1643ddd"
     },
     {
       "path": "game/chapter-2/src/world.js",
@@ -348,8 +348,8 @@
     },
     {
       "path": "game/chapter-2/styles.css",
-      "bytes": 7338,
-      "sha256": "8c84fe853b21ef9377e1f437c926545224c35f890c69f19b7c0cf0e1765bfad2"
+      "bytes": 8816,
+      "sha256": "693918e08fb186b63818a6c20112ee87feb530847bae11f5f8d4c483e7ed2ae8"
     },
     {
       "path": "game/index.html",
@@ -359,7 +359,7 @@
     {
       "path": "game/main.js",
       "bytes": 166979,
-      "sha256": "a7f003da1587bc9cac53a338853ccee12a821a5a26f2679b700402470309e0e6"
+      "sha256": "b3f38e08334cf8b34c5b66716ca2a9c33f5ddbf862fd9eb24dde926d51de7e53"
     },
     {
       "path": "game/mobile-entry.js",
@@ -574,7 +574,7 @@
     {
       "path": "game/src/mission-screen.js",
       "bytes": 27221,
-      "sha256": "3fe29b39d5e49af18537b539a1dec8402486b6b4f22e0a9d65a859be29ef4b4a"
+      "sha256": "6c1de8ac1ac1d3cf86856ec227b1e18ed9c527f7ecb14b490b5b181ff1c78482"
     },
     {
       "path": "game/src/opening-camera.js",

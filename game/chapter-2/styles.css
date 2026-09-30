@@ -89,3 +89,17 @@ button:hover,button:focus-visible{background:#ffd27a;outline:2px solid #ffd27a;o
 #optics .cross i:nth-child(4){bottom:0;left:50%;width:1.5px;height:24px}
 #optics.on-target .brackets,#optics.on-target .cross{color:var(--ember)}
 #hud.optics #reticle{display:none}
+
+/* Sensor feed dressing: a round lens edge, grain, and a block of numbers in the corner. */
+#optics .lens{position:absolute;inset:0;pointer-events:none;z-index:-1;
+  background:radial-gradient(ellipse 72% 78% at 50% 50%,transparent 62%,rgba(0,0,0,.55) 80%,rgba(0,0,0,.92) 100%),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+#optics .data{position:absolute;right:48px;top:96px;margin:0;font:500 11px/1.5 var(--mono);letter-spacing:.12em;text-align:right;opacity:.85}
+/* Each gun has its own reticle, as on the gunship: small for the gatling, wide for the Lance. */
+#optics[data-weapon=gatling] .brackets{width:120px;height:120px}
+#optics[data-weapon=lance] .brackets{width:300px;height:220px}
+#optics[data-weapon=lance] .cross{width:420px;height:420px}
+#optics[data-weapon=lance] .cross i:nth-child(1),#optics[data-weapon=lance] .cross i:nth-child(2){width:170px;
+  background:repeating-linear-gradient(90deg,currentColor 0 12px,transparent 12px 18px)}
+#optics[data-weapon=lance] .cross i:nth-child(3),#optics[data-weapon=lance] .cross i:nth-child(4){height:170px;
+  background:repeating-linear-gradient(0deg,currentColor 0 12px,transparent 12px 18px)}

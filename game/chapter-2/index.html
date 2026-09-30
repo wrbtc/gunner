@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#090604">
   <title>GUNNER — Chapter 02 test flight</title>
   <link rel="icon" type="image/svg+xml" href="../assets/gunner-plane.svg?v=052">
-  <link rel="stylesheet" href="./styles.css?v=ch2-02">
+  <link rel="stylesheet" href="./styles.css?v=ch2-03">
 </head>
 <body>
   <canvas id="game" aria-label="Chapter 2 test flight view"></canvas>
@@ -24,6 +24,7 @@
       <div><dt>Right click</dt><dd>Gun camera (hold)</dd></div>
       <div><dt>V</dt><dd>Outside view</dd></div>
       <div><dt>F</dt><dd>Gun camera zoom</dd></div>
+      <div><dt>O</dt><dd>Pilot orbits your target</dd></div>
       <div><dt>T</dt><dd>Thermal</dd></div>
       <div><dt>1 2 3 / wheel</dt><dd>Gatling, cannon, Lance</dd></div>
       <div><dt>Esc</dt><dd>Pause</dd></div>
@@ -61,12 +62,14 @@
       <div class="cross"><i></i><i></i><i></i><i></i></div>
       <span id="opticsRange" class="bl">RNG ---- M</span>
       <span id="opticsAngles" class="br">AZ 000 · EL +00</span>
+      <pre id="opticsData" class="data"></pre>
+      <div class="lens"></div>
     </div>
     <div id="hitMarker" aria-hidden="true"></div>
   </div>
   <div id="thermalOverlay" hidden aria-hidden="true"><span>WHT HOT · THERMAL</span></div>
   <div id="veil" aria-hidden="true"></div>
 
-  <script type="module" src="./src/main.js?v=ch2-02"></script>
+  <script type="module" src="./src/main.js?v=ch2-03"></script>
 </body>
 </html>
